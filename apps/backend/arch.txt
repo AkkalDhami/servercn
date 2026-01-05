@@ -1,0 +1,30 @@
+apps/backend/
+├── src/
+│   ├── config/
+│   │   ├── env.ts
+│   │   ├── db.ts
+│   │   └── cloudinary.ts
+│   │
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.route.ts
+│   │   │   └── auth.model.ts
+│   │   │
+│   │   └── user/
+│   │
+│   ├── middlewares/
+│   │   ├── auth.middleware.ts
+│   │   └── error.middleware.ts
+│   │
+│   ├── utils/
+│   │   ├── async-handler.ts
+│   │   ├── api-error.ts
+│   │   └── response.ts
+│   │
+│   ├── app.ts
+│   └── server.ts
+│
+├── package.json
+└── tsconfig.json
