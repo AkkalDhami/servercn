@@ -1,0 +1,1172 @@
+---
+title: Verify Authentication Middleware
+description: Express middleware to verify user authentication using access and refresh tokens.
+command: npx servercn add verify-auth-middleware
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                JWT_ACCESS_SECRET: string;
+                JWT_REFRESH_SECRET: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || 'development',
+                LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET,
+                JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET
+              };
+
+              export default env;
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+              // 2xx Success
+              OK: 200,
+              CREATED: 201,
+              ACCEPTED: 202,
+              NO_CONTENT: 204,
+
+              // 3xx Redirection
+              MOVED_PERMANENTLY: 301,
+              FOUND: 302,
+              NOT_MODIFIED: 304,
+
+              // 4xx Client Errors
+              BAD_REQUEST: 400,
+              UNAUTHORIZED: 401,
+              FORBIDDEN: 403,
+              NOT_FOUND: 404,
+              CONFLICT: 409,
+              UNPROCESSABLE_ENTITY: 422,
+              TOO_MANY_REQUESTS: 429,
+
+              // 5xx Server Errors
+              INTERNAL_SERVER_ERROR: 500,
+              NOT_IMPLEMENTED: 501,
+              BAD_GATEWAY: 502,
+              SERVICE_UNAVAILABLE: 503,
+              GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                  err
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                };
+
+                res.status(statusCode).json(response);
+              };
+          - type: file
+            name: auth.ts
+            content: |
+
+              import { NextFunction, Request, Response } from "express";
+              import {
+                generateAccessToken,
+                generateRefreshToken,
+                verifyAccessToken,
+                verifyRefreshToken,
+              } from "../utils/jwt";
+              import { UserRequest } from "../types/user";
+              import { ApiError  } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+              import User from "../models/user.model";
+              import env from "../configs/env";
+
+              const isProduction = env.NODE_ENV === "production";
+
+              export const COOKIE_OPTIONS = {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? ("none" as const) : ("lax" as const),
+                path: "/",
+              }
+
+              export async function verifyAuthentication(
+                req: UserRequest,
+                res: Response,
+                next: NextFunction
+              ) {
+                const accessToken = req.cookies?.accessToken;
+                const refreshToken = req.cookies?.refreshToken;
+
+                // Step 1: Try validating access token
+                
+                try {
+                  if (accessToken) {
+                    const decoded = verifyAccessToken(accessToken);
+                    req.user = decoded;
+                    return next();
+                  }
+                } catch (err) {
+                  // Access token expired or invalid
+                  logger.error(err?.message);
+                  throw ApiError.badRequest(
+                    "Invalid or expired access token "
+                  );
+                }
+
+                // Step 2: Refresh token required if access token fails
+                
+                if (!refreshToken) {
+                    throw ApiError.unauthorized(
+                        "Unauthorized, Please login first."
+                    );
+                }
+
+                try {
+                  const decodedRefresh = verifyRefreshToken(refreshToken);
+
+                  // Step 3: Ensure user still exists
+                
+                  const userInDb = await User.findOne({
+                    _id: decodedRefresh.userId,
+                  });
+
+                  if (!userInDb) {
+                    throw ApiError.unauthorized(
+                        "Unauthorized, Please login first."
+                    );
+                  }
+
+                  // Step 4: Issue new tokens
+                
+                  const newAccessToken = generateAccessToken({
+                    _id: userInDb._id.toString(),
+                  });
+
+                  const newRefreshToken = generateRefreshToken(
+                    decodedRefresh.userId
+                  );
+
+                  // Step 5: Saved accessToken and refreshToken in cookie
+                  res.cookie("accessToken", accessToken, {
+                      ...COOKIE_OPTIONS,
+                      maxAge: ACCESS_TOKEN_EXPIRY,
+                  });
+
+                  res.cookie("refreshToken", refreshToken, {
+                      ...COOKIE_OPTIONS,
+                      maxAge: REFRESH_TOKEN_EXPIRY,
+                  });
+
+                  // Step 6: Attach user to request
+                  
+                  req.user = {
+                    _id: decodedRefresh.userId,
+                  };
+
+                  return next();
+                } catch (err: any) {
+                  logger.error(err?.message);
+                  throw ApiError.unauthorized(
+                    "Unauthorized, Please login first."
+                  );
+                }
+              }
+
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: user.model.ts
+            content: |
+
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true,
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true,
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null,
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user",
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false,
+                  },
+                },
+                {
+                  timestamps: true,
+                }
+              );
+
+              const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+              export default User;
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: user.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import { verifyAuthentication } from "../middlewares/auth";
+
+              const router = Router();
+
+              router.get(
+                "/profile",
+                verifyAuthentication ,
+                (req, res) => {
+                  return ApiResponse.ok(res, "User profile", req.user);
+                }
+              );
+
+              export default router;
+
+      - type: folder
+        name: types
+        children:
+          - type: file
+            name: user.ts
+            content: |
+
+              import { Request } from "express";
+              import mongoose from "mongoose";
+
+              export interface UserRequest extends Request {
+                user?: {
+                  _id?: string | mongoose.Types.ObjectId;
+                };
+              }
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+              static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+              }
+
+              static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+              }
+
+              static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+              }
+
+              static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+              }
+
+              static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+              }
+
+              static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+              }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(404, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: jwt.ts
+            content: |
+
+              import jwt from "jsonwebtoken";
+              import env from "../configs/env";
+
+              const ACCESS_TOKEN_EXPIRY = "15m";
+              const REFRESH_TOKEN_EXPIRY = "7d";
+
+              // Generate a short-lived access token
+              export function generateAccessToken(user: { _id: string }) {
+                return jwt.sign(
+                  { _id: user._id },
+                  env.JWT_ACCESS_SECRET!,
+                  { expiresIn: ACCESS_TOKEN_EXPIRY }
+                );
+              }
+
+              // Generate a long-lived refresh token
+              export function generateRefreshToken(userId: string) {
+                return jwt.sign(
+                  { userId },
+                  env.JWT_REFRESH_SECRET!,
+                  { expiresIn: REFRESH_TOKEN_EXPIRY }
+                );
+              }
+
+              // Verify and decode an access token
+              export function verifyAccessToken(token: string) {
+                return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {
+                  _id: string;
+                };
+              }
+
+              // Verify and decode a refresh token
+              export function verifyRefreshToken(token: string) {
+                return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {
+                  userId: string;
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+
+              import { env } from "../configs/env";
+              import winston from "winston";
+              import DailyRotateFile from "winston-daily-rotate-file";
+
+              const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+              const logFormat = printf(({ level, message, timestamp, stack }) => {
+                return `${timestamp} [${level}] : ${stack || message}`;
+              });
+
+              const transports: winston.transport[] = [];
+
+              if (env.NODE_ENV !== "production") {
+                transports.push(
+                  new winston.transports.Console({
+                    format: combine(
+                      colorize(),
+                      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                      errors({ stack: true }),
+                      logFormat
+                    ),
+                  })
+                );
+              }
+
+              if (env.NODE_ENV !== "development") {
+                transports.push(
+                  new DailyRotateFile({
+                    dirname: "logs/app",
+                    filename: "app-%DATE%.log",
+                    datePattern: "YYYY-MM-DD",
+                    zippedArchive: true,
+                    maxSize: "20m",
+                    maxFiles: "14d",
+                    level: "info",
+                  })
+                );
+                transports.push(
+                  new DailyRotateFile({
+                    dirname: "logs/error",
+                    filename: "errors-%DATE%.log",
+                    datePattern: "YYYY-MM-DD",
+                    zippedArchive: true,
+                    maxSize: "20m",
+                    maxFiles: "30d",
+                    level: "error",
+                  })
+                );
+              }
+
+              export const logger = winston.createLogger({
+                level: env.LOG_LEVEL,
+                format: combine(
+                  timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                  errors({ stack: true }),
+                  logFormat
+                ),
+                transports,
+                exitOnError: false,
+              });
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import { errorHandler } from './middlewares/error-handler';
+
+          import UserRouter from "./routes/user.routes"
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // routes here
+          app.use('/api/v1/users', UserRouter);
+
+          // Global error handler (should be after routes)
+          app.use(errorHandler);
+
+          export default app
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
+          JWT_ACCESS_SECRET='your-access-secret'
+          JWT_REFRESH_SECRET='your-refresh-secret'
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+
+                  interface Config {
+                    PORT: number;
+                    NODE_ENV: string;
+                    LOG_LEVEL: string;
+                  }
+
+                  const config: Config = {
+                    PORT: Number(process.env.PORT) || 3000,
+                    NODE_ENV: process.env.NODE_ENV || 'development',
+                    LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                  };
+
+                  export default config;
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                  export const STATUS_CODES = {
+                  // 2xx Success
+                  OK: 200,
+                  CREATED: 201,
+                  ACCEPTED: 202,
+                  NO_CONTENT: 204,
+
+                  // 3xx Redirection
+                  MOVED_PERMANENTLY: 301,
+                  FOUND: 302,
+                  NOT_MODIFIED: 304,
+
+                  // 4xx Client Errors
+                  BAD_REQUEST: 400,
+                  UNAUTHORIZED: 401,
+                  FORBIDDEN: 403,
+                  NOT_FOUND: 404,
+                  CONFLICT: 409,
+                  UNPROCESSABLE_ENTITY: 422,
+                  TOO_MANY_REQUESTS: 429,
+
+                  // 5xx Server Errors
+                  INTERNAL_SERVER_ERROR: 500,
+                  NOT_IMPLEMENTED: 501,
+                  BAD_GATEWAY: 502,
+                  SERVICE_UNAVAILABLE: 503,
+                  GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                  public readonly statusCode: StatusCode;
+                  public readonly isOperational: boolean;
+                  public readonly errors?: unknown;
+
+                  constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                  ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                  }
+
+                  static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                  }
+
+                  static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                  }
+
+                  static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                  }
+
+                  static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                  }
+
+                  static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                  }
+
+                  static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                  }
+                  }
+
+                  /*
+                  ? Usage:
+                  * throw new ApiError(404, "Not found");
+                  * throw ApiError.badRequest("Bad request");
+                  */
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: jwt.ts
+                content: |
+
+                  import jwt from "jsonwebtoken";
+                  import env from "../configs/env";
+
+                  const ACCESS_TOKEN_EXPIRY = "15m";
+                  const REFRESH_TOKEN_EXPIRY = "7d";
+
+                  // Generate a short-lived access token
+                  export function generateAccessToken(user: { _id: string }) {
+                    return jwt.sign(
+                      { _id: user._id },
+                      env.JWT_ACCESS_SECRET!,
+                      { expiresIn: ACCESS_TOKEN_EXPIRY }
+                    );
+                  }
+
+                  // Generate a long-lived refresh token
+                  export function generateRefreshToken(userId: string) {
+                    return jwt.sign(
+                      { userId },
+                      env.JWT_REFRESH_SECRET!,
+                      { expiresIn: REFRESH_TOKEN_EXPIRY }
+                    );
+                  }
+
+                  // Verify and decode an access token
+                  export function verifyAccessToken(token: string) {
+                    return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
+                      _id: string;
+                    };
+                  }
+
+                  // Verify and decode a refresh token
+                  export function verifyRefreshToken(token: string) {
+                    return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+                      userId: string;
+                    };
+                  }
+
+              - type: file
+                name: logger.ts
+                content: |
+
+                  import { env } from "../configs/env";
+                  import winston from "winston";
+                  import DailyRotateFile from "winston-daily-rotate-file";
+
+                  const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+                  const logFormat = printf(({ level, message, timestamp, stack }) => {
+                    return `${timestamp} [${level}] : ${stack || message}`;
+                  });
+
+                  const transports: winston.transport[] = [];
+
+                  if (env.NODE_ENV !== "production") {
+                    transports.push(
+                      new winston.transports.Console({
+                        format: combine(
+                          colorize(),
+                          timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                          errors({ stack: true }),
+                          logFormat
+                        ),
+                      })
+                    );
+                  }
+
+                  if (env.NODE_ENV !== "development") {
+                    transports.push(
+                      new DailyRotateFile({
+                        dirname: "logs/app",
+                        filename: "app-%DATE%.log",
+                        datePattern: "YYYY-MM-DD",
+                        zippedArchive: true,
+                        maxSize: "20m",
+                        maxFiles: "14d",
+                        level: "info",
+                      })
+                    );
+                    transports.push(
+                      new DailyRotateFile({
+                        dirname: "logs/error",
+                        filename: "errors-%DATE%.log",
+                        datePattern: "YYYY-MM-DD",
+                        zippedArchive: true,
+                        maxSize: "20m",
+                        maxFiles: "30d",
+                        level: "error",
+                      })
+                    );
+                  }
+
+                  export const logger = winston.createLogger({
+                    level: env.LOG_LEVEL,
+                    format: combine(
+                      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                      errors({ stack: true }),
+                      logFormat
+                    ),
+                    transports,
+                    exitOnError: false,
+                  });
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+                  import { STATUS_CODES } from "../constants/status-codes";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                      err
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: user
+            children:
+              - type: file
+                name: user.routes.ts
+                content: |
+
+                  import { Router } from "express";
+                  import { verifyAuthentication } from "../middlewares/auth";
+
+                  const router = Router();
+
+                  router.get(
+                    "/profile",
+                    verifyAuthentication ,
+                    (req, res) => {
+                      return ApiResponse.ok(res, "User profile", req.user);
+                    }
+                  );
+
+                  export default router;
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import UserRouter from "../modules/user/user.routes";
+
+              const router = Router();
+
+              router.use("/v1/users", UserRouter);
+
+              export default router;
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import { errorHandler } from './shared/middlewares/error-handler';
+          import Routes from "./routes/index";
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // routes here
+          app.use("/api", Routes);
+
+          // Global error handler (should be after routes)
+          app.use(errorHandler);
+
+          export default app
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
+          JWT_ACCESS_SECRET='your-access-secret'
+          JWT_REFRESH_SECRET='your-refresh-secret'
+---
+
+# Verify Authentication Middleware
+
+The **Verify Authentication Middleware** protects private routes by validating user authentication using **JWT access tokens and refresh tokens**.
+
+It automatically:
+
+- Verifies access tokens from cookies
+- Refreshes expired access tokens using refresh tokens
+- Re-attaches authenticated user data to the request
+- Responds with standardized API errors when authentication fails
+
+This middleware is designed for **secure, session-like authentication** in REST APIs.
+
+## How Authentication Works
+
+The middleware follows this sequence:
+
+1. Read `accessToken` and `refreshToken` from cookies
+2. If access token is valid → allow request
+3. If access token is expired:
+   - Verify refresh token
+   - Validate user existence
+   - Issue new access & refresh tokens
+   - Set new cookies automatically
+4. If all checks fail → reject the request
+
+This ensures **seamless token rotation** without forcing the user to re-login.
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+### 1. Install the required dependency
+
+- **HTTP Status Codes:**
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Response Handler:**
+<PackageManagerTabs command="npx servercn add response-handler" />
+
+Documentation:
+[Api Response Handler](/docs/components/response-handler)
+
+- **Api Error Handler:**
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation:
+[Api Error Handler](/docs/components/error-handler)
+
+- **JWT Authentication:**
+<PackageManagerTabs command="npx servercn add jwt-auth" />
+
+Documentation:
+[JWT Authentication](/docs/components/jwt-auth)
+
+- **Logger:**
+<PackageManagerTabs command="npx servercn add logger" />
+
+Documentation:
+[Logger](/docs/components/logger)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add verify-auth-middleware" />
+
+> ⚠️ If this dependency is not installed, the component will not function correctly.
+
+## Prerequisites
+
+Ensure the following environment variables are defined in **.env**:
+
+```ts
+PORT = "3000";
+NODE_ENV = "development";
+LOG_LEVEL = "info";
+JWT_ACCESS_SECRET = "your-access-secret";
+JWT_REFRESH_SECRET = "your-refresh-secret";
+```
+
+Ensure the following configuration are defined:
+
+`src/configs/env.ts`
+
+```ts
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+  LOG_LEVEL: string;
+  JWT_REFRESH_SECRET: string;
+  JWT_ACCESS_SECRET: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 3000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+};
+
+export default env;
+```
+
+To ensure the authentication middleware functions correctly, your project must define a User model with a structure similar to the following.
+
+`src/models/user.model.ts`
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export default User;
+```
+
+To access authenticated user data inside request handlers, define a custom request type.
+
+`src/types/user.ts`
+
+```ts
+import { Request } from "express";
+import mongoose from "mongoose";
+
+export interface UserRequest extends Request {
+  user?: {
+    _id?: string | mongoose.Types.ObjectId;
+  };
+}
+```
+
+## Middleware Implementation
+
+`src/middlewares/auth.ts`
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from "../utils/jwt";
+import { UserRequest } from "../types/user";
+import { ApiError } from "../utils/api-error";
+import { logger } from "../utils/logger";
+import User from "../models/user.model";
+import env from "../configs/env";
+
+const isProduction = env.NODE_ENV === "production";
+
+export const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? ("none" as const) : ("lax" as const),
+  path: "/",
+};
+
+export async function verifyAuthentication(
+  req: UserRequest,
+  res: Response,
+  next: NextFunction,
+) {
+  const accessToken = req.cookies?.accessToken;
+  const refreshToken = req.cookies?.refreshToken;
+
+  // Step 1: Try validating access token
+
+  try {
+    if (accessToken) {
+      const decoded = verifyAccessToken(accessToken);
+      req.user = decoded;
+      return next();
+    }
+  } catch (err) {
+    // Access token expired or invalid
+    logger.error(err?.message);
+    throw ApiError.badRequest("Invalid or expired access token ");
+  }
+
+  // Step 2: Refresh token required if access token fails
+
+  if (!refreshToken) {
+    throw ApiError.unauthorized("Unauthorized, Please login first.");
+  }
+
+  try {
+    const decodedRefresh = verifyRefreshToken(refreshToken);
+
+    // Step 3: Ensure user still exists
+
+    const userInDb = await User.findOne({
+      _id: decodedRefresh.userId,
+    });
+
+    if (!userInDb) {
+      throw ApiError.unauthorized("Unauthorized, Please login first.");
+    }
+
+    // Step 4: Issue new tokens
+
+    const newAccessToken = generateAccessToken({
+      _id: userInDb._id.toString(),
+    });
+
+    const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
+
+    // Step 5: Saved accessToken and refreshToken in cookie
+    res.cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: ACCESS_TOKEN_EXPIRY,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: REFRESH_TOKEN_EXPIRY,
+    });
+
+    // Step 6: Attach user to request
+
+    req.user = {
+      _id: decodedRefresh.userId,
+    };
+
+    return next();
+  } catch (err: any) {
+    logger.error(err?.message);
+    throw ApiError.unauthorized("Unauthorized, Please login first.");
+  }
+}
+```
+
+## Usage Example
+
+`src/routes/user.routes.ts`
+
+```ts
+import { Router } from "express";
+import { verifyAuthentication } from "../middlewares/auth";
+
+const router = Router();
+
+router.get("/profile", verifyAuthentication, (req, res) => {
+  return ApiResponse.ok(res, "User profile", req.user);
+});
+
+export default router;
+```
+
+## Error Responses
+
+Authentication failures return standardized responses:
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized, Please login first.",
+  "statusCode": 401
+}
+```

@@ -1,0 +1,383 @@
+---
+title: API Response Formatter
+description: A standardized, type-safe API response wrapper for Express applications.
+command: npx servercn add api-response.
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+              // 2xx Success
+              OK: 200,
+              CREATED: 201,
+              ACCEPTED: 202,
+              NO_CONTENT: 204,
+
+              // 3xx Redirection
+              MOVED_PERMANENTLY: 301,
+              FOUND: 302,
+              NOT_MODIFIED: 304,
+
+              // 4xx Client Errors
+              BAD_REQUEST: 400,
+              UNAUTHORIZED: 401,
+              FORBIDDEN: 403,
+              NOT_FOUND: 404,
+              CONFLICT: 409,
+              UNPROCESSABLE_ENTITY: 422,
+              TOO_MANY_REQUESTS: 429,
+
+              // 5xx Server Errors
+              INTERNAL_SERVER_ERROR: 500,
+              NOT_IMPLEMENTED: 501,
+              BAD_GATEWAY: 502,
+              SERVICE_UNAVAILABLE: 503,
+              GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-response.ts
+            content: |
+
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors,
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors }),
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                  export const STATUS_CODES = {
+                  // 2xx Success
+                  OK: 200,
+                  CREATED: 201,
+                  ACCEPTED: 202,
+                  NO_CONTENT: 204,
+
+                  // 3xx Redirection
+                  MOVED_PERMANENTLY: 301,
+                  FOUND: 302,
+                  NOT_MODIFIED: 304,
+
+                  // 4xx Client Errors
+                  BAD_REQUEST: 400,
+                  UNAUTHORIZED: 401,
+                  FORBIDDEN: 403,
+                  NOT_FOUND: 404,
+                  CONFLICT: 409,
+                  UNPROCESSABLE_ENTITY: 422,
+                  TOO_MANY_REQUESTS: 429,
+
+                  // 5xx Server Errors
+                  INTERNAL_SERVER_ERROR: 500,
+                  NOT_IMPLEMENTED: 501,
+                  BAD_GATEWAY: 502,
+                  SERVICE_UNAVAILABLE: 503,
+                  GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
+
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
+
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
+
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors,
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
+                    }
+
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors }),
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+---
+
+# API Response Handling
+
+The **API Response** component provides a **consistent, predictable, and type-safe response structure** for Express-based APIs.
+
+It enforces a unified response contract across your entire backend, improving:
+
+- Client-side reliability
+- API readability
+- Error handling consistency
+- Developer experience
+
+This component is designed to work seamlessly with:
+
+- Async Handler
+- ApiError
+- Centralized error middleware
+- Frontend API clients
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+### 1. Install the required dependency
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add api-response" />
+
+> ⚠️ If this dependency is not installed, the component will not function correctly.
+
+## The Problem It Solves
+
+In many Express applications, responses quickly become inconsistent:
+
+```ts
+res.json(data);
+res.status(201).send(user);
+res.status(400).json({ error: "Invalid input" });
+```
+
+## Basic Implementation
+
+`src/utils/api-response.ts`
+
+```ts
+import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+import type { Response } from "express";
+
+type ApiResponseParams<T> = {
+  success: boolean;
+  message: string;
+  statusCode: StatusCode;
+  data?: T | null;
+  errors?: unknown;
+};
+
+export class ApiResponse<T = unknown> {
+  public readonly success: boolean;
+  public readonly message: string;
+  public readonly statusCode: StatusCode;
+  public readonly data?: T | null;
+  public readonly errors?: unknown;
+
+  constructor({
+    success,
+    message,
+    statusCode,
+    data = null,
+    errors,
+  }: ApiResponseParams<T>) {
+    this.success = success;
+    this.message = message;
+    this.statusCode = statusCode;
+    this.data = data;
+    this.errors = errors;
+  }
+
+  send(res: Response): Response {
+    return res.status(this.statusCode).json({
+      success: this.success,
+      message: this.message,
+      statusCode: this.statusCode,
+      ...(this.data !== undefined && { data: this.data }),
+      ...(this.errors !== undefined && { errors: this.errors }),
+    });
+  }
+
+  static Success<T>(
+    res: Response,
+    message: string,
+    data?: T,
+    statusCode: StatusCode = STATUS_CODES.OK,
+  ): Response {
+    return new ApiResponse<T>({
+      success: true,
+      message,
+      data,
+      statusCode,
+    }).send(res);
+  }
+
+  static ok<T>(res: Response, message = "OK", data?: T) {
+    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+  }
+
+  static created<T>(res: Response, message = "Created", data?: T) {
+    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+  }
+}
+
+/*
+ * Usage:
+ * ApiResponse.ok(res, "OK", data);
+ * ApiResponse.created(res, "Created", data);
+ */
+```
+
+## Usage Example
+
+```ts
+import { Request, Response } from "express";
+import { ApiResponse } from "../utils/api-response";
+
+export async function healthCheck(_req: Request, res: Response) {
+  return ApiResponse.ok(res, "Service is healthy");
+}
+```
+
+## Response
+
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "statusCode": 200
+}
+```
