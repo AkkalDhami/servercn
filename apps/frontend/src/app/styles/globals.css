@@ -204,7 +204,7 @@
     @apply bg-background text-foreground;
   }
   .border-hover {
-    @apply hover:border-neutral-500 dark:hover:border-neutral-400  duration-300;
+    @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
 }
 
@@ -268,4 +268,12 @@ code {
 h2,
 h3 {
   scroll-margin-top: 80px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
 }
