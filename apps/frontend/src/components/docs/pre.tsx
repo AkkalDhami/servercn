@@ -21,17 +21,17 @@ export function Pre(props: React.HTMLAttributes<HTMLPreElement>) {
   }
 
   return (
-    <div className="max-w-4xl max-h-120 rounded-md relative overflow-x-auto w-full bg-[#0b0e14]">
+    <div className="relative max-h-120 w-full max-w-4xl overflow-x-auto rounded-md bg-[#0b0e14]">
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="absolute cursor-pointer right-1.5 top-5 z-10  text-xs text-neutral-400 hover:text-white"
+        className="absolute top-5 right-1.5 z-10 cursor-pointer text-xs text-neutral-400 hover:text-white"
       />
 
       <pre
         ref={ref}
         {...props}
-        className="code-wrapper max-w-4xl max-h-120 rounded-md p-3 w-full overflow-x-auto "
+        className="code-wrapper max-h-120 w-full max-w-4xl overflow-x-auto rounded-md p-3"
       />
     </div>
   );

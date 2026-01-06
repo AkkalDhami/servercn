@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronRight, File, Folder, FolderOpenIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  File,
+  Folder,
+  FolderOpenIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type FileNode =
@@ -25,7 +31,7 @@ type Props = {
 
 export default function FileTree({ data, activeFile, onSelect }: Props) {
   return (
-    <div className="text-sm ">
+    <div className="text-sm">
       {data?.map((node) => (
         <TreeNode
           key={node.name}
@@ -54,9 +60,10 @@ function TreeNode({
       <div className="pl-2">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center w-full cursor-pointer gap-1 py-1 text-neutral-300 hover:text-white">
+          className="flex w-full cursor-pointer items-center gap-1 py-1 text-neutral-300 hover:text-white"
+        >
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        {open ? <FolderOpenIcon size={14} /> :  <Folder size={14} />}
+          {open ? <FolderOpenIcon size={14} /> : <Folder size={14} />}
           <span>{node.name}</span>
         </button>
 
@@ -80,9 +87,10 @@ function TreeNode({
     <button
       onClick={() => onSelect(node)}
       className={cn(
-        "flex items-center text-neutral-300 hover:text-white cursor-pointer gap-2 py-1 ml-1 w-auto px-2 text-left hover:bg-[#202836] rounded-md",
-        activeFile === node.name && "bg-[#202836] font-medium text-white"
-      )}>
+        "ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-neutral-300 hover:bg-[#202836] hover:text-white",
+        activeFile === node.name && "bg-[#202836] font-medium text-white",
+      )}
+    >
       <File size={14} />
       {node.name}
     </button>

@@ -17,7 +17,7 @@ export function OnThisPage() {
   useEffect(() => {
     const slugger = new GithubSlugger();
     const elements = Array.from(
-      document.querySelectorAll("h2, h3.this-page-link")
+      document.querySelectorAll("h2, h3.this-page-link"),
     ) as HTMLHeadingElement[];
 
     const list = elements.map((el) => {
@@ -51,7 +51,7 @@ export function OnThisPage() {
       {
         rootMargin: "-96px 0px -60% 0px",
         threshold: [0.1, 0.25, 0.5],
-      }
+      },
     );
 
     headings.forEach((h) => {
@@ -65,7 +65,7 @@ export function OnThisPage() {
   if (headings.length === 0) return null;
 
   return (
-    <nav className="sticky top-20 hidden w-56 md:block">
+    <nav className="hidden w-56 md:block">
       <h4 className="mb-2 text-sm font-semibold">On This Page</h4>
 
       <ul className="space-y-2 text-sm">
@@ -77,8 +77,9 @@ export function OnThisPage() {
                 "block transition-colors",
                 activeId === h.id
                   ? "text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground"
-              )}>
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
               {h.text}
             </a>
           </li>

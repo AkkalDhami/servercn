@@ -18,14 +18,16 @@ export default function PackageManagerTabs({
   return (
     <Tabs
       defaultValue="npm"
-      className="my-6 bg-[#0b0e14] text-white rounded-md">
+      className="my-6 rounded-md bg-[#0b0e14] text-white"
+    >
       <TabsList className="bg-[#0b0e14]">
         <TerminalIcon className="size-5 text-neutral-400" />
         {Object.keys(managers).map((m) => (
           <TabsTrigger
             key={m}
             value={m}
-            className="data-[state=active]:bg-transparent font-medium data-[state=active]:text-white dark:data-[state=active]:border-transparent text-neutral-400 dark:data-[state=active]:bg-[#0b0e14]">
+            className="font-medium text-neutral-400 data-[state=active]:bg-transparent data-[state=active]:text-white dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-[#0b0e14]"
+          >
             {m}
           </TabsTrigger>
         ))}

@@ -21,26 +21,30 @@ export const mdxComponents: MDXComponents = {
   ),
   h3: (props) => (
     <h3
-      className="mt-4 mb-4 text-xl this-page-link font-medium tracking-tight"
+      className="this-page-link mt-4 mb-4 text-xl font-medium tracking-tight"
       {...props}
     />
   ),
   p: (props) => (
-    <p className="mt-4 mb-3 leading-7 text-muted-primary" {...props} />
+    <p className="text-muted-primary mt-4 mb-3 leading-7" {...props} />
   ),
   code: (props) => (
-    <code className="rounded bg-muted-foreground px-1 py-0.5 text-sm" {...props} />
+    <code
+      className="bg-muted-foreground rounded px-1 py-0.5 text-sm"
+      {...props}
+    />
   ),
   a: (props) => (
-    <a target="_blank"
-      className="font-medium text-muted-primary underline hover:text-foreground underline-offset-1"
+    <a
+      target="_blank"
+      className="text-muted-primary hover:text-foreground font-medium underline underline-offset-1"
       {...props}
     />
   ),
   ul: (props) => (
-    <ul className="text-muted-primary space-y-3 list-dics pl-2" {...props} />
+    <ul className="text-muted-primary list-dics space-y-3 pl-2" {...props} />
   ),
   ol: (props) => (
-    <ol className="text-muted-primary space-y-3 list-decimal pl-2" {...props} />
+    <ol className="text-muted-primary list-decimal space-y-3 pl-2" {...props} />
   ),
 };
