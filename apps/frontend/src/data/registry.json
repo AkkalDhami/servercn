@@ -1,0 +1,139 @@
+{
+  "name": "ServerCN",
+  "homepage": "https://servercn.com",
+  "author": "akkaldhami",
+  "items": [
+    {
+      "slug": "jwt-auth",
+      "title": "JWT Authentication",
+      "description": "JSON Web Token authentication with access & refresh token support for Express",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/jwt-auth"
+    },
+    {
+      "slug": "global-error-handler",
+      "title": "Global Error Handler",
+      "description": "Centralized error handling for Express applications using TypeScript.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/global-error-handler"
+    },
+    {
+      "slug": "error-handler",
+      "title": "API Error Handler",
+      "description": "A lightweight, production-ready error handling utility for Express applications.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/error-handler"
+    },
+    {
+      "slug": "response-handler",
+      "title": "API Response Formatter",
+      "description": "A standardized, type-safe API response wrapper for Express applications.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/response-handler"
+    },
+    {
+      "slug": "async-handler",
+      "title": "Async Request Handler",
+      "description": "The Async Handler component is a foundational Express utility that ensures all errors thrown inside asynchronous route handlers are reliably captured and forwarded to Express’s global error middleware.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/async-handler"
+    },
+    {
+      "slug": "password-hashing",
+      "title": "Password Hashing",
+      "description": "The Password Hashing component provides a standardized way to hash passwords in ServerCN using bcryptjs, argon2, pbkdf2, scrypt.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/password-hashing"
+    },
+    {
+      "slug": "http-status-codes",
+      "title": "HTTP Status Codes",
+      "description": "Centralized, type-safe HTTP status codes for consistent API responses.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/http-status-codes"
+    },
+    {
+      "slug": "verify-auth-middleware",
+      "title": "Auth Verification Middleware",
+      "description": "Auth Verification Middleware protects private routes by validating user authentication using JWT access tokens and refresh tokens.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/verify-auth-middleware"
+    },
+    {
+      "slug": "logger",
+      "title": "Logger",
+      "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/logger"
+    },
+    {
+      "slug": "file-upload",
+      "title": "File Upload",
+      "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/file-upload"
+    },
+    {
+      "slug": "email-service",
+      "title": "Email Service",
+      "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/email-service"
+    },
+    {
+      "slug": "not-found-handler",
+      "title": "Not Found Handler",
+      "description": "The Not Found Handler component provides a standardized way to handle not found routes in ServerCN.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/not-found-handler"
+    },
+    {
+      "slug": "request-validator",
+      "title": "Request Validator(Zod)",
+      "description": "The Request Validator(Zod) component provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/request-validator"
+    },
+    {
+      "slug": "health-check",
+      "title": "Health Check",
+      "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/health-check"
+    },
+    {
+      "slug": "rest-api",
+      "title": "Basic REST API",
+      "description": "A production-ready REST API foundation for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
+      "type": "blueprint",
+      "status": "stable",
+      "docs": "/docs/blueprints/rest-api"
+    },
+    {
+      "slug": "google-oauth",
+      "title": "Google OAuth",
+      "description": "Google OAuth",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/google-oauth"
+    }
+  ],
+  "version": {
+    "version": "0.0.1",
+    "lastUpdated": "2026-01-05"
+  }
+}
