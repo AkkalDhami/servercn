@@ -22,12 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={fontVariables}>
       <body
-        className={`antialiased selection:bg-primary selection:text-primary-foreground max-w-387.5 mx-auto`}>
+        className={`selection:bg-primary selection:text-primary-foreground mx-auto max-w-387.5 antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange>
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
       </body>

@@ -3,7 +3,6 @@ import createMDX from "@next/mdx";
 
 const withMDX = createMDX({
   extension: /\.mdx$/,
-  
 });
 
 const nextConfig: NextConfig = {

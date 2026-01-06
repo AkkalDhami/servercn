@@ -1,7 +1,6 @@
 {
     "$schema": "https://servercn.dev/schema/v1.json",
     "version": "1.0.0",
-
     "project": {
         "name": "my-app",
         "root": ".",
@@ -9,41 +8,23 @@
         "type": "backend",
         "packageManager": "npm"
     },
-
     "stack": {
         "runtime": "node",
         "language": "typescript",
         "framework": "express",
         "architecture": "mvc"
     },
-
     "database": {
         "type": "mongodb",
         "orm": "mongoose"
     },
-
-    "paths": {
-        "configs": "src/configs",
-        "modules": "src/modules",
-        "controllers": "src/controllers",
-        "services": "src/services",
-        "models": "src/models",
-        "routes": "src/routes",
-        "middlewares": "src/middlewares",
-        "utils": "src/utils"
-    },
-
     "conventions": {
         "fileNaming": "kebab-case",
         "functionNaming": "camel-case",
         "envFile": ".env",
         "testDir": "__tests__"
     },
-
-    "overrides": {
-
-    },
-
+    "overrides": {},
     "meta": {
         "createdAt": "2025-01-01T00:00:00.000Z",
         "createdBy": "servercn@1.0.0"

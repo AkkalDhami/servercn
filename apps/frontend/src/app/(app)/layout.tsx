@@ -9,7 +9,7 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <div className="p-4 max-w-360 mx-auto">
+      <div className="mx-auto max-w-360 p-4">
         <Navbar />
         {children}
         <Footer />
