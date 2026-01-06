@@ -1,0 +1,15 @@
+import fs from "node:fs";
+import path from "node:path";
+
+export type PackageManager = "pnpm" | "yarn" | "npm" | "bun";
+
+export function detectPackageManager(cwd = process.cwd()): PackageManager {
+  if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
+  if (fs.existsSync(path.join(cwd, "yarn.lock"))) return "yarn";
+  if (fs.existsSync(path.join(cwd, "bun.lockb"))) return "bun";
+  return "npm";
+}
+
+export function detectLanguage() {
+  return fs.existsSync("tsconfig.json") ? "ts" : "js";
+}
