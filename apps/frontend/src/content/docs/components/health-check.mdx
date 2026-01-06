@@ -1,0 +1,706 @@
+---
+title: Health Check
+description: Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.
+command: npx servercn add health-check
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: health.controller.ts
+            content: |
+
+              import { Request, Response } from "express";
+              import { ApiResponse } from "../utils/response-handler";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              /**
+               * Basic health check endpoint
+               * GET /api/health
+               */
+              export const healthCheck = async (_req: Request, res: Response) => {
+                return res.status(STATUS_CODES.OK).json(
+                  ApiResponse.success(
+                    {
+                      status: "healthy",
+                      timestamp: new Date().toISOString(),
+                      uptime: process.uptime(),
+                    },
+                    "Service is healthy"
+                  )
+                );
+              };
+
+              /**
+               * Detailed health check with system information
+               * GET /api/health/detailed
+               */
+              export const detailedHealthCheck = async (
+                _req: Request,
+                res: Response
+              ) => {
+                const healthData = {
+                  status: "healthy",
+                  timestamp: new Date().toISOString(),
+                  uptime: process.uptime(),
+                  environment: process.env.NODE_ENV || "development",
+                  version: process.env.npm_package_version || "1.0.0",
+                  memory: {
+                    used: Math.round(
+                      (process.memoryUsage().heapUsed / 1024 / 1024) * 100
+                    ) / 100,
+                    total: Math.round(
+                      (process.memoryUsage().heapTotal / 1024 / 1024) * 100
+                    ) / 100,
+                    unit: "MB",
+                  },
+                  cpu: {
+                    usage: process.cpuUsage(),
+                  },
+                };
+
+                return res.status(STATUS_CODES.OK).json(
+                  ApiResponse.success(healthData, "Service is healthy")
+                );
+              };
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: health.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import {
+                healthCheck,
+                detailedHealthCheck,
+              } from "../controllers/health.controller";
+
+              const router = Router();
+
+              router.get("/", healthCheck);
+              router.get("/detailed", detailedHealthCheck);
+
+              export default router;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: response-handler.ts
+            content: |
+
+              import { Response } from "express";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              export class ApiResponse {
+                static success<T>(
+                  data: T,
+                  message: string = "Success",
+                  statusCode: number = STATUS_CODES.OK
+                ) {
+                  return {
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  };
+                }
+              }
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+                OK: 200,
+                CREATED: 201,
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                NOT_FOUND: 404,
+                INTERNAL_SERVER_ERROR: 500,
+              } as const;
+
+      - type: file
+        name: app.ts
+        content: |
+
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import healthRoutes from "./routes/health.routes";
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // Health check routes
+          app.use("/api/health", healthRoutes);
+
+          // Other routes here
+          // ...
+
+          const PORT = process.env.PORT || 3000;
+
+          app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+          });
+
+          export default app;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: health
+            children:
+              - type: file
+                name: health.controller.ts
+                content: |
+
+                  import { Request, Response } from "express";
+                  import { ApiResponse } from "../../shared/utils/response-handler";
+                  import { STATUS_CODES } from "../../shared/constants/status-codes";
+
+                  /**
+                   * Basic health check endpoint
+                   * GET /api/health
+                   */
+                  export const healthCheck = async (
+                    _req: Request,
+                    res: Response
+                  ) => {
+                    return res.status(STATUS_CODES.OK).json(
+                      ApiResponse.success(
+                        {
+                          status: "healthy",
+                          timestamp: new Date().toISOString(),
+                          uptime: process.uptime(),
+                        },
+                        "Service is healthy"
+                      )
+                    );
+                  };
+
+                  /**
+                   * Detailed health check with system information
+                   * GET /api/health/detailed
+                   */
+                  export const detailedHealthCheck = async (
+                    _req: Request,
+                    res: Response
+                  ) => {
+                    const healthData = {
+                      status: "healthy",
+                      timestamp: new Date().toISOString(),
+                      uptime: process.uptime(),
+                      environment: process.env.NODE_ENV || "development",
+                      version: process.env.npm_package_version || "1.0.0",
+                      memory: {
+                        used: Math.round(
+                          (process.memoryUsage().heapUsed / 1024 / 1024) * 100
+                        ) / 100,
+                        total: Math.round(
+                          (process.memoryUsage().heapTotal / 1024 / 1024) * 100
+                        ) / 100,
+                        unit: "MB",
+                      },
+                      cpu: {
+                        usage: process.cpuUsage(),
+                      },
+                    };
+
+                    return res.status(STATUS_CODES.OK).json(
+                      ApiResponse.success(healthData, "Service is healthy")
+                    );
+                  };
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: health.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import {
+                healthCheck,
+                detailedHealthCheck,
+              } from "../modules/health/health.controller";
+
+              const router = Router();
+
+              router.get("/", healthCheck);
+              router.get("/detailed", detailedHealthCheck);
+
+              export default router;
+
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: response-handler.ts
+                content: |
+
+                  import { STATUS_CODES } from "../constants/status-codes";
+
+                  export class ApiResponse {
+                    static success<T>(
+                      data: T,
+                      message: string = "Success",
+                      statusCode: number = STATUS_CODES.OK
+                    ) {
+                      return {
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      };
+                    }
+                  }
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                  export const STATUS_CODES = {
+                    OK: 200,
+                    CREATED: 201,
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    NOT_FOUND: 404,
+                    INTERNAL_SERVER_ERROR: 500,
+                  } as const;
+
+      - type: file
+        name: app.ts
+        content: |
+
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import healthRoutes from "./routes/health.routes";
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // Health check routes
+          app.use("/api/health", healthRoutes);
+
+          // Other routes here
+          // ...
+
+          const PORT = process.env.PORT || 3000;
+
+          app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+          });
+
+          export default app;
+---
+
+# Health Check
+
+The **Health Check** component provides production-ready endpoints for monitoring your API's status, system health, and service availability. Essential for load balancers, monitoring systems, and deployment tools.
+
+## Features
+
+- **Basic health check** - Simple endpoint to verify service is running
+- **Detailed health check** - System information including memory, CPU, and uptime
+- **Database connectivity check** - Optional database health verification
+- **Customizable** - Easy to extend with additional health checks
+- **Production-ready** - Standardized responses for monitoring tools
+
+## Installation Guide
+
+### 1. Install ServerCN dependencies
+
+For a fully structured setup with consistent error handling and standardized API responses:
+
+- **HTTP Status Codes:**
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Response Handler:**
+<PackageManagerTabs command="npx servercn add response-handler" />
+
+Documentation:
+[Api Response Handler](/docs/components/response-handler)
+
+- **Api Error Handler:**
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation:
+[Api Error Handler](/docs/components/error-handler)
+
+- **Async Handler:**
+<PackageManagerTabs command="npx servercn add async-handler" />
+
+Documentation:
+[Async Handler](/docs/components/async-handler)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add health-check" />
+
+## Basic Implementation
+
+### MVC Structure
+
+Create health check controller in `src/controllers/health.controller.ts`:
+
+```ts
+import { Request, Response } from "express";
+import { ApiResponse } from "../utils/response-handler";
+import { STATUS_CODES } from "../constants/status-codes";
+
+export const healthCheck = async (_req: Request, res: Response) => {
+  return res.status(STATUS_CODES.OK).json(
+    ApiResponse.success(
+      {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+      },
+      "Service is healthy",
+    ),
+  );
+};
+```
+
+Create routes in `src/routes/health.routes.ts`:
+
+```ts
+import { Router } from "express";
+import { healthCheck } from "../controllers/health.controller";
+
+const router = Router();
+
+router.get("/", healthCheck);
+
+export default router;
+```
+
+### Feature-Based Structure
+
+For feature-based architecture, place controller in `src/modules/health/health.controller.ts`:
+
+```ts
+import { Request, Response } from "express";
+import { ApiResponse } from "../../shared/utils/response-handler";
+import { STATUS_CODES } from "../../shared/constants/status-codes";
+
+export const healthCheck = async (_req: Request, res: Response) => {
+  return res.status(STATUS_CODES.OK).json(
+    ApiResponse.success(
+      {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+      },
+      "Service is healthy",
+    ),
+  );
+};
+```
+
+## Usage Examples
+
+### 1. Basic Health Check
+
+Simple endpoint that returns service status:
+
+```ts
+export const healthCheck = async (_req: Request, res: Response) => {
+  return res.status(STATUS_CODES.OK).json(
+    ApiResponse.success(
+      {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+      },
+      "Service is healthy",
+    ),
+  );
+};
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "data": {
+    "status": "healthy",
+    "timestamp": "2024-01-15T10:30:00.000Z",
+    "uptime": 3600.5
+  },
+  "statusCode": 200
+}
+```
+
+### 2. Detailed Health Check
+
+Include system information:
+
+```ts
+export const detailedHealthCheck = async (_req: Request, res: Response) => {
+  const healthData = {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    version: process.env.npm_package_version || "1.0.0",
+    memory: {
+      used:
+        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+      total:
+        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
+      unit: "MB",
+    },
+    cpu: {
+      usage: process.cpuUsage(),
+    },
+  };
+
+  return res
+    .status(STATUS_CODES.OK)
+    .json(ApiResponse.success(healthData, "Service is healthy"));
+};
+```
+
+### 3. Health Check with Database Connectivity
+
+Verify database connection:
+
+```ts
+import mongoose from "mongoose";
+
+export const healthCheckWithDB = async (_req: Request, res: Response) => {
+  const checks = {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    checks: {
+      database:
+        mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    },
+  };
+
+  // If database is not connected, return unhealthy status
+  if (checks.checks.database !== "connected") {
+    return res
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json(
+        ApiResponse.success(
+          { ...checks, status: "unhealthy" },
+          "Service is unhealthy",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+        ),
+      );
+  }
+
+  return res
+    .status(STATUS_CODES.OK)
+    .json(ApiResponse.success(checks, "Service is healthy"));
+};
+```
+
+### 4. Health Check with External Services
+
+Check external service dependencies:
+
+```ts
+export const healthCheckWithServices = async (_req: Request, res: Response) => {
+  const checks = {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: await checkDatabase(),
+      redis: await checkRedis(),
+      externalApi: await checkExternalApi(),
+    },
+  };
+
+  // Determine overall health
+  const allHealthy = Object.values(checks.checks).every(
+    (status) => status === "healthy",
+  );
+
+  if (!allHealthy) {
+    checks.status = "degraded";
+    return res
+      .status(STATUS_CODES.OK)
+      .json(ApiResponse.success(checks, "Service is degraded"));
+  }
+
+  return res
+    .status(STATUS_CODES.OK)
+    .json(ApiResponse.success(checks, "Service is healthy"));
+};
+
+async function checkDatabase(): Promise<string> {
+  try {
+    // Your database check logic
+    return "healthy";
+  } catch {
+    return "unhealthy";
+  }
+}
+
+async function checkRedis(): Promise<string> {
+  try {
+    // Your Redis check logic
+    return "healthy";
+  } catch {
+    return "unhealthy";
+  }
+}
+
+async function checkExternalApi(): Promise<string> {
+  try {
+    // Your external API check logic
+    return "healthy";
+  } catch {
+    return "unhealthy";
+  }
+}
+```
+
+### 5. Using Async Handler
+
+With async handler for better error handling:
+
+```ts
+import { AsyncHandler } from "../middlewares/async-handler";
+
+export const healthCheck = AsyncHandler(
+  async (_req: Request, res: Response) => {
+    return res.status(STATUS_CODES.OK).json(
+      ApiResponse.success(
+        {
+          status: "healthy",
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+        },
+        "Service is healthy",
+      ),
+    );
+  },
+);
+```
+
+## Route Setup
+
+### Basic Setup
+
+```ts
+import express, { type Application } from "express";
+import healthRoutes from "./routes/health.routes";
+
+const app: Application = express();
+
+app.use(express.json());
+
+// Health check routes (usually placed early)
+app.use("/api/health", healthRoutes);
+
+// Other routes...
+```
+
+### Multiple Health Endpoints
+
+```ts
+import { Router } from "express";
+import {
+  healthCheck,
+  detailedHealthCheck,
+  healthCheckWithDB,
+} from "../controllers/health.controller";
+
+const router = Router();
+
+router.get("/", healthCheck);
+router.get("/detailed", detailedHealthCheck);
+router.get("/db", healthCheckWithDB);
+
+export default router;
+```
+
+## Best Practices
+
+1. **Keep it fast** - Health checks should respond quickly (< 100ms)
+2. **Don't include sensitive data** - Avoid exposing internal details
+3. **Use appropriate status codes** - 200 for healthy, 503 for unhealthy
+4. **Monitor dependencies** - Check critical services (DB, Redis, etc.)
+5. **Set up alerts** - Configure alerts based on health check failures
+6. **Version your API** - Include version information in detailed checks
+
+## Response Format
+
+### Healthy Response (200)
+
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "data": {
+    "status": "healthy",
+    "timestamp": "2024-01-15T10:30:00.000Z",
+    "uptime": 3600.5
+  },
+  "statusCode": 200
+}
+```
+
+### Unhealthy Response (503)
+
+```json
+{
+  "success": false,
+  "message": "Service is unhealthy",
+  "data": {
+    "status": "unhealthy",
+    "timestamp": "2024-01-15T10:30:00.000Z",
+    "checks": {
+      "database": "disconnected"
+    }
+  },
+  "statusCode": 503
+}
+```
+
+## Security Considerations
+
+1. **Rate limiting** - Consider rate limiting health check endpoints
+2. **Authentication** - Optionally protect detailed endpoints
+3. **IP whitelisting** - Restrict access to monitoring IPs if needed
+4. **Information disclosure** - Don't expose sensitive system information
+
+## Common Use Cases
+
+- **Load balancer health checks** - Verify service availability
+- **Monitoring systems** - Track service uptime and performance
+- **Deployment verification** - Confirm successful deployments
+- **Auto-scaling** - Determine when to scale services
+- **Incident response** - Quick status verification during outages

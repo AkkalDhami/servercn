@@ -1,0 +1,687 @@
+---
+title: Global Error Handler
+description: Centralized error handling for Express applications using TypeScript.
+command: npx servercn add global-error-handler
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+              }
+
+              const config: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || 'development',
+                LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+              };
+
+              export default config;
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+              // 2xx Success
+              OK: 200,
+              CREATED: 201,
+              ACCEPTED: 202,
+              NO_CONTENT: 204,
+
+              // 3xx Redirection
+              MOVED_PERMANENTLY: 301,
+              FOUND: 302,
+              NOT_MODIFIED: 304,
+
+              // 4xx Client Errors
+              BAD_REQUEST: 400,
+              UNAUTHORIZED: 401,
+              FORBIDDEN: 403,
+              NOT_FOUND: 404,
+              CONFLICT: 409,
+              UNPROCESSABLE_ENTITY: 422,
+              TOO_MANY_REQUESTS: 429,
+
+              // 5xx Server Errors
+              INTERNAL_SERVER_ERROR: 500,
+              NOT_IMPLEMENTED: 501,
+              BAD_GATEWAY: 502,
+              SERVICE_UNAVAILABLE: 503,
+              GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                  err
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                };
+
+                res.status(statusCode).json(response);
+              };
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+              static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+              }
+
+              static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+              }
+
+              static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+              }
+
+              static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+              }
+
+              static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+              }
+
+              static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+              }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(404, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: logger.ts
+            content: |
+
+              import { env } from "../configs/env";
+              import winston from "winston";
+              import DailyRotateFile from "winston-daily-rotate-file";
+
+              const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+              const logFormat = printf(({ level, message, timestamp, stack }) => {
+                return `${timestamp} [${level}] : ${stack || message}`;
+              });
+
+              const transports: winston.transport[] = [];
+
+              if (env.NODE_ENV !== "production") {
+                transports.push(
+                  new winston.transports.Console({
+                    format: combine(
+                      colorize(),
+                      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                      errors({ stack: true }),
+                      logFormat
+                    ),
+                  })
+                );
+              }
+
+              if (env.NODE_ENV !== "development") {
+                transports.push(
+                  new DailyRotateFile({
+                    dirname: "logs/app",
+                    filename: "app-%DATE%.log",
+                    datePattern: "YYYY-MM-DD",
+                    zippedArchive: true,
+                    maxSize: "20m",
+                    maxFiles: "14d",
+                    level: "info",
+                  })
+                );
+                transports.push(
+                  new DailyRotateFile({
+                    dirname: "logs/error",
+                    filename: "errors-%DATE%.log",
+                    datePattern: "YYYY-MM-DD",
+                    zippedArchive: true,
+                    maxSize: "20m",
+                    maxFiles: "30d",
+                    level: "error",
+                  })
+                );
+              }
+
+              export const logger = winston.createLogger({
+                level: env.LOG_LEVEL,
+                format: combine(
+                  timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                  errors({ stack: true }),
+                  logFormat
+                ),
+                transports,
+                exitOnError: false,
+              });
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import { errorHandler } from './middlewares/error-handler';
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // routes here
+          // ....
+
+          // Global error handler (should be after routes)
+          app.use(errorHandler);
+
+          export default app
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+
+                  interface Config {
+                    PORT: number;
+                    NODE_ENV: string;
+                    LOG_LEVEL: string;
+                  }
+
+                  const config: Config = {
+                    PORT: Number(process.env.PORT) || 3000,
+                    NODE_ENV: process.env.NODE_ENV || 'development',
+                    LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                  };
+
+                  export default config;
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                  export const STATUS_CODES = {
+                  // 2xx Success
+                  OK: 200,
+                  CREATED: 201,
+                  ACCEPTED: 202,
+                  NO_CONTENT: 204,
+
+                  // 3xx Redirection
+                  MOVED_PERMANENTLY: 301,
+                  FOUND: 302,
+                  NOT_MODIFIED: 304,
+
+                  // 4xx Client Errors
+                  BAD_REQUEST: 400,
+                  UNAUTHORIZED: 401,
+                  FORBIDDEN: 403,
+                  NOT_FOUND: 404,
+                  CONFLICT: 409,
+                  UNPROCESSABLE_ENTITY: 422,
+                  TOO_MANY_REQUESTS: 429,
+
+                  // 5xx Server Errors
+                  INTERNAL_SERVER_ERROR: 500,
+                  NOT_IMPLEMENTED: 501,
+                  BAD_GATEWAY: 502,
+                  SERVICE_UNAVAILABLE: 503,
+                  GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                  public readonly statusCode: StatusCode;
+                  public readonly isOperational: boolean;
+                  public readonly errors?: unknown;
+
+                  constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                  ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                  }
+
+                  static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                  }
+
+                  static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                  }
+
+                  static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                  }
+
+                  static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                  }
+
+                  static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                  }
+
+                  static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                  }
+                  }
+
+                  /*
+                  ? Usage:
+                  * throw new ApiError(404, "Not found");
+                  * throw ApiError.badRequest("Bad request");
+                  */
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: logger.ts
+                content: |
+
+                  import { env } from "../configs/env";
+                  import winston from "winston";
+                  import DailyRotateFile from "winston-daily-rotate-file";
+
+                  const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+                  const logFormat = printf(({ level, message, timestamp, stack }) => {
+                    return `${timestamp} [${level}] : ${stack || message}`;
+                  });
+
+                  const transports: winston.transport[] = [];
+
+                  if (env.NODE_ENV !== "production") {
+                    transports.push(
+                      new winston.transports.Console({
+                        format: combine(
+                          colorize(),
+                          timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                          errors({ stack: true }),
+                          logFormat
+                        ),
+                      })
+                    );
+                  }
+
+                  if (env.NODE_ENV !== "development") {
+                    transports.push(
+                      new DailyRotateFile({
+                        dirname: "logs/app",
+                        filename: "app-%DATE%.log",
+                        datePattern: "YYYY-MM-DD",
+                        zippedArchive: true,
+                        maxSize: "20m",
+                        maxFiles: "14d",
+                        level: "info",
+                      })
+                    );
+                    transports.push(
+                      new DailyRotateFile({
+                        dirname: "logs/error",
+                        filename: "errors-%DATE%.log",
+                        datePattern: "YYYY-MM-DD",
+                        zippedArchive: true,
+                        maxSize: "20m",
+                        maxFiles: "30d",
+                        level: "error",
+                      })
+                    );
+                  }
+
+                  export const logger = winston.createLogger({
+                    level: env.LOG_LEVEL,
+                    format: combine(
+                      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                      errors({ stack: true }),
+                      logFormat
+                    ),
+                    transports,
+                    exitOnError: false,
+                  });
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+                  import { STATUS_CODES } from "../constants/status-codes";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                      err
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { type Application } from "express";
+          import "dotenv/config";
+          import { errorHandler } from './shared/middlewares/error-handler';
+
+          const app: Application = express();
+
+          app.use(express.json());
+
+          // routes here
+          // ....
+
+          // Global error handler (should be after routes)
+          app.use(errorHandler);
+
+          export default app
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
+---
+
+# Global Error Handling
+
+A **global error handler** is a core part of any production-ready Express application.  
+It ensures that **all errors—expected or unexpected—are handled consistently**, securely, and predictably.
+
+ServerCN provides a structured approach using:
+
+- `ApiError` for operational errors
+- `ApiResponse` for consistent responses
+- `STATUS_CODES` for standardized HTTP status codes
+- Express error middleware for central handling
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+### 1. Install the required dependency
+
+- **HTTP Status Codes:**
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Error Handler:**
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation:
+[Api Error Handler](/docs/components/error-handler)
+
+- **Logger:**
+<PackageManagerTabs command="npx servercn add logger" />
+
+Documentation:
+[Logger](/docs/components/logger)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add global-error-handler" />
+
+> ⚠️ If this dependency is not installed, the component will not function correctly.
+
+## Why a Global Error Handler?
+
+Without a global error handler:
+
+- Errors leak stack traces to clients
+- Response formats become inconsistent
+- Debugging and logging are fragmented
+- Async errors may crash the process
+
+With a global error handler:
+
+- One place to handle all errors
+- Consistent API response shape
+- Clear separation of **operational** vs **programmer** errors
+- Easier logging and monitoring
+
+## Error Flow in ServerCN
+
+- Route or service throws an error (**ApiError** or native error)
+- Error bubbles through **AsyncHandler**
+- Express forwards it to the global error middleware
+- The middleware formats and sends a standardized response
+
+## Basic Implementation
+
+Ensure the following environment variables are defined in **.env**:
+
+```bash
+PORT="3000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+```
+
+Ensure the following configuration are defined:
+
+`src/configs/env.ts`
+
+```ts
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+  LOG_LEVEL: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 3000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+};
+
+export default env;
+```
+
+`src/middlewares/error-handler.ts`
+
+```ts
+import { Request, Response, NextFunction } from "express";
+import env from "../configs/env";
+
+import { ApiError } from "../utils/api-error";
+import { logger } from "../utils/logger";
+import { STATUS_CODES } from "../constants/status-codes";
+
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let statusCode = 500;
+  let message = "Internal server error";
+
+  if (err instanceof ApiError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  }
+
+  logger.error(
+    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+    err,
+  );
+
+  const response = {
+    success: false,
+    message,
+    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+  };
+
+  res.status(statusCode).json(response);
+};
+```
+
+## Usage Example
+
+`src/app.ts`
+
+```ts
+import express, { type Application } from "express";
+import "dotenv/config";
+import { errorHandler } from "./middlewares/error-handler";
+
+const app: Application = express();
+
+app.use(express.json());
+
+// routes here
+// ....
+
+// Global error handler (should be after routes)
+app.use(errorHandler);
+
+export default app;
+```
