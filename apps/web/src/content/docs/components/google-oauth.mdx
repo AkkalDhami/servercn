@@ -1,0 +1,831 @@
+---
+title: Google OAuth
+description: Secure Google OAuth authentication integration using google-auth-library for Express applications.
+command: npx servercn add google-oauth
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                GOOGLE_CLIENT_ID: string;
+                GOOGLE_CLIENT_SECRET: string;
+                GOOGLE_REDIRECT_URI: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || 'development',
+                LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+                GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+                GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+              };
+
+              export default env;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: google-oauth.ts
+            content: |
+
+              import { OAuth2Client } from "google-auth-library";
+              import env from "../configs/env";
+
+              const oauth2Client = new OAuth2Client(
+                env.GOOGLE_CLIENT_ID,
+                env.GOOGLE_CLIENT_SECRET,
+                env.GOOGLE_REDIRECT_URI
+              );
+
+              /**
+               * Get the Google OAuth authorization URL
+               * @param scopes - Array of OAuth scopes to request
+               * @returns Authorization URL and state for CSRF protection
+               */
+              export function getGoogleAuthUrl(scopes: string[] = [
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/userinfo.profile"
+              ]) {
+                const state = Math.random().toString(36).substring(2, 15);
+                const authUrl = oauth2Client.generateAuthUrl({
+                  access_type: "offline",
+                  scope: scopes,
+                  state,
+                  prompt: "consent",
+                });
+
+                return { authUrl, state };
+              }
+
+              /**
+               * Exchange authorization code for tokens
+               * @param code - Authorization code from Google callback
+               * @returns Token information including access_token and refresh_token
+               */
+              export async function getGoogleTokens(code: string) {
+                const { tokens } = await oauth2Client.getToken(code);
+                oauth2Client.setCredentials(tokens);
+                return tokens;
+              }
+
+              /**
+               * Get user information from Google using access token
+               * @param accessToken - Google access token
+               * @returns User profile information
+               */
+              export async function getGoogleUserInfo(accessToken: string) {
+                oauth2Client.setCredentials({ access_token: accessToken });
+                const oauth2 = oauth2Client;
+                
+                const userInfoResponse = await fetch(
+                  "https://www.googleapis.com/oauth2/v2/userinfo",
+                  {
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  }
+                );
+
+                if (!userInfoResponse.ok) {
+                  throw new Error("Failed to fetch user info from Google");
+                }
+
+                return userInfoResponse.json() as Promise<{
+                  id: string;
+                  email: string;
+                  verified_email: boolean;
+                  name: string;
+                  given_name: string;
+                  family_name: string;
+                  picture: string;
+                  locale: string;
+                }>;
+              }
+
+              /**
+               * Verify and decode Google ID token
+               * @param idToken - Google ID token
+               * @returns Decoded token payload
+               */
+              export async function verifyGoogleIdToken(idToken: string) {
+                const ticket = await oauth2Client.verifyIdToken({
+                  idToken,
+                  audience: env.GOOGLE_CLIENT_ID,
+                });
+
+                return ticket.getPayload();
+              }
+
+              /**
+               * Refresh access token using refresh token
+               * @param refreshToken - Google refresh token
+               * @returns New token information
+               */
+              export async function refreshGoogleToken(refreshToken: string) {
+                oauth2Client.setCredentials({ refresh_token: refreshToken });
+                const { credentials } = await oauth2Client.refreshAccessToken();
+                return credentials;
+              }
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: auth.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import { asyncHandler } from "../middlewares/async-handler";
+              import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../utils/google-oauth";
+              import { ApiResponse } from "../utils/response-handler";
+              import { ApiError } from "../utils/error-handler";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              const router = Router();
+
+              /**
+               * Initiate Google OAuth flow
+               * GET /api/auth/google
+               */
+              router.get(
+                "/google",
+                asyncHandler(async (req, res) => {
+                  const { authUrl, state } = getGoogleAuthUrl();
+                  
+                  // Store state in session or return to client for verification
+                  // In production, store state in Redis or session store
+                  
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success({
+                      authUrl,
+                      state,
+                    }, "Redirect user to authUrl")
+                  );
+                })
+              );
+
+              /**
+               * Handle Google OAuth callback
+               * GET /api/auth/google/callback
+               */
+              router.get(
+                "/google/callback",
+                asyncHandler(async (req, res) => {
+                  const { code, state } = req.query;
+
+                  if (!code || typeof code !== "string") {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Authorization code is required"
+                    );
+                  }
+
+                  // Verify state to prevent CSRF attacks
+                  // Compare with stored state from initial request
+
+                  try {
+                    // Exchange code for tokens
+                    const tokens = await getGoogleTokens(code);
+
+                    if (!tokens.access_token) {
+                      throw new ApiError(
+                        STATUS_CODES.INTERNAL_SERVER_ERROR,
+                        "Failed to obtain access token"
+                      );
+                    }
+
+                    // Get user information
+                    const userInfo = await getGoogleUserInfo(tokens.access_token);
+
+                    // Here you would typically:
+                    // 1. Check if user exists in your database
+                    // 2. Create or update user record
+                    // 3. Generate your own JWT tokens
+                    // 4. Return tokens to client
+
+                    return res.status(STATUS_CODES.OK).json(
+                      ApiResponse.success({
+                        tokens,
+                        user: userInfo,
+                      }, "Authentication successful")
+                    );
+                  } catch (error) {
+                    throw new ApiError(
+                      STATUS_CODES.INTERNAL_SERVER_ERROR,
+                      "Failed to authenticate with Google"
+                    );
+                  }
+                })
+              );
+
+              export default router;
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT="8000"
+          NODE_ENV="development"
+          LOG_LEVEL="info"
+
+          GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+          GOOGLE_CLIENT_SECRET="your-google-client-secret"
+          GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: google-oauth.helpers.ts
+                content: |
+
+                  import { OAuth2Client } from "google-auth-library";
+
+                  const oauth2Client = new OAuth2Client(
+                    process.env.GOOGLE_CLIENT_ID!,
+                    process.env.GOOGLE_CLIENT_SECRET!,
+                    process.env.GOOGLE_REDIRECT_URI!
+                  );
+
+                  /**
+                   * Get the Google OAuth authorization URL
+                   * @param scopes - Array of OAuth scopes to request
+                   * @returns Authorization URL and state for CSRF protection
+                   */
+                  export function getGoogleAuthUrl(scopes: string[] = [
+                    "https://www.googleapis.com/auth/userinfo.email",
+                    "https://www.googleapis.com/auth/userinfo.profile"
+                  ]) {
+                    const state = Math.random().toString(36).substring(2, 15);
+                    const authUrl = oauth2Client.generateAuthUrl({
+                      access_type: "offline",
+                      scope: scopes,
+                      state,
+                      prompt: "consent",
+                    });
+
+                    return { authUrl, state };
+                  }
+
+                  /**
+                   * Exchange authorization code for tokens
+                   * @param code - Authorization code from Google callback
+                   * @returns Token information including access_token and refresh_token
+                   */
+                  export async function getGoogleTokens(code: string) {
+                    const { tokens } = await oauth2Client.getToken(code);
+                    oauth2Client.setCredentials(tokens);
+                    return tokens;
+                  }
+
+                  /**
+                   * Get user information from Google using access token
+                   * @param accessToken - Google access token
+                   * @returns User profile information
+                   */
+                  export async function getGoogleUserInfo(accessToken: string) {
+                    oauth2Client.setCredentials({ access_token: accessToken });
+                    
+                    const userInfoResponse = await fetch(
+                      "https://www.googleapis.com/oauth2/v2/userinfo",
+                      {
+                        headers: {
+                          Authorization: `Bearer ${accessToken}`,
+                        },
+                      }
+                    );
+
+                    if (!userInfoResponse.ok) {
+                      throw new Error("Failed to fetch user info from Google");
+                    }
+
+                    return userInfoResponse.json() as Promise<{
+                      id: string;
+                      email: string;
+                      verified_email: boolean;
+                      name: string;
+                      given_name: string;
+                      family_name: string;
+                      picture: string;
+                      locale: string;
+                    }>;
+                  }
+
+                  /**
+                   * Verify and decode Google ID token
+                   * @param idToken - Google ID token
+                   * @returns Decoded token payload
+                   */
+                  export async function verifyGoogleIdToken(idToken: string) {
+                    const ticket = await oauth2Client.verifyIdToken({
+                      idToken,
+                      audience: process.env.GOOGLE_CLIENT_ID!,
+                    });
+
+                    return ticket.getPayload();
+                  }
+
+                  /**
+                   * Refresh access token using refresh token
+                   * @param refreshToken - Google refresh token
+                   * @returns New token information
+                   */
+                  export async function refreshGoogleToken(refreshToken: string) {
+                    oauth2Client.setCredentials({ refresh_token: refreshToken });
+                    const { credentials } = await oauth2Client.refreshAccessToken();
+                    return credentials;
+                  }
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: auth.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import { asyncHandler } from "../shared/middlewares/async-handler";
+              import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../modules/auth/google-oauth.helpers";
+              import { ApiResponse } from "../shared/utils/response-handler";
+              import { ApiError } from "../shared/utils/error-handler";
+              import { STATUS_CODES } from "../shared/constants/status-codes";
+
+              const router = Router();
+
+              /**
+               * Initiate Google OAuth flow
+               * GET /api/auth/google
+               */
+              router.get(
+                "/google",
+                asyncHandler(async (req, res) => {
+                  const { authUrl, state } = getGoogleAuthUrl();
+                  
+                  // Store state in session or return to client for verification
+                  // In production, store state in Redis or session store
+                  
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success({
+                      authUrl,
+                      state,
+                    }, "Redirect user to authUrl")
+                  );
+                })
+              );
+
+              /**
+               * Handle Google OAuth callback
+               * GET /api/auth/google/callback
+               */
+              router.get(
+                "/google/callback",
+                asyncHandler(async (req, res) => {
+                  const { code, state } = req.query;
+
+                  if (!code || typeof code !== "string") {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Authorization code is required"
+                    );
+                  }
+
+                  // Verify state to prevent CSRF attacks
+                  // Compare with stored state from initial request
+
+                  try {
+                    // Exchange code for tokens
+                    const tokens = await getGoogleTokens(code);
+
+                    if (!tokens.access_token) {
+                      throw new ApiError(
+                        STATUS_CODES.INTERNAL_SERVER_ERROR,
+                        "Failed to obtain access token"
+                      );
+                    }
+
+                    // Get user information
+                    const userInfo = await getGoogleUserInfo(tokens.access_token);
+
+                    // Here you would typically:
+                    // 1. Check if user exists in your database
+                    // 2. Create or update user record
+                    // 3. Generate your own JWT tokens
+                    // 4. Return tokens to client
+
+                    return res.status(STATUS_CODES.OK).json(
+                      ApiResponse.success({
+                        tokens,
+                        user: userInfo,
+                      }, "Authentication successful")
+                    );
+                  } catch (error) {
+                    throw new ApiError(
+                      STATUS_CODES.INTERNAL_SERVER_ERROR,
+                      "Failed to authenticate with Google"
+                    );
+                  }
+                })
+              );
+
+              export default router;
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT="8000"
+          NODE_ENV="development"
+          LOG_LEVEL="info"
+
+          GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+          GOOGLE_CLIENT_SECRET="your-google-client-secret"
+          GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+---
+
+# Google OAuth
+
+The **Google OAuth** component provides a secure and standardized way to integrate Google authentication into your ServerCN Express applications using the official **google-auth-library**.
+
+It handles the complete OAuth 2.0 flow including authorization URL generation, token exchange, user information retrieval, and token refresh.
+
+## Features
+
+- **Complete OAuth 2.0 flow** - Authorization, token exchange, and user info retrieval
+- **Secure by default** - CSRF protection with state parameter
+- **Token management** - Access token, refresh token, and ID token verification
+- **Express integration** - Ready-to-use route handlers
+- **Type-safe** - Full TypeScript support
+- **Flexible scopes** - Customizable OAuth scopes
+
+## Installation Guide
+
+### 1. Install ServerCN dependencies
+
+For a fully structured setup with consistent error handling and standardized API responses, install these components:
+
+- **HTTP Status Codes:**
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Response Handler:**
+<PackageManagerTabs command="npx servercn add response-handler" />
+
+Documentation:
+[Api Response Handler](/docs/components/response-handler)
+
+- **Api Error Handler:**
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation:
+[Api Error Handler](/docs/components/error-handler)
+
+- **Async Handler:**
+<PackageManagerTabs command="npx servercn add async-handler" />
+
+Documentation:
+[Async Handler](/docs/components/async-handler)
+
+### 3. Install this component
+
+<PackageManagerTabs command="npx servercn add google-oauth" />
+
+## Prerequisites
+
+### Google Cloud Console Setup
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the **Google+ API** (or **Google Identity API**)
+4. Go to **Credentials** → **Create Credentials** → **OAuth client ID**
+5. Configure the OAuth consent screen:
+   - Choose **External** (for testing) or **Internal** (for Google Workspace)
+   - Fill in the required information
+6. Create OAuth 2.0 Client ID:
+   - Application type: **Web application**
+   - Authorized redirect URIs: Add your callback URL (e.g., `http://localhost:8000/api/auth/google/callback`)
+7. Copy the **Client ID** and **Client Secret**
+
+### Environment Variables
+
+Add the following to your `.env` file:
+
+```bash
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+```
+
+Ensure the following configuration are defined:
+
+`src/configs/env.ts` || `src/shared/configs/env.ts`
+
+```ts
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+  LOG_LEVEL: string;
+
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_REDIRECT_URI: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 3000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+};
+
+export default env;
+```
+
+## Basic Implementation
+
+### MVC Structure
+
+Place the Google OAuth utilities in `src/utils/google-oauth.ts`:
+
+```ts
+import { OAuth2Client } from "google-auth-library";
+import env from "../configs/env";
+
+const oauth2Client = new OAuth2Client(
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  env.GOOGLE_REDIRECT_URI,
+);
+
+export function getGoogleAuthUrl(
+  scopes: string[] = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+  ],
+) {
+  const state = Math.random().toString(36).substring(2, 15);
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: scopes,
+    state,
+    prompt: "consent",
+  });
+
+  return { authUrl, state };
+}
+
+export async function getGoogleTokens(code: string) {
+  const { tokens } = await oauth2Client.getToken(code);
+  oauth2Client.setCredentials(tokens);
+  return tokens;
+}
+
+export async function getGoogleUserInfo(accessToken: string) {
+  const userInfoResponse = await fetch(
+    "https://www.googleapis.com/oauth2/v2/userinfo",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!userInfoResponse.ok) {
+    throw new Error("Failed to fetch user info from Google");
+  }
+
+  return userInfoResponse.json();
+}
+```
+
+### Feature-Based Structure
+
+For feature-based architecture, place helpers in `src/modules/auth/google-oauth.helpers.ts`:
+
+```ts
+import { OAuth2Client } from "google-auth-library";
+
+const oauth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID!,
+  process.env.GOOGLE_CLIENT_SECRET!,
+  process.env.GOOGLE_REDIRECT_URI!,
+);
+
+// Same functions as MVC structure
+```
+
+## Usage Examples
+
+### 1. Initiate OAuth Flow
+
+Create a route to start the Google OAuth flow:
+
+```ts
+import { Router } from "express";
+import { getGoogleAuthUrl } from "../utils/google-oauth";
+
+const router = Router();
+
+router.get("/auth/google", async (req, res) => {
+  const { authUrl, state } = getGoogleAuthUrl();
+
+  // Store state in session/Redis for CSRF protection
+  req.session.oauthState = state;
+
+  // Redirect user to Google
+  res.redirect(authUrl);
+});
+```
+
+### 2. Handle OAuth Callback
+
+Handle the callback from Google:
+
+```ts
+router.get("/auth/google/callback", async (req, res) => {
+  const { code, state } = req.query;
+
+  // Verify state to prevent CSRF
+  if (state !== req.session.oauthState) {
+    return res.status(400).json({ error: "Invalid state parameter" });
+  }
+
+  try {
+    // Exchange code for tokens
+    const tokens = await getGoogleTokens(code as string);
+
+    // Get user information
+    const userInfo = await getGoogleUserInfo(tokens.access_token!);
+
+    // Create or update user in your database
+    // Generate your own JWT tokens
+    // Return tokens to client
+
+    res.json({ user: userInfo, tokens });
+  } catch (error) {
+    res.status(500).json({ error: "Authentication failed" });
+  }
+});
+```
+
+### 3. Verify ID Token
+
+If using Google Sign-In with ID tokens:
+
+```ts
+import { verifyGoogleIdToken } from "../utils/google-oauth";
+
+router.post("/auth/google/verify", async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const payload = await verifyGoogleIdToken(idToken);
+    // payload contains user information
+    res.json({ user: payload });
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+});
+```
+
+### 4. Refresh Access Token
+
+Refresh an expired access token:
+
+```ts
+import { refreshGoogleToken } from "../utils/google-oauth";
+
+router.post("/auth/google/refresh", async (req, res) => {
+  const { refreshToken } = req.body;
+
+  try {
+    const credentials = await refreshGoogleToken(refreshToken);
+    res.json({ tokens: credentials });
+  } catch (error) {
+    res.status(401).json({ error: "Token refresh failed" });
+  }
+});
+```
+
+## Integration with JWT Authentication
+
+Combine Google OAuth with your JWT authentication:
+
+```ts
+import { getGoogleTokens, getGoogleUserInfo } from "../utils/google-oauth";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+
+router.get("/auth/google/callback", async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    // Get Google tokens
+    const googleTokens = await getGoogleTokens(code as string);
+    const userInfo = await getGoogleUserInfo(googleTokens.access_token!);
+
+    // Find or create user in database
+    let user = await User.findOne({ email: userInfo.email });
+    if (!user) {
+      user = await User.create({
+        email: userInfo.email,
+        name: userInfo.name,
+        picture: userInfo.picture,
+        provider: "google",
+        providerId: userInfo.id,
+      });
+    }
+
+    // Generate your own JWT tokens
+    const accessToken = generateAccessToken({ _id: user._id });
+    const refreshToken = generateRefreshToken(user._id);
+
+    res.json({
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Authentication failed" });
+  }
+});
+```
+
+## Available OAuth Scopes
+
+Common Google OAuth scopes you can request:
+
+- `https://www.googleapis.com/auth/userinfo.email` - User's email address
+- `https://www.googleapis.com/auth/userinfo.profile` - User's basic profile info
+- `https://www.googleapis.com/auth/user.birthday.read` - User's birthday
+- `https://www.googleapis.com/auth/user.phonenumbers.read` - User's phone numbers
+- `https://www.googleapis.com/auth/calendar.readonly` - Read-only access to user's calendar
+
+## Security Best Practices
+
+1. **Always verify the state parameter** to prevent CSRF attacks
+2. **Store refresh tokens securely** in your database (encrypted)
+3. **Use HTTPS** in production for redirect URIs
+4. **Validate redirect URIs** match your configured ones
+5. **Set appropriate token expiration** times
+6. **Handle token refresh** automatically when access tokens expire
+
+## Error Handling
+
+The component throws errors that can be caught and handled:
+
+```ts
+try {
+  const tokens = await getGoogleTokens(code);
+} catch (error) {
+  if (error instanceof Error) {
+    // Handle specific Google OAuth errors
+    console.error("OAuth error:", error.message);
+  }
+}
+```
+
+## Common Issues
+
+### "redirect_uri_mismatch"
+
+Ensure your redirect URI in `.env` exactly matches the one configured in Google Cloud Console.
+
+### "invalid_grant"
+
+This usually means:
+
+- The authorization code has expired (codes expire after a few minutes)
+- The code has already been used
+- The redirect URI doesn't match
+
+### "access_denied"
+
+The user denied permission. Handle this gracefully in your UI.

@@ -1,0 +1,980 @@
+---
+title: Email Service
+description: Production-ready email service for sending emails in ServerCN using nodemailer with support for multiple providers (Gmail, SMTP, SendGrid, etc.).
+command: npx servercn add email-service
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                EMAIL_HOST: string;
+                EMAIL_PORT: number;
+                EMAIL_SECURE: boolean;
+                EMAIL_USER: string;
+                EMAIL_PASSWORD: string;
+                EMAIL_FROM: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || 'development',
+                LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                EMAIL_HOST: process.env.EMAIL_HOST!,
+                EMAIL_PORT: Number(process.env.EMAIL_PORT) || 587,
+                EMAIL_SECURE: process.env.EMAIL_SECURE === 'true',
+                EMAIL_USER: process.env.EMAIL_USER!,
+                EMAIL_PASSWORD: process.env.EMAIL_PASSWORD!,
+                EMAIL_FROM: process.env.EMAIL_FROM!,
+              };
+
+              export default env;
+
+          - type: file
+            name: nodemailer.ts
+            content: |
+
+              import nodemailer from "nodemailer";
+              import env from "./env";
+
+              const transporter = nodemailer.createTransport({
+                host: env.EMAIL_HOST,
+                port: env.EMAIL_PORT,
+                secure: env.EMAIL_SECURE,
+                auth: {
+                  user: env.EMAIL_USER,
+                  pass: env.EMAIL_PASSWORD,
+                },
+              });
+
+              export default transporter;
+
+      - type: folder
+        name: services
+        children:
+          - type: file
+            name: email.service.ts
+            content: |
+
+              import transporter from "../configs/nodemailer";
+              import { ApiError } from "../utils/error-handler";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              export interface EmailOptions {
+                to: string | string[];
+                subject: string;
+                text?: string;
+                html?: string;
+                cc?: string | string[];
+                bcc?: string | string[];
+                attachments?: Array<{
+                  filename: string;
+                  content?: string | Buffer;
+                  path?: string;
+                  contentType?: string;
+                }>;
+              }
+
+              /**
+               * Send email using nodemailer
+               * @param options - Email options (to, subject, text/html, etc.)
+               * @returns Promise with message info
+               */
+              export async function sendEmail(options: EmailOptions) {
+                try {
+                  const mailOptions = {
+                    from: process.env.EMAIL_FROM,
+                    to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
+                    subject: options.subject,
+                    text: options.text,
+                    html: options.html,
+                    cc: options.cc
+                      ? Array.isArray(options.cc)
+                        ? options.cc.join(", ")
+                        : options.cc
+                      : undefined,
+                    bcc: options.bcc
+                      ? Array.isArray(options.bcc)
+                        ? options.bcc.join(", ")
+                        : options.bcc
+                      : undefined,
+                    attachments: options.attachments,
+                  };
+
+                  const info = await transporter.sendMail(mailOptions);
+                  return info;
+                } catch (error) {
+                  throw new ApiError(
+                    STATUS_CODES.INTERNAL_SERVER_ERROR,
+                    "Failed to send email",
+                    error instanceof Error ? error.message : "Unknown error"
+                  );
+                }
+              }
+
+              /**
+               * Send HTML email
+               * @param to - Recipient email address(es)
+               * @param subject - Email subject
+               * @param html - HTML content
+               * @returns Promise with message info
+               */
+              export async function sendHtmlEmail(
+                to: string | string[],
+                subject: string,
+                html: string
+              ) {
+                return sendEmail({ to, subject, html });
+              }
+
+              /**
+               * Send plain text email
+               * @param to - Recipient email address(es)
+               * @param subject - Email subject
+               * @param text - Plain text content
+               * @returns Promise with message info
+               */
+              export async function sendTextEmail(
+                to: string | string[],
+                subject: string,
+                text: string
+              ) {
+                return sendEmail({ to, subject, text });
+              }
+
+              /**
+               * Verify email transporter configuration
+               * @returns Promise<boolean> - True if configuration is valid
+               */
+              export async function verifyEmailConfig(): Promise<boolean> {
+                try {
+                  await transporter.verify();
+                  return true;
+                } catch (error) {
+                  return false;
+                }
+              }
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: email.controller.ts
+            content: |
+
+              import { Request, Response } from "express";
+              import { asyncHandler } from "../middlewares/async-handler";
+              import { sendEmail, sendHtmlEmail, sendTextEmail } from "../services/email.service";
+              import { ApiResponse } from "../utils/response-handler";
+              import { ApiError } from "../utils/error-handler";
+              import { STATUS_CODES } from "../constants/status-codes";
+
+              /**
+               * Send email endpoint
+               * POST /api/email/send
+               */
+              export const sendEmailHandler = asyncHandler(
+                async (req: Request, res: Response) => {
+                  const { to, subject, text, html, cc, bcc, attachments } = req.body;
+
+                  if (!to || !subject) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to) and subject are required"
+                    );
+                  }
+
+                  if (!text && !html) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Either text or html content is required"
+                    );
+                  }
+
+                  const info = await sendEmail({
+                    to,
+                    subject,
+                    text,
+                    html,
+                    cc,
+                    bcc,
+                    attachments,
+                  });
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "Email sent successfully"
+                    )
+                  );
+                }
+              );
+
+              /**
+               * Send HTML email endpoint
+               * POST /api/email/send-html
+               */
+              export const sendHtmlEmailHandler = asyncHandler(
+                async (req: Request, res: Response) => {
+                  const { to, subject, html } = req.body;
+
+                  if (!to || !subject || !html) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to), subject, and html content are required"
+                    );
+                  }
+
+                  const info = await sendHtmlEmail(to, subject, html);
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "HTML email sent successfully"
+                    )
+                  );
+                }
+              );
+
+              /**
+               * Send text email endpoint
+               * POST /api/email/send-text
+               */
+              export const sendTextEmailHandler = asyncHandler(
+                async (req: Request, res: Response) => {
+                  const { to, subject, text } = req.body;
+
+                  if (!to || !subject || !text) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to), subject, and text content are required"
+                    );
+                  }
+
+                  const info = await sendTextEmail(to, subject, text);
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "Text email sent successfully"
+                    )
+                  );
+                }
+              );
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: email.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import {
+                sendEmailHandler,
+                sendHtmlEmailHandler,
+                sendTextEmailHandler,
+              } from "../controllers/email.controller";
+
+              const router = Router();
+
+              router.post("/send", sendEmailHandler);
+              router.post("/send-html", sendHtmlEmailHandler);
+              router.post("/send-text", sendTextEmailHandler);
+
+              export default router;
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT="8000"
+          NODE_ENV="development"
+          LOG_LEVEL="info"
+
+          EMAIL_HOST="smtp.gmail.com"
+          EMAIL_PORT="587"
+          EMAIL_SECURE="false"
+          EMAIL_USER="your-email@gmail.com"
+          EMAIL_PASSWORD="your-app-password"
+          EMAIL_FROM="your-email@gmail.com"
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: email
+            children:
+              - type: file
+                name: email.service.ts
+                content: |
+
+                  import nodemailer from "nodemailer";
+
+                  const transporter = nodemailer.createTransport({
+                    host: process.env.EMAIL_HOST!,
+                    port: Number(process.env.EMAIL_PORT) || 587,
+                    secure: process.env.EMAIL_SECURE === "true",
+                    auth: {
+                      user: process.env.EMAIL_USER!,
+                      pass: process.env.EMAIL_PASSWORD!,
+                    },
+                  });
+
+                  export interface EmailOptions {
+                    to: string | string[];
+                    subject: string;
+                    text?: string;
+                    html?: string;
+                    cc?: string | string[];
+                    bcc?: string | string[];
+                    attachments?: Array<{
+                      filename: string;
+                      content?: string | Buffer;
+                      path?: string;
+                      contentType?: string;
+                    }>;
+                  }
+
+                  /**
+                   * Send email using nodemailer
+                   * @param options - Email options (to, subject, text/html, etc.)
+                   * @returns Promise with message info
+                   */
+                  export async function sendEmail(options: EmailOptions) {
+                    try {
+                      const mailOptions = {
+                        from: process.env.EMAIL_FROM,
+                        to: Array.isArray(options.to)
+                          ? options.to.join(", ")
+                          : options.to,
+                        subject: options.subject,
+                        text: options.text,
+                        html: options.html,
+                        cc: options.cc
+                          ? Array.isArray(options.cc)
+                            ? options.cc.join(", ")
+                            : options.cc
+                          : undefined,
+                        bcc: options.bcc
+                          ? Array.isArray(options.bcc)
+                            ? options.bcc.join(", ")
+                            : options.bcc
+                          : undefined,
+                        attachments: options.attachments,
+                      };
+
+                      const info = await transporter.sendMail(mailOptions);
+                      return info;
+                    } catch (error) {
+                      throw new Error(
+                        `Failed to send email: ${
+                          error instanceof Error ? error.message : "Unknown error"
+                        }`
+                      );
+                    }
+                  }
+
+                  /**
+                   * Send HTML email
+                   * @param to - Recipient email address(es)
+                   * @param subject - Email subject
+                   * @param html - HTML content
+                   * @returns Promise with message info
+                   */
+                  export async function sendHtmlEmail(
+                    to: string | string[],
+                    subject: string,
+                    html: string
+                  ) {
+                    return sendEmail({ to, subject, html });
+                  }
+
+                  /**
+                   * Send plain text email
+                   * @param to - Recipient email address(es)
+                   * @param subject - Email subject
+                   * @param text - Plain text content
+                   * @returns Promise with message info
+                   */
+                  export async function sendTextEmail(
+                    to: string | string[],
+                    subject: string,
+                    text: string
+                  ) {
+                    return sendEmail({ to, subject, text });
+                  }
+
+                  /**
+                   * Verify email transporter configuration
+                   * @returns Promise<boolean> - True if configuration is valid
+                   */
+                  export async function verifyEmailConfig(): Promise<boolean> {
+                    try {
+                      await transporter.verify();
+                      return true;
+                    } catch (error) {
+                      return false;
+                    }
+                  }
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: email.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import { asyncHandler } from "../shared/middlewares/async-handler";
+              import { sendEmail, sendHtmlEmail, sendTextEmail } from "../modules/email/email.service";
+              import { ApiResponse } from "../shared/utils/response-handler";
+              import { ApiError } from "../shared/utils/error-handler";
+              import { STATUS_CODES } from "../shared/constants/status-codes";
+
+              const router = Router();
+
+              router.post(
+                "/send",
+                asyncHandler(async (req, res) => {
+                  const { to, subject, text, html, cc, bcc, attachments } = req.body;
+
+                  if (!to || !subject) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to) and subject are required"
+                    );
+                  }
+
+                  if (!text && !html) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Either text or html content is required"
+                    );
+                  }
+
+                  const info = await sendEmail({
+                    to,
+                    subject,
+                    text,
+                    html,
+                    cc,
+                    bcc,
+                    attachments,
+                  });
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "Email sent successfully"
+                    )
+                  );
+                })
+              );
+
+              router.post(
+                "/send-html",
+                asyncHandler(async (req, res) => {
+                  const { to, subject, html } = req.body;
+
+                  if (!to || !subject || !html) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to), subject, and html content are required"
+                    );
+                  }
+
+                  const info = await sendHtmlEmail(to, subject, html);
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "HTML email sent successfully"
+                    )
+                  );
+                })
+              );
+
+              router.post(
+                "/send-text",
+                asyncHandler(async (req, res) => {
+                  const { to, subject, text } = req.body;
+
+                  if (!to || !subject || !text) {
+                    throw new ApiError(
+                      STATUS_CODES.BAD_REQUEST,
+                      "Recipient (to), subject, and text content are required"
+                    );
+                  }
+
+                  const info = await sendTextEmail(to, subject, text);
+
+                  return res.status(STATUS_CODES.OK).json(
+                    ApiResponse.success(
+                      { messageId: info.messageId },
+                      "Text email sent successfully"
+                    )
+                  );
+                })
+              );
+
+              export default router;
+
+      - type: file
+        name: .env.example
+        content: |
+
+          PORT="8000"
+          NODE_ENV="development"
+          LOG_LEVEL="info"
+
+          EMAIL_HOST="smtp.gmail.com"
+          EMAIL_PORT="587"
+          EMAIL_SECURE="false"
+          EMAIL_USER="your-email@gmail.com"
+          EMAIL_PASSWORD="your-app-password"
+          EMAIL_FROM="your-email@gmail.com"
+---
+
+# Email Service
+
+The **Email Service** component provides a production-ready solution for sending emails in ServerCN using **nodemailer**. It supports multiple email providers including Gmail, SMTP servers, SendGrid, and more.
+
+## Features
+
+- **Multiple email providers** - Gmail, SMTP, SendGrid, AWS SES, and more
+- **HTML and plain text emails** - Support for both HTML and text content
+- **Attachments** - Send files as email attachments
+- **Multiple recipients** - Support for CC, BCC, and multiple recipients
+- **Type-safe** - Full TypeScript support
+- **Error handling** - Comprehensive error handling and validation
+- **Email verification** - Verify email configuration before sending
+
+## Installation Guide
+
+### 1. Install ServerCN dependencies
+
+For a fully structured setup with consistent error handling and standardized API responses:
+
+- **HTTP Status Codes:**
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Response Handler:**
+
+<PackageManagerTabs command="npx servercn add response-handler" />
+Documentation:
+[Api Response Handler:](/docs/components/response-handler)
+
+- **Api Error Handler:**
+
+<PackageManagerTabs command="npx servercn add error-handler" />
+Documentation:
+[Api Error Handler:](/docs/components/error-handler)
+
+- **Async Handler:**
+<PackageManagerTabs command="npx servercn add async-handler" />
+Documentation:
+[Async Handler](/docs/components/async-handler)
+
+### 3. Install this component
+
+<PackageManagerTabs command="npx servercn add email-service" />
+
+## Prerequisites
+
+### Gmail Setup (Recommended for Development)
+
+1. Enable **2-Step Verification** on your Google Account
+2. Generate an **App Password**:
+   - Go to Google Account → Security → 2-Step Verification → App passwords
+   - Create a new app password for "Mail"
+   - Copy the generated password
+
+### Environment Variables
+
+Add the following to your `.env` file:
+
+```bash
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+EMAIL_USER="your-email@gmail.com"
+EMAIL_PASSWORD="your-app-password"
+EMAIL_FROM="your-email@gmail.com"
+```
+
+### Other Email Providers
+
+#### SMTP Server
+
+```bash
+EMAIL_HOST="smtp.example.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+EMAIL_USER="your-username"
+EMAIL_PASSWORD="your-password"
+EMAIL_FROM="noreply@example.com"
+```
+
+#### SendGrid
+
+```bash
+EMAIL_HOST="smtp.sendgrid.net"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+EMAIL_USER="apikey"
+EMAIL_PASSWORD="your-sendgrid-api-key"
+EMAIL_FROM="noreply@yourdomain.com"
+```
+
+#### AWS SES
+
+```bash
+EMAIL_HOST="email-smtp.us-east-1.amazonaws.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+EMAIL_USER="your-aws-access-key-id"
+EMAIL_PASSWORD="your-aws-secret-access-key"
+EMAIL_FROM="noreply@yourdomain.com"
+```
+
+## Basic Implementation
+
+### 1. MVC Structure
+
+Create email service in `src/services/email.service.ts`:
+
+```ts
+import nodemailer from "nodemailer";
+import env from "../configs/env";
+
+const transporter = nodemailer.createTransport({
+  host: env.EMAIL_HOST,
+  port: env.EMAIL_PORT,
+  secure: env.EMAIL_SECURE,
+  auth: {
+    user: env.EMAIL_USER,
+    pass: env.EMAIL_PASSWORD,
+  },
+});
+
+export async function sendEmail(options: {
+  to: string | string[];
+  subject: string;
+  text?: string;
+  html?: string;
+}) {
+  const info = await transporter.sendMail({
+    from: env.EMAIL_FROM,
+    to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
+    subject: options.subject,
+    text: options.text,
+    html: options.html,
+  });
+
+  return info;
+}
+```
+
+### 2. Feature-Based Structure
+
+For feature-based architecture, place service in `src/modules/email/email.service.ts`:
+
+```ts
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST!,
+  port: Number(process.env.EMAIL_PORT) || 587,
+  secure: process.env.EMAIL_SECURE === "true",
+  auth: {
+    user: process.env.EMAIL_USER!,
+    pass: process.env.EMAIL_PASSWORD!,
+  },
+});
+
+// Same functions as MVC structure
+```
+
+## Usage Examples
+
+### 1. Send Plain Text Email
+
+```ts
+import { sendTextEmail } from "../services/email.service";
+
+await sendTextEmail(
+  "user@example.com",
+  "Welcome to ServerCN",
+  "Thank you for joining us!",
+);
+```
+
+### 2. Send HTML Email
+
+```ts
+import { sendHtmlEmail } from "../services/email.service";
+
+const htmlContent = `
+  <h1>Welcome to ServerCN</h1>
+  <p>Thank you for joining us!</p>
+  <a href="https://servercn.com">Visit our website</a>
+`;
+
+await sendHtmlEmail("user@example.com", "Welcome to ServerCN", htmlContent);
+```
+
+### 3. Send Email with Multiple Recipients
+
+```ts
+import { sendEmail } from "../services/email.service";
+
+await sendEmail({
+  to: ["user1@example.com", "user2@example.com"],
+  subject: "Team Update",
+  html: "<p>This is a team update.</p>",
+  cc: ["manager@example.com"],
+  bcc: ["archive@example.com"],
+});
+```
+
+### 4. Send Email with Attachments
+
+```ts
+import { sendEmail } from "../services/email.service";
+import fs from "fs";
+
+await sendEmail({
+  to: "user@example.com",
+  subject: "Invoice",
+  html: "<p>Please find your invoice attached.</p>",
+  attachments: [
+    {
+      filename: "invoice.pdf",
+      path: "./invoices/invoice-123.pdf",
+    },
+    {
+      filename: "logo.png",
+      content: fs.readFileSync("./assets/logo.png"),
+      contentType: "image/png",
+    },
+  ],
+});
+```
+
+### 5. Send Email from Route Handler
+
+```ts
+import { Request, Response } from "express";
+import { asyncHandler } from "../middlewares/async-handler";
+import { sendHtmlEmail } from "../services/email.service";
+import { ApiResponse } from "../utils/response-handler";
+import { ApiError } from "../utils/error-handler";
+import { STATUS_CODES } from "../constants/status-codes";
+
+export const sendWelcomeEmail = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, name } = req.body;
+
+    if (!email) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Email address is required");
+    }
+
+    const htmlContent = `
+      <h1>Welcome ${name || "User"}!</h1>
+      <p>Thank you for joining ServerCN.</p>
+    `;
+
+    await sendHtmlEmail(email, "Welcome to ServerCN", htmlContent);
+
+    return res
+      .status(STATUS_CODES.OK)
+      .json(ApiResponse.success(null, "Welcome email sent successfully"));
+  },
+);
+```
+
+### 6. Verify Email Configuration
+
+```ts
+import { verifyEmailConfig } from "../services/email.service";
+
+const isValid = await verifyEmailConfig();
+if (!isValid) {
+  console.error("Email configuration is invalid");
+}
+```
+
+### 7. Send Transactional Emails
+
+```ts
+import { sendHtmlEmail } from "../services/email.service";
+
+// Password reset email
+export async function sendPasswordResetEmail(
+  email: string,
+  resetToken: string,
+) {
+  const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
+  const html = `
+    <h2>Password Reset Request</h2>
+    <p>Click the link below to reset your password:</p>
+    <a href="${resetUrl}">Reset Password</a>
+    <p>This link will expire in 1 hour.</p>
+  `;
+
+  await sendHtmlEmail(email, "Reset Your Password", html);
+}
+
+// Email verification
+export async function sendVerificationEmail(
+  email: string,
+  verificationToken: string,
+) {
+  const verifyUrl = `https://yourapp.com/verify-email?token=${verificationToken}`;
+  const html = `
+    <h2>Verify Your Email</h2>
+    <p>Click the link below to verify your email address:</p>
+    <a href="${verifyUrl}">Verify Email</a>
+  `;
+
+  await sendHtmlEmail(email, "Verify Your Email", html);
+}
+```
+
+## Email Templates
+
+### Using Template Engines
+
+You can use template engines like Handlebars, EJS, or Pug:
+
+```ts
+import { sendHtmlEmail } from "../services/email.service";
+import handlebars from "handlebars";
+import fs from "fs";
+
+const templateSource = fs.readFileSync("./templates/welcome.hbs", "utf8");
+const template = handlebars.compile(templateSource);
+
+const html = template({
+  name: "John Doe",
+  activationLink: "https://yourapp.com/activate",
+});
+
+await sendHtmlEmail("user@example.com", "Welcome!", html);
+```
+
+## Error Handling
+
+The service includes comprehensive error handling:
+
+```ts
+import { sendEmail } from "../services/email.service";
+import { ApiError } from "../utils/error-handler";
+
+try {
+  await sendEmail({
+    to: "user@example.com",
+    subject: "Test",
+    html: "<p>Test email</p>",
+  });
+} catch (error) {
+  if (error instanceof ApiError) {
+    // Handle API errors
+    console.error("Email error:", error.message);
+  } else {
+    // Handle other errors
+    console.error("Unexpected error:", error);
+  }
+}
+```
+
+## Best Practices
+
+1. **Use environment variables** - Never hardcode email credentials
+2. **Validate email addresses** - Validate recipient emails before sending
+3. **Handle errors gracefully** - Implement proper error handling and logging
+4. **Use HTML templates** - Use template engines for consistent email design
+5. **Rate limiting** - Implement rate limiting for email endpoints
+6. **Email queuing** - Use job queues (Bull, BullMQ) for bulk emails
+7. **Test emails** - Use services like Mailtrap for testing in development
+
+## Common Email Providers Configuration
+
+### Gmail
+
+```bash
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+```
+
+### Outlook/Office 365
+
+```bash
+EMAIL_HOST="smtp.office365.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+```
+
+### Yahoo Mail
+
+```bash
+EMAIL_HOST="smtp.mail.yahoo.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+```
+
+### Custom SMTP
+
+```bash
+EMAIL_HOST="smtp.yourdomain.com"
+EMAIL_PORT="587"
+EMAIL_SECURE="false"
+```
+
+## Security Considerations
+
+1. **App Passwords** - Use app-specific passwords for Gmail
+2. **Environment Variables** - Store credentials securely
+3. **Rate Limiting** - Prevent email spam and abuse
+4. **Input Validation** - Validate email addresses and content
+5. **HTTPS** - Use secure connections (EMAIL_SECURE=true for port 465)
+
+## Troubleshooting
+
+### "Invalid login" Error
+
+- Verify your email credentials
+- For Gmail, ensure you're using an App Password, not your regular password
+- Check that 2-Step Verification is enabled
+
+### "Connection timeout" Error
+
+- Verify EMAIL_HOST and EMAIL_PORT are correct
+- Check firewall settings
+- Ensure EMAIL_SECURE matches your port (true for 465, false for 587)
+
+### Emails Not Received
+
+- Check spam/junk folder
+- Verify EMAIL_FROM address
+- Check email provider's sending limits
+- Verify recipient email address is valid

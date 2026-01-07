@@ -1,0 +1,431 @@
+---
+title: API Error Handler
+description: A lightweight, production-ready error handling utility for Express applications.
+command: npx servercn add error-handler
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+              // 2xx Success
+              OK: 200,
+              CREATED: 201,
+              ACCEPTED: 202,
+              NO_CONTENT: 204,
+
+              // 3xx Redirection
+              MOVED_PERMANENTLY: 301,
+              FOUND: 302,
+              NOT_MODIFIED: 304,
+
+              // 4xx Client Errors
+              BAD_REQUEST: 400,
+              UNAUTHORIZED: 401,
+              FORBIDDEN: 403,
+              NOT_FOUND: 404,
+              CONFLICT: 409,
+              UNPROCESSABLE_ENTITY: 422,
+              TOO_MANY_REQUESTS: 429,
+
+              // 5xx Server Errors
+              INTERNAL_SERVER_ERROR: 500,
+              NOT_IMPLEMENTED: 501,
+              BAD_GATEWAY: 502,
+              SERVICE_UNAVAILABLE: 503,
+              GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                    return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                  export const STATUS_CODES = {
+                  // 2xx Success
+                  OK: 200,
+                  CREATED: 201,
+                  ACCEPTED: 202,
+                  NO_CONTENT: 204,
+
+                  // 3xx Redirection
+                  MOVED_PERMANENTLY: 301,
+                  FOUND: 302,
+                  NOT_MODIFIED: 304,
+
+                  // 4xx Client Errors
+                  BAD_REQUEST: 400,
+                  UNAUTHORIZED: 401,
+                  FORBIDDEN: 403,
+                  NOT_FOUND: 404,
+                  CONFLICT: 409,
+                  UNPROCESSABLE_ENTITY: 422,
+                  TOO_MANY_REQUESTS: 429,
+
+                  // 5xx Server Errors
+                  INTERNAL_SERVER_ERROR: 500,
+                  NOT_IMPLEMENTED: 501,
+                  BAD_GATEWAY: 502,
+                  SERVICE_UNAVAILABLE: 503,
+                  GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                  public readonly statusCode: StatusCode;
+                  public readonly isOperational: boolean;
+                  public readonly errors?: unknown;
+
+                  constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                  ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                  }
+
+                  static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                  }
+
+                  static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                  }
+
+                  static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                  }
+
+                  static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                  }
+
+                  static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                  }
+
+                  static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                  }
+                  }
+
+                  /*
+                  ? Usage:
+                  * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+                  * throw ApiError.badRequest("Bad request");
+                  */
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+---
+
+# API Error Handling
+
+A lightweight, production-ready error handling utility for **Express** applications.
+
+This component provides:
+
+- Standardized HTTP status codes
+- A typed **ApiError** class
+- Consistent, predictable error responses
+- Clear separation between operational and programmer errors
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+### 1. Install the required dependency
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+> ⚠️ If this dependency is not installed, the component will not function correctly.
+
+## Basic Implementation
+
+### 1. MVC Structure
+`src/utils/api-error.ts` 
+
+```ts
+import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+export class ApiError extends Error {
+  public readonly statusCode: StatusCode;
+  public readonly isOperational: boolean;
+  public readonly errors?: unknown;
+
+  constructor(
+    statusCode: StatusCode,
+    message: string,
+    errors?: unknown,
+    isOperational = true,
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.isOperational = isOperational;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  static badRequest(message = "Bad Request", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static unauthorized(message = "Unauthorized") {
+    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+  }
+
+  static forbidden(message = "Forbidden") {
+    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+  }
+
+  static notFound(message = "Not Found") {
+    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+  }
+
+  static conflict(message = "Conflict") {
+    return new ApiError(STATUS_CODES.CONFLICT, message);
+  }
+
+  static validation(message = "Validation failed", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static notImplemented(message = "Not Implemented") {
+    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+  }
+
+  static badGateway(message = "Bad Gateway") {
+    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+  }
+
+  static serviceUnavailable(message = "Service Unavailable") {
+    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+  }
+
+  static tooManyRequests(message = "Too Many Requests") {
+    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+  }
+
+  static server(message = "Internal Server Error") {
+    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+  }
+}
+
+/*
+ * Usage:
+ * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+ * throw ApiError.badRequest("Bad request");
+ */
+```
+
+### 2. Feature Structure
+`src/shared/errors/api-error.ts`
+
+```ts
+import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+export class ApiError extends Error {
+  public readonly statusCode: StatusCode;
+  public readonly isOperational: boolean;
+  public readonly errors?: unknown;
+
+  constructor(
+    statusCode: StatusCode,
+    message: string,
+    errors?: unknown,
+    isOperational = true,
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.isOperational = isOperational;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  static badRequest(message = "Bad Request", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static unauthorized(message = "Unauthorized") {
+    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+  }
+
+  static forbidden(message = "Forbidden") {
+    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+  }
+
+  static notFound(message = "Not Found") {
+    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+  }
+
+  static conflict(message = "Conflict") {
+    return new ApiError(STATUS_CODES.CONFLICT, message);
+  }
+
+  static validation(message = "Validation failed", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static notImplemented(message = "Not Implemented") {
+    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+  }
+
+  static badGateway(message = "Bad Gateway") {
+    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+  }
+
+  static serviceUnavailable(message = "Service Unavailable") {
+    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+  }
+
+  static tooManyRequests(message = "Too Many Requests") {
+    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+  }
+
+  static server(message = "Internal Server Error") {
+    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+  }
+}
+
+/*
+ * Usage:
+ * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+ * throw ApiError.badRequest("Bad request");
+ */
+```
+
+## Usage Example
+
+```ts
+import { ApiError } from "../utils/api-error";
+import { AsyncHandler } from "../utils/async-handler";
+
+export const signinUser = AsyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw ApiError.badRequest("Missing email or password");
+  }
+  // ...
+});
+```
+
+## Error Response
+
+If email or password is missing, then return standardized responses:
+
+```json
+{
+  "success": false,
+  "message": "Missing email or password",
+  "statusCode": 400
+}
+```

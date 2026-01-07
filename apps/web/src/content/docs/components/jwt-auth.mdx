@@ -1,0 +1,321 @@
+---
+title: JWT Authentication
+description: Production-ready JSON Web Token authentication with access and refresh tokens for Express applications.
+command: npx servercn add jwt-auth
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                JWT_ACCESS_SECRET: string;
+                JWT_REFRESH_SECRET: string;
+              }
+
+              const env: Config = {
+                JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET,
+                JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET
+              };
+
+              export default env;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: jwt.ts
+            content: |
+
+              import jwt from "jsonwebtoken";
+              import env from "../configs/env";
+
+              const ACCESS_TOKEN_EXPIRY = "15m";
+              const REFRESH_TOKEN_EXPIRY = "7d";
+
+              export function generateAccessToken(user: { _id: string }) {
+                return jwt.sign(
+                  { _id: user._id },
+                  env.JWT_ACCESS_SECRET!,
+                  { expiresIn: ACCESS_TOKEN_EXPIRY }
+                );
+              }
+
+              export function generateRefreshToken(userId: string) {
+                return jwt.sign(
+                  { userId },
+                  env.JWT_REFRESH_SECRET!,
+                  { expiresIn: REFRESH_TOKEN_EXPIRY }
+                );
+              }
+
+              export function verifyAccessToken(token: string) {
+                return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {
+                  _id: string;
+                };
+              }
+
+              export function verifyRefreshToken(token: string) {
+                return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {
+                  userId: string;
+                };
+              }
+
+  - type: file
+    name: .env.example
+    content: |
+
+      JWT_ACCESS_SECRET='your-access-secret'
+      JWT_REFRESH_SECRET='your-refresh-secret'
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: jwt.helpers.ts
+                content: |
+
+                  import jwt from "jsonwebtoken";
+
+                  const ACCESS_TOKEN_EXPIRY = "15m";
+                  const REFRESH_TOKEN_EXPIRY = "7d";
+
+                  export function generateAccessToken(user: { _id: string }) {
+                    return jwt.sign(
+                      { _id: user._id },
+                      process.env.JWT_ACCESS_SECRET!,
+                      { expiresIn: ACCESS_TOKEN_EXPIRY }
+                    );
+                  }
+
+                  export function generateRefreshToken(userId: string) {
+                    return jwt.sign(
+                      { userId },
+                      process.env.JWT_REFRESH_SECRET!,
+                      { expiresIn: REFRESH_TOKEN_EXPIRY }
+                    );
+                  }
+
+                  export function verifyAccessToken(token: string) {
+                    return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
+                      _id: string;
+                    };
+                  }
+
+                  export function verifyRefreshToken(token: string) {
+                    return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+                      userId: string;
+                    };
+                  }
+  - type: file
+    name: .env.example
+    content: |
+
+      JWT_ACCESS_SECRET='your-access-secret'
+      JWT_REFRESH_SECRET='your-refresh-secret'
+---
+
+# JWT Authentication
+
+JWT Authentication provides a **production-ready authentication utility** based on **access tokens** and **refresh tokens** for Express-based applications.
+
+It is designed to be:
+
+- Secure by default
+- Simple to integrate
+- Framework-agnostic
+- Compatible with MVC, feature-based, and clean architectures
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add jwt-auth" />
+
+## What Is JWT?
+
+A JSON Web Token (JWT) is a compact, URL-safe token used to securely transmit claims between a client and a server.
+
+A JWT consists of three parts:
+
+```bash
+header.payload.signature
+```
+
+### 1. Header
+
+Describes the signing algorithm and token type:
+
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+### 2. Payload
+
+Contains claims (data). In ServerCN, this typically includes the user identifier:
+
+```json
+{
+  "_id": "user_id_here",
+  "iat": 1700000000,
+  "exp": 1700000900
+}
+```
+
+### 3. Signature
+
+Ensures the token has not been tampered with. It is generated using your secret key.
+
+[Official docs](https://www.jwt.io)
+
+## (Access vs Refresh) Token
+
+ServerCN follows a dual-token strategy, which is the recommended approach for production systems.
+
+### 1. Access Token
+
+- Short-lived (e.g. 15m)
+- Sent with every authenticated request
+- Used for authorization
+- Stored in memory or HTTP-only cookies
+
+### 2. Refresh Token
+
+- Long-lived (e.g. 7d)
+- Used only to issue new access tokens
+- Should be stored securely (HTTP-only cookie or database)
+- Can be revoked or rotated
+
+## Token Flow Overview
+
+**1. User logs in**:
+Server generates an access token and a refresh token
+
+**2. Client sends access token**:
+Included in the Authorization header
+
+**3. Access token expires**:
+Client sends refresh token to /auth/refresh
+
+**4. New access token issued**:
+Session continues without re-login
+
+## Prerequisites
+
+Ensure the following environment variables are defined before running the application:
+
+```ts
+JWT_ACCESS_SECRET = "your-access-secret";
+JWT_REFRESH_SECRET = "your-refresh-secret";
+```
+
+**JWT_ACCESS_SECRET**: Used to sign and verify access tokens
+
+**JWT_REFRESH_SECRET**: Used to sign and verify refresh tokens - These secrets
+must be different and kept private
+
+Ensure the following configuration are defined:
+
+`src/configs/env.ts`
+
+```ts
+interface Config {
+  JWT_REFRESH_SECRET: string;
+  JWT_ACCESS_SECRET: string;
+}
+
+const env: Config = {
+  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+};
+
+export default env;
+```
+
+## JWT Implementation
+
+`src/utils/jwt.ts`
+
+```ts
+import jwt from "jsonwebtoken";
+import env from "../configs/env";
+
+const ACCESS_TOKEN_EXPIRY = "15m";
+const REFRESH_TOKEN_EXPIRY = "7d";
+
+// Generate a short-lived access token
+export function generateAccessToken(user: { _id: string }) {
+  return jwt.sign({ _id: user._id }, process.env.JWT_ACCESS_SECRET!, {
+    expiresIn: ACCESS_TOKEN_EXPIRY,
+  });
+}
+
+// Generate a long-lived refresh token
+export function generateRefreshToken(userId: string) {
+  return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
+    expiresIn: REFRESH_TOKEN_EXPIRY,
+  });
+}
+
+// Verify and decode an access token
+export function verifyAccessToken(token: string) {
+  return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
+    _id: string;
+  };
+}
+
+// Verify and decode a refresh token
+export function verifyRefreshToken(token: string) {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+    userId: string;
+  };
+}
+```
+
+## Usage Example
+
+```ts
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+} from "../utils/jwt";
+
+export async function issueTokens(userId: string) {
+  // Short-lived token used for authorization
+  const accessToken = generateAccessToken({ _id: userId });
+
+  // Long-lived token used to refresh sessions
+  const refreshToken = generateRefreshToken(userId);
+
+  return { accessToken, refreshToken };
+}
+
+export async function decodeAccessToken(token?: string) {
+  // If no token is provided, deny access immediately
+  if (!token) {
+    throw ApiError.unauthorized("Access token missing");
+  }
+
+  // jwt.verify throws if the token is invalid or expired
+  const payload = verifyAccessToken(token);
+
+  // Payload contains the user id
+  return payload._id;
+}
+```

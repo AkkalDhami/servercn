@@ -1,0 +1,212 @@
+---
+title: Async Handler
+description: A lightweight async error-handling wrapper for Express route handlers.
+command: npx servercn add async-handler
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: async-handler.ts
+            content: |
+
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (
+                  req: Request,
+                  res: Response,
+                  next: NextFunction
+                ) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: users.routes.ts
+            content: |
+
+              import { Router } from "express";
+              import { AsyncHandler } from "../utils/async-handler";
+
+              const router = Router();
+
+              router.get(
+                "/",
+                AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+                  /*
+                  * business logic
+                  * your actual code
+                  */
+                });
+              );
+
+              export default router;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: users
+            children:
+              - type: file
+                name: users.routes.ts
+                content: |
+
+                  import { Router } from "express";
+                  import { AsyncHandler } from "../../utils/async-handler";
+
+                  const router = Router();
+
+                  router.get(
+                    "/",
+                    AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+                      /*
+                      * business logic
+                      * your actual code
+                      */
+                    });
+                  );
+
+                  export default router;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: async-handler.ts
+            content: |
+
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (
+                  req: Request,
+                  res: Response,
+                  next: NextFunction
+                ) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+---
+
+# Async Handler
+
+The **Async Handler** component is a **foundational Express utility** that ensures all errors thrown inside asynchronous route handlers are **reliably captured and forwarded** to Express’s global error middleware.
+
+It eliminates repetitive **try/catch** blocks and ensures all rejected promises are properly forwarded to Express’s centralized error-handling middleware.
+
+- Eliminates try/catch boilerplate,
+- Full TypeScript support,
+- Seamless Express integration,
+- Minimal performance overhead,
+- Works with any error handler
+
+This component is designed to be:
+
+- Minimal
+- Framework-native
+- Fully type-safe
+- Compatible with any Express error handler
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add async-handler" />
+
+## The Core Problem in Express
+
+Express was originally designed around **synchronous middleware**. Express.js doesn't automatically catch errors from async functions
+
+Async Handler wraps async routes and properly forwards all errors.
+
+As a result:
+
+- Errors thrown synchronously are caught automatically
+- Errors thrown inside **async** functions are **not**
+  <br />
+
+```ts
+router.get("/users", async (_req, res) => {
+  throw new Error("Database unavailable");
+});
+```
+
+## Basic Implementation
+
+### 1. MVC Structure
+`src/utils/async-handler.ts` 
+
+```ts
+import { Request, Response, NextFunction } from "express";
+
+export type AsyncRouteHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<unknown>;
+
+export function AsyncHandler(fn: AsyncRouteHandler) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+```
+
+### 2. Feature Structure
+`src/shared/utils/async-handler.ts`
+
+```ts
+import { Request, Response, NextFunction } from "express";
+
+export type AsyncRouteHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<unknown>;
+
+export function AsyncHandler(fn: AsyncRouteHandler) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+```
+
+## Usage Example
+
+<br/>
+```ts
+import { Request, Response, NextFunction } from "express";
+import { AsyncHandler } from "..utils/async-handler";
+
+export const registerUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  /*
+   * business logic
+   * your actual code
+   */
+});
+```

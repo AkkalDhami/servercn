@@ -1,0 +1,48 @@
+# Graceful Shutdown Handler
+
+Graceful shutdown handling for Node.js and Express servers.
+
+The **Graceful Shutdown Handler** ensures that your ServerCN application terminates safely and predictably when the process receives shutdown signals such as `SIGTERM` or `SIGINT`. It allows the server to stop accepting new connections, complete in-flight requests, release resources, and exit cleanly without data loss.
+
+
+## Why Graceful Shutdown Matters
+
+In production environments—containers, process managers, CI/CD pipelines, or orchestration platforms—applications are frequently restarted or terminated.
+
+Without a graceful shutdown mechanism, your server may:
+
+- Drop active HTTP requests
+- Leave database connections open
+- Interrupt background jobs
+- Cause unexpected client-side errors during deployments
+
+ServerCN provides a standardized and reusable shutdown lifecycle for production systems.
+
+
+## Features
+
+- Listens to system termination signals
+- Stops accepting new HTTP connections
+- Waits for ongoing requests to complete
+- Supports async cleanup hooks
+- Configurable shutdown timeout
+- Centralized and predictable shutdown flow
+
+
+## Installation
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add shutdown-handler" />
+
+## Basic Usage
+
+### Create the Graceful Shutdown Handler
+
+```ts
+import { createGracefulShutdown } from "@/servercn/graceful-shutdown";
+
+const shutdown = createGracefulShutdown({
+  server,
+  timeout: 10000, // 10 seconds
+});
