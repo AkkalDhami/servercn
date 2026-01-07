@@ -1,0 +1,44 @@
+packages/registry/
+├── blocks/
+│   ├── auth-jwt.json
+│   ├── auth-google.json
+│   ├── mongodb.json
+│   ├── cloudinary.json
+│   └── error-handler.json
+└── index.json
+auth/
+├─ jwt-auth
+├─ password-hash
+├─ session-auth
+├─ api-key-auth
+├─ auth-middleware
+├─ rbac
+├─ permissions
+├─ role-guard
+├─ refresh-token-rotation
+├─ token-blacklist
+├─ csrf-protection
+├─ email-verification
+├─ password-reset
+└─ oauth/
+   ├─ oauth-google
+   ├─ oauth-github
+   └─ oauth-discord
+
+{
+    "name": "google-auth",
+    "title": "Google OAuth Authentication",
+    "type": "auth",
+    "stacks": [
+        "express"
+    ],
+    "templates": {
+        "express": "auth/google/express"
+    },
+    "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_CALLBACK_URL"
+    ],
+    "docs": "https://servercn.dev/docs/google-auth"
+}
