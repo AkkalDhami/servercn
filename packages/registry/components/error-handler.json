@@ -1,0 +1,26 @@
+{
+    "title": "API error handling",
+    "slug": "error-handler",
+    "description": "API error handling for Express",
+    "type": "component",
+    "stacks": [
+        "express"
+    ],
+    "architectures": [
+        "mvc",
+        "feature"
+    ],
+    "templates": {
+        "express": {
+            "mvc": "error-handler/express/mvc",
+            "feature": "error-handler/express/feature"
+        }
+    },
+    "dependencies": {
+        "runtime": [
+            "express"
+        ],
+        "dev": [ ]
+    },
+    "docs": "https://servercn.dev/docs/components/error-handler"
+}

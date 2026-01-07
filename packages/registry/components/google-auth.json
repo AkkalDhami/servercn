@@ -1,0 +1,42 @@
+{
+    "name": "google-auth",
+    "title": "Google oauth authentication",
+    "type": "block",
+    "stacks": [
+        "express"
+    ],
+    "architectures": [
+        "feature",
+        "mvc"
+    ],
+    "templates": {
+        "express": {
+            "mvc": "google/express/mvc",
+            "feature": "google/express/feature"
+        }
+    },
+    "dependencies": {
+        "runtime": [
+            "google-auth-library",
+            "express",
+            "mongoose"
+        ],
+        "dev": [
+            "@types/express"
+        ],
+        "peer": []
+    },
+    "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_CALLBACK_URL"
+    ],
+    "security": {
+        "level": "high",
+        "notes": [
+            "OAuth 2.0 authorization code flow",
+            "State parameter required to prevent CSRF"
+        ]
+    },
+    "docs": "https://servercn.dev/docs/google-auth"
+}

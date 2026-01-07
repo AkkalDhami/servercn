@@ -1,0 +1,38 @@
+{
+    "title": "JWT Authentication",
+    "slug": "jwt-auth",
+    "description": "JSON Web Token authentication with access & refresh token support for Express",
+    "type": "component",
+    "stacks": [ "express" ],
+    "architectures": [ "mvc", "feature" ],
+    "templates": {
+        "express": {
+            "mvc": "/express/mvc",
+            "feature": "/express/feature"
+        }
+    },
+    "dependencies": {
+        "runtime": [
+            "jsonwebtoken",
+            "express"
+        ],
+        "dev": [
+            "@types/jsonwebtoken",
+            "@types/express"
+        ]
+    },
+    "env": [
+        "JWT_ACCESS_SECRET",
+        "JWT_REFRESH_SECRET"
+    ],
+    "security": {
+        "level": "high",
+        "notes": [
+            "HS256 by default (configurable)",
+            "Access & refresh token separation",
+            "Supports token rotation",
+            "Uses Authorization: Bearer header"
+        ]
+    },
+    "docs": "https://servercn.dev/docs/jwt-auth"
+}

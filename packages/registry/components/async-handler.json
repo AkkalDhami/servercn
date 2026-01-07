@@ -1,0 +1,25 @@
+{
+    "title": "Async handler",
+    "slug": "async-handler",
+    "description": "Async handler for Express with error handling",
+    "type": "component",
+    "stacks": [
+        "express"
+    ],
+    "architectures": [
+        "mvc",
+        "feature" ],
+    "templates": {
+        "express": {
+            "mvc": "async-handler/express/mvc",
+            "feature": "async-handler/express/feature"
+        }
+    },
+    "dependencies": {
+        "runtime": [
+            "express"
+        ],
+        "dev": [ ]
+    },
+    "docs": "https://servercn.dev/docs/components/async-handler"
+}
