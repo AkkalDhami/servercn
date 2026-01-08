@@ -1,10 +1,10 @@
-import type { Metadata, Route } from "next";
+import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
-import Link from "next/link";
 
 import registry from "@/data/registry.json";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Heading } from "@/components/ui/heading";
+import ComponentCard from "@/components/docs/component-card";
 
 export const generateMetadata = (): Metadata => {
   return {
@@ -12,7 +12,7 @@ export const generateMetadata = (): Metadata => {
   };
 };
 
-interface BackendComponent {
+export interface BackendComponent {
   slug: string;
   title: string;
   description: string;
@@ -29,7 +29,7 @@ export default function ComponentsPage() {
   return (
     <Container className="mt-16 min-h-screen w-full max-w-360">
       <div className="mb-6">
-        <Heading className="tracking-tight">Backend Components</Heading>
+        <Heading className="tracking-tight">ServerCN Components</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
           Production-ready ServerCN components for building scalable backends.
           Here you can find all the components available in the library. We are
@@ -53,28 +53,3 @@ export default function ComponentsPage() {
   );
 }
 
-function ComponentCard({ component }: { component: BackendComponent }) {
-  return (
-    <Link
-      href={component.docs as Route}
-      className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5"
-    >
-      {component.status !== "stable" && (
-        <span
-          className={`absolute top-4 right-4 rounded-full border border-amber-400 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:border-amber-600`}
-        >
-          {component.status}
-        </span>
-      )}
-      <h3 className="text-lg font-medium">{component.title}</h3>
-
-      <p className="text-muted-primary mt-2 line-clamp-2 text-sm">
-        {component.description}
-      </p>
-
-      <div className="text-muted-secondary group-hover:text-foreground mt-4 flex items-center text-sm font-medium duration-300 group-hover:underline">
-        View docs
-      </div>
-    </Link>
-  );
-}

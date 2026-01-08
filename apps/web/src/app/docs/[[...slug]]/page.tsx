@@ -144,11 +144,12 @@ export default async function DocsPage({
   const mvcStructure = (data.mvc_structure as FileNode[]) || [];
   const featureStructure = (data.feature_structure as FileNode[]) || [];
 
-
+  const currentArchStructure =
+    currentArch === "mvc" ? mvcStructure : featureStructure;
 
   return (
     <div className="flex w-full max-w-6xl gap-8 px-3 sm:p-0">
-      <div className="flex-1">
+      <div id="docs-content" className="flex-1">
         <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
           <MDXRemote
             source={content}
@@ -160,7 +161,7 @@ export default async function DocsPage({
             }}
           />
         </article>
-        <div>
+        <div className="min-w-[800px] overflow-x-auto">
           {currentArchStructure &&
             lastSlug &&
             !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
@@ -190,7 +191,7 @@ export default async function DocsPage({
           <NextSteps next={next} prev={prev} />
         </div>
       </div>
-      <aside className="no-scrollbar docs-content sticky top-20 hidden max-h-[calc(100vh-2rem)] min-w-56 shrink-0 overflow-y-auto xl:block">
+      <aside className="no-scrollbar docs-content sticky top-20 hidden max-h-[calc(100vh-2rem)] min-w-64 shrink-0 overflow-y-auto xl:block">
         <OnThisPage />
       </aside>
     </div>
@@ -205,7 +206,7 @@ const NextSteps = ({
   prev?: IRegistryItems;
 }) => {
   return (
-    <div className="mt-8">
+    <div className="mt-8 flex items-center justify-between">
       {prev && (
         <div className="flex items-center justify-start">
           <Link
