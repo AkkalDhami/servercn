@@ -22,8 +22,8 @@ export default function ArchitectureTabs({ current }: { current: string }) {
   }
 
   return (
-    <div className="bg-background text-muted-primary my-6 w-full rounded-md border">
-      <div className="bg-background grid w-full grid-cols-2 gap-3">
+    <div className="bg-background text-muted-primary my-6 max-w-[800px] overflow-auto w-full rounded-md border">
+      <div className="bg-background grid grid-cols-2 gap-3">
         {ARCHS.map((arch) => (
           <button
             key={arch}

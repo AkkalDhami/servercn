@@ -1,6 +1,5 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";
 import CopyButton from "./copy-button";
 
@@ -20,7 +19,7 @@ export function CodeWrapper({
   }
 
   return (
-    <div className="relative w-full rounded-md">
+    <div className="relative rounded-md">
       <CopyButton
         handleCopy={copy}
         copied={copied}

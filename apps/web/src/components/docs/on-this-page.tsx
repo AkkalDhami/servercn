@@ -15,22 +15,31 @@ export function OnThisPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
+    const container = document.getElementById("docs-content");
+    console.log({ container });
+    if (!container) return;
+
     const slugger = new GithubSlugger();
+
     const elements = Array.from(
-      document.querySelectorAll("h2, h3.this-page-link"),
+      container.querySelectorAll("h2, h3"),
     ) as HTMLHeadingElement[];
 
-    const list = elements.map((el) => {
-      const text = el.textContent ?? "";
-      const id = el.id || slugger.slug(text);
-      el.id = id;
+    const list: Heading[] = elements
+      .map((el) => {
+        const text = el.textContent?.trim() ?? "";
+        if (!text) return null;
 
-      return {
-        id,
-        text,
-        level: Number(el.tagName[1]),
-      };
-    });
+        const id = el.id || slugger.slug(text);
+        el.id = id;
+
+        return {
+          id,
+          text,
+          level: Number(el.tagName[1]),
+        };
+      })
+      .filter(Boolean) as Heading[];
 
     setHeadings(list);
   }, []);
@@ -40,18 +49,16 @@ export function OnThisPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        if (visible[0]) {
-          setActiveId(visible[0].target.id);
-        }
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
       },
       {
+        root: null, // IMPORTANT: viewport scrolling
         rootMargin: "-96px 0px -60% 0px",
-        threshold: [0.1, 0.25, 0.5],
-        root: document.getElementById("docs-content"),
+        threshold: 0,
       },
     );
 

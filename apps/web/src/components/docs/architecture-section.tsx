@@ -17,6 +17,8 @@ export function ArchitectureSection({
   const searchParams = useSearchParams();
   const arch = searchParams.get("arch") ?? "mvc";
 
+  console.log({ searchParams, arch, restricted });
+
   if (restricted) return null;
 
   const structure = arch === "feature" ? featureStructure : mvcStructure;
