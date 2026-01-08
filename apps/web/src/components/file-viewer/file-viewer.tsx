@@ -1,4 +1,3 @@
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PRIMRY_CODE_BLACK_THEME } from "../docs/code-block";
 import { getSingletonHighlighter } from "shiki";
 const highlighter = await getSingletonHighlighter({

@@ -16,7 +16,7 @@ export default function BackendStructureViewer({
   >();
 
   return (
-    <div className="flex h-130 w-full max-w-4xl overflow-auto rounded-xl bg-[#0b0e14]">
+    <div className="flex h-130 w-full max-w-[800px] overflow-auto rounded-xl bg-[#0b0e14]">
       <div className="code-wrapper w-76 overflow-auto p-4">
         <FileTree
           data={structure}
@@ -27,7 +27,7 @@ export default function BackendStructureViewer({
 
       <Separator orientation="vertical" className="bg-neutral-500/20" />
 
-      <div className="w-full max-w-146 overflow-auto p-4">
+      <div className="w-full max-w-[calc(100%-19rem)] overflow-auto p-4">
         <FileViewer content={activeFile?.content} />
       </div>
     </div>

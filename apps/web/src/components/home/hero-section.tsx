@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { FaGithub } from "react-icons/fa";
 import { HeaderBadge } from "../ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 export default function HeroSection() {
   return (
@@ -22,14 +24,19 @@ export default function HeroSection() {
           </div>
 
           <div className="text-center">
-            <TextEffect
-              preset="fade-in-blur"
-              speedSegment={0.25}
-              as="h1"
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
               className="mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl"
             >
-              Build backends faster with ServerCN
-            </TextEffect>
+              <span className="bg-linear-to-b bg-clip-text text-transparent from-neutral-400 from-5% to-neutral-900 dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
+                Build backends faster with
+              </span>{" "}
+              <span className="bg-linear-to-b bg-clip-text text-transparent from-neutral-400 from-5% to-neutral-900 dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
+                ServerCN
+              </span>
+            </motion.h1>
 
             <TextEffect
               per="line"
