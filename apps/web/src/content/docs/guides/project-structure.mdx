@@ -91,7 +91,10 @@ const env: Config = {
 export default env;
 ```
 
+<br />
+
 #### `constants/`
+
 
 Application-wide constants:
 
@@ -107,6 +110,8 @@ export const STATUS_CODES = {
 } as const;
 ```
 
+<br />
+
 #### `controllers/`
 
 Route handlers that process requests and return responses:
@@ -121,6 +126,7 @@ export const getUser = async (req: Request, res: Response) => {
   return res.json({ success: true, data: user });
 };
 ```
+<br />
 
 #### `middlewares/`
 
@@ -142,6 +148,8 @@ export const authenticate = (
   next();
 };
 ```
+
+<br />
 
 #### `models/`
 
@@ -165,6 +173,7 @@ const userSchema = new Schema<IUser>({
 
 export const User: Model<IUser> = mongoose.model("User", userSchema);
 ```
+<br />
 
 #### `routes/`
 
@@ -183,6 +192,7 @@ router.post("/", createUser);
 
 export default router;
 ```
+<br />
 
 #### `services/`
 
@@ -202,6 +212,7 @@ export class UserService {
   }
 }
 ```
+<br />
 
 #### `utils/`
 
@@ -218,6 +229,7 @@ export class ApiError extends Error {
   }
 }
 ```
+<br />
 
 #### `validations/`
 
@@ -312,6 +324,8 @@ Code shared across all features:
 - **`shared/middlewares/`**: Global middlewares
 - **`shared/utils/`**: Shared utility functions
 
+<br />
+
 #### `modules/`
 
 Self-contained feature modules. Each module contains:
@@ -322,6 +336,8 @@ Self-contained feature modules. Each module contains:
 - **`routes/`**: Feature-specific routes
 - **`validations/`**: Feature-specific validation schemas
 - **`types/`**: Feature-specific TypeScript types
+
+<br />
 
 #### `routes/index.ts`
 

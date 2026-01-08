@@ -261,7 +261,9 @@ This component is designed to work seamlessly with:
 
 This component requires additional ServerCN components.
 
-### 1. Install the required dependency
+**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+
+### 1. Install ServerCN dependencies(Optional)
 
 <PackageManagerTabs command="npx servercn add http-status-codes" />
 
@@ -287,6 +289,7 @@ res.status(400).json({ error: "Invalid input" });
 ## Basic Implementation
 
 ### 1. MVC Structure
+
 `src/utils/api-response.ts`
 
 ```ts
