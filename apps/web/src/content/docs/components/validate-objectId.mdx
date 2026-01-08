@@ -1,0 +1,375 @@
+---
+title: Validate ObjectId Middleware
+description: Middleware to validate MongoDB ObjectId parameters in Express routes.
+command: npx servercn add validate-objectId
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+              // 2xx Success
+              OK: 200,
+              CREATED: 201,
+              ACCEPTED: 202,
+              NO_CONTENT: 204,
+
+              // 3xx Redirection
+              MOVED_PERMANENTLY: 301,
+              FOUND: 302,
+              NOT_MODIFIED: 304,
+
+              // 4xx Client Errors
+              BAD_REQUEST: 400,
+              UNAUTHORIZED: 401,
+              FORBIDDEN: 403,
+              NOT_FOUND: 404,
+              CONFLICT: 409,
+              UNPROCESSABLE_ENTITY: 422,
+              TOO_MANY_REQUESTS: 429,
+
+              // 5xx Server Errors
+              INTERNAL_SERVER_ERROR: 500,
+              NOT_IMPLEMENTED: 501,
+              BAD_GATEWAY: 502,
+              SERVICE_UNAVAILABLE: 503,
+              GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: validate-id.ts
+            content: |
+
+                import { Request, Response, NextFunction } from "express";
+                import { isValidObjectId } from "mongoose";
+                import { ApiError } from "../utils/api-error";
+                
+                export const validateObjectId = (paramName: string = "id") => {
+                  return (req: Request, res: Response, next: NextFunction) => {
+                    const value = req.params[paramName] || req.body[paramName] || req.query[paramName];
+                    if (!value) {
+                        throw ApiError.badRequest(`${paramName} is required`);
+                    }
+                
+                    if (!isValidObjectId(value)) {
+                        throw ApiError.badRequest(`Invalid ${paramName}`);
+                    }
+                    
+                    next();
+                  };
+                };
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+              static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+              }
+
+              static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+              }
+
+              static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+              }
+
+              static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+              }
+
+              static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+              }
+
+              static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+              }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(404, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+
+                    export const STATUS_CODES = {
+                        // 2xx Success
+                        OK: 200,
+                        CREATED: 201,
+                        ACCEPTED: 202,
+                        NO_CONTENT: 204,
+
+                        // 3xx Redirection
+                        MOVED_PERMANENTLY: 301,
+                        FOUND: 302,
+                        NOT_MODIFIED: 304,
+
+                        // 4xx Client Errors
+                        BAD_REQUEST: 400,
+                        UNAUTHORIZED: 401,
+                        FORBIDDEN: 403,
+                        NOT_FOUND: 404,
+                        CONFLICT: 409,
+                        UNPROCESSABLE_ENTITY: 422,
+                        TOO_MANY_REQUESTS: 429,
+
+                        // 5xx Server Errors
+                        INTERNAL_SERVER_ERROR: 500,
+                        NOT_IMPLEMENTED: 501,
+                        BAD_GATEWAY: 502,
+                        SERVICE_UNAVAILABLE: 503,
+                        GATEWAY_TIMEOUT: 504,
+                    } as const;
+
+                    export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: validate-id.ts
+                content: |
+
+                    import { Request, Response, NextFunction } from "express";
+                    import { isValidObjectId } from "mongoose";
+                    import { ApiError } from "../errors/api-error";
+                    
+                    export const validateObjectId = (paramName: string = "id") => {
+                      return (req: Request, res: Response, next: NextFunction) => {
+                        const value = req.params[paramName] || req.body[paramName] || req.query[paramName];
+                        if (!value) {
+                          throw ApiError.badRequest(`${paramName} is required`);
+                        }
+                    
+                        if (!isValidObjectId(value)) {
+                          throw ApiError.badRequest(`Invalid ${paramName}`);
+                        }
+                        
+                        next();
+                      };
+                    };
+         
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+
+                    import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                    export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(
+                        statusCode: StatusCode,
+                        message: string,
+                        errors?: unknown,
+                        isOperational = true
+                    ) {
+                        super(message);
+                        this.name = "ApiError";
+                        this.statusCode = statusCode;
+                        this.errors = errors;
+                        this.isOperational = isOperational;
+
+                        Error.captureStackTrace(this, this.constructor);
+                    }
+
+                        static badRequest(message = "Bad Request", errors?: unknown) {
+                            return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                        }
+
+                        static unauthorized(message = "Unauthorized") {
+                            return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                        }
+
+                        static forbidden(message = "Forbidden") {
+                            return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                        }
+
+                        static notFound(message = "Not Found") {
+                            return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                        }
+
+                        static conflict(message = "Conflict") {
+                            return new ApiError(STATUS_CODES.CONFLICT, message);
+                        }
+
+                        static server(message = "Internal Server Error") {
+                            return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                        }
+                    }
+
+                    /*
+                    ? Usage:
+                    * throw new ApiError(404, "Not found");
+                    * throw ApiError.badRequest("Bad request");
+                    */
+
+---
+
+# Validate ObjectId Middleware
+
+The **Validate ObjectId Middleware** ensures that route parameters intended to be MongoDB ObjectIds are valid before the request reaches your controller. This prevents `CastError` exceptions from Mongoose and ensures strictly typed ID handling.
+
+It is designed to be:
+
+- **Robust**: Checks for valid 24-character hex strings using Mongoose's `isValidObjectId`.
+- **Flexible**: Can validate any route parameter name (defaults to `id`).
+- **Clean**: Throws a standardized `ApiError` if validation fails.
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add validate-objectId" />
+
+## Prerequisites
+
+This middleware relies on `mongoose` for validation and an error handling utility for throwing exceptions.
+
+### Dependencies
+
+- **Mongoose**: For `isValidObjectId`.
+- **Api Error Handler**: implementation of `ApiError` class.
+
+## Basic Implementation
+
+### 1. MVC Structure
+
+`src/middlewares/validate-id.ts`
+
+```ts
+import { Request, Response, NextFunction } from "express";
+import { isValidObjectId } from "mongoose";
+import { ApiError } from "../utils/api-error";
+
+/**
+ * Middleware to validate MongoDB ObjectId
+ * @param paramName - The name of the parameter to validate (default: "id")
+ */
+export const validateObjectId = (paramName: string = "id") => {
+  return (req: Request, res: Response, next: NextFunction) => {
+
+    const value = req.params[paramName] || req.body[paramName] || req.query[paramName];
+    if (!value) {
+      throw ApiError.badRequest(`${paramName} is required`);
+    }
+
+    if (!isValidObjectId(value)) {
+      throw ApiError.badRequest(`Invalid ${paramName}`);
+    }
+
+    next();
+  };
+};  
+```
+
+### 2. Feature Structure
+
+`src/shared/middlewares/validate-id.ts`
+
+```ts
+import { Request, Response, NextFunction } from "express";
+import { isValidObjectId } from "mongoose";
+import { ApiError } from "../errors/api-error";
+
+export const validateObjectId = (paramName: string = "id") => {
+  return (req: Request, res: Response, next: NextFunction) => {
+
+    const value = req.params[paramName] || req.body[paramName] || req.query[paramName];
+    if (!value) {
+      throw ApiError.badRequest(`${paramName} is required`);
+    }
+
+    if (!isValidObjectId(value)) {
+      throw ApiError.badRequest(`Invalid ${paramName}`);
+    }
+
+    next();
+  };
+};
+```
+
+## Usage Example
+
+Apply the middleware to any route that contains an `:id` parameter.
+
+```ts
+import { Router } from "express";
+import { validateObjectId } from "../middlewares/validate-id";
+import { getUserById, deleteUser } from "../controllers/user.controller";
+
+const router = Router();
+
+// Validates 'id' param by default
+router.get("/:id", validateObjectId(), getUserById);
+
+// Validates custom param name 'userId'
+router.delete("/:userId", validateObjectId("userId"), deleteUser);
+
+export default router;
+```
+
+## Why Use This?
+
+Without this middleware, passing an invalid ID (e.g., `123`) to a Mongoose query like `findById` causes a `CastError`, which might crash your app or result in a generic 500 Internal Server Error if not handled properly. This middleware catches the issue early and returns a proper 400 Bad Request.
