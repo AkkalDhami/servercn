@@ -473,8 +473,7 @@ async function init() {
       message: "Select architecture",
       choices: [
         { title: "MVC", value: "mvc" },
-        { title: "Feature-based", value: "feature" },
-        { title: "Clean Architecture", value: "clean" }
+        { title: "Feature-based", value: "feature" }
       ]
     },
     {
@@ -482,8 +481,7 @@ async function init() {
       name: "language",
       message: "Language",
       choices: [
-        { title: "TypeScript", value: "typescript" },
-        { title: "JavaScript", value: "javascript" }
+        { title: "TypeScript", value: "typescript" }
       ]
     },
     {
@@ -497,11 +495,7 @@ async function init() {
       name: "databaseType",
       message: "Select database",
       choices: [
-        { title: "MongoDB", value: "mongodb" },
-        { title: "PostgreSQL", value: "postgresql" },
-        { title: "MySQL", value: "mysql" },
-        { title: "SQLite", value: "sqlite" },
-        { title: "None / Not now", value: "none" }
+        { title: "MongoDB", value: "mongodb" }
       ]
     },
     {
@@ -509,8 +503,7 @@ async function init() {
       name: "orm",
       message: "MongoDB library",
       choices: [
-        { title: "Mongoose", value: "mongoose" },
-        { title: "Native MongoDB Driver", value: "mongodb" }
+        { title: "Mongoose", value: "mongoose" }
       ]
     },
     {
@@ -651,43 +644,6 @@ ${category.toUpperCase()}`);
 }
 
 // src/cli.ts
-import pino from "pino";
-
-// src/configs/env.ts
-import { z } from "zod";
-var envSchema = z.object({
-  NODE_ENV: z.enum(["dev", "test", "proud"]).default("dev"),
-  SERVERCN_SILENT: z.string().default("true"),
-  //   PORT: z.string().default("3000"),
-  //   DATABASE_URL: z.string(),
-  LOG_LEVEL: z.string().default("info")
-  //   JOIN_CODE_ENCRYPTION_KEY: z.string(),
-  //   JWT_REFRESH_SECRET: z.string(),
-  //   JWT_ACCESS_SECRET: z.string(),
-  //   COOKIE_SECRET: z.string(),
-  //   SMTP_HOST: z.string(),
-  //   SMTP_PORT: z.string(),
-  //   SMTP_USER: z.string(),
-  //   EMAIL_FROM: z.string(),
-  //   CLOUDINARY_CLOUD_NAME: z.string(),
-  //   CLOUDINARY_API_KEY: z.string(),
-  //   CLOUDINARY_API_SECRET: z.string(),
-  //   REDIS_URL: z.string(),
-  //   GOOGLE_CLIENT_ID: z.string(),
-  //   GOOGLE_CLIENT_SECRET: z.string(),
-  //   GOOGLE_REDIRECT_URI: z.string(),
-});
-var parsed = envSchema.safeParse(process.env);
-if (!parsed.success) {
-  console.error(
-    "\u274C Invalid environment variables:",
-    parsed.error.flatten().fieldErrors
-  );
-  process.exit(1);
-}
-var env = parsed.data;
-
-// src/cli.ts
 var program = new Command();
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
@@ -706,25 +662,4 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-var isProd = env.NODE_ENV === "proud";
-var logger2 = pino({
-  level: env.LOG_LEVEL,
-  transport: isProd ? {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
-      translateTime: "yyyy-mm-dd HH:MM:ss",
-      ignore: "pid,hostname"
-    }
-  } : void 0
-});
-logger2.info("Server started");
-logger2.warn({ userId: "123" }, "Suspicious activity detected");
-logger2.error(
-  { err: "Database connection failed" },
-  "Database connection failed"
-);
-export {
-  logger2 as logger
-};
 //# sourceMappingURL=cli.js.map

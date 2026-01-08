@@ -1,7 +1,7 @@
 {
-  "name": "@servercn/cli",
+  "name": "servercn",
   "version": "1.0.0",
-  "description": "Backend components CLI for Node.js & Next.js",
+  "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
   "bin": {
     "servercn": "dist/cli.js"
@@ -14,11 +14,17 @@
     "servercn",
     "cli",
     "backend",
-    "next.js",
+    "typescript",
     "node.js"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "registry",
+    "templates",
+    "data"
+  ],
   "type": "module",
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",

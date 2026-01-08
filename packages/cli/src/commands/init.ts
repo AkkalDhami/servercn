@@ -36,16 +36,14 @@ export async function init() {
       message: "Select architecture",
       choices: [
         { title: "MVC", value: "mvc" },
-        { title: "Feature-based", value: "feature" }
+        { title: "Feature-based", value: "feature" },
       ],
     },
     {
       type: "select",
       name: "language",
       message: "Language",
-      choices: [
-        { title: "TypeScript", value: "typescript" }
-      ],
+      choices: [{ title: "TypeScript", value: "typescript" }],
     },
     {
       type: "select",
@@ -57,17 +55,13 @@ export async function init() {
       type: "select",
       name: "databaseType",
       message: "Select database",
-      choices: [
-        { title: "MongoDB", value: "mongodb" },
-      ],
+      choices: [{ title: "MongoDB", value: "mongodb" }],
     },
     {
       type: (prev) => (prev === "mongodb" ? "select" : null),
       name: "orm",
       message: "MongoDB library",
-      choices: [
-        { title: "Mongoose", value: "mongoose" },
-      ],
+      choices: [{ title: "Mongoose", value: "mongoose" }],
     },
     {
       type: (_prev, values) =>
@@ -93,27 +87,6 @@ export async function init() {
         { title: "yarn", value: "yarn" },
       ],
       initial: 0,
-    },
-    {
-      type: "select",
-      name: "fileNaming",
-      message: "File naming convention",
-      choices: [
-        { title: "camelCase", value: "camel-case" },
-        { title: "kebab-case", value: "kebab-case" },
-        { title: "snake_case", value: "snake-case" },
-        { title: "PascalCase", value: "pascal-case" },
-      ],
-    },
-    {
-      type: "select",
-      name: "functionNaming",
-      message: "Function naming convention",
-      choices: [
-        { title: "camelCase", value: "camel-case" },
-        { title: "snake_case", value: "snake-case" },
-        { title: "PascalCase", value: "pascal-case" },
-      ],
     },
   ]);
 
@@ -154,13 +127,6 @@ export async function init() {
             orm: response.orm,
           },
 
-    conventions: {
-      fileNaming: "kebab-case",
-      functionNaming: "camel-case",
-      envFile: ".env",
-      testDir: "__tests__",
-    },
-
     overrides: {},
 
     meta: {
@@ -169,11 +135,28 @@ export async function init() {
     },
   };
 
+  const tsConfig = {
+    compilerOptions: {
+      target: "ES2021",
+      module: "es2022",
+      moduleResolution: "bundler",
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      outDir: "dist",
+      rootDir: "src",
+    },
+    include: ["src/**/*"],
+    exclude: ["node_modules"],
+  };
+
   await fs.writeJson(path.join(rootPath, CONFIG_FILE), config, { spaces: 2 });
 
+  await fs.writeJson(path.join(srcPath, "tsconfig.json"), tsConfig, {
+    spaces: 2,
+  });
+
   logger.success("\nSuccess! ServerCN initialized successfully.");
-  logger.info(`Root directory: ${response.root}`);
-  logger.info(`Source directory: ${response.srcDir}`);
 
   logger.info("You may now add components by running:");
   logger.info("- servercn add <component>\n");
