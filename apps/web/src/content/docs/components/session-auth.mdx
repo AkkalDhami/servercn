@@ -1,0 +1,271 @@
+---
+title: Session Authentication
+description: Secure session management using express-session and connect-mongo for persistent authentication state.
+command: npx servercn add session-auth
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                MONGO_URI: string;
+                SESSION_SECRET: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || 'development',
+                MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/express-mongo',
+                SESSION_SECRET: process.env.SESSION_SECRET || 'secret'
+              };
+
+              export default env;
+
+          - type: file
+            name: session.ts
+            content: |
+
+              import session from 'express-session';
+              import MongoStore from 'connect-mongo';
+              import env from './env';
+
+              export const sessionConfig = session({
+                secret: env.SESSION_SECRET,
+                resave: false,
+                saveUninitialized: false,
+                cookie: {
+                  secure: env.NODE_ENV === 'production',
+                  httpOnly: true,
+                  maxAge: 24 * 60 * 60 * 1000, // 1 day
+                  sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax'
+                },
+                store: MongoStore.create({
+                  mongoUrl: env.MONGO_URI,
+                  collectionName: 'sessions'
+                })
+              });
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: session.ts
+            content: |
+
+              import session from 'express-session';
+              import MongoStore from 'connect-mongo';
+              import env from './env';
+
+              export const sessionConfig = session({
+                secret: env.SESSION_SECRET,
+                resave: false,
+                saveUninitialized: false,
+                cookie: {
+                  secure: env.NODE_ENV === 'production',
+                  httpOnly: true,
+                  maxAge: 24 * 60 * 60 * 1000, // 1 day
+                  sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax'
+                },
+                store: MongoStore.create({
+                  mongoUrl: env.MONGO_URI,
+                  collectionName: 'sessions'
+                })
+              });
+---
+
+# Session Authentication
+
+The **Session Authentication** component provides a standardized way to handle permanent sessions in your ServerCN application using **express-session** and **MongoDB** for storage.
+
+It is designed to be:
+
+- **Secure**: Uses HTTP-only cookies and secure flags in production.
+- **Scalable**: Stores sessions in MongoDB using `connect-mongo`.
+- **Flexible**: Easy to configure expiration and cookie settings.
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add session-auth" />
+
+## Prerequisites
+
+Ensure you have a MongoDB instance running and the connection string available.
+
+### Environment Variables
+
+Add the following to your `.env` file:
+
+```bash
+SESSION_SECRET="your-super-secret-key-at-least-32-chars"
+MONGO_URI="mongodb://localhost:27017/your-db"
+```
+
+Ensure your `src/configs/env.ts` includes these variables:
+
+```ts
+interface Config {
+  // ... other vars
+  SESSION_SECRET: string;
+  MONGO_URI: string;
+}
+
+const env: Config = {
+  // ... other vars
+  SESSION_SECRET: process.env.SESSION_SECRET!,
+  MONGO_URI: process.env.MONGO_URI!,
+};
+
+export default env;
+```
+
+## Implementation
+
+The component creates a session configuration file at `src/configs/session.ts`.
+
+```ts
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import env from "./env";
+
+export const sessionConfig = session({
+  secret: env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  },
+  store: MongoStore.create({
+    mongoUrl: env.MONGO_URI,
+    collectionName: "sessions",
+  }),
+});
+```
+
+## Usage
+
+Register the middleware in your main application file (`app.ts` or `server.ts`).
+
+### 1. Register Middleware
+
+```ts
+import express from "express";
+import { sessionConfig } from "./configs/session";
+
+const app = express();
+
+// Apply session middleware
+app.use(sessionConfig);
+```
+
+### 2. Accessing Session Data
+
+You can now access `req.session` in your routes.
+
+> **Note**: You may need to extend the Session type definition to include your custom properties.
+
+#### Extend Type Definition
+
+Create a file `src/types/express-session.d.ts`:
+
+```ts
+import "express-session";
+
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+    role: "admin" | "user";
+    // Add other custom properties here
+  }
+}
+```
+
+#### Login Example
+
+```ts
+app.post("/login", async (req, res) => {
+  const user = await validateUser(req.body);
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  // Set session data
+  req.session.userId = user.id;
+  req.session.role = user.role;
+
+  res.json({ message: "Logged in successfully" });
+});
+```
+
+#### Protected Route Example
+
+```ts
+app.get("/profile", (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  res.json({
+    userId: req.session.userId,
+    role: req.session.role,
+  });
+});
+```
+
+#### Logout Example
+
+```ts
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Could not log out" });
+    }
+
+    // Clear the cookie
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
+  });
+});
+```
+
+## Best Practices
+
+1.  **Secret Rotation**: Regularly rotate your `SESSION_SECRET`.
+2.  **Secure Cookies**: Always use `secure: true` in production (requires HTTPS).
+3.  **Store Cleanup**: `connect-mongo` automatically cleans up expired sessions.
+4.  **Session Fixation**: Regenerate session IDs after login (`req.session.regenerate`).
+
+```ts
+// Improved Login with Session Regeneration
+app.post("/login", async (req, res) => {
+  // ... validation
+
+  // Regenerate session to prevent fixation attacks
+  req.session.regenerate((err) => {
+    if (err) return next(err);
+
+    req.session.userId = user.id;
+
+    req.session.save((err) => {
+      if (err) return next(err);
+      res.json({ message: "Logged in" });
+    });
+  });
+});
+```
