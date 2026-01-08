@@ -14,6 +14,10 @@ export const siteConfig = {
       label: "Components",
       href: "/components",
     },
+    {
+      label: "Foundations",
+      href: "/foundations",
+    },
   ],
 
   description:

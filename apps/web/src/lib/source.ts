@@ -1,3 +1,4 @@
+import { IRegistryItems, ItemType } from "@/@types/registry";
 import registry from "@/data/registry.json";
 
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
@@ -5,15 +6,6 @@ export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
   "introduction",
   "project-structure",
 ];
-
-export interface IRegistryItems {
-  slug: string;
-  title: string;
-  description: string;
-  type: string;
-  status: string;
-  docs: string;
-}
 
 export const findNeighbour = (
   slug: string,
@@ -26,3 +18,15 @@ export const findNeighbour = (
     next: registry.items[index + 1],
   };
 };
+
+export function getTypeItems(type: ItemType) {
+  const items = registry.items
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .filter((item) => item.type == type)
+    .map((item) => ({
+      title: item.title,
+      url: item.docs,
+      status: item.status,
+    }));
+  return items.length > 0 ? items : [];
+}
