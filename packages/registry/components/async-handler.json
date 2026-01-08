@@ -1,7 +1,6 @@
 {
     "title": "Async handler",
     "slug": "async-handler",
-    "description": "Async handler for Express with error handling",
     "type": "component",
     "stacks": [
         "express"
@@ -11,8 +10,8 @@
         "feature" ],
     "templates": {
         "express": {
-            "mvc": "async-handler/express/mvc",
-            "feature": "async-handler/express/feature"
+            "mvc": "components/async-handler/express/mvc",
+            "feature": "components/async-handler/express/feature"
         }
     },
     "dependencies": {
