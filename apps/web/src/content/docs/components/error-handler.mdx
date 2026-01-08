@@ -231,7 +231,9 @@ This component provides:
 
 This component requires additional ServerCN components.
 
-### 1. Install the required dependency
+**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+
+### 1. Install ServerCN dependencies(Optional)
 
 <PackageManagerTabs command="npx servercn add http-status-codes" />
 
@@ -247,7 +249,8 @@ Documentation:
 ## Basic Implementation
 
 ### 1. MVC Structure
-`src/utils/api-error.ts` 
+
+`src/utils/api-error.ts`
 
 ```ts
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
@@ -325,6 +328,7 @@ export class ApiError extends Error {
 ```
 
 ### 2. Feature Structure
+
 `src/shared/errors/api-error.ts`
 
 ```ts

@@ -544,22 +544,24 @@ ServerCN provides a structured approach using:
 
 This component requires additional ServerCN components.
 
-### 1. Install the required dependency
+**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+
+### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-<PackageManagerTabs command="npx servercn add http-status-codes" />
+  <PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Error Handler:**
-<PackageManagerTabs command="npx servercn add error-handler" />
+  <PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **Logger:**
-<PackageManagerTabs command="npx servercn add logger" />
+  <PackageManagerTabs command="npx servercn add logger" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -626,6 +628,7 @@ export default env;
 ## Basic Implementation
 
 ### 1. MVC Structure
+
 `src/middlewares/error-handler.ts`
 
 ```ts
@@ -666,6 +669,7 @@ export const errorHandler = (
 ```
 
 ### 1. Feature Structure
+
 `src/shared/middlewares/error-handler.ts`
 
 ```ts
