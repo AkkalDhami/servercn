@@ -54,8 +54,8 @@ export default function SearchCommand() {
           </span>
         </div>
 
-        <Kbd className="group-hover:text-accent-foreground text-muted-foreground duration-300">
-          ⌘ J
+        <Kbd className="group-hover:text-accent-foreground text-muted-foreground text-sm font-medium duration-300">
+          ⌘ + J
         </Kbd>
       </Button>
       <CommandDialog
