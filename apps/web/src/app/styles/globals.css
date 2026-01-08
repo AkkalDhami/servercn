@@ -221,7 +221,9 @@
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
 }
-
+html {
+  scroll-behavior: smooth;
+}
 body {
   font-family: var(--font-sans);
 }
@@ -247,6 +249,8 @@ body {
   overflow-x: auto;
   border-radius: 0.5rem;
   position: relative;
+  /* max-width: 1000px;
+  width: 100%; */
 }
 
 code {
@@ -256,8 +260,10 @@ code {
 
 [data-rehype-pretty-code-figure] {
   max-height: 500px;
+  max-width: 800px;
+  width: 100%;
   position: relative;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 [data-rehype-pretty-code-fragment] {
