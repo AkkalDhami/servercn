@@ -36,10 +36,10 @@ mvc_structure:
         name: routes
         children:
           - type: file
-            name: users.routes.ts
+            name: user.routes.ts
             content: |
 
-              import { Router } from "express";
+              import { NextFunction, Request, Response, Router } from "express";
               import { AsyncHandler } from "../utils/async-handler";
 
               const router = Router();
@@ -51,7 +51,7 @@ mvc_structure:
                   * business logic
                   * your actual code
                   */
-                });
+                })
               );
 
               export default router;
@@ -67,10 +67,10 @@ feature_structure:
             name: users
             children:
               - type: file
-                name: users.routes.ts
+                name: user.routes.ts
                 content: |
 
-                  import { Router } from "express";
+                  import { NextFunction, Request, Response, Router } from "express";
                   import { AsyncHandler } from "../../utils/async-handler";
 
                   const router = Router();
@@ -82,35 +82,38 @@ feature_structure:
                       * business logic
                       * your actual code
                       */
-                    });
+                    })
                   );
 
                   export default router;
 
       - type: folder
-        name: utils
+        name: shared
         children:
-          - type: file
-            name: async-handler.ts
-            content: |
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: async-handler.ts
+                content: |
 
-              import { Request, Response, NextFunction } from "express";
+                  import { Request, Response, NextFunction } from "express";
 
-              export type AsyncRouteHandler = (
-                req: Request,
-                res: Response,
-                next: NextFunction
-              ) => Promise<unknown>;
+                  export type AsyncRouteHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => Promise<unknown>;
 
-              export function AsyncHandler(fn: AsyncRouteHandler) {
-                return function (
-                  req: Request,
-                  res: Response,
-                  next: NextFunction
-                ) {
-                  Promise.resolve(fn(req, res, next)).catch(next);
-                };
-              }
+                  export function AsyncHandler(fn: AsyncRouteHandler) {
+                    return function (
+                      req: Request,
+                      res: Response,
+                      next: NextFunction
+                    ) {
+                      Promise.resolve(fn(req, res, next)).catch(next);
+                    };
+                  }
 ---
 
 # Async Handler

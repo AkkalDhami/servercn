@@ -52,12 +52,12 @@
       "docs": "/docs/components/error-handler"
     },
     {
-      "slug": "response-handler",
+      "slug": "response-formatter",
       "title": "API Response Formatter",
       "description": "A standardized, type-safe API response wrapper for Express applications.",
       "type": "component",
       "status": "stable",
-      "docs": "/docs/components/response-handler"
+      "docs": "/docs/components/response-formatter"
     },
     {
       "slug": "async-handler",
