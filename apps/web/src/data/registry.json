@@ -4,6 +4,30 @@
   "author": "akkaldhami",
   "items": [
     {
+      "slug": "introduction",
+      "title": "Introduction",
+      "description": "ServerCN is a component-based backend development system for Node.js and TypeScript.",
+      "type": "guide",
+      "status": "stable",
+      "docs": "/docs/introduction"
+    },
+    {
+      "slug": "installation",
+      "title": "Installation",
+      "description": "Learn how to install and set up ServerCN in your project.",
+      "type": "guide",
+      "status": "stable",
+      "docs": "/docs/installation"
+    },
+    {
+      "slug": "project-structure",
+      "title": "Project Structure",
+      "description": "Understand how ServerCN organizes your project files based on your chosen architecture.",
+      "type": "guide",
+      "status": "stable",
+      "docs": "/docs/project-structure"
+    },
+    {
       "slug": "jwt-auth",
       "title": "JWT Authentication",
       "description": "JSON Web Token authentication with access & refresh token support for Express",
@@ -88,7 +112,7 @@
       "title": "Email Service",
       "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/email-service"
     },
     {
@@ -120,7 +144,7 @@
       "title": "Basic REST API",
       "description": "A production-ready REST API foundation for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
       "type": "blueprint",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/blueprints/rest-api"
     },
     {
@@ -128,7 +152,7 @@
       "title": "Google OAuth",
       "description": "Google OAuth",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/google-oauth"
     },
     {
@@ -138,7 +162,114 @@
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/shutdown-handler"
+    },
+    {
+      "slug": "session-auth",
+      "title": "Session Authentication",
+      "description": "The Session Authentication component provides a standardized way to handle session authentication in ServerCN using express-session.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/session-auth"
+    },
+    {
+      "slug": "rbac",
+      "title": "Role-Based Access Control",
+      "description": "The Role-Based Access Control component provides a standardized way to handle role-based access control in ServerCN.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/rbac"
+    },
+    {
+      "slug": "rate-limiter",
+      "title": "Rate Limiter",
+      "description": "The Rate Limiter component provides a standardized way to handle rate limiting in ServerCN.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/rate-limiter"
+    },
+    {
+      "slug": "sms-service",
+      "title": "SMS Service",
+      "description": "The SMS Service component provides a standardized way to handle SMS notifications in ServerCN.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/sms-service"
+    },
+    {
+      "slug": "github-oauth",
+      "title": "GitHub OAuth",
+      "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in ServerCN.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/github-oauth"
+    },
+    {
+      "slug": "security-header",
+      "title": "Security Headers",
+      "description": "The Security Headers component provides a standardized way to handle security headers in ServerCN.",
+      "type": "component",
+      "status": "unstable",
+      "docs": "/docs/components/security-header"
+    },
+    {
+      "slug": "validate-objectId",
+      "title": "Validate ObjectId Middleware",
+      "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/validate-objectId"
+    },
+
+
+    {
+      "slug": "express-server",
+      "title": "Basic Express Server",
+      "description": "The Basic Express Server foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/express-server"
+    },
+    {
+      "slug": "mvc-architecture",
+      "title": "MVC Architecture",
+      "description": "The MVC Architecture foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/mvc-architecture"
+    },
+    {
+      "slug": "feature-architecture",
+      "title": "Feature Based Architecture",
+      "description": "The Feature Based Architecture foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/feature-architecture"
+    },
+    {
+      "slug": "mongoose-starter",
+      "title": "Mongoose Starter",
+      "description": "The Mongoose Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/mongoose-starter"
+    },
+    {
+      "slug": "drizzle-starter",
+      "title": "Drizzle Starter",
+      "description": "The Drizzle Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/drizzle-starter"
+    },
+    {
+      "slug": "prisma-starter",
+      "title": "Prisma Starter",
+      "description": "The Prisma Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/prisma-starter"
     }
+
   ],
   "version": {
     "version": "0.0.1",
