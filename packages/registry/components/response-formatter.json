@@ -1,6 +1,6 @@
 {
-    "title": "API error handler",
-    "slug": "error-handler",
+    "slug": "response-formatter",
+    "title": "API Response Formatter",
     "type": "component",
     "stacks": [
         "express"
@@ -11,8 +11,8 @@
     ],
     "templates": {
         "express": {
-            "mvc": "components/error-handler/express/mvc",
-            "feature": "components/error-handler/express/feature"
+            "mvc": "components/response-formatter/express/mvc",
+            "feature": "components/response-formatter/express/feature"
         }
     },
     "dependencies": {

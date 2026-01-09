@@ -1,0 +1,29 @@
+{
+    "title": "Logger Pino",
+    "type": "component",
+    "stacks": [
+        "express"
+    ],
+    "architectures": [
+        "mvc",
+        "feature"
+    ],
+    "templates": {
+        "express": {
+            "mvc": "components/logger-pino/express/mvc",
+            "feature": "components/logger-pino/express/feature"
+        }
+    },
+    "dependencies": {
+        "runtime": [
+            "express",
+            "pino",
+            "dotenv"
+        ],
+        "dev": [ ]
+    },
+    "env": [
+        "LOG_LEVEL",
+        "NODE_ENV"
+    ]
+}

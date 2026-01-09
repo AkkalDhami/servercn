@@ -19,6 +19,5 @@
             "express"
         ],
         "dev": [ ]
-    },
-    "docs": "https://servercn.dev/docs/components/async-handler"
+    }
 }

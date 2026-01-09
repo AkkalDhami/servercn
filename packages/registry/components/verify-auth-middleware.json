@@ -1,0 +1,18 @@
+{
+  "name": "verify-auth-middleware",
+  "title": "Verify Authentication Middleware",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["feature", "mvc"],
+  "templates": {
+    "express": {
+      "mvc": "components/verify-auth-middleware/express/mvc",
+      "feature": "components/verify-auth-middleware/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "dotenv", "winston", "winston-daily-rotate-file"],
+    "dev": ["@types/express"],
+    "peer": []
+  }
+}
