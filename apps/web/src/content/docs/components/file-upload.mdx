@@ -475,7 +475,7 @@ mvc_structure:
             name: logger.ts
             content: |
 
-              import { env } from "../configs/env";
+              import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
 
@@ -1192,10 +1192,10 @@ Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-handler" />
+  <PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
-[Api Response Handler](/docs/components/response-handler)
+[Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
   <PackageManagerTabs command="npx servercn add error-handler" />

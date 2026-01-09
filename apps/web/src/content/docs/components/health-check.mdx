@@ -350,30 +350,30 @@ The **Health Check** component provides production-ready endpoints for monitorin
 
 This component requires additional ServerCN components.
 
-***👉 Note:*** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
 
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-<PackageManagerTabs command="npx servercn add http-status-codes" />
+  <PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-<PackageManagerTabs command="npx servercn add response-handler" />
+  <PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
-[Api Response Handler](/docs/components/response-handler)
+[Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-<PackageManagerTabs command="npx servercn add error-handler" />
+  <PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **Async Handler:**
-<PackageManagerTabs command="npx servercn add async-handler" />
+  <PackageManagerTabs command="npx servercn add async-handler" />
 
 Documentation:
 [Async Handler](/docs/components/async-handler)
@@ -602,6 +602,7 @@ export const healthCheck = AsyncHandler(
 ## Route Setup
 
 ### Basic Setup
+
 `src/app.ts`
 
 ```ts

@@ -37,7 +37,7 @@ mvc_structure:
 
               // winston logger usage
 
-              import { env } from "../configs/env";
+              import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
 
@@ -103,7 +103,7 @@ mvc_structure:
         content: |
           import express, { type Application } from "express";
           import "dotenv/config";
-          import { logger } from "../utils/logger";
+          import { logger } from "./utils/logger";
 
           const app: Application = express();
 
@@ -124,9 +124,9 @@ mvc_structure:
         name: .env.example
         content: |
 
-          PORT:'3000'
-          NODE_ENV:'development'
-          LOG_LEVEL:'info'
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
 
 feature_structure:
   - type: folder
@@ -166,7 +166,7 @@ feature_structure:
                   // pino logger usage
 
                   import pino from "pino";
-                  import { env } from "../configs/env";
+                  import env from "../configs/env";
 
                   export const logger = pino({
                   level: env.LOG_LEVEL,
@@ -194,7 +194,7 @@ feature_structure:
         content: |
           import express, { type Application } from "express";
           import "dotenv/config";
-          import { logger } from "../utils/logger";
+          import { logger } from "./shared/utils/logger";
 
           const app: Application = express();
 
@@ -218,9 +218,9 @@ feature_structure:
         name: .env.example
         content: |
 
-          PORT:'3000'
-          NODE_ENV:'development'
-          LOG_LEVEL:'info'
+          PORT='3000'
+          NODE_ENV='development'
+          LOG_LEVEL='info'
 ---
 
 # Logger
@@ -300,7 +300,7 @@ Winston is ideal if you want:
 **`src/utils/logger.ts`**
 
 ```ts
-import { env } from "../configs/env";
+import env from "../configs/env";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 
@@ -404,7 +404,7 @@ It is the recommended choice for:
 
 ```ts
 import pino from "pino";
-import { env } from "../configs/env";
+import env from "../configs/env";
 
 export const logger = pino({
   level: env.LOG_LEVEL,

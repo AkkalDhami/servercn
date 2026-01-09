@@ -78,6 +78,28 @@ feature_structure:
     name: src
     children:
       - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+
+                  interface Config {
+                    JWT_REFRESH_SECRET: string;
+                    JWT_ACCESS_SECRET: string;
+                  }
+
+                  const env: Config = {
+                    JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,
+                    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+                  };
+
+                  export default env;
+
+      - type: folder
         name: modules
         children:
           - type: folder
@@ -88,6 +110,7 @@ feature_structure:
                 content: |
 
                   import jwt from "jsonwebtoken";
+                  import env from "../../shared/configs/env";
 
                   const ACCESS_TOKEN_EXPIRY = "15m";
                   const REFRESH_TOKEN_EXPIRY = "7d";
@@ -95,7 +118,7 @@ feature_structure:
                   export function generateAccessToken(user: { _id: string }) {
                     return jwt.sign(
                       { _id: user._id },
-                      process.env.JWT_ACCESS_SECRET!,
+                      env.JWT_ACCESS_SECRET!,
                       { expiresIn: ACCESS_TOKEN_EXPIRY }
                     );
                   }
@@ -103,19 +126,19 @@ feature_structure:
                   export function generateRefreshToken(userId: string) {
                     return jwt.sign(
                       { userId },
-                      process.env.JWT_REFRESH_SECRET!,
+                      env.JWT_REFRESH_SECRET!,
                       { expiresIn: REFRESH_TOKEN_EXPIRY }
                     );
                   }
 
                   export function verifyAccessToken(token: string) {
-                    return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
+                    return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {
                       _id: string;
                     };
                   }
 
                   export function verifyRefreshToken(token: string) {
-                    return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+                    return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {
                       userId: string;
                     };
                   }
@@ -247,13 +270,55 @@ const env: Config = {
 export default env;
 ```
 
-## JWT Implementation
+## Basic Implementation
+
+### 1. MVC Structure
 
 `src/utils/jwt.ts`
 
 ```ts
 import jwt from "jsonwebtoken";
 import env from "../configs/env";
+
+const ACCESS_TOKEN_EXPIRY = "15m";
+const REFRESH_TOKEN_EXPIRY = "7d";
+
+// Generate a short-lived access token
+export function generateAccessToken(user: { _id: string }) {
+  return jwt.sign({ _id: user._id }, process.env.JWT_ACCESS_SECRET!, {
+    expiresIn: ACCESS_TOKEN_EXPIRY,
+  });
+}
+
+// Generate a long-lived refresh token
+export function generateRefreshToken(userId: string) {
+  return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
+    expiresIn: REFRESH_TOKEN_EXPIRY,
+  });
+}
+
+// Verify and decode an access token
+export function verifyAccessToken(token: string) {
+  return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
+    _id: string;
+  };
+}
+
+// Verify and decode a refresh token
+export function verifyRefreshToken(token: string) {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as {
+    userId: string;
+  };
+}
+```
+
+### 2. Feature Structure
+
+`src/modules/auth/jwt.helpers.ts`
+
+```ts
+import jwt from "jsonwebtoken";
+import env from "../../shared/configs/env";
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";

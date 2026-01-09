@@ -172,7 +172,7 @@ mvc_structure:
             name: logger.ts
             content: |
 
-              import { env } from "../configs/env";
+              import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
 
@@ -392,7 +392,7 @@ feature_structure:
                 name: logger.ts
                 content: |
 
-                  import { env } from "../configs/env";
+                  import env from "../configs/env";
                   import winston from "winston";
                   import DailyRotateFile from "winston-daily-rotate-file";
 

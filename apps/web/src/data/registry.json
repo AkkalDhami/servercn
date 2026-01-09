@@ -8,7 +8,7 @@
       "title": "Introduction",
       "description": "ServerCN is a component-based backend development system for Node.js and TypeScript.",
       "type": "guide",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/introduction"
     },
     {
@@ -16,7 +16,7 @@
       "title": "Installation",
       "description": "Learn how to install and set up ServerCN in your project.",
       "type": "guide",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/installation"
     },
     {
@@ -24,7 +24,7 @@
       "title": "Project Structure",
       "description": "Understand how ServerCN organizes your project files based on your chosen architecture.",
       "type": "guide",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/project-structure"
     },
     {
@@ -32,7 +32,7 @@
       "title": "JWT Authentication",
       "description": "JSON Web Token authentication with access & refresh token support for Express",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/jwt-auth"
     },
     {
@@ -40,7 +40,7 @@
       "title": "Global Error Handler",
       "description": "Centralized error handling for Express applications using TypeScript.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/global-error-handler"
     },
     {
@@ -72,7 +72,7 @@
       "title": "Password Hashing",
       "description": "The Password Hashing component provides a standardized way to hash passwords in ServerCN using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/password-hashing"
     },
     {
@@ -80,7 +80,7 @@
       "title": "HTTP Status Codes",
       "description": "Centralized, type-safe HTTP status codes for consistent API responses.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/http-status-codes"
     },
     {
@@ -88,7 +88,7 @@
       "title": "Auth Verification Middleware",
       "description": "Auth Verification Middleware protects private routes by validating user authentication using JWT access tokens and refresh tokens.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/verify-auth-middleware"
     },
     {
@@ -96,7 +96,7 @@
       "title": "Structured Logger",
       "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/logger"
     },
     {
@@ -104,7 +104,7 @@
       "title": "File Upload",
       "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/file-upload"
     },
     {
@@ -120,7 +120,7 @@
       "title": "Not Found Handler",
       "description": "The Not Found Handler component provides a standardized way to handle not found routes in ServerCN.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/not-found-handler"
     },
     {
@@ -128,7 +128,7 @@
       "title": "Request Validator(Zod)",
       "description": "The Request Validator(Zod) component provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/request-validator"
     },
     {
@@ -136,7 +136,7 @@
       "title": "Health Check",
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/health-check"
     },
     {
@@ -160,7 +160,7 @@
       "title": "Graceful Shutdown Handler",
       "description": "The Graceful Shutdown Handler ensures that your ServerCN application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/shutdown-handler"
     },
     {
@@ -216,7 +216,7 @@
       "title": "Validate ObjectId Middleware",
       "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
       "type": "component",
-      "status": "stable",
+      "status": "unstable",
       "docs": "/docs/components/validate-objectId"
     },
 
