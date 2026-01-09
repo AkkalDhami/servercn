@@ -9,12 +9,10 @@ export interface AddOptions {
 
 type Architecture = "mvc" | "feature" | "clean";
 
-interface CopyOptions {
+export interface CopyOptions {
   templateDir: string;
   targetDir: string;
   componentName: string;
-  conventions: NamingConventions;
-  replacements?: Record<string, string>;
   conflict?: ConflictStrategy;
   dryRun?: boolean;
 }
@@ -24,7 +22,6 @@ export type ServerCNConfig = {
   version: string;
 
   project: {
-    name: string;
     root: string;
     srcDir: string;
     type: "backend";
@@ -43,20 +40,8 @@ export type ServerCNConfig = {
     orm: string;
   };
 
-  conventions: {
-    fileNaming: "kebab-case" | "camel-case" | "snake-case";
-    functionNaming: "camel-case" | "pascal-case" | "snake-case";
-    envFile: string;
-    testDir: string;
-  };
-
   meta: {
     createdAt: string;
     createdBy: string;
   };
 };
-
-export interface NamingConventions {
-  fileNaming?: "kebab-case" | "camel-case" | "snake-case";
-  functionNaming?: "camel-case" | "pascal-case" | "snake-case";
-}

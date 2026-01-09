@@ -12,13 +12,18 @@ export function getServercnRoot() {
   return path.resolve(__dirname, "../../..");
 }
 
-export function getRegistryPath() {
-  return path.join(getServercnRoot(), "packages/registry");
+
+export function getRegistryPath(folder: string) {
+  return path.join(getServercnRoot(), `packages/registry/${folder}s`);
 }
-// export function getRegistryPath(folder: string) {
-//   return path.join(getServercnRoot(), `packages/registry/${folder}`);
-// }
+
+export type ItemType =
+  | "component"
+  | "blueprint"
+  | "guide"
+  | "model"
+  | "foundation";
 
 export function getTemplatesPath() {
-  return path.join(getServercnRoot(), "packages/templates");
+  return path.join(getServercnRoot(), `packages/templates/`);
 }

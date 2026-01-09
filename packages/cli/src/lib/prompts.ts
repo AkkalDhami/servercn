@@ -5,7 +5,8 @@ export async function askFolderName(defaultName: string) {
     type: "text",
     name: "folder",
     message: "Where should this component be added?",
-    initial: defaultName,
+    initial: ".",
+    format: (val) => val.trim() || ".",
   });
 
   return folder || defaultName;
