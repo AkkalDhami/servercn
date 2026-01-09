@@ -33,6 +33,10 @@ export const siteConfig = {
     "API error handling",
     "Backend components",
     "Documentation",
+    "Nodejs",
+    "Express",
+    "Server",
   ],
+  author: "Akkal Dhami",
   metadataBase: new URL("https://servercn.com"),
 };

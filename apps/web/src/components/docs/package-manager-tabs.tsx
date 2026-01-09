@@ -18,7 +18,7 @@ export default function PackageManagerTabs({
   return (
     <Tabs
       defaultValue="npm"
-      className="my-6 max-w-[800px] overflow-auto rounded-md bg-[#0b0e14] text-white"
+      className="my-6 max-w-[900px] overflow-auto rounded-md bg-[#0b0e14] text-white"
     >
       <TabsList className="bg-[#0b0e14]">
         <TerminalIcon className="size-5 text-neutral-400" />

@@ -21,7 +21,7 @@ export function Pre(props: React.HTMLAttributes<HTMLPreElement>) {
   }
 
   return (
-    <div className="relative max-w-[800px] overflow-auto w-full rounded-md bg-[#0b0e14]">
+    <div className="relative max-w-[900px] overflow-auto w-full rounded-md bg-[#0b0e14]">
       <CopyButton
         handleCopy={copy}
         copied={copied}

@@ -17,7 +17,6 @@ export default function FileViewer({ content }: { content?: string }) {
     lang: "ts",
     theme: PRIMRY_CODE_BLACK_THEME,
   });
-  console.log({ html });
 
   return (
     <div className="h-full max-h-125 w-full bg-[#0b0e14] whitespace-nowrap">

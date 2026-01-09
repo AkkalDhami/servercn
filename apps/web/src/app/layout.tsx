@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   generator: siteConfig.generator,
   keywords: siteConfig.keywords,
   metadataBase: siteConfig.metadataBase,
+  twitter: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    creator: siteConfig.author
+  }
 };
 
 export default function RootLayout({

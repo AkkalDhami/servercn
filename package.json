@@ -25,9 +25,14 @@
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "change-case": "^5.4.4",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.0.2"
+    "mongoose": "^9.0.2",
+    "pino": "^10.1.0",
+    "servercn": "^1.0.0",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }

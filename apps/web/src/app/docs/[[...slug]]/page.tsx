@@ -12,15 +12,12 @@ import BackendStructureViewer from "@/components/file-viewer/backend-structure-v
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import PackageManagerTabs from "@/components/docs/package-manager-tabs";
 import { Metadata, Route } from "next";
-import {
-  findNeighbour,
-  IRegistryItems,
-  RESTRICTED_FOLDER_STRUCTURE_PAGES,
-} from "@/lib/source";
+import { findNeighbour, RESTRICTED_FOLDER_STRUCTURE_PAGES } from "@/lib/source";
 import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
 import registry from "@/data/registry.json";
+import { IRegistryItems } from "@/@types/registry";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -148,7 +145,7 @@ export default async function DocsPage({
     currentArch === "mvc" ? mvcStructure : featureStructure;
 
   return (
-    <div className="flex w-full max-w-6xl gap-8 px-3 sm:p-0">
+    <div className="flex w-full max-w-5xl gap-8 px-3 sm:p-0">
       <div id="docs-content" className="flex-1">
         <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
           <MDXRemote
@@ -161,7 +158,7 @@ export default async function DocsPage({
             }}
           />
         </article>
-        <div className="min-w-[800px] overflow-x-auto">
+        <div className="min-w-[700px] overflow-x-auto">
           {currentArchStructure &&
             lastSlug &&
             !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
