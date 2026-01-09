@@ -15,11 +15,11 @@ var __dirname = path.dirname(__filename);
 function getServercnRoot() {
   return path.resolve(__dirname, "../../..");
 }
-function getRegistryPath() {
-  return path.join(getServercnRoot(), "packages/registry");
+function getRegistryPath(folder) {
+  return path.join(getServercnRoot(), `packages/registry/${folder}s`);
 }
 function getTemplatesPath() {
-  return path.join(getServercnRoot(), "packages/templates");
+  return path.join(getServercnRoot(), `packages/templates/`);
 }
 
 // src/lib/copy.ts
@@ -63,53 +63,16 @@ var logger = {
 };
 
 // src/lib/copy.ts
-function toKebabCase(value) {
-  return value.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/[\s_]+/g, "-").toLowerCase();
-}
-function toCamelCase(value) {
-  return value.replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : "").replace(/^(.)/, (m) => m.toLowerCase());
-}
-function toPascalCase(value) {
-  const camel = toCamelCase(value);
-  return camel.charAt(0).toUpperCase() + camel.slice(1);
-}
-function toSnakeCase(value) {
-  return value.replace(/([a-z])([A-Z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
-}
-function applyNaming(value, style) {
-  switch (style) {
-    case "camel-case":
-      return toCamelCase(value);
-    case "snake-case":
-      return toSnakeCase(value);
-    case "kebab-case":
-    default:
-      return toKebabCase(value);
-  }
-}
-function applyFunctionNaming(value, style) {
-  switch (style) {
-    case "pascal-case":
-      return toPascalCase(value);
-    case "snake-case":
-      return toSnakeCase(value);
-    case "camel-case":
-    default:
-      return toCamelCase(value);
-  }
-}
 async function copyTemplate({
   templateDir,
   targetDir,
   componentName,
-  conventions,
-  replacements = {},
   conflict = "skip",
   dryRun = false
 }) {
   if (!await fs.pathExists(templateDir)) {
     logger.error(`Template not found: ${templateDir}`);
-    return;
+    process.exit(1);
   }
   await fs.ensureDir(targetDir);
   const entries = await fs.readdir(templateDir, { withFileTypes: true });
@@ -117,18 +80,12 @@ async function copyTemplate({
     const srcPath = path2.join(templateDir, entry.name);
     let rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
     let finalName = rawName;
-    if (componentName && rawName.includes("component")) {
-      const baseName = applyNaming(componentName, conventions.fileNaming);
-      finalName = rawName.replace("component", baseName);
-    }
     const destPath = path2.join(targetDir, finalName);
     if (entry.isDirectory()) {
       await copyTemplate({
         templateDir: srcPath,
         targetDir: destPath,
         componentName,
-        conventions,
-        replacements,
         conflict,
         dryRun
       });
@@ -155,21 +112,10 @@ async function copyTemplate({
       await fs.copyFile(srcPath, destPath);
     } else {
       let content = buffer.toString("utf8");
-      if (componentName) {
-        const fileName = applyNaming(componentName, conventions.fileNaming);
-        const functionName = applyFunctionNaming(
-          componentName,
-          conventions.functionNaming
-        );
-        content = content.replaceAll("{{fileName}}", fileName).replaceAll("{{FILE_NAME}}", fileName.toUpperCase()).replaceAll("{{functionName}}", functionName).replaceAll("{{FUNCTION_NAME}}", functionName.toUpperCase());
-      }
-      for (const [key, value] of Object.entries(replacements)) {
-        content = content.replaceAll(`{{${key}}}`, value);
-      }
       await fs.writeFile(destPath, content);
     }
-    logger.success(
-      exists ? `Overwritten: ${destPath}` : `Created: ${destPath}`
+    logger.created(
+      exists ? `Overwritten: ${destPath}` : `: ${destPath}`
     );
   }
 }
@@ -177,8 +123,8 @@ async function copyTemplate({
 // src/lib/registry.ts
 import fs2 from "fs-extra";
 import path3 from "path";
-async function getRegistryComponent(name) {
-  const registryPath = getRegistryPath();
+async function getRegistryComponent(name, type) {
+  const registryPath = getRegistryPath(type);
   const filePath = path3.join(registryPath, `${name}.json`);
   if (!await fs2.pathExists(filePath)) {
     logger.error(`Component "${name}" not found`);
@@ -312,7 +258,8 @@ async function askFolderName(defaultName) {
     type: "text",
     name: "folder",
     message: "Where should this component be added?",
-    initial: defaultName
+    initial: ".",
+    format: (val) => val.trim() || "."
   });
   return folder || defaultName;
 }
@@ -337,9 +284,10 @@ async function assertInitialized() {
 // src/lib/config.ts
 import fs7 from "fs-extra";
 import path9 from "path";
+var SERVERCN_CONFIG_FILE = "servercn.json";
 async function getServerCNConfig() {
   const cwd = process.cwd();
-  const configPath = path9.resolve(cwd, "servercn.json");
+  const configPath = path9.resolve(cwd, SERVERCN_CONFIG_FILE);
   if (!await fs7.pathExists(configPath)) {
     logger.warn("ServerCN is not initialized. Run `servercn init` first.");
     process.exit(1);
@@ -349,10 +297,9 @@ async function getServerCNConfig() {
 
 // src/commands/add.ts
 async function add(componentName, options = {}) {
-  console.log(componentName);
   await assertInitialized();
   const config = await getServerCNConfig();
-  const component = await getRegistryComponent(componentName);
+  const component = await getRegistryComponent(componentName, "component");
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
       `Component "${componentName}" does not support "${config.stack.framework}"`
@@ -415,11 +362,6 @@ async function add(componentName, options = {}) {
     templateDir,
     targetDir,
     componentName,
-    conventions: config.conventions,
-    // <-- fileNaming + functionNaming
-    replacements: {
-      PROJECT_NAME: config.project.name
-    },
     conflict: options.force ? "overwrite" : "skip",
     dryRun: options.dryRun
   });
@@ -472,16 +414,19 @@ async function init() {
       name: "architecture",
       message: "Select architecture",
       choices: [
-        { title: "MVC", value: "mvc" },
-        { title: "Feature-based", value: "feature" }
+        { title: "MVC (controllers, services, models)", value: "mvc" },
+        { title: "Feature-based (domain-driven modules)", value: "feature" }
       ]
     },
     {
       type: "select",
       name: "language",
-      message: "Language",
+      message: "Programming language",
       choices: [
-        { title: "TypeScript", value: "typescript" }
+        {
+          title: "TypeScript (recommended)",
+          value: "typescript"
+        }
       ]
     },
     {
@@ -494,17 +439,13 @@ async function init() {
       type: "select",
       name: "databaseType",
       message: "Select database",
-      choices: [
-        { title: "MongoDB", value: "mongodb" }
-      ]
+      choices: [{ title: "MongoDB", value: "mongodb" }]
     },
     {
       type: (prev) => prev === "mongodb" ? "select" : null,
       name: "orm",
       message: "MongoDB library",
-      choices: [
-        { title: "Mongoose", value: "mongoose" }
-      ]
+      choices: [{ title: "Mongoose", value: "mongoose" }]
     },
     {
       type: (_prev, values) => ["postgresql", "mysql", "sqlite"].includes(values.databaseType) ? "select" : null,
@@ -527,27 +468,6 @@ async function init() {
         { title: "yarn", value: "yarn" }
       ],
       initial: 0
-    },
-    {
-      type: "select",
-      name: "fileNaming",
-      message: "File naming convention",
-      choices: [
-        { title: "camelCase", value: "camel-case" },
-        { title: "kebab-case", value: "kebab-case" },
-        { title: "snake_case", value: "snake-case" },
-        { title: "PascalCase", value: "pascal-case" }
-      ]
-    },
-    {
-      type: "select",
-      name: "functionNaming",
-      message: "Function naming convention",
-      choices: [
-        { title: "camelCase", value: "camel-case" },
-        { title: "snake_case", value: "snake-case" },
-        { title: "PascalCase", value: "pascal-case" }
-      ]
     }
   ]);
   if (!response.architecture) {
@@ -577,22 +497,31 @@ async function init() {
       type: response.databaseType,
       orm: response.orm
     },
-    conventions: {
-      fileNaming: "kebab-case",
-      functionNaming: "camel-case",
-      envFile: ".env",
-      testDir: "__tests__"
-    },
     overrides: {},
     meta: {
       createdAt: (/* @__PURE__ */ new Date()).toISOString(),
       createdBy: "servercn@1.0.0"
     }
   };
+  const tsConfig = {
+    compilerOptions: {
+      target: "ES2021",
+      module: "es2022",
+      moduleResolution: "bundler",
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      outDir: "dist",
+      rootDir: "src"
+    },
+    include: ["src/**/*"],
+    exclude: ["node_modules"]
+  };
   await fs8.writeJson(path11.join(rootPath, CONFIG_FILE2), config, { spaces: 2 });
+  await fs8.writeJson(path11.join(rootPath, "tsconfig.json"), tsConfig, {
+    spaces: 2
+  });
   logger.success("\nSuccess! ServerCN initialized successfully.");
-  logger.info(`Root directory: ${response.root}`);
-  logger.info(`Source directory: ${response.srcDir}`);
   logger.info("You may now add components by running:");
   logger.info("- servercn add <component>\n");
 }
@@ -651,7 +580,7 @@ async function main() {
   program.name("servercn").description("Backend components for Node.js").version("0.0.1");
   program.command("init").description("Initialize ServerCN in your project").action(init);
   program.command("list").description("List available ServerCN components").action(list);
-  program.command("add <component>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature | clean)", "mvc").option("-f, --force", "Overwrite existing files").option("--dry-run", "Preview changes without writing").action((component, options) => {
+  program.command("add <component>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature)", "mvc").option("-f, --force", "Overwrite existing files").action((component, options) => {
     return add(component, {
       arch: options.arch
     });

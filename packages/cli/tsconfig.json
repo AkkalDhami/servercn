@@ -8,6 +8,7 @@
     "types": [
       "node"
     ],
+    "verbatimModuleSyntax": true,
     "isolatedModules": false,
     "resolveJsonModule": true,
     "baseUrl": ".",

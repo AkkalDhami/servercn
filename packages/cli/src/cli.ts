@@ -29,10 +29,8 @@ async function main() {
   program
     .command("add <component>")
     .description("Add a backend component")
-    .option("--arch <arch>", "Architecture (mvc | feature | clean)", "mvc")
+    .option("--arch <arch>", "Architecture (mvc | feature)", "mvc")
     .option("-f, --force", "Overwrite existing files")
-    .option("--dry-run", "Preview changes without writing")
-
     .action((component, options) => {
       return add(component, {
         arch: options.arch,

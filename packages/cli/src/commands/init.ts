@@ -35,15 +35,20 @@ export async function init() {
       name: "architecture",
       message: "Select architecture",
       choices: [
-        { title: "MVC", value: "mvc" },
-        { title: "Feature-based", value: "feature" },
+        { title: "MVC (controllers, services, models)", value: "mvc" },
+        { title: "Feature-based (domain-driven modules)", value: "feature" },
       ],
     },
     {
       type: "select",
       name: "language",
-      message: "Language",
-      choices: [{ title: "TypeScript", value: "typescript" }],
+      message: "Programming language",
+      choices: [
+        {
+          title: "TypeScript (recommended)",
+          value: "typescript",
+        },
+      ],
     },
     {
       type: "select",
@@ -152,7 +157,7 @@ export async function init() {
 
   await fs.writeJson(path.join(rootPath, CONFIG_FILE), config, { spaces: 2 });
 
-  await fs.writeJson(path.join(srcPath, "tsconfig.json"), tsConfig, {
+  await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
     spaces: 2,
   });
 

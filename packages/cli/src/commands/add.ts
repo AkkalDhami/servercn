@@ -10,26 +10,16 @@ import { updateEnvExample } from "../lib/env";
 import { ensurePackageJson, ensureTsConfig } from "../lib/package";
 import { askFolderName, getDefaultFolderName } from "../lib/prompts";
 import { logger } from "../utils/cli-logger";
-import { AddOptions } from "../types";
 import { assertInitialized } from "../lib/assert-initialized";
 import { getServerCNConfig } from "../lib/config";
+import type { AddOptions } from "../types";
 
 export async function add(componentName: string, options: AddOptions = {}) {
-  console.log(componentName);
-  /**
-   * ======================================================
-   * ASSERT INITIALIZED
-   * ======================================================
-   */
   await assertInitialized();
+  
   const config = await getServerCNConfig();
 
-  /**
-
-   * LOAD COMPONENT
-  
-   */
-  const component = await getRegistryComponent(componentName);
+  const component = await getRegistryComponent(componentName, "component");
 
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
@@ -41,11 +31,6 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const stack = config.stack.framework;
   const arch = config.stack.architecture;
 
-  /**
-   * ======================================================
-   * RESOLVE TARGET DIRECTORY
-   * ======================================================
-   */
   const defaultFolder = getDefaultFolderName(component);
   const folderName = await askFolderName(defaultFolder);
   const targetDir = resolveTargetDir(folderName, arch);
@@ -54,12 +39,6 @@ export async function add(componentName: string, options: AddOptions = {}) {
   let runtimeDeps: string[] | undefined;
   const devDeps = component.dependencies?.dev;
 
-  /**
-   * ======================================================
-   * ALGORITHM-BASED COMPONENTS
-   * (password-hashing, encryption, etc.)
-   * ======================================================
-   */
   if (component.algorithms) {
     const choices = Object.entries(component.algorithms).map(
       ([key, value]: any) => ({
@@ -97,12 +76,6 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
     logger.info(`Using algorithm: ${algoConfig.title}`);
   } else {
-    /**
-     * ======================================================
-     * ARCHITECTURE-BASED COMPONENTS
-     * (api-error, jwt-auth, async-handler, etc.)
-     * ======================================================
-     */
     const templateConfig = component.templates?.[stack];
 
     if (!templateConfig) {
@@ -126,47 +99,23 @@ export async function add(componentName: string, options: AddOptions = {}) {
     runtimeDeps = component.dependencies?.runtime;
   }
 
-  /**
-   * ======================================================
-   * COPY TEMPLATE FILES
-   * ======================================================
-   */
   await copyTemplate({
     templateDir,
     targetDir,
     componentName,
-    conventions: config.conventions, // <-- fileNaming + functionNaming
-    replacements: {
-      PROJECT_NAME: config.project.name,
-    },
     conflict: options.force ? "overwrite" : "skip",
     dryRun: options.dryRun,
   });
 
-  /**
-   * ======================================================
-   * PROJECT SAFETY CHECKS
-   * ======================================================
-   */
   ensurePackageJson(process.cwd());
   ensureTsConfig(process.cwd());
 
-  /**
-   * ======================================================
-   * INSTALL DEPENDENCIES (ROOT LEVEL)
-   * ======================================================
-   */
   await installDependencies({
     runtime: runtimeDeps,
     dev: devDeps,
     cwd: process.cwd(),
   });
 
-  /**
-   * ======================================================
-   * ENV VARIABLES
-   * ======================================================
-   */
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
   }

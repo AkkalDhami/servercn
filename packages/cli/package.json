@@ -3,27 +3,34 @@
   "version": "1.0.0",
   "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
+  "readme": "README.md",
   "bin": {
     "servercn": "dist/cli.js"
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsx src/cli.ts"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "servercn",
     "cli",
     "backend",
     "typescript",
-    "node.js"
+    "node.js",
+    "express",
+    "nodejs",
+    "scaffold",
+    "boilerplate",
+    "component",
+    "api",
+    "server"
   ],
-  "author": "",
+  "author": "akkal-dhami",
   "license": "MIT",
   "files": [
     "dist",
-    "registry",
-    "templates",
-    "data"
+    "../registry",
+    "../templates"
   ],
   "type": "module",
   "dependencies": {
