@@ -1,6 +1,5 @@
 "use client";
 
-import registry from "@/data/registry.json";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

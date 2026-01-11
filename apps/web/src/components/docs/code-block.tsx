@@ -3,7 +3,7 @@ import { getSingletonHighlighter } from "shiki";
 export const PRIMRY_CODE_BLACK_THEME = "ayu-dark" as const;
 
 const highlighter = await getSingletonHighlighter({
-  themes: [PRIMRY_CODE_BLACK_THEME],
+  themes: [PRIMRY_CODE_BLACK_THEME, 'aurora-x'],
   langs: ["bash", "ts"],
 });
 

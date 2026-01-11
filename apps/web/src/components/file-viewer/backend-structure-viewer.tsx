@@ -5,18 +5,28 @@ import type { FileNode } from "./file-tree";
 import { Separator } from "../ui/separator";
 import FileTree from "./file-tree";
 import FileViewer from "./file-viewer";
+import { cn } from "@/lib/utils";
 
 export default function BackendStructureViewer({
   structure,
+  className,
 }: {
   structure: FileNode[];
+  className?: string;
 }) {
   const [activeFile, setActiveFile] = React.useState<
     FileNode & { type: "file" }
   >();
 
+  localStorage.setItem("structure", JSON.stringify(structure));
+
   return (
-    <div className="flex h-130 w-full max-w-[800px] overflow-auto rounded-xl bg-[#0b0e14]">
+    <div
+      className={cn(
+        "flex h-130 w-full max-w-[800px] overflow-auto rounded-xl bg-[#0b0e14]",
+        className,
+      )}
+    >
       <div className="code-wrapper w-72 overflow-auto p-4">
         <FileTree
           data={structure}

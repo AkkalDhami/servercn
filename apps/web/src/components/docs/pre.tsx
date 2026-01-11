@@ -1,6 +1,5 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
 import * as React from "react";
 import CopyButton from "./copy-button";
 
@@ -21,11 +20,11 @@ export function Pre(props: React.HTMLAttributes<HTMLPreElement>) {
   }
 
   return (
-    <div className="relative max-w-[900px] overflow-auto w-full rounded-md bg-[#0b0e14]">
+    <div className="relative w-full max-w-[900px] overflow-auto rounded-md bg-[#0b0e14]">
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="absolute top-5 right-1.5 z-10 cursor-pointer text-xs text-neutral-400 hover:text-white"
+        className="absolute top-5 right-3 w-auto p-0 z-10 cursor-pointer bg-[#0b0e14] text-xs text-neutral-400 hover:text-white"
       />
 
       <pre

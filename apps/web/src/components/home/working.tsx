@@ -1,6 +1,5 @@
 import { Heading } from "../ui/heading";
 import { SubHeading } from "../ui/sub-heading";
-import React from "react";
 import { AnimatedSpan, Terminal, TypingAnimation } from "../ui/terminal";
 
 export default function Working() {
@@ -59,11 +58,8 @@ export default function Working() {
               ✔ Package manager selected:{" "}
               <span className="text-muted-primary">npm</span>
             </AnimatedSpan>
-            <AnimatedSpan>
-              ✔ File & function naming conventions applied
-            </AnimatedSpan>
 
-            <TypingAnimation className="text-sm sm:text-lg text-green-600">
+            <TypingAnimation className="text-sm text-green-600 sm:text-lg">
               Success! ServerCN initialized successfully.
             </TypingAnimation>
             <TypingAnimation className="text-muted-primary text-sm sm:text-lg">
