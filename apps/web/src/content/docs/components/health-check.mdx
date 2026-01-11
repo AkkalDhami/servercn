@@ -7,6 +7,46 @@ mvc_structure:
   - type: folder
     name: src
     children:
+    
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+
       - type: folder
         name: controllers
         children:
@@ -14,59 +54,47 @@ mvc_structure:
             name: health.controller.ts
             content: |
 
-              import { Request, Response } from "express";
-              import { ApiResponse } from "../utils/response-handler";
-              import { STATUS_CODES } from "../constants/status-codes";
+                import { Request, Response } from "express";
+                import { ApiResponse } from "../utils/api-response";
 
-              /**
-               * Basic health check endpoint
-               * GET /api/health
-               */
-              export const healthCheck = async (_req: Request, res: Response) => {
-                return res.status(STATUS_CODES.OK).json(
-                  ApiResponse.success(
-                    {
-                      status: "healthy",
-                      timestamp: new Date().toISOString(),
-                      uptime: process.uptime(),
-                    },
-                    "Service is healthy"
-                  )
-                );
-              };
-
-              /**
-               * Detailed health check with system information
-               * GET /api/health/detailed
-               */
-              export const detailedHealthCheck = async (
-                _req: Request,
-                res: Response
-              ) => {
-                const healthData = {
-                  status: "healthy",
-                  timestamp: new Date().toISOString(),
-                  uptime: process.uptime(),
-                  environment: process.env.NODE_ENV || "development",
-                  version: process.env.npm_package_version || "1.0.0",
-                  memory: {
-                    used: Math.round(
-                      (process.memoryUsage().heapUsed / 1024 / 1024) * 100
-                    ) / 100,
-                    total: Math.round(
-                      (process.memoryUsage().heapTotal / 1024 / 1024) * 100
-                    ) / 100,
-                    unit: "MB",
-                  },
-                  cpu: {
-                    usage: process.cpuUsage(),
-                  },
+                /**
+                * Basic health check endpoint
+                * GET /api/health
+                */
+                export const healthCheck = async (_req: Request, res: Response) => {
+                  return ApiResponse.Success(res, "Service is healthy", {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime(),
+                  });
                 };
 
-                return res.status(STATUS_CODES.OK).json(
-                  ApiResponse.success(healthData, "Service is healthy")
-                );
-              };
+                /**
+                * Detailed health check with system information
+                * GET /api/health/detailed
+                */
+                export const detailedHealthCheck = async (_req: Request, res: Response) => {
+                  const healthData = {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime(),
+                    environment: process.env.NODE_ENV || "development",
+                    version: process.env.npm_package_version || "1.0.0",
+                    memory: {
+                      used:
+                        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+                      total:
+                        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
+                      unit: "MB",
+                    },
+                    cpu: {
+                      usage: process.cpuUsage(),
+                    },
+                  };
+
+                  return ApiResponse.Success(res, "Service is healthy", healthData);
+                };
+
 
       - type: folder
         name: routes
@@ -92,42 +120,80 @@ mvc_structure:
         name: utils
         children:
           - type: file
-            name: response-handler.ts
+            name: api-response.ts
             content: |
 
-              import { Response } from "express";
-              import { STATUS_CODES } from "../constants/status-codes";
+                import type { Response } from "express";
+                import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
-              export class ApiResponse {
-                static success<T>(
-                  data: T,
-                  message: string = "Success",
-                  statusCode: number = STATUS_CODES.OK
-                ) {
-                  return {
-                    success: true,
+                type ApiResponseParams<T> = {
+                  success: boolean;
+                  message: string;
+                  statusCode: StatusCode;
+                  data?: T | null;
+                  errors?: unknown;
+                };
+
+                export class ApiResponse<T = unknown> {
+                  public readonly success: boolean;
+                  public readonly message: string;
+                  public readonly statusCode: StatusCode;
+                  public readonly data?: T | null;
+                  public readonly errors?: unknown;
+
+                  constructor({
+                    success,
                     message,
-                    data,
                     statusCode,
-                  };
+                    data = null,
+                    errors,
+                  }: ApiResponseParams<T>) {
+                    this.success = success;
+                    this.message = message;
+                    this.statusCode = statusCode;
+                    this.data = data;
+                    this.errors = errors;
+                  }
+
+                  send(res: Response): Response {
+                    return res.status(this.statusCode).json({
+                      success: this.success,
+                      message: this.message,
+                      statusCode: this.statusCode,
+                      ...(this.data !== undefined && { data: this.data }),
+                      ...(this.errors !== undefined && { errors: this.errors }),
+                    });
+                  }
+
+                  static Success<T>(
+                    res: Response,
+                    message: string,
+                    data?: T,
+                    statusCode: StatusCode = STATUS_CODES.OK
+                  ): Response {
+                    return new ApiResponse<T>({
+                      success: true,
+                      message,
+                      data,
+                      statusCode,
+                    }).send(res);
+                  }
+
+                  static ok<T>(res: Response, message = "OK", data?: T) {
+                    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                  }
+
+                  static created<T>(res: Response, message = "Created", data?: T) {
+                    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                  }
                 }
-              }
 
-      - type: folder
-        name: constants
-        children:
-          - type: file
-            name: status-codes.ts
-            content: |
+                /*
+                * Usage:
+                * ApiResponse.ok(res, "OK", data);
+                * ApiResponse.created(res, "Created", data);
+                */
 
-              export const STATUS_CODES = {
-                OK: 200,
-                CREATED: 201,
-                BAD_REQUEST: 400,
-                UNAUTHORIZED: 401,
-                NOT_FOUND: 404,
-                INTERNAL_SERVER_ERROR: 500,
-              } as const;
 
       - type: file
         name: app.ts
@@ -155,10 +221,12 @@ mvc_structure:
 
           export default app;
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT='3000'
+  - type: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+      
 
 feature_structure:
   - type: folder
@@ -174,62 +242,46 @@ feature_structure:
                 name: health.controller.ts
                 content: |
 
-                  import { Request, Response } from "express";
-                  import { ApiResponse } from "../../shared/utils/response-handler";
-                  import { STATUS_CODES } from "../../shared/constants/status-codes";
+                    import { Request, Response } from "express";
+                    import { ApiResponse } from "../../shared/utils/api-response";
 
-                  /**
-                   * Basic health check endpoint
-                   * GET /api/health
-                   */
-                  export const healthCheck = async (
-                    _req: Request,
-                    res: Response
-                  ) => {
-                    return res.status(STATUS_CODES.OK).json(
-                      ApiResponse.success(
-                        {
-                          status: "healthy",
-                          timestamp: new Date().toISOString(),
-                          uptime: process.uptime(),
-                        },
-                        "Service is healthy"
-                      )
-                    );
-                  };
-
-                  /**
-                   * Detailed health check with system information
-                   * GET /api/health/detailed
-                   */
-                  export const detailedHealthCheck = async (
-                    _req: Request,
-                    res: Response
-                  ) => {
-                    const healthData = {
-                      status: "healthy",
-                      timestamp: new Date().toISOString(),
-                      uptime: process.uptime(),
-                      environment: process.env.NODE_ENV || "development",
-                      version: process.env.npm_package_version || "1.0.0",
-                      memory: {
-                        used: Math.round(
-                          (process.memoryUsage().heapUsed / 1024 / 1024) * 100
-                        ) / 100,
-                        total: Math.round(
-                          (process.memoryUsage().heapTotal / 1024 / 1024) * 100
-                        ) / 100,
-                        unit: "MB",
-                      },
-                      cpu: {
-                        usage: process.cpuUsage(),
-                      },
+                    /**
+                    * Basic health check endpoint
+                    * GET /api/health
+                    */
+                    export const healthCheck = async (_req: Request, res: Response) => {
+                      return ApiResponse.Success(res, "Service is healthy", {
+                        status: "healthy",
+                        timestamp: new Date().toISOString(),
+                        uptime: process.uptime(),
+                      });
                     };
 
-                    return res.status(STATUS_CODES.OK).json(
-                      ApiResponse.success(healthData, "Service is healthy")
-                    );
-                  };
+                    /**
+                    * Detailed health check with system information
+                    * GET /api/health/detailed
+                    */
+                    export const detailedHealthCheck = async (_req: Request, res: Response) => {
+                      const healthData = {
+                        status: "healthy",
+                        timestamp: new Date().toISOString(),
+                        uptime: process.uptime(),
+                        environment: process.env.NODE_ENV || "development",
+                        version: process.env.npm_package_version || "1.0.0",
+                        memory: {
+                          used:
+                            Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+                          total:
+                            Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
+                          unit: "MB",
+                        },
+                        cpu: {
+                          usage: process.cpuUsage(),
+                        },
+                      };
+
+                      return ApiResponse.Success(res, "Service is healthy", healthData);
+                    };
 
               - type: file
                 name: health.routes.ts
@@ -267,30 +319,7 @@ feature_structure:
       - type: folder
         name: shared
         children:
-          - type: folder
-            name: utils
-            children:
-              - type: file
-                name: response-handler.ts
-                content: |
-
-                  import { STATUS_CODES } from "../constants/status-codes";
-
-                  export class ApiResponse {
-                    static success<T>(
-                      data: T,
-                      message: string = "Success",
-                      statusCode: number = STATUS_CODES.OK
-                    ) {
-                      return {
-                        success: true,
-                        message,
-                        data,
-                        statusCode,
-                      };
-                    }
-                  }
-
+        
           - type: folder
             name: constants
             children:
@@ -299,13 +328,115 @@ feature_structure:
                 content: |
 
                   export const STATUS_CODES = {
+                    // 2xx Success
                     OK: 200,
                     CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
                     BAD_REQUEST: 400,
                     UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
                     NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
                     INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
                   } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+
+                    import type { Response } from "express";
+                    import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                    type ApiResponseParams<T> = {
+                      success: boolean;
+                      message: string;
+                      statusCode: StatusCode;
+                      data?: T | null;
+                      errors?: unknown;
+                    };
+
+                    export class ApiResponse<T = unknown> {
+                      public readonly success: boolean;
+                      public readonly message: string;
+                      public readonly statusCode: StatusCode;
+                      public readonly data?: T | null;
+                      public readonly errors?: unknown;
+
+                      constructor({
+                        success,
+                        message,
+                        statusCode,
+                        data = null,
+                        errors,
+                      }: ApiResponseParams<T>) {
+                        this.success = success;
+                        this.message = message;
+                        this.statusCode = statusCode;
+                        this.data = data;
+                        this.errors = errors;
+                      }
+
+                      send(res: Response): Response {
+                        return res.status(this.statusCode).json({
+                          success: this.success,
+                          message: this.message,
+                          statusCode: this.statusCode,
+                          ...(this.data !== undefined && { data: this.data }),
+                          ...(this.errors !== undefined && { errors: this.errors }),
+                        });
+                      }
+
+                      static Success<T>(
+                        res: Response,
+                        message: string,
+                        data?: T,
+                        statusCode: StatusCode = STATUS_CODES.OK
+                      ): Response {
+                        return new ApiResponse<T>({
+                          success: true,
+                          message,
+                          data,
+                          statusCode,
+                        }).send(res);
+                      }
+
+                      static ok<T>(res: Response, message = "OK", data?: T) {
+                        return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                      }
+
+                      static created<T>(res: Response, message = "Created", data?: T) {
+                        return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                      }
+                    }
+
+                    /*
+                    * Usage:
+                    * ApiResponse.ok(res, "OK", data);
+                    * ApiResponse.created(res, "Created", data);
+                    */
+
+
 
       - type: file
         name: app.ts
@@ -332,6 +463,13 @@ feature_structure:
           });
 
           export default app;
+
+  - typ: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+
 ---
 
 # Health Check
@@ -355,25 +493,25 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-  <PackageManagerTabs command="npx servercn add http-status-codes" />
+<PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-formatter" />
+<PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-  <PackageManagerTabs command="npx servercn add error-handler" />
+<PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **Async Handler:**
-  <PackageManagerTabs command="npx servercn add async-handler" />
+<PackageManagerTabs command="npx servercn add async-handler" />
 
 Documentation:
 [Async Handler](/docs/components/async-handler)
@@ -390,20 +528,14 @@ Create health check controller in `src/controllers/health.controller.ts`:
 
 ```ts
 import { Request, Response } from "express";
-import { ApiResponse } from "../utils/response-handler";
-import { STATUS_CODES } from "../constants/status-codes";
+import { ApiResponse } from "../utils/api-response";
 
 export const healthCheck = async (_req: Request, res: Response) => {
-  return res.status(STATUS_CODES.OK).json(
-    ApiResponse.success(
-      {
-        status: "healthy",
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-      },
-      "Service is healthy",
-    ),
-  );
+  return ApiResponse.Success(res, "Service is healthy", {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 };
 ```
 
@@ -426,20 +558,14 @@ For feature-based architecture, place controller in `src/modules/health/health.c
 
 ```ts
 import { Request, Response } from "express";
-import { ApiResponse } from "../../shared/utils/response-handler";
-import { STATUS_CODES } from "../../shared/constants/status-codes";
+import { ApiResponse } from "../../shared/utils/api-response";
 
 export const healthCheck = async (_req: Request, res: Response) => {
-  return res.status(STATUS_CODES.OK).json(
-    ApiResponse.success(
-      {
-        status: "healthy",
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-      },
-      "Service is healthy",
-    ),
-  );
+  return ApiResponse.Success(res, "Service is healthy", {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 };
 ```
 
@@ -450,20 +576,14 @@ export const healthCheck = async (_req: Request, res: Response) => {
 Simple endpoint that returns service status:
 
 ```ts
-import { STATUS_CODES } from "../utils/status-codes";
 import { ApiResponse } from "../utils/api-response";
 
 export const healthCheck = async (_req: Request, res: Response) => {
-  return res.status(STATUS_CODES.OK).json(
-    ApiResponse.success(
-      {
-        status: "healthy",
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-      },
-      "Service is healthy",
-    ),
-  );
+  return ApiResponse.Success(res, "Service is healthy", {
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 };
 ```
 
@@ -473,12 +593,12 @@ export const healthCheck = async (_req: Request, res: Response) => {
 {
   "success": true,
   "message": "Service is healthy",
+  "statusCode": 200,
   "data": {
     "status": "healthy",
     "timestamp": "2024-01-15T10:30:00.000Z",
     "uptime": 3600.5
-  },
-  "statusCode": 200
+  }
 }
 ```
 
@@ -487,7 +607,6 @@ export const healthCheck = async (_req: Request, res: Response) => {
 Include system information:
 
 ```ts
-import { STATUS_CODES } from "../utils/status-codes";
 import { ApiResponse } from "../utils/api-response";
 
 export const detailedHealthCheck = async (_req: Request, res: Response) => {
@@ -509,10 +628,36 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
     },
   };
 
-  return res
-    .status(STATUS_CODES.OK)
-    .json(ApiResponse.success(healthData, "Service is healthy"));
+  return ApiResponse.Success(res, "Service is healthy", healthData);
 };
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "statusCode": 200,
+  "data": {
+    "status": "healthy",
+    "timestamp": "2026-01-09T14:15:21.360Z",
+    "uptime": 155.729376,
+    "environment": "development",
+    "version": "1.0.0",
+    "memory": {
+      "used": 41.59,
+      "total": 44.46,
+      "unit": "MB"
+    },
+    "cpu": {
+      "usage": {
+        "user": 3031000,
+        "system": 812000
+      }
+    }
+  }
+}
 ```
 
 ### 4. Health Check with External Services
@@ -538,14 +683,10 @@ export const healthCheckWithServices = async (_req: Request, res: Response) => {
 
   if (!allHealthy) {
     checks.status = "degraded";
-    return res
-      .status(STATUS_CODES.OK)
-      .json(ApiResponse.success(checks, "Service is degraded"));
+    return ApiResponse.Error(res, "Service is degraded", checks);
   }
 
-  return res
-    .status(STATUS_CODES.OK)
-    .json(ApiResponse.success(checks, "Service is healthy"));
+  return ApiResponse.Success(res, "Service is healthy", checks);
 };
 
 async function checkDatabase(): Promise<string> {
@@ -585,16 +726,11 @@ import { AsyncHandler } from "../utils/async-handler";
 
 export const healthCheck = AsyncHandler(
   async (_req: Request, res: Response) => {
-    return res.status(STATUS_CODES.OK).json(
-      ApiResponse.success(
-        {
-          status: "healthy",
-          timestamp: new Date().toISOString(),
-          uptime: process.uptime(),
-        },
-        "Service is healthy",
-      ),
-    );
+    return ApiResponse.Success(res, "Service is healthy", {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
   },
 );
 ```
@@ -657,12 +793,12 @@ export default router;
 {
   "success": true,
   "message": "Service is healthy",
+  "statusCode": 200,
   "data": {
     "status": "healthy",
     "timestamp": "2024-01-15T10:30:00.000Z",
     "uptime": 3600.5
-  },
-  "statusCode": 200
+  }
 }
 ```
 
@@ -672,14 +808,14 @@ export default router;
 {
   "success": false,
   "message": "Service is unhealthy",
+  "statusCode": 503,
   "data": {
     "status": "unhealthy",
     "timestamp": "2024-01-15T10:30:00.000Z",
     "checks": {
       "database": "disconnected"
     }
-  },
-  "statusCode": 503
+  }
 }
 ```
 

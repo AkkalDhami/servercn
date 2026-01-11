@@ -79,7 +79,6 @@ mvc_structure:
 
               import { ApiError } from "../utils/api-error";
               import { logger } from "../utils/logger";
-              import { STATUS_CODES } from "../constants/status-codes";
 
               export const errorHandler = (
                 err: Error,
@@ -271,13 +270,13 @@ mvc_structure:
 
           export default app;
 
-      - type: file
-        name: .env.example
-        content: |
+  - type: file
+    name: .env.example
+    content: |
 
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
 
 feature_structure:
   - type: folder
@@ -485,7 +484,6 @@ feature_structure:
 
                   import { ApiError } from "../errors/api-error";
                   import { logger } from "../utils/logger";
-                  import { STATUS_CODES } from "../constants/status-codes";
 
                   export const errorHandler = (
                     err: Error,
@@ -552,13 +550,14 @@ feature_structure:
           app.use(errorHandler);
 
           export default app;
-      - type: file
-        name: .env.example
-        content: |
+  
+  - type: file
+    name: .env.example
+    content: |
 
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
 ---
 
 # Not Found Handler
@@ -648,14 +647,12 @@ import "dotenv/config";
 import { errorHandler } from "./middlewares/error-handler";
 import { notFoundHandler } from "./middlewares/not-found-handler";
 
-import UserRouter from "./routes/user.routes";
-
 const app: Application = express();
 
 app.use(express.json());
 
 // routes here
-app.use("/api/v1/users", UserRouter);
+// ...
 
 // Not found handler (should be after routes)
 app.use(notFoundHandler);
@@ -675,14 +672,13 @@ import express, { type Application } from "express";
 import "dotenv/config";
 import { errorHandler } from "./shared/middlewares/error-handler";
 import { notFoundHandler } from "./shared/middlewares/not-found-handler";
-import Routes from "./routes/index";
 
 const app: Application = express();
 
 app.use(express.json());
 
 // routes here
-app.use("/api", Routes);
+// ...
 
 // Not found handler (should be after routes)
 app.use(notFoundHandler);

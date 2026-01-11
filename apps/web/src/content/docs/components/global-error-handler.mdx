@@ -78,7 +78,6 @@ mvc_structure:
 
               import { ApiError } from "../utils/api-error";
               import { logger } from "../utils/logger";
-              import { STATUS_CODES } from "../constants/status-codes";
 
               export const errorHandler = (
                 err: Error,
@@ -252,12 +251,12 @@ mvc_structure:
 
           export default app
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
+  - type: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
 
 feature_structure:
   - type: folder
@@ -465,7 +464,6 @@ feature_structure:
 
                   import { ApiError } from "../errors/api-error";
                   import { logger } from "../utils/logger";
-                  import { STATUS_CODES } from "../constants/status-codes";
 
                   export const errorHandler = (
                     err: Error,
@@ -520,12 +518,12 @@ feature_structure:
 
           export default app
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
+  - type: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
 ---
 
 # Global Error Handling

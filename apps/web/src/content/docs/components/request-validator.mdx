@@ -15,32 +15,32 @@ mvc_structure:
             content: |
 
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -52,51 +52,30 @@ mvc_structure:
             name: validate-request.ts
             content: |
 
-              import { Request, Response, NextFunction } from "express";
-              import { ZodSchema, ZodError } from "zod";
-              import { ApiError } from "../utils/api-error";
-              import { STATUS_CODES } from "../constants/status-codes";
+                import { Request, Response, NextFunction } from "express";
+                import z, { ZodError, type ZodObject } from "zod";
 
-              type ValidationTarget = "body" | "query" | "params";
+                import { ApiError } from "../utils/api-error";
 
-              interface ValidationSchema {
-                body?: ZodSchema;
-                query?: ZodSchema;
-                params?: ZodSchema;
-              }
+                export const validateRequest = (schema: ZodObject<any>) => {
+                  return (req: Request, res: Response, next: NextFunction) => {
+                    try {
+                      schema.parse(req.body);
 
-              export const validateRequest = (schema: ValidationSchema) => {
-                return (req: Request, res: Response, next: NextFunction) => {
-                  try {
-                    const validationTargets: ValidationTarget[] = ["body", "query", "params"];
-
-                    for (const target of validationTargets) {
-                      if (schema[target]) {
-                        const result = schema[target]!.safeParse(req[target]);
-
-                        if (!result.success) {
-                          const errors = result.error.errors.map((err) => ({
-                            field: err.path.join("."),
-                            message: err.message,
-                          }));
-
-                          throw ApiError.badRequest("Validation failed", errors);
-                        }
-
-                        req[target] = result.data;
+                      next();
+                    } catch (error) {
+                      if (!(error instanceof ZodError)) {
+                        return next(error);
                       }
-                    }
 
-                    next();
-                  } catch (error) {
-                    if (error instanceof ApiError) {
-                      throw error;
+                      throw ApiError.badRequest(
+                        "Invalid request data",
+                        z.flattenError(error).fieldErrors || z.flattenError(error)
+                      );
                     }
-
-                    throw ApiError.badRequest("Invalid request data");
-                  }
+                  };
                 };
-              };
+
 
       - type: folder
         name: utils
@@ -168,37 +147,10 @@ mvc_structure:
               import { z } from "zod";
 
               export const createUserSchema = z.object({
-                body: z.object({
-                  name: z.string().min(2, "Name must be at least 2 characters"),
-                  email: z.string().email("Invalid email address"),
-                  password: z.string().min(8, "Password must be at least 8 characters"),
-                  age: z.number().int().min(18).max(100).optional(),
-                }),
-              });
-
-              export const getUserSchema = z.object({
-                params: z.object({
-                  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID"),
-                }),
-              });
-
-              export const updateUserSchema = z.object({
-                params: z.object({
-                  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID"),
-                }),
-                body: z.object({
-                  name: z.string().min(2).optional(),
-                  email: z.string().email().optional(),
-                  age: z.number().int().min(18).max(100).optional(),
-                }),
-              });
-
-              export const listUsersSchema = z.object({
-                query: z.object({
-                  page: z.string().regex(/^\d+$/).transform(Number).optional(),
-                  limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-                  search: z.string().optional(),
-                }),
+                name: z.string().min(2, "Name must be at least 2 characters"),
+                email: z.email("Invalid email address"),
+                password: z.string().min(8, "Password must be at least 8 characters"),
+                age: z.number().int().min(18).max(100).optional(),
               });
 
       - type: folder
@@ -208,41 +160,28 @@ mvc_structure:
             name: user.routes.ts
             content: |
 
-              import { Router } from "express";
-              import { validateRequest } from "../middlewares/validate-request";
-              import {
-                createUserSchema,
-                getUserSchema,
-                updateUserSchema,
-                listUsersSchema,
-              } from "../validations/user.validation";
+                import { Router } from "express";
+                import { validateRequest } from "../middlewares/validate-request";
+                import { createUserSchema } from "../validations/user.validation";
+                import { STATUS_CODES } from "../constants/status-codes";
 
-              const router = Router();
+                const router = Router();
 
-              router.post("/", validateRequest(createUserSchema), (req, res) => {
-                return res.json({ success: true, data: req.body });
-              });
+                router.post("/", validateRequest(createUserSchema), (req, res) => {
+                  return res.status(STATUS_CODES.CREATED).json({
+                    success: true,
+                    message: "User created successfully",
+                    data: req.body,
+                  });
+                });
 
-              router.get("/", validateRequest(listUsersSchema), (req, res) => {
-                return res.json({ success: true, data: req.query });
-              });
+                export default router;
 
-              router.get("/:id", validateRequest(getUserSchema), (req, res) => {
-                return res.json({ success: true, data: req.params });
-              });
-
-              router.put("/:id", validateRequest(updateUserSchema), (req, res) => {
-                return res.json({ success: true, data: { params: req.params, body: req.body } });
-              });
-
-              export default router;
 
       - type: file
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
-          import { errorHandler } from "./middlewares/error-handler";
           import UserRouter from "./routes/user.routes";
 
           const app: Application = express();
@@ -251,9 +190,6 @@ mvc_structure:
 
           // routes here
           app.use("/api/v1/users", UserRouter);
-
-          // Global error handler (should be after routes)
-          app.use(errorHandler);
 
           export default app;
 
@@ -272,32 +208,32 @@ feature_structure:
                 content: |
 
                   export const STATUS_CODES = {
-                  // 2xx Success
-                  OK: 200,
-                  CREATED: 201,
-                  ACCEPTED: 202,
-                  NO_CONTENT: 204,
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
 
-                  // 3xx Redirection
-                  MOVED_PERMANENTLY: 301,
-                  FOUND: 302,
-                  NOT_MODIFIED: 304,
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
 
-                  // 4xx Client Errors
-                  BAD_REQUEST: 400,
-                  UNAUTHORIZED: 401,
-                  FORBIDDEN: 403,
-                  NOT_FOUND: 404,
-                  CONFLICT: 409,
-                  UNPROCESSABLE_ENTITY: 422,
-                  TOO_MANY_REQUESTS: 429,
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
 
-                  // 5xx Server Errors
-                  INTERNAL_SERVER_ERROR: 500,
-                  NOT_IMPLEMENTED: 501,
-                  BAD_GATEWAY: 502,
-                  SERVICE_UNAVAILABLE: 503,
-                  GATEWAY_TIMEOUT: 504,
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
                   } as const;
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -370,47 +306,25 @@ feature_structure:
                 content: |
 
                   import { Request, Response, NextFunction } from "express";
-                  import { ZodSchema, ZodError } from "zod";
+                  import z, { ZodError, type ZodObject } from "zod";
+
                   import { ApiError } from "../errors/api-error";
-                  import { STATUS_CODES } from "../constants/status-codes";
 
-                  type ValidationTarget = "body" | "query" | "params";
-
-                  interface ValidationSchema {
-                    body?: ZodSchema;
-                    query?: ZodSchema;
-                    params?: ZodSchema;
-                  }
-
-                  export const validateRequest = (schema: ValidationSchema) => {
+                  export const validateRequest = (schema: ZodObject<any>) => {
                     return (req: Request, res: Response, next: NextFunction) => {
                       try {
-                        const validationTargets: ValidationTarget[] = ["body", "query", "params"];
-
-                        for (const target of validationTargets) {
-                          if (schema[target]) {
-                            const result = schema[target]!.safeParse(req[target]);
-
-                            if (!result.success) {
-                              const errors = result.error.errors.map((err) => ({
-                                field: err.path.join("."),
-                                message: err.message,
-                              }));
-
-                              throw ApiError.badRequest("Validation failed", errors);
-                            }
-
-                            req[target] = result.data;
-                          }
-                        }
+                        schema.parse(req.body);
 
                         next();
                       } catch (error) {
-                        if (error instanceof ApiError) {
-                          throw error;
+                        if (!(error instanceof ZodError)) {
+                          return next(error);
                         }
 
-                        throw ApiError.badRequest("Invalid request data");
+                        throw ApiError.badRequest(
+                          "Invalid request data",
+                          z.flattenError(error).fieldErrors || z.flattenError(error)
+                        );
                       }
                     };
                   };
@@ -421,48 +335,18 @@ feature_structure:
           - type: folder
             name: user
             children:
-              - type: folder
-                name: validations
-                children:
-                  - type: file
-                    name: user.validation.ts
-                    content: |
+              - type: file
+                name: user.validation.ts
+                content: |
 
-                      import { z } from "zod";
+                  import { z } from "zod";
 
-                      export const createUserSchema = z.object({
-                        body: z.object({
-                          name: z.string().min(2, "Name must be at least 2 characters"),
-                          email: z.string().email("Invalid email address"),
-                          password: z.string().min(8, "Password must be at least 8 characters"),
-                          age: z.number().int().min(18).max(100).optional(),
-                        }),
-                      });
-
-                      export const getUserSchema = z.object({
-                        params: z.object({
-                          id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID"),
-                        }),
-                      });
-
-                      export const updateUserSchema = z.object({
-                        params: z.object({
-                          id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid user ID"),
-                        }),
-                        body: z.object({
-                          name: z.string().min(2).optional(),
-                          email: z.string().email().optional(),
-                          age: z.number().int().min(18).max(100).optional(),
-                        }),
-                      });
-
-                      export const listUsersSchema = z.object({
-                        query: z.object({
-                          page: z.string().regex(/^\d+$/).transform(Number).optional(),
-                          limit: z.string().regex(/^\d+$/).transform(Number).optional(),
-                          search: z.string().optional(),
-                        }),
-                      });
+                  export const createUserSchema = z.object({
+                      name: z.string().min(2, "Name must be at least 2 characters"),
+                      email: z.email("Invalid email address"),
+                      password: z.string().min(8, "Password must be at least 8 characters"),
+                      age: z.number().int().min(18).max(100).optional(),
+                  });
 
               - type: file
                 name: user.routes.ts
@@ -470,29 +354,17 @@ feature_structure:
 
                   import { Router } from "express";
                   import { validateRequest } from "../../shared/middlewares/validate-request";
-                  import {
-                    createUserSchema,
-                    getUserSchema,
-                    updateUserSchema,
-                    listUsersSchema,
-                  } from "./validations/user.validation";
+                  import { createUserSchema } from "./user.validation";
+                  import { STATUS_CODES } from "../../shared/constants/status-codes";
 
                   const router = Router();
 
                   router.post("/", validateRequest(createUserSchema), (req, res) => {
-                    return res.json({ success: true, data: req.body });
-                  });
-
-                  router.get("/", validateRequest(listUsersSchema), (req, res) => {
-                    return res.json({ success: true, data: req.query });
-                  });
-
-                  router.get("/:id", validateRequest(getUserSchema), (req, res) => {
-                    return res.json({ success: true, data: req.params });
-                  });
-
-                  router.put("/:id", validateRequest(updateUserSchema), (req, res) => {
-                    return res.json({ success: true, data: { params: req.params, body: req.body } });
+                      return res.status(STATUS_CODES.CREATED).json({
+                        success: true,
+                        message: "User created successfully",
+                        data: req.body,
+                      });
                   });
 
                   export default router;
@@ -516,8 +388,6 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
-          import { errorHandler } from "./shared/middlewares/error-handler";
           import Routes from "./routes/index";
 
           const app: Application = express();
@@ -527,8 +397,6 @@ feature_structure:
           // routes here
           app.use("/api", Routes);
 
-          // Global error handler (should be after routes)
-          app.use(errorHandler);
 
           export default app;
 ---

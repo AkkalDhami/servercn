@@ -175,7 +175,7 @@ mvc_structure:
               import { Request, Response } from "express";
               import { asyncHandler } from "../middlewares/async-handler";
               import { sendEmail, sendHtmlEmail, sendTextEmail } from "../services/email.service";
-              import { ApiResponse } from "../utils/response-handler";
+              import { ApiResponse } from "../utils/api-response";
               import { ApiError } from "../utils/error-handler";
               import { STATUS_CODES } from "../constants/status-codes";
 
@@ -781,7 +781,7 @@ await sendEmail({
 import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/async-handler";
 import { sendHtmlEmail } from "../services/email.service";
-import { ApiResponse } from "../utils/response-handler";
+import { ApiResponse } from "../utils/api-response";
 import { ApiError } from "../utils/error-handler";
 import { STATUS_CODES } from "../constants/status-codes";
 

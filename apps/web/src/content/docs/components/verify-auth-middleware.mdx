@@ -40,32 +40,32 @@ mvc_structure:
             content: |
 
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -112,7 +112,7 @@ mvc_structure:
               };
 
           - type: file
-            name: auth.ts
+            name: verify-auth.ts
             content: |
 
               import { NextFunction, Request, Response } from "express";
@@ -142,8 +142,9 @@ mvc_structure:
               export async function verifyAuthentication(
                 req: UserRequest,
                 res: Response,
-                next: NextFunction
-              ) {
+                next: NextFunction,
+              ): Promise<void> {
+
                 const accessToken = req.cookies?.accessToken;
                 const refreshToken = req.cookies?.refreshToken;
 
@@ -157,18 +158,14 @@ mvc_structure:
                   }
                 } catch (err) {
                   // Access token expired or invalid
-                  logger.error(err?.message);
-                  throw ApiError.badRequest(
-                    "Invalid or expired access token "
-                  );
+                  logger.warn("Access token verification failed");
+                  return next(ApiError.badRequest("Invalid or expired access token"));
                 }
 
                 // Step 2: Refresh token required if access token fails
                 
                 if (!refreshToken) {
-                    throw ApiError.unauthorized(
-                        "Unauthorized, Please login first."
-                    );
+                  return next(ApiError.unauthorized("Unauthorized, Please login first."));
                 }
 
                 try {
@@ -181,9 +178,7 @@ mvc_structure:
                   });
 
                   if (!userInDb) {
-                    throw ApiError.unauthorized(
-                        "Unauthorized, Please login first."
-                    );
+                    return next(ApiError.unauthorized("Unauthorized, Please login first."));
                   }
 
                   // Step 4: Issue new tokens
@@ -197,14 +192,14 @@ mvc_structure:
                   );
 
                   // Step 5: Saved accessToken and refreshToken in cookie
-                  res.cookie("accessToken", accessToken, {
-                      ...COOKIE_OPTIONS,
-                      maxAge: ACCESS_TOKEN_EXPIRY,
+                  res.cookie("accessToken", newAccessToken, {
+                    ...COOKIE_OPTIONS,
+                    maxAge: ACCESS_TOKEN_EXPIRY,
                   });
 
-                  res.cookie("refreshToken", refreshToken, {
-                      ...COOKIE_OPTIONS,
-                      maxAge: REFRESH_TOKEN_EXPIRY,
+                  res.cookie("refreshToken", newRefreshToken, {
+                    ...COOKIE_OPTIONS,
+                    maxAge: REFRESH_TOKEN_EXPIRY,
                   });
 
                   // Step 6: Attach user to request
@@ -213,14 +208,16 @@ mvc_structure:
                     _id: decodedRefresh.userId,
                   };
 
+                  // you can update the refresh token in the database here if you store it in the database
                   return next();
                 } catch (err: any) {
-                  logger.error(err?.message);
-                  throw ApiError.unauthorized(
-                    "Unauthorized, Please login first."
+                  logger.warn("Refresh token verification failed");
+                  return next(
+                    ApiError.unauthorized("Unauthorized, Please login first.")
                   );
                 }
               }
+
 
       - type: folder
         name: models
@@ -288,7 +285,7 @@ mvc_structure:
             content: |
 
               import { Response, Router } from "express";
-              import { verifyAuthentication } from "../middlewares/auth";
+              import { verifyAuthentication } from "../middlewares/verify-auth";
               import { UserRequest } from "../types/user";
               import { ApiResponse } from "../utils/api-response";
 
@@ -349,29 +346,29 @@ mvc_structure:
                   Error.captureStackTrace(this, this.constructor);
               }
 
-              static badRequest(message = "Bad Request", errors?: unknown) {
-                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
-              }
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
 
-              static unauthorized(message = "Unauthorized") {
-                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
-              }
+                static unauthorized(message = "Unauthorized") {
+                    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
 
-              static forbidden(message = "Forbidden") {
-                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
-              }
+                static forbidden(message = "Forbidden") {
+                    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
 
-              static notFound(message = "Not Found") {
-                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
-              }
+                static notFound(message = "Not Found") {
+                    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
 
-              static conflict(message = "Conflict") {
-                  return new ApiError(STATUS_CODES.CONFLICT, message);
-              }
+                static conflict(message = "Conflict") {
+                    return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
 
-              static server(message = "Internal Server Error") {
-                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
-              }
+                static server(message = "Internal Server Error") {
+                    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
               }
 
               /*
@@ -578,15 +575,15 @@ mvc_structure:
 
           export default app
 
-      - type: file
-        name: .env.example
-        content: |
+  - type: file
+    name: .env.example
+    content: |
 
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
-          JWT_ACCESS_SECRET='your-access-secret'
-          JWT_REFRESH_SECRET='your-refresh-secret'
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
+      JWT_ACCESS_SECRET='your-access-secret'
+      JWT_REFRESH_SECRET='your-refresh-secret'
 
 feature_structure:
   - type: folder
@@ -628,32 +625,32 @@ feature_structure:
                 content: |
 
                   export const STATUS_CODES = {
-                  // 2xx Success
-                  OK: 200,
-                  CREATED: 201,
-                  ACCEPTED: 202,
-                  NO_CONTENT: 204,
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
 
-                  // 3xx Redirection
-                  MOVED_PERMANENTLY: 301,
-                  FOUND: 302,
-                  NOT_MODIFIED: 304,
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
 
-                  // 4xx Client Errors
-                  BAD_REQUEST: 400,
-                  UNAUTHORIZED: 401,
-                  FORBIDDEN: 403,
-                  NOT_FOUND: 404,
-                  CONFLICT: 409,
-                  UNPROCESSABLE_ENTITY: 422,
-                  TOO_MANY_REQUESTS: 429,
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
 
-                  // 5xx Server Errors
-                  INTERNAL_SERVER_ERROR: 500,
-                  NOT_IMPLEMENTED: 501,
-                  BAD_GATEWAY: 502,
-                  SERVICE_UNAVAILABLE: 503,
-                  GATEWAY_TIMEOUT: 504,
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
                   } as const;
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -665,58 +662,58 @@ feature_structure:
                 name: api-error.ts
                 content: |
 
-                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                    import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
-                  export class ApiError extends Error {
-                  public readonly statusCode: StatusCode;
-                  public readonly isOperational: boolean;
-                  public readonly errors?: unknown;
+                    export class ApiError extends Error {
+                      public readonly statusCode: StatusCode;
+                      public readonly isOperational: boolean;
+                      public readonly errors?: unknown;
 
-                  constructor(
-                      statusCode: StatusCode,
-                      message: string,
-                      errors?: unknown,
-                      isOperational = true
-                  ) {
-                      super(message);
-                      this.name = "ApiError";
-                      this.statusCode = statusCode;
-                      this.errors = errors;
-                      this.isOperational = isOperational;
+                      constructor(
+                        statusCode: StatusCode,
+                        message: string,
+                        errors?: unknown,
+                        isOperational = true
+                      ) {
+                        super(message);
+                        this.name = "ApiError";
+                        this.statusCode = statusCode;
+                        this.errors = errors;
+                        this.isOperational = isOperational;
 
-                      Error.captureStackTrace(this, this.constructor);
-                  }
+                        Error.captureStackTrace(this, this.constructor);
+                      }
 
-                  static badRequest(message = "Bad Request", errors?: unknown) {
-                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
-                  }
+                      static badRequest(message = "Bad Request", errors?: unknown) {
+                        return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                      }
 
-                  static unauthorized(message = "Unauthorized") {
-                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
-                  }
+                      static unauthorized(message = "Unauthorized") {
+                        return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                      }
 
-                  static forbidden(message = "Forbidden") {
-                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
-                  }
+                      static forbidden(message = "Forbidden") {
+                        return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                      }
 
-                  static notFound(message = "Not Found") {
-                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
-                  }
+                      static notFound(message = "Not Found") {
+                        return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                      }
 
-                  static conflict(message = "Conflict") {
-                      return new ApiError(STATUS_CODES.CONFLICT, message);
-                  }
+                      static conflict(message = "Conflict") {
+                        return new ApiError(STATUS_CODES.CONFLICT, message);
+                      }
 
-                  static server(message = "Internal Server Error") {
-                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
-                  }
-                  }
+                      static server(message = "Internal Server Error") {
+                        return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                      }
+                    }
 
-                  /*
-                  ? Usage:
-                  * throw new ApiError(404, "Not found");
-                  * throw ApiError.badRequest("Bad request");
-                  */
+                    /*
+                      ? Usage:
+                      * throw new ApiError(404, "Not found");
+                      * throw ApiError.badRequest("Bad request");
+                    */
 
           - type: folder
             name: utils
@@ -940,105 +937,108 @@ feature_structure:
                   };
 
               - type: file
-                name: auth.ts
+                name: verify-auth.ts
                 content: |
 
-                  import { NextFunction, Request, Response } from "express";
-                  import {
-                    generateAccessToken,
-                    generateRefreshToken,
-                    verifyAccessToken,
-                    verifyRefreshToken,
-                  } from "../utils/jwt";
-                  import { UserRequest } from "../types/user";
-                  import { ApiError } from "../utils/api-error";
-                  import { logger } from "../utils/logger";
-                  import User from "../models/user.model";
-                  import env from "../configs/env";
+                    import { NextFunction, Response } from "express";
+                    import {
+                      generateAccessToken,
+                      generateRefreshToken,
+                      verifyAccessToken,
+                      verifyRefreshToken,
+                    } from "../utils/jwt";
+                    import { logger } from "../utils/logger";
+                    import env from "../configs/env";
+                    import { UserRequest } from "../../types/user";
+                    import { ApiError } from "../errors/api-error";
+                    import User from "../../modules/user/user.model";
 
-                  const isProduction = env.NODE_ENV === "production";
-                  const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
-                  const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+                    const isProduction = env.NODE_ENV === "production";
+                    const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
+                    const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
-                  export const COOKIE_OPTIONS = {
-                    httpOnly: true,
-                    secure: isProduction,
-                    sameSite: isProduction ? ("none" as const) : ("lax" as const),
-                    path: "/",
-                  };
+                    export const COOKIE_OPTIONS = {
+                      httpOnly: true,
+                      secure: isProduction,
+                      sameSite: isProduction ? ("none" as const) : ("lax" as const),
+                      path: "/",
+                    };
 
-                  export async function verifyAuthentication(
-                    req: UserRequest,
-                    res: Response,
-                    next: NextFunction
-                  ) {
-                    const accessToken = req.cookies?.accessToken;
-                    const refreshToken = req.cookies?.refreshToken;
+                    export async function verifyAuthentication(
+                      req: UserRequest,
+                      res: Response,
+                      next: NextFunction
+                    ): Promise<void> {
+                      const accessToken = req.cookies?.accessToken;
+                      const refreshToken = req.cookies?.refreshToken;
 
-                    // Step 1: Try validating access token
+                      // Step 1: Try validating access token
 
-                    try {
-                      if (accessToken) {
-                        const decoded = verifyAccessToken(accessToken);
-                        req.user = decoded;
+                      try {
+                        if (accessToken) {
+                          const decoded = verifyAccessToken(accessToken);
+                          req.user = decoded;
+                          return next();
+                        }
+                      } catch (err) {
+                        // Access token expired or invalid
+                        logger.warn("Access token verification failed");
+                        return next(ApiError.badRequest("Invalid or expired access token"));
+                      }
+
+                      // Step 2: Refresh token required if access token fails
+
+                      if (!refreshToken) {
+                        return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                      }
+
+                      try {
+                        const decodedRefresh = verifyRefreshToken(refreshToken);
+
+                        // Step 3: Ensure user still exists
+
+                        const userInDb = await User.findOne({
+                          _id: decodedRefresh.userId,
+                        });
+
+                        if (!userInDb) {
+                          return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                        }
+
+                        // Step 4: Issue new tokens
+
+                        const newAccessToken = generateAccessToken({
+                          _id: userInDb._id.toString(),
+                        });
+
+                        const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
+
+                        // Step 5: Saved accessToken and refreshToken in cookie
+                        res.cookie("accessToken", newAccessToken, {
+                          ...COOKIE_OPTIONS,
+                          maxAge: ACCESS_TOKEN_EXPIRY,
+                        });
+
+                        res.cookie("refreshToken", newRefreshToken, {
+                          ...COOKIE_OPTIONS,
+                          maxAge: REFRESH_TOKEN_EXPIRY,
+                        });
+
+                        // Step 6: Attach user to request
+
+                        req.user = {
+                          _id: decodedRefresh.userId,
+                        };
+
+                        // you can update the refresh token in the database here if you store it in the database
+
                         return next();
+                      } catch (err: any) {
+                        logger.warn("Refresh token verification failed");
+                        return next(ApiError.unauthorized("Unauthorized, Please login first."));
                       }
-                    } catch (err) {
-                      // Access token expired or invalid
-                      logger.error(err?.message);
-                      throw ApiError.badRequest("Invalid or expired access token ");
                     }
 
-                    // Step 2: Refresh token required if access token fails
-
-                    if (!refreshToken) {
-                      throw ApiError.unauthorized("Unauthorized, Please login first.");
-                    }
-
-                    try {
-                      const decodedRefresh = verifyRefreshToken(refreshToken);
-
-                      // Step 3: Ensure user still exists
-
-                      const userInDb = await User.findOne({
-                        _id: decodedRefresh.userId,
-                      });
-
-                      if (!userInDb) {
-                        throw ApiError.unauthorized("Unauthorized, Please login first.");
-                      }
-
-                      // Step 4: Issue new tokens
-
-                      const newAccessToken = generateAccessToken({
-                        _id: userInDb._id.toString(),
-                      });
-
-                      const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
-
-                      // Step 5: Saved accessToken and refreshToken in cookie
-                      res.cookie("accessToken", accessToken, {
-                        ...COOKIE_OPTIONS,
-                        maxAge: ACCESS_TOKEN_EXPIRY,
-                      });
-
-                      res.cookie("refreshToken", refreshToken, {
-                        ...COOKIE_OPTIONS,
-                        maxAge: REFRESH_TOKEN_EXPIRY,
-                      });
-
-                      // Step 6: Attach user to request
-
-                      req.user = {
-                        _id: decodedRefresh.userId,
-                      };
-
-                      return next();
-                    } catch (err: any) {
-                      logger.error(err?.message);
-                      throw ApiError.unauthorized("Unauthorized, Please login first.");
-                    }
-                  }
 
       - type: folder
         name: modules
@@ -1053,7 +1053,7 @@ feature_structure:
                   import { Response, Router } from "express";
                   import { UserRequest } from "../../types/user";
                   import { ApiResponse } from "../../shared/utils/api-response";
-                  import { verifyAuthentication } from "../../shared/middlewares/auth";
+                  import { verifyAuthentication } from "../../shared/middlewares/verify-auth";
 
                   const router = Router();
 
@@ -1206,31 +1206,31 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-  <PackageManagerTabs command="npx servercn add http-status-codes" />
+<PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-formatter" />
+<PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-  <PackageManagerTabs command="npx servercn add error-handler" />
+<PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **JWT Authentication:**
-  <PackageManagerTabs command="npx servercn add jwt-auth" />
+<PackageManagerTabs command="npx servercn add jwt-auth" />
 
 Documentation:
 [JWT Authentication](/docs/components/jwt-auth)
 
 - **Logger:**
-  <PackageManagerTabs command="npx servercn add logger" />
+<PackageManagerTabs command="npx servercn add logger" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -1353,7 +1353,7 @@ export interface UserRequest extends Request {
 
 ### 1. MVC Structure
 
-`src/middlewares/auth.ts`
+`src/middlewares/verify-auth.ts`
 
 ```ts
 import { NextFunction, Request, Response } from "express";
@@ -1383,8 +1383,8 @@ export const COOKIE_OPTIONS = {
 export async function verifyAuthentication(
   req: UserRequest,
   res: Response,
-  next: NextFunction,
-) {
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -1398,14 +1398,14 @@ export async function verifyAuthentication(
     }
   } catch (err) {
     // Access token expired or invalid
-    logger.error(err?.message);
-    throw ApiError.badRequest("Invalid or expired access token ");
+    logger.warn("Access token verification failed");
+    return next(ApiError.badRequest("Invalid or expired access token"));
   }
 
   // Step 2: Refresh token required if access token fails
 
   if (!refreshToken) {
-    throw ApiError.unauthorized("Unauthorized, Please login first.");
+    return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 
   try {
@@ -1418,7 +1418,7 @@ export async function verifyAuthentication(
     });
 
     if (!userInDb) {
-      throw ApiError.unauthorized("Unauthorized, Please login first.");
+      return next(ApiError.unauthorized("Unauthorized, Please login first."));
     }
 
     // Step 4: Issue new tokens
@@ -1430,12 +1430,12 @@ export async function verifyAuthentication(
     const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
 
     // Step 5: Saved accessToken and refreshToken in cookie
-    res.cookie("accessToken", accessToken, {
+    res.cookie("accessToken", newAccessToken, {
       ...COOKIE_OPTIONS,
       maxAge: ACCESS_TOKEN_EXPIRY,
     });
 
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
       maxAge: REFRESH_TOKEN_EXPIRY,
     });
@@ -1446,31 +1446,33 @@ export async function verifyAuthentication(
       _id: decodedRefresh.userId,
     };
 
+    // you can update the refresh token in the database here if you store it in the database
+
     return next();
   } catch (err: any) {
-    logger.error(err?.message);
-    throw ApiError.unauthorized("Unauthorized, Please login first.");
+    logger.warn("Refresh token verification failed");
+    return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 }
 ```
 
 ### 2. Feature Structure
 
-`src/shared/middlewares/auth.ts`
+`src/shared/middlewares/verify-auth.ts`
 
 ```ts
-import { NextFunction, Request, Response } from "express";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
 } from "../utils/jwt";
-import { UserRequest } from "../types/user";
-import { ApiError } from "../errors/api-error";
 import { logger } from "../utils/logger";
-import User from "../models/user.model";
 import env from "../configs/env";
+import { UserRequest } from "../../types/user";
+import { ApiError } from "../errors/api-error";
+import User from "../../modules/user/user.model";
+import { NextFunction, Response } from "express";
 
 const isProduction = env.NODE_ENV === "production";
 const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
@@ -1486,8 +1488,8 @@ export const COOKIE_OPTIONS = {
 export async function verifyAuthentication(
   req: UserRequest,
   res: Response,
-  next: NextFunction,
-) {
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -1501,14 +1503,14 @@ export async function verifyAuthentication(
     }
   } catch (err) {
     // Access token expired or invalid
-    logger.error(err?.message);
-    throw ApiError.badRequest("Invalid or expired access token ");
+    logger.warn("Access token verification failed");
+    return next(ApiError.badRequest("Invalid or expired access token"));
   }
 
   // Step 2: Refresh token required if access token fails
 
   if (!refreshToken) {
-    throw ApiError.unauthorized("Unauthorized, Please login first.");
+    return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 
   try {
@@ -1521,7 +1523,7 @@ export async function verifyAuthentication(
     });
 
     if (!userInDb) {
-      throw ApiError.unauthorized("Unauthorized, Please login first.");
+      return next(ApiError.unauthorized("Unauthorized, Please login first."));
     }
 
     // Step 4: Issue new tokens
@@ -1533,12 +1535,12 @@ export async function verifyAuthentication(
     const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
 
     // Step 5: Saved accessToken and refreshToken in cookie
-    res.cookie("accessToken", accessToken, {
+    res.cookie("accessToken", newAccessToken, {
       ...COOKIE_OPTIONS,
       maxAge: ACCESS_TOKEN_EXPIRY,
     });
 
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
       maxAge: REFRESH_TOKEN_EXPIRY,
     });
@@ -1549,10 +1551,12 @@ export async function verifyAuthentication(
       _id: decodedRefresh.userId,
     };
 
+    // you can update the refresh token in the database here if you store it in the database
+
     return next();
   } catch (err: any) {
-    logger.error(err?.message);
-    throw ApiError.unauthorized("Unauthorized, Please login first.");
+    logger.warn("Refresh token verification failed");
+    return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 }
 ```
@@ -1563,7 +1567,7 @@ export async function verifyAuthentication(
 
 ```ts
 import { Router } from "express";
-import { verifyAuthentication } from "../middlewares/auth";
+import { verifyAuthentication } from "../middlewares/verify-auth";
 
 const router = Router();
 
