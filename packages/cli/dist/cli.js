@@ -16,7 +16,8 @@ function getServercnRoot() {
   return path.resolve(__dirname, "../../..");
 }
 function getRegistryPath(folder) {
-  return path.join(getServercnRoot(), `packages/registry/${folder}s`);
+  const folderName = folder ? `/${folder}s` : "";
+  return path.join(getServercnRoot(), `packages/registry${folderName}`);
 }
 function getTemplatesPath() {
   return path.join(getServercnRoot(), `packages/templates/`);
@@ -114,9 +115,7 @@ async function copyTemplate({
       let content = buffer.toString("utf8");
       await fs.writeFile(destPath, content);
     }
-    logger.created(
-      exists ? `Overwritten: ${destPath}` : `: ${destPath}`
-    );
+    logger.created(exists ? `Overwritten: ${destPath}` : `: ${destPath}`);
   }
 }
 
@@ -270,9 +269,13 @@ function getDefaultFolderName(component) {
 // src/lib/assert-initialized.ts
 import fs6 from "fs-extra";
 import path8 from "path";
-var CONFIG_FILE = "servercn.json";
+
+// src/constants/app-constants.ts
+var SERVERCN_CONFIG_FILE = "servercn.json";
+
+// src/lib/assert-initialized.ts
 async function assertInitialized() {
-  const configPath = path8.resolve(process.cwd(), CONFIG_FILE);
+  const configPath = path8.resolve(process.cwd(), SERVERCN_CONFIG_FILE);
   if (!await fs6.pathExists(configPath)) {
     logger.error("ServerCN is not initialized in this project.");
     logger.info("Run the following command first:");
@@ -284,7 +287,6 @@ async function assertInitialized() {
 // src/lib/config.ts
 import fs7 from "fs-extra";
 import path9 from "path";
-var SERVERCN_CONFIG_FILE = "servercn.json";
 async function getServerCNConfig() {
   const cwd = process.cwd();
   const configPath = path9.resolve(cwd, SERVERCN_CONFIG_FILE);
@@ -378,21 +380,121 @@ async function add(componentName, options = {}) {
   logger.success(`
 ${component.title} added successfully
 `);
-  process.exit(0);
 }
 
 // src/commands/init.ts
 import fs8 from "fs-extra";
 import path11 from "path";
 import prompts3 from "prompts";
-var CONFIG_FILE2 = "servercn.json";
-async function init() {
+async function init(foundation) {
   const cwd = process.cwd();
-  const configPath = path11.join(cwd, CONFIG_FILE2);
-  if (await fs8.pathExists(configPath)) {
+  const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
+  if (await fs8.pathExists(configPath) && !foundation) {
     logger.warn("ServerCN is already initialized in this project.");
     logger.info("You can now run: servercn add <component>");
     process.exit(1);
+  }
+  if (foundation) {
+    const response2 = await prompts3([
+      {
+        type: "text",
+        name: "root",
+        message: "Project root directory",
+        initial: ".",
+        format: (val) => val.trim() || "."
+      },
+      {
+        type: "select",
+        name: "architecture",
+        message: "Select architecture",
+        choices: [
+          { title: "MVC (controllers, services, models)", value: "mvc" },
+          { title: "Feature-based (domain-driven modules)", value: "feature" }
+        ]
+      }
+    ]);
+    const rootPath2 = path11.resolve(cwd, response2.root);
+    await fs8.ensureDir(rootPath2);
+    if (!fs8.pathExistsSync(rootPath2)) {
+      logger.error(`Failed to create project directory: ${rootPath2}`);
+      process.exit(1);
+    }
+    logger.info(`Initializing with foundation: ${foundation}`);
+    try {
+      const component = await getRegistryComponent(foundation, "foundation");
+      const config2 = {
+        $schema: "https://servercn.dev/schema/v1.json",
+        version: "1.0.0",
+        project: {
+          root: response2.root,
+          srcDir: "src",
+          type: "backend",
+          packageManager: "npm"
+        },
+        stack: {
+          runtime: "node",
+          language: "typescript",
+          framework: "express",
+          architecture: response2.architecture
+        },
+        database: null,
+        overrides: {},
+        meta: {
+          createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+          createdBy: "servercn@1.0.0"
+        }
+      };
+      const tsConfig2 = {
+        compilerOptions: {
+          target: "ES2021",
+          module: "es2022",
+          moduleResolution: "bundler",
+          strict: true,
+          esModuleInterop: true,
+          skipLibCheck: true,
+          outDir: "dist",
+          rootDir: "src"
+        },
+        include: ["src/**/*"],
+        exclude: ["node_modules"]
+      };
+      await fs8.writeJson(path11.join(rootPath2, SERVERCN_CONFIG_FILE), config2, {
+        spaces: 2
+      });
+      await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig2, {
+        spaces: 2
+      });
+      const templatePathRelative = component.templates?.express?.[response2.architecture];
+      if (!templatePathRelative) {
+        throw new Error(
+          `Template not found for ${foundation} (express/${response2.architecture})`
+        );
+      }
+      const templateDir = path11.resolve(
+        getTemplatesPath(),
+        templatePathRelative
+      );
+      await copyTemplate({
+        templateDir,
+        targetDir: rootPath2,
+        componentName: foundation,
+        conflict: "overwrite"
+      });
+      await installDependencies({
+        runtime: component.dependencies?.runtime,
+        dev: component.dependencies?.dev,
+        cwd: rootPath2
+      });
+      logger.success(`
+Success! ServerCN initialized with ${foundation}.`);
+      logger.info("You may now run:");
+      logger.log(`- cd ${response2.root}`);
+      logger.log(`- npm run dev`);
+      return;
+    } catch (error) {
+      logger.error(`Failed to initialize foundation: ${error}`);
+      process.exit(1);
+    }
   }
   const response = await prompts3([
     {
@@ -517,7 +619,9 @@ async function init() {
     include: ["src/**/*"],
     exclude: ["node_modules"]
   };
-  await fs8.writeJson(path11.join(rootPath, CONFIG_FILE2), config, { spaces: 2 });
+  await fs8.writeJson(path11.join(rootPath, SERVERCN_CONFIG_FILE), config, {
+    spaces: 2
+  });
   await fs8.writeJson(path11.join(rootPath, "tsconfig.json"), tsConfig, {
     spaces: 2
   });
@@ -530,7 +634,7 @@ async function init() {
 import fs9 from "fs-extra";
 import path12 from "path";
 async function loadRegistryComponents() {
-  const registryDir = getRegistryPath();
+  const registryDir = getRegistryPath("component");
   const files = await fs9.readdir(registryDir);
   const components = [];
   for (const file of files) {
@@ -545,7 +649,7 @@ async function loadRegistryComponents() {
 // src/lib/group-by-category.ts
 function groupByCategory(components) {
   return components.reduce((acc, c) => {
-    const category = c.category ?? "uncategorized";
+    const category = c.type ?? "uncategorized";
     acc[category] ??= [];
     acc[category].push(c);
     return acc;
@@ -562,12 +666,12 @@ async function list() {
   const grouped = groupByCategory(components);
   for (const category of Object.keys(grouped).sort()) {
     logger.info(`
-${category.toUpperCase()}`);
+${category.toUpperCase()}S`);
     const items = grouped[category].sort(
-      (a, b) => a.name.localeCompare(b.name)
+      (a, b) => a.title.localeCompare(b.title)
     );
     for (const c of items) {
-      logger.log(`  \u2022 ${c.name} \u2014 ${c.title}`);
+      logger.log(`  \u2022 ${c.title}: ${c.slug}`);
     }
   }
 }
@@ -578,12 +682,14 @@ process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 async function main() {
   program.name("servercn").description("Backend components for Node.js").version("0.0.1");
-  program.command("init").description("Initialize ServerCN in your project").action(init);
+  program.command("init [foundation]").description("Initialize ServerCN in your project").action(init);
   program.command("list").description("List available ServerCN components").action(list);
-  program.command("add <component>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature)", "mvc").option("-f, --force", "Overwrite existing files").action((component, options) => {
-    return add(component, {
-      arch: options.arch
-    });
+  program.command("add <components...>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature)", "mvc").option("-f, --force", "Overwrite existing files").action(async (components, options) => {
+    for (const component of components) {
+      await add(component, {
+        arch: options.arch
+      });
+    }
   });
   program.parse(process.argv);
 }

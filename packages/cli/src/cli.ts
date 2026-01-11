@@ -17,7 +17,7 @@ async function main() {
     .version("0.0.1");
 
   program
-    .command("init")
+    .command("init [foundation]")
     .description("Initialize ServerCN in your project")
     .action(init);
 
@@ -27,14 +27,16 @@ async function main() {
     .action(list);
 
   program
-    .command("add <component>")
+    .command("add <components...>")
     .description("Add a backend component")
     .option("--arch <arch>", "Architecture (mvc | feature)", "mvc")
     .option("-f, --force", "Overwrite existing files")
-    .action((component, options) => {
-      return add(component, {
-        arch: options.arch,
-      });
+    .action(async (components, options) => {
+      for (const component of components) {
+        await add(component, {
+          arch: options.arch,
+        });
+      }
     });
 
   program.parse(process.argv);

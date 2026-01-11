@@ -15,9 +15,14 @@
     "generate:mdx": "npm run generate -w packages/cli"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
     "eslint": "^9.0.0",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.11",
     "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   },
@@ -25,9 +30,12 @@
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "change-case": "^5.4.4",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.2",
     "pino": "^10.1.0",
