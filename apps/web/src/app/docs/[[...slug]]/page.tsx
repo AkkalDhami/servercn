@@ -120,8 +120,6 @@ export default async function DocsPage({
 
   const currentArch = (resolvedSearchParams?.arch as string) ?? "mvc";
 
-  console.log({ currentArch });
-
   const filePath = getDocPath(slug);
   if (!fs.existsSync(filePath)) {
     notFound();
@@ -208,7 +206,7 @@ const NextSteps = ({
         <div className="flex items-center justify-start">
           <Link
             href={`${prev.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium"
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200"
           >
             <ArrowLeftIcon className="size-4" />
             {prev.title}
@@ -219,7 +217,7 @@ const NextSteps = ({
         <div className="flex items-center justify-end">
           <Link
             href={`${next.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium"
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200"
           >
             {next.title} <ArrowRightIcon className="size-4" />
           </Link>

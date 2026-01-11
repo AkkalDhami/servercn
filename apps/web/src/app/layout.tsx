@@ -3,6 +3,7 @@ import "@/app/styles/globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { fontVariables } from "@/lib/fonts";
 import { siteConfig } from "@/lib/config";
+import { ScrollToTopButton } from "@/components/layouts/scroll-to-top";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -15,8 +16,8 @@ export const metadata: Metadata = {
   twitter: {
     title: siteConfig.title,
     description: siteConfig.description,
-    creator: siteConfig.author
-  }
+    creator: siteConfig.author,
+  },
 };
 
 export default function RootLayout({
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ScrollToTopButton />
           {children}
         </ThemeProvider>
       </body>

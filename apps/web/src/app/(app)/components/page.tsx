@@ -25,6 +25,10 @@ const components = registry.items
   .filter((component) => component.type === "component")
   .sort((a, b) => a.title.localeCompare(b.title)) as BackendComponent[];
 
+const stableComponents = components.filter(
+  (component) => component.status === "stable",
+);
+
 export default function ComponentsPage() {
   return (
     <Container className="mt-16 min-h-screen w-full max-w-360">
@@ -46,10 +50,10 @@ export default function ComponentsPage() {
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
           Version: {registry.version.version} | Total components:{" "}
-          {components.length} | Last updated: {registry.version.lastUpdated}
+          {components.length} | Stable components: {stableComponents.length} |
+          Last updated: {registry.version.lastUpdated}
         </p>
       </div>
     </Container>
   );
 }
-
