@@ -1,0 +1,176 @@
+---
+title: Express Server
+description: Learn how to set up and configure the core Express server in ServerCN.
+---
+
+# Express Server
+
+The **Express Server** is the heart of your ServerCN application. It handles incoming requests, registers global middlewares, sets up routing, and manages the application lifecycle.
+
+## Overview
+
+In ServerCN, the server entry point is typically `src/app.ts`. This file is responsible for:
+
+1.  Initializing the Express application
+2.  Connecting to the database (if applicable)
+3.  Configuring global middlewares (CORS, Helmet, Logger)
+4.  Registering routes
+5.  Setting up error handling
+6.  Starting the server
+
+## Basic Structure
+
+A production-ready Express server requires a solid foundation. Below is the recommended structure for your `app.ts`.
+
+### 1. Essential Dependencies
+
+First, ensure you have the core dependencies specific for a robust server:
+
+<PackageManagerTabs command="npm install express cors helmet morgan" />
+<PackageManagerTabs command="npm install -D @types/express @types/cors @types/morgan" />
+
+- **express**: The web framework.
+- **cors**: Enables Cross-Origin Resource Sharing.
+- **helmet**: Secures HTTP headers.
+- **morgan**: HTTP request logger (or use ServerCN's Logger component).
+
+### 2. Implementation
+
+Here is a complete example of a production-ready `src/app.ts`.
+
+```ts title="src/app.ts"
+import express, { Application, Request, Response } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import env from "./configs/env";
+import router from "./routes";
+import { errorHandler } from "./middlewares/error-handler";
+import { notFoundHandler } from "./middlewares/not-found-handler";
+import { logger } from "./utils/logger";
+
+const app: Application = express();
+
+// 1. Global Middlewares
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cors()); // Enable CORS
+app.use(helmet()); // Secure HTTP headers
+app.use(morgan("dev")); // Log HTTP requests
+
+// 2. Health Check
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "OK", message: "Server is running" });
+});
+
+// 3. API Routes
+// Mount all routes under a version prefix (e.g., /api/v1)
+app.use("/api/v1", router);
+
+// 4. Error Handling
+// Handle 404 - Not Found
+app.use(notFoundHandler);
+
+// Handle Global Errors
+app.use(errorHandler);
+
+// 5. Start Server
+const startServer = async () => {
+  try {
+    // Database connection could go here
+    // await connectDB();
+
+    app.listen(env.PORT, () => {
+      logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+    });
+  } catch (error) {
+    logger.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+export default app;
+```
+
+## Configuration
+
+### Environment Variables
+
+Your server relies on environment variables for configuration. These are typically loaded from `.env` and typed in `src/configs/env.ts`.
+
+```ts title="src/configs/env.ts"
+import dotenv from "dotenv";
+
+dotenv.config();
+
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 5000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+};
+
+export default env;
+```
+
+### Route Registration
+
+The `src/routes/index.ts` file acts as the central hub for all your API routes.
+
+```ts title="src/routes/index.ts"
+import { Router } from "express";
+import userRoutes from "./user.routes";
+import promptRoutes from "./prompt.routes";
+
+const router = Router();
+
+router.use("/users", userRoutes);
+router.use("/prompts", promptRoutes);
+
+export default router;
+```
+
+## Best Practices
+
+### 1. Separation of Concerns
+
+Keep your `app.ts` clean. Avoid writing business logic or detailed route definitions directly in this file. Delegate those responsibilities to controllers, services, and route files.
+
+### 2. Security Headers
+
+Always use `helmet` to set secure HTTP headers. It protects against common vulnerabilities like XSS, Clickjacking, and Sniffing.
+
+### 3. Order Matters
+
+Middleware order is critical in Express:
+
+1.  **Parsing/Security Middlewares** (JSON, CORS, Helmet) must come _before_ routes.
+2.  **Routes** come next.
+3.  **Error Handlers** must be registered _last_, after all routes.
+
+### 4. Graceful Shutdown
+
+For production applications, implement graceful shutdown to handle active requests before killing the process. See the [Shutdown Handler](/docs/components/shutdown-handler) component for details.
+
+## Running the Server
+
+Update your `package.json` scripts to run the server:
+
+```json
+{
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
+  }
+}
+```
+
+- **dev**: Runs the server in development mode with hot-reloading.
+- **build**: Compiles TypeScript to JavaScript.
+- **start**: Runs the compiled JavaScript code in production.

@@ -8,7 +8,7 @@
       "title": "Introduction",
       "description": "ServerCN is a component-based backend development system for Node.js and TypeScript.",
       "type": "guide",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/introduction"
     },
     {
@@ -16,7 +16,7 @@
       "title": "Installation",
       "description": "Learn how to install and set up ServerCN in your project.",
       "type": "guide",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/installation"
     },
     {
@@ -24,7 +24,7 @@
       "title": "Project Structure",
       "description": "Understand how ServerCN organizes your project files based on your chosen architecture.",
       "type": "guide",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/project-structure"
     },
     {
@@ -32,7 +32,7 @@
       "title": "JWT Authentication",
       "description": "JSON Web Token authentication with access & refresh token support for Express",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/jwt-auth"
     },
     {
@@ -40,7 +40,7 @@
       "title": "Global Error Handler",
       "description": "Centralized error handling for Express applications using TypeScript.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/global-error-handler"
     },
     {
@@ -72,7 +72,7 @@
       "title": "Password Hashing",
       "description": "The Password Hashing component provides a standardized way to hash passwords in ServerCN using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/password-hashing"
     },
     {
@@ -80,7 +80,7 @@
       "title": "HTTP Status Codes",
       "description": "Centralized, type-safe HTTP status codes for consistent API responses.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/http-status-codes"
     },
     {
@@ -88,7 +88,7 @@
       "title": "Auth Verification Middleware",
       "description": "Auth Verification Middleware protects private routes by validating user authentication using JWT access tokens and refresh tokens.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/verify-auth-middleware"
     },
     {
@@ -96,7 +96,7 @@
       "title": "Structured Logger",
       "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/logger"
     },
     {
@@ -120,15 +120,15 @@
       "title": "Not Found Handler",
       "description": "The Not Found Handler component provides a standardized way to handle not found routes in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/not-found-handler"
     },
     {
       "slug": "request-validator",
       "title": "Request Validator(Zod)",
-      "description": "The Request Validator(Zod) component provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
+      "description": "The Request Validator(Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/request-validator"
     },
     {
@@ -136,7 +136,7 @@
       "title": "Health Check",
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/health-check"
     },
     {
@@ -173,10 +173,10 @@
     },
     {
       "slug": "rbac",
-      "title": "Role-Based Access Control",
-      "description": "The Role-Based Access Control component provides a standardized way to handle role-based access control in ServerCN.",
+      "title": "Role Based Access Control",
+      "description": "The Role Based Access Control component provides a standardized way to handle role based access control in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/rbac"
     },
     {
@@ -216,7 +216,7 @@
       "title": "Validate ObjectId Middleware",
       "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/validate-objectId"
     },
 
@@ -254,12 +254,12 @@
       "docs": "/docs/foundations/mongoose-starter"
     },
     {
-      "slug": "drizzle-starter",
-      "title": "Drizzle Starter",
-      "description": "The Drizzle Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "slug": "drizzle-mysql-starter",
+      "title": "Drizzle MySQL Starter",
+      "description": "The Drizzle MySQL Starter foundation provides a standardized way to handle security headers in ServerCN.",
       "type": "foundation",
       "status": "unstable",
-      "docs": "/docs/foundations/drizzle-starter"
+      "docs": "/docs/foundations/drizzle-mysql-starter"
     },
     {
       "slug": "prisma-starter",
@@ -272,7 +272,7 @@
 
   ],
   "version": {
-    "version": "0.0.1",
-    "lastUpdated": "2026-01-05"
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-10"
   }
 }
