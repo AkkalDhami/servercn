@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "npx prettier . --write",
-    "check": "npx prettier . --check",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write",
     "prepare": "husky"
   },
   "dependencies": {

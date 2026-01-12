@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import createMDX from "@next/mdx";
 
 const withMDX = createMDX({
-  extension: /\.mdx$/,
+  extension: /\.mdx$/
 });
 
 const nextConfig: NextConfig = {
@@ -12,11 +12,11 @@ const nextConfig: NextConfig = {
       {
         source: "/docs",
         destination: "/docs/introduction",
-        permanent: true,
-      },
+        permanent: true
+      }
     ];
   },
-  typedRoutes: true,
+  typedRoutes: true
 };
 
 export default withMDX(nextConfig);
