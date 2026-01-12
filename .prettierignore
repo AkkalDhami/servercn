@@ -3,6 +3,5 @@ node_modules
 .next
 build
 dist
-.mdx
-dist
 .env
+.mdx
