@@ -7,9 +7,4 @@ export interface IRegistryItems {
   docs: string;
 }
 
-export type ItemType =
-  | "component"
-  | "blueprint"
-  | "guide"
-  | "model"
-  | "foundation";
+export type ItemType = "component" | "blueprint" | "guide" | "model" | "foundation";
