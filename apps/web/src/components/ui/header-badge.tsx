@@ -9,17 +9,13 @@ interface HeaderBadgeProps {
   className?: string;
 }
 
-export const HeaderBadge: React.FC<HeaderBadgeProps> = ({
-  children,
-  className,
-}) => {
+export const HeaderBadge: React.FC<HeaderBadgeProps> = ({ children, className }) => {
   return (
     <div
       className={cn(
         "bg-background group relative mb-6 inline-flex items-center space-x-2 rounded-full border border-neutral-300 px-4 py-2 font-mono text-sm sm:text-base dark:border-neutral-700",
-        className,
-      )}
-    >
+        className
+      )}>
       {children}
 
       <BorderBeam
@@ -30,7 +26,7 @@ export const HeaderBadge: React.FC<HeaderBadgeProps> = ({
         transition={{
           type: "spring",
           stiffness: 60,
-          damping: 20,
+          damping: 20
         }}
       />
     </div>

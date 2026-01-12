@@ -1,22 +1,17 @@
 import { getSingletonHighlighter } from "shiki";
 
-export const PRIMRY_CODE_BLACK_THEME = "ayu-dark" as const;
+export const PRIMRY_CODE_BLACK_THEME = "aurora-x" as const;
+export const SECONDARY_CODE_BLACK_THEME = "aurora-x" as const;
 
 const highlighter = await getSingletonHighlighter({
-  themes: [PRIMRY_CODE_BLACK_THEME, 'aurora-x'],
-  langs: ["bash", "ts"],
+  themes: [SECONDARY_CODE_BLACK_THEME],
+  langs: ["bash", "ts"]
 });
 
-export async function CodeBlock({
-  code,
-  lang = "bash",
-}: {
-  code: string;
-  lang?: string;
-}) {
+export async function CodeBlock({ code, lang = "bash" }: { code: string; lang?: string }) {
   const html = highlighter.codeToHtml(code, {
     lang,
-    theme: PRIMRY_CODE_BLACK_THEME,
+    theme: PRIMRY_CODE_BLACK_THEME
   });
 
   return (

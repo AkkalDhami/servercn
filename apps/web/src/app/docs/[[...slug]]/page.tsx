@@ -38,22 +38,20 @@ export async function generateStaticParams() {
     { slug: ["introduction"] },
     { slug: ["components"] },
     { slug: ["installation"] },
-    { slug: ["project-structure"] },
+    { slug: ["project-structure"] }
   ];
 
   return [...specialRoutes, ...registryParams];
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
-}): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
   const params = await props.params;
   const slug = params.slug ?? [];
   const filePath = getDocPath(slug);
 
   if (!fs.existsSync(filePath)) {
     return {
-      title: "Not Found · ServerCN Docs",
+      title: "Not Found | ServerCN Docs"
     };
   }
 
@@ -61,43 +59,37 @@ export async function generateMetadata(props: {
   const { data } = matter(source);
   return {
     title: data.title ?? "Documentation",
-    description:
-      data.description ??
-      "ServerCN documentation for building modern Node.js backends.",
+    description: data.description ?? "ServerCN documentation for building modern Node.js backends.",
     openGraph: {
       title: data.title ?? "ServerCN Docs",
-      description:
-        data.description ??
-        "ServerCN documentation for backend components and guides.",
+      description: data.description ?? "ServerCN documentation for backend components and guides.",
       url: `/docs/${slug.length > 0 ? slug.join("/") : ""}`,
       siteName: "ServerCN",
-      type: "article",
+      type: "article"
     },
     twitter: {
       card: "summary_large_image",
       title: data.title ?? "ServerCN Docs",
-      description: data.description ?? "ServerCN backend documentation.",
-    },
+      description: data.description ?? "ServerCN backend documentation."
+    }
   };
 }
 
 const prettyCodeOptions = {
   theme: {
     dark: PRIMRY_CODE_BLACK_THEME,
-    light: "github-dark-high-contrast",
+    light: "github-dark-high-contrast"
   },
   keepBackground: true,
   defaultLang: "plaintext",
   grid: true,
   lineNumbers: true,
-  defaultLanguage: "ts",
+  defaultLanguage: "ts"
 };
 
 function getDocPath(slug?: string[]) {
   if (!slug || slug.length === 0 || slug[0] === "introduction") {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
-  } else if (slug.length === 1 && slug[0] === "components") {
-    return path.join(DOCS_PATH, "guides", `${slug[0]}.mdx`);
   } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
   } else if (slug.length === 1 && slug[0] === "project-structure") {
@@ -111,10 +103,7 @@ interface DocsSlugRouterProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function DocsPage({
-  params,
-  searchParams,
-}: DocsSlugRouterProps) {
+export default async function DocsPage({ params, searchParams }: DocsSlugRouterProps) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
 
@@ -126,12 +115,9 @@ export default async function DocsPage({
   }
 
   const lastComponentIndex = slug.length > 0 ? slug.length - 1 : -1;
-  const lastSlug =
-    lastComponentIndex >= 0 ? slug[lastComponentIndex] : undefined;
+  const lastSlug = lastComponentIndex >= 0 ? slug[lastComponentIndex] : undefined;
 
-  const { next, prev } = lastSlug
-    ? findNeighbour(lastSlug as string)
-    : { next: undefined, prev: undefined };
+  const { next, prev } = lastSlug ? findNeighbour(lastSlug as string) : { next: undefined, prev: undefined };
 
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
@@ -139,8 +125,7 @@ export default async function DocsPage({
   const mvcStructure = (data.mvc_structure as FileNode[]) || [];
   const featureStructure = (data.feature_structure as FileNode[]) || [];
 
-  const currentArchStructure =
-    currentArch === "mvc" ? mvcStructure : featureStructure;
+  const currentArchStructure = currentArch === "mvc" ? mvcStructure : featureStructure;
 
   return (
     <div className="flex w-full max-w-5xl gap-8 px-3 sm:p-0">
@@ -151,32 +136,25 @@ export default async function DocsPage({
             components={mdxComponents}
             options={{
               mdxOptions: {
-                rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]],
-              },
+                rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]]
+              }
             }}
           />
         </article>
         <div className="min-w-[700px] overflow-x-auto">
-          {currentArchStructure &&
+          {(mvcStructure.length > 0 || featureStructure.length > 0) &&
+            currentArchStructure &&
             lastSlug &&
             !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
               <>
-                <h2 className="mt-8 text-2xl font-semibold tracking-tight">
-                  File &amp; Folder Structure
-                </h2>
+                <h2 className="mt-8 text-2xl font-semibold tracking-tight">File &amp; Folder Structure</h2>
                 <ArchitectureTabs current={currentArch || "mvc"} />
-                <BackendStructureViewer
-                  structure={
-                    currentArch === "mvc" ? mvcStructure : featureStructure
-                  }
-                />
+                <BackendStructureViewer structure={currentArch === "mvc" ? mvcStructure : featureStructure} />
               </>
             )}
           {data.command && (
             <>
-              <h2 className="mt-8 text-2xl font-semibold tracking-tight">
-                Installation
-              </h2>
+              <h2 className="mt-8 text-2xl font-semibold tracking-tight">Installation</h2>
               <PackageManagerTabs command={data.command} />
             </>
           )}
@@ -193,21 +171,14 @@ export default async function DocsPage({
   );
 }
 
-const NextSteps = ({
-  next,
-  prev,
-}: {
-  next?: IRegistryItems;
-  prev?: IRegistryItems;
-}) => {
+const NextSteps = ({ next, prev }: { next?: IRegistryItems; prev?: IRegistryItems }) => {
   return (
     <div className="mt-8 flex items-center justify-between">
       {prev && (
         <div className="flex items-center justify-start">
           <Link
             href={`${prev.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200"
-          >
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200">
             <ArrowLeftIcon className="size-4" />
             {prev.title}
           </Link>
@@ -217,8 +188,7 @@ const NextSteps = ({
         <div className="flex items-center justify-end">
           <Link
             href={`${next.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200"
-          >
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200">
             {next.title} <ArrowRightIcon className="size-4" />
           </Link>
         </div>

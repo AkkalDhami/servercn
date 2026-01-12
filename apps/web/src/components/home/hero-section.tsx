@@ -16,7 +16,7 @@ export default function HeroSection() {
       <div className="relative pt-18 pb-20 md:pt-22 md:pb-28">
         <div className="mx-auto max-w-6xl space-y-5 sm:px-6">
           {/* Badge */}
-          <div className="flex justify-center">
+          <div className="hidden justify-center sm:flex">
             <HeaderBadge className="py-1 text-sm sm:text-base">
               <Sparkles className="size-4" />
               Build faster with composable backends
@@ -28,12 +28,11 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl"
-            >
-              <span className="bg-linear-to-b bg-clip-text text-transparent from-neutral-400 from-5% to-neutral-900 dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
+              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
+              <span className="bg-linear-to-b from-neutral-400 from-5% to-neutral-900 bg-clip-text text-transparent dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
                 Build backends faster with
               </span>{" "}
-              <span className="bg-linear-to-b bg-clip-text text-transparent from-neutral-400 from-5% to-neutral-900 dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
+              <span className="bg-linear-to-b from-neutral-400 from-5% to-neutral-900 bg-clip-text text-transparent dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
                 ServerCN
               </span>
             </motion.h1>
@@ -44,11 +43,9 @@ export default function HeroSection() {
               speedSegment={0.3}
               delay={0.4}
               as="p"
-              className="text-muted-primary mx-auto mt-10 max-w-2xl text-lg tracking-tight md:text-xl"
-            >
-              ServerCN , the backend component registry for Node.js inspired by
-              shadcn/ui. ServerCN standardizes backend patterns so you can focus
-              on business logic, not boilerplate.
+              className="text-muted-primary mx-auto mt-10 max-w-2xl text-lg tracking-tight md:text-xl">
+              ServerCN , the backend component registry for Node.js inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus on
+              business logic, not boilerplate.
             </TextEffect>
 
             <AnimatedGroup className="mt-12 flex items-center justify-center gap-4">
@@ -57,11 +54,7 @@ export default function HeroSection() {
                 asChild
                 size="lg"
                 variant="default"
-                className={cn(
-                  "hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none",
-                  "h-10 px-2 sm:h-12 sm:px-8",
-                )}
-              >
+                className={cn("hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none", "h-10 px-1 sm:h-12 sm:px-6")}>
                 <Link href="/docs" className="flex items-center gap-2">
                   <span>Start Building</span>
                   <ChevronRight className="size-4" />
@@ -73,15 +66,10 @@ export default function HeroSection() {
                 size="lg"
                 variant="outline"
                 className={cn(
-                  "hover:bg-card-hover hover:shadow-tertiary h-9 gap-2 border-2 px-2 text-base shadow-none",
-                  "h-10 px-2 sm:h-12 sm:px-8",
-                )}
-              >
-                <Link
-                  href="https://github.com/akkaldhami/servercn"
-                  target="_blank"
-                  className="flex items-center"
-                >
+                  "hover:bg-card-hover hover:shadow-tertiary h-9 gap-2 border-2 px-1 text-base shadow-none",
+                  "h-10 px-2 sm:h-12 sm:px-8"
+                )}>
+                <Link href="https://github.com/akkaldhami/servercn" target="_blank" className="flex items-center">
                   <FaGithub className="size-5" />
                   <span>Star on GitHub</span>
                 </Link>

@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Children,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Children, createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { motion, MotionProps, useInView } from "motion/react";
 
 import { cn } from "@/lib/utils";
@@ -33,17 +25,11 @@ interface AnimatedSpanProps extends MotionProps {
   startOnView?: boolean;
 }
 
-export const AnimatedSpan = ({
-  children,
-  delay = 0,
-  className,
-  startOnView = false,
-  ...props
-}: AnimatedSpanProps) => {
+export const AnimatedSpan = ({ children, delay = 0, className, startOnView = false, ...props }: AnimatedSpanProps) => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(elementRef as React.RefObject<Element>, {
     amount: 0.3,
-    once: true,
+    once: true
   });
 
   const sequence = useSequence();
@@ -66,17 +52,13 @@ export const AnimatedSpan = ({
       initial={{ opacity: 0, y: -5 }}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
       transition={{ duration: 0.3, delay: sequence ? 0 : delay / 1000 }}
-      className={cn(
-        "text-muted-foreground flex items-center gap-1 text-sm sm:text-lg font-normal tracking-tight",
-        className,
-      )}
+      className={cn("text-muted-foreground flex items-center gap-1 text-sm font-normal tracking-tight sm:text-lg", className)}
       onAnimationComplete={() => {
         if (!sequence) return;
         if (itemIndex === null) return;
         sequence.completeItem(itemIndex);
       }}
-      {...props}
-    >
+      {...props}>
       {children}
     </motion.div>
   );
@@ -107,9 +89,9 @@ export const TypingAnimation = ({
   const MotionComponent = useMemo(
     () =>
       motion.create(Component, {
-        forwardMotionProps: true,
+        forwardMotionProps: true
       }),
-    [Component],
+    [Component]
   );
 
   const [displayedText, setDisplayedText] = useState<string>("");
@@ -117,7 +99,7 @@ export const TypingAnimation = ({
   const elementRef = useRef<HTMLElement | null>(null);
   const isInView = useInView(elementRef as React.RefObject<Element>, {
     amount: 0.3,
-    once: true,
+    once: true
   });
 
   const sequence = useSequence();
@@ -142,15 +124,7 @@ export const TypingAnimation = ({
 
     const startTimeout = setTimeout(() => setStarted(true), delay);
     return () => clearTimeout(startTimeout);
-  }, [
-    delay,
-    startOnView,
-    isInView,
-    started,
-    sequence?.activeIndex,
-    sequence?.sequenceStarted,
-    itemIndex,
-  ]);
+  }, [delay, startOnView, isInView, started, sequence?.activeIndex, sequence?.sequenceStarted, itemIndex]);
 
   useEffect(() => {
     if (!started) return;
@@ -174,11 +148,7 @@ export const TypingAnimation = ({
   }, [children, duration, started]);
 
   return (
-    <MotionComponent
-      ref={elementRef}
-      className={cn("text-sm font-normal tracking-tight", className)}
-      {...props}
-    >
+    <MotionComponent ref={elementRef} className={cn("text-sm font-normal tracking-tight", className)} {...props}>
       {displayedText}
     </MotionComponent>
   );
@@ -191,16 +161,11 @@ interface TerminalProps {
   startOnView?: boolean;
 }
 
-export const Terminal = ({
-  children,
-  className,
-  sequence = true,
-  startOnView = true,
-}: TerminalProps) => {
+export const Terminal = ({ children, className, sequence = true, startOnView = true }: TerminalProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(containerRef as React.RefObject<Element>, {
     amount: 0.3,
-    once: true,
+    once: true
   });
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -210,12 +175,10 @@ export const Terminal = ({
     if (!sequence) return null;
     return {
       completeItem: (index: number) => {
-        setActiveIndex((current) =>
-          index === current ? current + 1 : current,
-        );
+        setActiveIndex(current => (index === current ? current + 1 : current));
       },
       activeIndex,
-      sequenceStarted: sequenceHasStarted,
+      sequenceStarted: sequenceHasStarted
     };
   }, [sequence, activeIndex, sequenceHasStarted]);
 
@@ -230,13 +193,7 @@ export const Terminal = ({
   }, [children, sequence]);
 
   const content = (
-    <div
-      ref={containerRef}
-      className={cn(
-        "border-border bg-background z-0 h-full max-h-[400px] w-full max-w-lg rounded-xl border",
-        className,
-      )}
-    >
+    <div ref={containerRef} className={cn("border-border bg-background z-0 h-full max-h-[400px] w-full max-w-lg rounded-xl border", className)}>
       <div className="border-border flex flex-col gap-y-2 border-b p-4">
         <div className="flex flex-row gap-x-2">
           <div className="h-2 w-2 rounded-full bg-red-500"></div>
@@ -252,9 +209,5 @@ export const Terminal = ({
 
   if (!sequence) return content;
 
-  return (
-    <SequenceContext.Provider value={contextValue}>
-      {content}
-    </SequenceContext.Provider>
-  );
+  return <SequenceContext.Provider value={contextValue}>{content}</SequenceContext.Provider>;
 };

@@ -21,12 +21,10 @@ export function OnThisPage() {
 
     const slugger = new GithubSlugger();
 
-    const elements = Array.from(
-      container.querySelectorAll("h2, h3"),
-    ) as HTMLHeadingElement[];
+    const elements = Array.from(container.querySelectorAll("h2, h3")) as HTMLHeadingElement[];
 
     const list: Heading[] = elements
-      .map((el) => {
+      .map(el => {
         const text = el.textContent?.trim() ?? "";
         if (!text) return null;
 
@@ -36,7 +34,7 @@ export function OnThisPage() {
         return {
           id,
           text,
-          level: Number(el.tagName[1]),
+          level: Number(el.tagName[1])
         };
       })
       .filter(Boolean) as Heading[];
@@ -48,8 +46,8 @@ export function OnThisPage() {
     if (headings.length === 0) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
           }
@@ -58,11 +56,11 @@ export function OnThisPage() {
       {
         root: null, // IMPORTANT: viewport scrolling
         rootMargin: "-96px 0px -60% 0px",
-        threshold: 0,
-      },
+        threshold: 0
+      }
     );
 
-    headings.forEach((h) => {
+    headings.forEach(h => {
       const el = document.getElementById(h.id);
       if (el) observer.observe(el);
     });
@@ -77,17 +75,14 @@ export function OnThisPage() {
       <h4 className="mb-2 text-sm font-semibold">On This Page</h4>
 
       <ul className="space-y-2 text-sm">
-        {headings.map((h) => (
+        {headings.map(h => (
           <li key={h.id} style={{ paddingLeft: `${(h.level - 2) * 16}px` }}>
             <a
               href={`#${h.id}`}
               className={clsx(
                 "block transition-colors",
-                activeId === h.id
-                  ? "text-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
+                activeId === h.id ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+              )}>
               {h.text}
             </a>
           </li>

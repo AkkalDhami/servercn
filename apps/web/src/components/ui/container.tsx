@@ -8,16 +8,9 @@ interface ContainerProps {
   className?: string;
 }
 
-export const Container: React.FC<ContainerProps> = ({
-  children,
-  className,
-  ...props
-}) => {
+export const Container: React.FC<ContainerProps> = ({ children, className, ...props }) => {
   return (
-    <section
-      className={cn("mx-auto my-8 max-w-7xl px-4 sm:px-6 lg:px-8", className)}
-      {...props}
-    >
+    <section className={cn("mx-auto my-8 max-w-7xl px-4 sm:px-6 lg:px-8", className)} {...props}>
       {children}
     </section>
   );

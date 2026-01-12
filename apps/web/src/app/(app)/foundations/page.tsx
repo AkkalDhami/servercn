@@ -9,13 +9,12 @@ import { BackendComponent } from "../components/page";
 
 export const generateMetadata = (): Metadata => {
   return {
-    title: "Foundations",
+    title: "Foundations"
   };
 };
 
-
 const foundations = registry.items
-  .filter((component) => component.type === "foundation")
+  .filter(component => component.type === "foundation")
   .sort((a, b) => a.title.localeCompare(b.title)) as BackendComponent[];
 
 export default function FoundationsPage() {
@@ -24,25 +23,22 @@ export default function FoundationsPage() {
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Foundations</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN foundations for building scalable backends.
-          Here you can find all the components available in the library. We are
+          Production-ready ServerCN foundations for building scalable backends. Here you can find all the components available in the library. We are
           working on adding more components.
         </SubHeading>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {foundations.map((component) => (
+        {foundations.map(component => (
           <ComponentCard key={component.slug} component={component} />
         ))}
       </div>
       {/* verwsion details and totoal components count */}
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total foundations:{" "}
-          {foundations.length} | Last updated: {registry.version.lastUpdated}
+          Version: {registry.version.version} | Total foundations: {foundations.length} | Last updated: {registry.version.lastUpdated}
         </p>
       </div>
     </Container>
   );
 }
-

@@ -1,39 +1,25 @@
 "use client";
 
 import * as React from "react";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
 
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { Button } from "../ui/button";
 import { Kbd } from "../ui/kbd";
 
-import registry from "@/data/registry.json";
 import Link from "next/link";
 import { Route } from "next";
+import { CircleArrowRight, CircleCheckBig, CircleDashed, CircleIcon } from "lucide-react";
+import { getTypeItems } from "@/lib/source";
+import { cn } from "@/lib/utils";
 
-export default function SearchCommand() {
+export default function SearchCommand({ className, size }: { className?: string; size?: "sm" | "lg" }) {
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        setOpen(open => !open);
       }
     };
 
@@ -41,47 +27,62 @@ export default function SearchCommand() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  const guideItems = getTypeItems("guide");
+  const components = getTypeItems("component");
+  const foundations = getTypeItems("foundation");
+  const blueprints = getTypeItems("blueprint");
+
   return (
     <>
       <Button
         variant={"outline"}
-        onClick={() => setOpen((open) => !open)}
-        className="group hover:bg-card-hover px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5"
-      >
-        <div className="hidden items-center px-0 md:flex md:gap-2">
-          <span className="group-hover:text-accent-foreground text-muted-foreground font-normal duration-300">
-            Search documentaion...
-          </span>
+        onClick={() => setOpen(open => !open)}
+        className={cn("group hover:bg-card-hover px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5", className)}>
+        <div className={cn("hidden items-center px-0 md:flex md:gap-2", size === "lg" ? "block" : "hidden")}>
+          <span className="group-hover:text-accent-foreground text-muted-foreground font-normal duration-300">Search documentaion...</span>
         </div>
 
-        <Kbd className="group-hover:text-accent-foreground text-muted-foreground text-sm font-medium duration-300">
-          ⌘ + J
-        </Kbd>
+        <Kbd className="group-hover:text-accent-foreground text-muted-foreground text-sm font-medium duration-300">⌘ + J</Kbd>
       </Button>
-      <CommandDialog
-        open={open}
-        onOpenChange={setOpen}
-        className="dark:bg-background"
-      >
+      <CommandDialog open={open} onOpenChange={setOpen} className="dark:bg-background">
         <CommandInput placeholder="Search documentation..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="GETTING STARTED">
+            {guideItems.map(item => (
+              <CommandItem asChild key={item.title}>
+                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                  <CircleArrowRight className="text-muted-secondary size-2.5" /> {item.title}
+                </Link>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading="FOUNDATIONS">
+            {foundations.map(item => (
+              <CommandItem asChild key={item.title}>
+                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                  <CircleCheckBig className="text-muted-secondary size-2.5" /> {item.title}
+                </Link>
+              </CommandItem>
+            ))}
+          </CommandGroup>
           <CommandGroup heading="COMPONENTS">
-            {registry.items
-              .sort((a, b) => a.title.localeCompare(b.title))
-              .filter((item) => item.type == "component")
-              .map((item) => (
-                <CommandItem asChild key={item.slug}>
-                  <Link
-                    href={item.docs as Route}
-                    onClick={() => setOpen(!open)}
-                    className="mb-0.5 w-full cursor-pointer"
-                  >
-                    <span className="bg-background h-4 w-4 rounded-full border border-neutral-500/50" />{" "}
-                    {item.title}
-                  </Link>
-                </CommandItem>
-              ))}
+            {components.map(item => (
+              <CommandItem asChild key={item.title}>
+                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                  <CircleIcon className="text-muted-secondary size-2.5" /> {item.title}
+                </Link>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading="BLUEPRINTS">
+            {blueprints.map(item => (
+              <CommandItem asChild key={item.title}>
+                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                  <CircleDashed className="text-muted-secondary size-2.5" /> {item.title}
+                </Link>
+              </CommandItem>
+            ))}
           </CommandGroup>
           <CommandSeparator />
         </CommandList>

@@ -9,14 +9,13 @@ export function ScrollToTopButton() {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: "smooth",
+      behavior: "smooth"
     });
   };
 
   const watchScroll = () => {
     const hiddenHeight = 200;
-    const winscroll =
-      document.body.scrollTop || document.documentElement.scrollTop;
+    const winscroll = document.body.scrollTop || document.documentElement.scrollTop;
 
     if (winscroll > hiddenHeight) {
       setIsVisible(true);
@@ -29,7 +28,6 @@ export function ScrollToTopButton() {
     window.addEventListener("scroll", watchScroll);
     return () => window.removeEventListener("scroll", watchScroll);
   }, []);
-
   return (
     isVisible && (
       <motion.button
@@ -37,8 +35,7 @@ export function ScrollToTopButton() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
         onClick={handleOnclick}
-        className="bg-secondary hover:bg-accent fixed right-4 bottom-3 z-40 cursor-pointer rounded-full p-2 duration-300 sm:p-3"
-      >
+        className="bg-secondary hover:bg-accent fixed right-4 bottom-3 z-40 cursor-pointer rounded-full p-2 duration-300 sm:p-3">
         <ArrowUp className="size-3 sm:size-4" />
       </motion.button>
     )
