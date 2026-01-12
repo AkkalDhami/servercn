@@ -62,6 +62,7 @@ npm run dev
 ### 3. Adding/Modifying Components
 
 Components are located in `packages/registry`.
+
 - **Definition**: Update the JSON definition in `packages/registry/components/`.
 - **Code**: Update the actual source code templates in `packages/templates/`.
 
@@ -76,6 +77,7 @@ We have configured several helper scripts in the root `package.json`:
 ## 🚀 Submitting Changes
 
 1. **Create a Branch**:
+
    ```bash
    git checkout -b feature/my-new-feature
    # or
@@ -86,11 +88,13 @@ We have configured several helper scripts in the root `package.json`:
 
 3. **Commit your changes**:
    We prefer clear, descriptive commit messages.
+
    ```bash
    git commit -m "feat(cli): add support for new component type"
    ```
 
 4. **Push to your fork**:
+
    ```bash
    git push origin feature/my-new-feature
    ```
