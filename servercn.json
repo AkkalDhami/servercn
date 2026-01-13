@@ -1,32 +1,32 @@
 {
-    "$schema": "https://servercn.dev/schema/v1.json",
-    "version": "1.0.0",
-    "project": {
-        "name": "my-app",
-        "root": ".",
-        "srcDir": "src",
-        "type": "backend",
-        "packageManager": "npm"
-    },
-    "stack": {
-        "runtime": "node",
-        "language": "typescript",
-        "framework": "express",
-        "architecture": "mvc"
-    },
-    "database": {
-        "type": "mongodb",
-        "orm": "mongoose"
-    },
-    "conventions": {
-        "fileNaming": "kebab-case",
-        "functionNaming": "camel-case",
-        "envFile": ".env",
-        "testDir": "__tests__"
-    },
-    "overrides": {},
-    "meta": {
-        "createdAt": "2025-01-01T00:00:00.000Z",
-        "createdBy": "servercn@1.0.0"
-    }
+  "$schema": "https://servercn.dev/schema/v1.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "my-app",
+    "root": ".",
+    "srcDir": "src",
+    "type": "backend",
+    "packageManager": "npm"
+  },
+  "stack": {
+    "runtime": "node",
+    "language": "typescript",
+    "framework": "express",
+    "architecture": "mvc"
+  },
+  "database": {
+    "type": "mongodb",
+    "orm": "mongoose"
+  },
+  "conventions": {
+    "fileNaming": "kebab-case",
+    "functionNaming": "camel-case",
+    "envFile": ".env",
+    "testDir": "__tests__"
+  },
+  "overrides": {},
+  "meta": {
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "createdBy": "servercn@1.0.0"
+  }
 }
