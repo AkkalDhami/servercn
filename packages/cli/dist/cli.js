@@ -64,13 +64,7 @@ var logger = {
 };
 
 // src/lib/copy.ts
-async function copyTemplate({
-  templateDir,
-  targetDir,
-  componentName,
-  conflict = "skip",
-  dryRun = false
-}) {
+async function copyTemplate({ templateDir, targetDir, componentName, conflict = "skip", dryRun = false }) {
   if (!await fs.pathExists(templateDir)) {
     logger.error(`Template not found: ${templateDir}`);
     process.exit(1);
@@ -162,11 +156,7 @@ function detectPackageManager(cwd = process.cwd()) {
 }
 
 // src/lib/install-deps.ts
-async function installDependencies({
-  runtime = [],
-  dev = [],
-  cwd
-}) {
+async function installDependencies({ runtime = [], dev = [], cwd }) {
   if (!runtime.length && !dev.length) return;
   const pm = detectPackageManager();
   const run = async (args) => {
@@ -303,9 +293,7 @@ async function add(componentName, options = {}) {
   const config = await getServerCNConfig();
   const component = await getRegistryComponent(componentName, "component");
   if (!component.stacks.includes(config.stack.framework)) {
-    logger.error(
-      `Component "${componentName}" does not support "${config.stack.framework}"`
-    );
+    logger.error(`Component "${componentName}" does not support "${config.stack.framework}"`);
     process.exit(1);
   }
   const stack = config.stack.framework;
@@ -317,12 +305,10 @@ async function add(componentName, options = {}) {
   let runtimeDeps;
   const devDeps = component.dependencies?.dev;
   if (component.algorithms) {
-    const choices = Object.entries(component.algorithms).map(
-      ([key, value]) => ({
-        title: value.title,
-        value: key
-      })
-    );
+    const choices = Object.entries(component.algorithms).map(([key, value]) => ({
+      title: value.title,
+      value: key
+    }));
     const { algorithm } = await prompts2({
       type: "select",
       name: "algorithm",
@@ -336,9 +322,7 @@ async function add(componentName, options = {}) {
     const algoConfig = component.algorithms[algorithm];
     const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
     if (!selectedTemplate) {
-      logger.error(
-        `Architecture "${arch}" is not supported for "${component.name}"`
-      );
+      logger.error(`Architecture "${arch}" is not supported for "${component.name}"`);
       process.exit(1);
     }
     templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
@@ -352,9 +336,7 @@ async function add(componentName, options = {}) {
     }
     const selectedTemplate = typeof templateConfig === "string" ? templateConfig : templateConfig[arch] ?? templateConfig.base;
     if (!selectedTemplate) {
-      logger.error(
-        `Architecture "${arch}" is not supported by "${component.name}"`
-      );
+      logger.error(`Architecture "${arch}" is not supported by "${component.name}"`);
       process.exit(1);
     }
     templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
@@ -458,22 +440,46 @@ async function init(foundation) {
         include: ["src/**/*"],
         exclude: ["node_modules"]
       };
+      const prettierConfig = {
+        singleQuote: false,
+        semi: true,
+        tabWidth: 2,
+        printWidth: 150,
+        trailingComma: "none",
+        bracketSameLine: false,
+        arrowParens: "avoid",
+        endOfLine: "lf"
+      };
+      const commitlintConfig = {
+        extends: ["@commitlint/config-conventional"],
+        rules: {
+          "type-enum": [
+            2,
+            "always",
+            ["feat", "fix", "docs", "style", "refactor", "test", "chore", "ci", "perf", "build", "release", "workflow", "security"]
+          ],
+          "subject-case": [2, "always", ["lower-case"]]
+        }
+      };
       await fs8.writeJson(path11.join(rootPath2, SERVERCN_CONFIG_FILE), config2, {
         spaces: 2
       });
+      await fs8.writeJson(path11.join(rootPath2, ".prettierrc"), prettierConfig, {
+        spaces: 2
+      });
+      await fs8.writeFile(path11.join(rootPath2, ".prettierignore"), `build
+dist
+.env
+ode_modules`);
       await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig2, {
         spaces: 2
       });
+      await fs8.writeFile(path11.join(rootPath2, "commitlint.config.ts"), `export default ${JSON.stringify(commitlintConfig, null, 2)}`);
       const templatePathRelative = component.templates?.express?.[response2.architecture];
       if (!templatePathRelative) {
-        throw new Error(
-          `Template not found for ${foundation} (express/${response2.architecture})`
-        );
+        throw new Error(`Template not found for ${foundation} (express/${response2.architecture})`);
       }
-      const templateDir = path11.resolve(
-        getTemplatesPath(),
-        templatePathRelative
-      );
+      const templateDir = path11.resolve(getTemplatesPath(), templatePathRelative);
       await copyTemplate({
         templateDir,
         targetDir: rootPath2,
@@ -488,8 +494,8 @@ async function init(foundation) {
       logger.success(`
 Success! ServerCN initialized with ${foundation}.`);
       logger.info("You may now run:");
-      logger.log(`- cd ${response2.root}`);
-      logger.log(`- npm run dev`);
+      logger.log(`1. cd ${response2.root}`);
+      logger.log(`2. npm run dev`);
       return;
     } catch (error) {
       logger.error(`Failed to initialize foundation: ${error}`);
@@ -667,9 +673,7 @@ async function list() {
   for (const category of Object.keys(grouped).sort()) {
     logger.info(`
 ${category.toUpperCase()}S`);
-    const items = grouped[category].sort(
-      (a, b) => a.title.localeCompare(b.title)
-    );
+    const items = grouped[category].sort((a, b) => a.title.localeCompare(b.title));
     for (const c of items) {
       logger.log(`  \u2022 ${c.title}: ${c.slug}`);
     }

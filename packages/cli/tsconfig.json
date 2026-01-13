@@ -5,23 +5,15 @@
     "rootDir": "src",
     "noEmit": false,
     "declaration": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "verbatimModuleSyntax": true,
     "isolatedModules": false,
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/src/*": [
-        "./src/*"
-      ]
+      "@/*": ["./*"],
+      "@/src/*": ["./src/*"]
     }
   },
-  "include": [
-    "src",
-  ]
+  "include": ["src"]
 }
