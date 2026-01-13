@@ -13,11 +13,11 @@ export function CodeWrapper({ children, code }: { children: React.ReactNode; cod
   }
 
   return (
-    <div className="relative rounded-md">
+    <div className="relative rounded-md bg-transparent">
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="bg-editor absolute top-1/2 right-2 z-10 -translate-y-1/2 cursor-pointer text-xs text-neutral-400 hover:text-white"
+        className="absolute top-1/2 right-2 z-10 w-auto -translate-y-1/2 cursor-pointer bg-transparent p-1.5 text-xs text-neutral-400 hover:text-white"
       />
       {children}
     </div>

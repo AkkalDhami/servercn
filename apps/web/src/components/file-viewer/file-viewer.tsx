@@ -1,22 +1,35 @@
-import { PRIMRY_CODE_BLACK_THEME } from "../docs/code-block";
-import { getSingletonHighlighter } from "shiki";
-const highlighter = await getSingletonHighlighter({
-  themes: [PRIMRY_CODE_BLACK_THEME],
-  langs: ["bash", "ts", "json"]
-});
+"use client";
+
+import { useCodeTheme } from "@/store/use-code-theme";
+import { useEffect, useState } from "react";
+import { highlightCode } from "@/app/actions/highlight";
+
 export default function FileViewer({ content }: { content?: string }) {
+  const { theme } = useCodeTheme();
+  const [html, setHtml] = useState("");
+
+  useEffect(() => {
+    if (!content) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHtml("");
+      return;
+    }
+
+    const highlight = async () => {
+      const result = await highlightCode(content, "ts", theme);
+      setHtml(result);
+    };
+
+    highlight();
+  }, [content, theme]);
+
   if (!content) {
     return <div className="text-muted-foreground flex h-full items-center justify-center">Select a file to view its contents</div>;
   }
 
-  const html = highlighter.codeToHtml(content, {
-    lang: "ts",
-    theme: PRIMRY_CODE_BLACK_THEME
-  });
-
   return (
-    <div className="h-full max-h-125 w-full bg-editor whitespace-nowrap">
-      <div className="relative [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:px-1 [&_pre]:py-4" dangerouslySetInnerHTML={{ __html: html }} />
+    <div className="h-full max-h-125 w-full bg-black whitespace-nowrap">
+      <div className="relative  [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:p-3.5" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
 }

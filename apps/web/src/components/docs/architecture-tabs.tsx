@@ -7,7 +7,7 @@ const ARCHS = ["mvc", "feature"] as const;
 
 const archNaming = {
   mvc: "Model-View-Controller (MVC)",
-  feature: "Feature-Based (Feature)"
+  feature: "Feature-Based (Modular)"
 };
 
 export default function ArchitectureTabs({ current, className }: { current: string; className?: string }) {
@@ -29,7 +29,7 @@ export default function ArchitectureTabs({ current, className }: { current: stri
             key={arch}
             onClick={() => onChange(arch)}
             className={cn(
-              "hover:bg-card-hover dark:hover:bg-card-hover hover:text-accent-foreground text-muted-primary dark:bg-background w-full cursor-pointer border-neutral-500/40 bg-transparent px-2 py-2 font-medium shadow-none dark:border-neutral-500/40",
+              "hover:bg-card-hover dark:hover:bg-card-hover hover:text-accent-foreground text-muted-primary dark:bg-background bg-background w-full cursor-pointer border-neutral-500/40 px-2 py-2 font-medium shadow-none dark:border-neutral-500/40",
               current === arch && "bg-card-hover dark:bg-card-hover text-accent-foreground"
             )}>
             {archNaming[arch] || arch.toUpperCase()}

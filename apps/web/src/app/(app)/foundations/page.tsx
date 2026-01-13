@@ -19,7 +19,7 @@ const foundations = registry.items
 
 export default function FoundationsPage() {
   return (
-    <Container className="mt-16 min-h-screen w-full max-w-360">
+    <Container className="mt-16 min-h-screen">
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Foundations</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">

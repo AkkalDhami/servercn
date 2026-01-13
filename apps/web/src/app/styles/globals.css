@@ -207,9 +207,6 @@
   .border-hover {
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
-  .bg-editor {
-    @apply bg-[#07090f]; /*0b0e14 */
-  }
 }
 html {
   scroll-behavior: smooth;
@@ -234,43 +231,20 @@ body {
   scrollbar-width: thin;
 }
 
-/* rehype-pretty-code */
-[data-rehype-pretty-code-figure] > pre {
-  overflow-x: auto;
-  border-radius: 0.5rem;
-  position: relative;
-  /* max-width: 1000px;
-  width: 100%; */
-}
-
-code {
-  font-size: 1rem;
-  font-family: var(--font-code);
-}
 
 [data-rehype-pretty-code-figure] {
-  max-height: 500px;
-  max-width: 800px;
-  width: 100%;
+  /* max-width: 800px; */
+  /* width: 100%; */
   position: relative;
-  overflow: auto;
-}
-
-[data-rehype-pretty-code-fragment] {
-  position: relative;
-}
-
-[data-rehype-pretty-code-title] {
-  font-size: 0.75rem;
-  padding: 0.5rem 1rem;
-  background: hsl(var(--muted));
-  border-bottom: 1px solid hsl(var(--border));
 }
 
 @media (prefers-color-scheme: dark) {
   code[data-theme*=" "],
   code[data-theme*=" "] span {
     color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+  .code-theme {
     background-color: var(--shiki-dark-bg);
   }
 }

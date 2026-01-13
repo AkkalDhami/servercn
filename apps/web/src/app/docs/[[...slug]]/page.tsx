@@ -5,7 +5,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import matter from "gray-matter";
 import { mdxComponents } from "@/components/docs/mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
-import { PRIMRY_CODE_BLACK_THEME } from "@/components/docs/code-block";
+import { cookies } from "next/headers";
+import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OnThisPage } from "@/components/docs/on-this-page";
 import type { FileNode } from "@/components/file-viewer/file-tree";
 import BackendStructureViewer from "@/components/file-viewer/backend-structure-viewer";
@@ -75,9 +76,9 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
   };
 }
 
-const prettyCodeOptions = {
+const getPrettyCodeOptions = (theme: string) => ({
   theme: {
-    dark: PRIMRY_CODE_BLACK_THEME,
+    dark: theme,
     light: "github-dark-high-contrast"
   },
   keepBackground: true,
@@ -85,7 +86,7 @@ const prettyCodeOptions = {
   grid: true,
   lineNumbers: true,
   defaultLanguage: "ts"
-};
+});
 
 function getDocPath(slug?: string[]) {
   if (!slug || slug.length === 0 || slug[0] === "introduction") {
@@ -127,6 +128,9 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
 
   const currentArchStructure = currentArch === "mvc" ? mvcStructure : featureStructure;
 
+  const cookieStore = await cookies();
+  const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
+
   return (
     <div className="flex w-full max-w-5xl gap-8 px-3 sm:p-0">
       <div id="docs-content" className="flex-1">
@@ -136,7 +140,7 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
             components={mdxComponents}
             options={{
               mdxOptions: {
-                rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]]
+                rehypePlugins: [[rehypePrettyCode, getPrettyCodeOptions(theme)]]
               }
             }}
           />

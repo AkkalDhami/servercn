@@ -60,8 +60,8 @@ function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?:
     <button
       onClick={() => onSelect(node)}
       className={cn(
-        "ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-neutral-300 hover:bg-[#202836] hover:text-white",
-        activeFile === node.name && "bg-[#202836] font-medium text-white"
+        "ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-neutral-300 hover:bg-neutral-800 hover:text-white",
+        activeFile === node.name && "bg-neutral-800 font-medium text-white"
       )}>
       <File size={14} />
       {node.name}

@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import SearchCommand from "../command/search-command";
 import { Route } from "next";
 import { getTypeItems } from "@/lib/source";
+import CodeTheme from "../docs/code-theme";
 
 export const ITEM_GROUP_NAMING = {
   guide: "Getting Started",
@@ -44,8 +44,8 @@ export default function DocsSidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="no-scrollbar font-inter sticky top-18 left-0 z-10 h-full max-h-[calc(100vh-6rem)] w-full space-y-6 overflow-y-auto px-3">
-      <SearchCommand />
+    <nav className="no-scrollbar font-inter sticky top-18 left-0 z-10 h-full max-h-[calc(100vh-3rem)] w-full space-y-6 overflow-y-auto px-3">
+      <CodeTheme />
       {navSections.map(section => (
         <div key={section.title} className={cn(section.items.length > 0 ? "" : "hidden")}>
           <h3 className="relative z-10 w-11/12 pb-4 text-sm/6 font-[450] uppercase">{section.title}</h3>

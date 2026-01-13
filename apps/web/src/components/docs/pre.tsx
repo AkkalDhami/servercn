@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import CopyButton from "./copy-button";
+import { cn } from "@/lib/utils";
 
-export function Pre(props: React.HTMLAttributes<HTMLPreElement>) {
+export function Pre({ className, children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
   const ref = React.useRef<HTMLPreElement>(null);
   const [copied, setCopied] = React.useState(false);
 
@@ -20,14 +21,15 @@ export function Pre(props: React.HTMLAttributes<HTMLPreElement>) {
   }
 
   return (
-    <div className="relative w-full max-w-[900px] overflow-auto rounded-md bg-editor">
+    <div className="group relative w-full max-w-[800px]">
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="absolute top-5 right-3 z-10 w-auto cursor-pointer bg-editor p-0 text-xs text-neutral-400 hover:text-white"
+        className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-md bg-neutral-500/10 backdrop-blur-md transition-all"
       />
-
-      <pre ref={ref} {...props} className="code-wrapper max-h-120 overflow-x-auto rounded-md p-3" />
+      <pre ref={ref} {...props} className={cn("bg-muted max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed", className)}>
+        {children}
+      </pre>
     </div>
   );
 }

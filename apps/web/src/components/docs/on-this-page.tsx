@@ -39,6 +39,7 @@ export function OnThisPage() {
       })
       .filter(Boolean) as Heading[];
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHeadings(list);
   }, []);
 
@@ -54,7 +55,7 @@ export function OnThisPage() {
         });
       },
       {
-        root: null, // IMPORTANT: viewport scrolling
+        root: null, 
         rootMargin: "-96px 0px -60% 0px",
         threshold: 0
       }
