@@ -11,20 +11,11 @@ process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 
 async function main() {
-  program
-    .name("servercn")
-    .description("Backend components for Node.js")
-    .version("0.0.1");
+  program.name("servercn").description("Backend components for Node.js").version("0.0.1");
 
-  program
-    .command("init [foundation]")
-    .description("Initialize ServerCN in your project")
-    .action(init);
+  program.command("init [foundation]").description("Initialize ServerCN in your project").action(init);
 
-  program
-    .command("list")
-    .description("List available ServerCN components")
-    .action(list);
+  program.command("list").description("List available ServerCN components").action(list);
 
   program
     .command("add <components...>")
@@ -34,7 +25,7 @@ async function main() {
     .action(async (components, options) => {
       for (const component of components) {
         await add(component, {
-          arch: options.arch,
+          arch: options.arch
         });
       }
     });
@@ -42,7 +33,7 @@ async function main() {
   program.parse(process.argv);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error(err);
   process.exit(1);
 });

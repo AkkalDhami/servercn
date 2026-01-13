@@ -3,7 +3,7 @@ import path from "node:path";
 import { getRegistryPath } from "./paths";
 
 export async function loadRegistryComponents() {
-  const registryDir = getRegistryPath();
+  const registryDir = getRegistryPath("component");
   const files = await fs.readdir(registryDir);
 
   const components = [];

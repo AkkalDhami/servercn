@@ -1,18 +1,9 @@
 import { execa } from "execa";
 import { detectPackageManager } from "./detect";
 import { logger } from "../utils/cli-logger";
+import type { InstallOptions } from "../types";
 
-type InstallOptions = {
-  runtime?: string[];
-  dev?: string[];
-  cwd: string;
-};
-
-export async function installDependencies({
-  runtime = [],
-  dev = [],
-  cwd,
-}: InstallOptions) {
+export async function installDependencies({ runtime = [], dev = [], cwd }: InstallOptions) {
   if (!runtime.length && !dev.length) return;
 
   const pm = detectPackageManager();
@@ -21,7 +12,7 @@ export async function installDependencies({
     logger.info(`Installing dependencies: ${args.join(" ")}`);
     await execa(pm, args, {
       cwd,
-      stdio: "inherit",
+      stdio: "inherit"
     });
   };
 
@@ -34,11 +25,7 @@ export async function installDependencies({
   }
 }
 
-function getInstallArgs(
-  pm: string,
-  packages: string[],
-  isDev: boolean
-): string[] {
+function getInstallArgs(pm: string, packages: string[], isDev: boolean): string[] {
   switch (pm) {
     case "pnpm":
       return ["add", ...(isDev ? ["-D"] : []), ...packages];

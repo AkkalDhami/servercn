@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-
-export type PackageManager = "pnpm" | "yarn" | "npm" | "bun";
+import type { PackageManager } from "../types";
 
 export function detectPackageManager(cwd = process.cwd()): PackageManager {
   if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) return "pnpm";

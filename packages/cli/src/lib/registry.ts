@@ -1,7 +1,8 @@
 import fs from "fs-extra";
 import path from "path";
-import { getRegistryPath, type ItemType } from "./paths.js";
+import { getRegistryPath } from "./paths.js";
 import { logger } from "../utils/cli-logger.js";
+import type { ItemType } from "../types/index.js";
 
 export async function getRegistryComponent(name: string, type: ItemType) {
   const registryPath = getRegistryPath(type);

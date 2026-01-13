@@ -12,7 +12,7 @@ export function ensurePackageJson(dir: string) {
 
   execSync("npm init -y", {
     cwd: dir,
-    stdio: "ignore",
+    stdio: "ignore"
   });
 }
 
@@ -30,9 +30,9 @@ export function ensureTsConfig(dir: string) {
       esModuleInterop: true,
       skipLibCheck: true,
       outDir: "dist",
-      rootDir: "src",
+      rootDir: "src"
     },
-    include: ["src"],
+    include: ["src"]
   };
 
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));

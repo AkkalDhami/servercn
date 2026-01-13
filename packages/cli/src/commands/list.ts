@@ -12,14 +12,12 @@ export async function list() {
   const grouped = groupByCategory(components);
 
   for (const category of Object.keys(grouped).sort()) {
-    logger.info(`\n${category.toUpperCase()}`);
+    logger.info(`\n${category.toUpperCase()}S`);
 
-    const items = grouped[category].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    const items = grouped[category].sort((a, b) => a.title.localeCompare(b.title));
 
     for (const c of items) {
-      logger.log(`  • ${c.name} — ${c.title}`);
+      logger.log(`  • ${c.title}: ${c.slug}`);
     }
   }
 }

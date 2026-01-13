@@ -1,10 +1,5 @@
+import type { StackConfig } from "../types";
 import { logger } from "../utils/cli-logger";
-
-export type StackConfig = {
-  framework: "express";
-  database: "mongodb" | "postgres" | "mysql";
-  language: "ts" | "js";
-};
 
 export function parseStack(stack: string): StackConfig {
   const [framework, database, language] = stack.split("-");
@@ -17,6 +12,6 @@ export function parseStack(stack: string): StackConfig {
   return {
     framework: "express",
     database: database as StackConfig["database"],
-    language: language as StackConfig["language"],
+    language: language as StackConfig["language"]
   };
 }

@@ -5,14 +5,7 @@ import type { CopyOptions } from "../types";
 
 export type ConflictStrategy = "skip" | "overwrite" | "error";
 
-export async function copyTemplate({
-  templateDir,
-  targetDir,
-  componentName,
-  conflict = "skip",
-  dryRun = false,
-}: CopyOptions) {
- 
+export async function copyTemplate({ templateDir, targetDir, componentName, conflict = "skip", dryRun = false }: CopyOptions) {
   if (!(await fs.pathExists(templateDir))) {
     logger.error(`Template not found: ${templateDir}`);
     process.exit(1);
@@ -37,7 +30,7 @@ export async function copyTemplate({
         targetDir: destPath,
         componentName,
         conflict,
-        dryRun,
+        dryRun
       });
       continue;
     }
@@ -46,7 +39,6 @@ export async function copyTemplate({
 
     if (exists) {
       if (conflict === "skip") {
-      
         logger.warn(`Skipped: ${destPath}`);
         continue;
       }
@@ -73,8 +65,6 @@ export async function copyTemplate({
       await fs.writeFile(destPath, content);
     }
 
-    logger.created(
-      exists ? `Overwritten: ${destPath}` : `: ${destPath}`
-    );
+    logger.created(exists ? `Overwritten: ${destPath}` : `: ${destPath}`);
   }
 }

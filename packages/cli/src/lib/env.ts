@@ -7,27 +7,20 @@ export function updateEnvExample(envKeys: string[] = [], cwd = process.cwd()) {
 
   const envExamplePath = path.join(cwd, ".env.example");
 
-  const existing = fs.existsSync(envExamplePath)
-    ? fs.readFileSync(envExamplePath, "utf8")
-    : "";
+  const existing = fs.existsSync(envExamplePath) ? fs.readFileSync(envExamplePath, "utf8") : "";
 
   const existingKeys = new Set(
     existing
       .split("\n")
-      .map((line) => line.split("=")[0]?.trim())
+      .map(line => line.split("=")[0]?.trim())
       .filter(Boolean)
   );
 
-  const newLines = envKeys
-    .filter((key) => !existingKeys.has(key))
-    .map((key) => `${key}=`);
+  const newLines = envKeys.filter(key => !existingKeys.has(key)).map(key => `${key}=`);
 
   if (!newLines.length) return;
 
-  const content =
-    existing.trim().length > 0
-      ? `${existing.trim()}\n\n${newLines.join("\n")}\n`
-      : `${newLines.join("\n")}\n`;
+  const content = existing.trim().length > 0 ? `${existing.trim()}\n\n${newLines.join("\n")}\n` : `${newLines.join("\n")}\n`;
 
   fs.writeFileSync(envExamplePath, content, "utf8");
 

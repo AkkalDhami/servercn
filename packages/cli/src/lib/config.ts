@@ -2,8 +2,7 @@ import fs from "fs-extra";
 import path from "node:path";
 import { logger } from "../utils/cli-logger";
 import type { ServerCNConfig } from "../types";
-
-export const SERVERCN_CONFIG_FILE = "servercn.json" as const;
+import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
 
 export async function getServerCNConfig(): Promise<ServerCNConfig> {
   const cwd = process.cwd();

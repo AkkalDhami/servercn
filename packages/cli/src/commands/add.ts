@@ -16,15 +16,13 @@ import type { AddOptions } from "../types";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   await assertInitialized();
-  
+
   const config = await getServerCNConfig();
 
   const component = await getRegistryComponent(componentName, "component");
 
   if (!component.stacks.includes(config.stack.framework)) {
-    logger.error(
-      `Component "${componentName}" does not support "${config.stack.framework}"`
-    );
+    logger.error(`Component "${componentName}" does not support "${config.stack.framework}"`);
     process.exit(1);
   }
 
@@ -40,18 +38,16 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const devDeps = component.dependencies?.dev;
 
   if (component.algorithms) {
-    const choices = Object.entries(component.algorithms).map(
-      ([key, value]: any) => ({
-        title: value.title,
-        value: key,
-      })
-    );
+    const choices = Object.entries(component.algorithms).map(([key, value]: any) => ({
+      title: value.title,
+      value: key
+    }));
 
     const { algorithm } = await prompts({
       type: "select",
       name: "algorithm",
       message: "Select implementation",
-      choices,
+      choices
     });
 
     if (!algorithm) {
@@ -61,13 +57,10 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
     const algoConfig = component.algorithms[algorithm];
 
-    const selectedTemplate =
-      algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
+    const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
 
     if (!selectedTemplate) {
-      logger.error(
-        `Architecture "${arch}" is not supported for "${component.name}"`
-      );
+      logger.error(`Architecture "${arch}" is not supported for "${component.name}"`);
       process.exit(1);
     }
 
@@ -83,15 +76,10 @@ export async function add(componentName: string, options: AddOptions = {}) {
       process.exit(1);
     }
 
-    const selectedTemplate =
-      typeof templateConfig === "string"
-        ? templateConfig
-        : (templateConfig[arch] ?? templateConfig.base);
+    const selectedTemplate = typeof templateConfig === "string" ? templateConfig : (templateConfig[arch] ?? templateConfig.base);
 
     if (!selectedTemplate) {
-      logger.error(
-        `Architecture "${arch}" is not supported by "${component.name}"`
-      );
+      logger.error(`Architecture "${arch}" is not supported by "${component.name}"`);
       process.exit(1);
     }
 
@@ -104,7 +92,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
     targetDir,
     componentName,
     conflict: options.force ? "overwrite" : "skip",
-    dryRun: options.dryRun,
+    dryRun: options.dryRun
   });
 
   ensurePackageJson(process.cwd());
@@ -113,7 +101,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
   await installDependencies({
     runtime: runtimeDeps,
     dev: devDeps,
-    cwd: process.cwd(),
+    cwd: process.cwd()
   });
 
   if (component.env?.length) {
@@ -121,5 +109,4 @@ export async function add(componentName: string, options: AddOptions = {}) {
   }
 
   logger.success(`\n${component.title} added successfully\n`);
-  process.exit(0);
 }
