@@ -1,48 +1,196 @@
+---
+title: Graceful Shutdown Handler
+description: A standardized way to handle graceful shutdowns in Express applications, ensuring all requests are finished and resources are released.
+command: npx servercn add shutdown-handler
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: shutdown.ts
+            content: |
+              import { Server } from "http";
+
+              export const configureGracefulShutdown = (server: Server) => {
+                const signals = ["SIGTERM", "SIGINT"];
+
+                signals.forEach((signal) => {
+                  process.on(signal, () => {
+                    console.log(<Code children="\n${signal} signal received. Shutting down gracefully..." />);
+
+                    server.close((err) => {
+                      if (err) {
+                        console.error("Error during server close:", err);
+                        process.exit(1);
+                      }
+
+                      console.log("HTTP server closed.");
+                      process.exit(0);
+                    });
+
+                    setTimeout(() => {
+                      console.error("Could not close connections in time, forcefully shutting down");
+                      process.exit(1);
+                    }, 10000);
+                  });
+                });
+              };
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: shutdown.ts
+                content: |
+                  import { Server } from "http";
+
+                  export const configureGracefulShutdown = (server: Server) => {
+                    const signals = ["SIGTERM", "SIGINT"];
+
+                    signals.forEach((signal) => {
+                      process.on(signal, () => {
+                        console.log(<Code children="\n${signal} signal received. Shutting down gracefully..." />);
+
+                        server.close((err) => {
+                          if (err) {
+                            console.error("Error during server close:", err);
+                            process.exit(1);
+                          }
+
+                          console.log("HTTP server closed.");
+                          process.exit(0);
+                        });
+
+                        setTimeout(() => {
+                          console.error("Could not close connections in time, forcefully shutting down");
+                          process.exit(1);
+                        }, 10000);
+                      });
+                    });
+                  };
+---
+
 # Graceful Shutdown Handler
 
-Graceful shutdown handling for Node.js and Express servers.
+The **Graceful Shutdown Handler** ensures that your Express application terminates safely and predictably when the process receives termination signals (like <Code children="SIGTERM" /> or <Code children="SIGINT" />).
 
-The **Graceful Shutdown Handler** ensures that your ServerCN application terminates safely and predictably when the process receives shutdown signals such as `SIGTERM` or `SIGINT`. It allows the server to stop accepting new connections, complete in-flight requests, release resources, and exit cleanly without data loss.
+It allows the server to:
 
+1. Stop accepting new connections.
+2. Complete all in-flight requests.
+3. Release resources (like database connections) before exiting.
 
-## Why Graceful Shutdown Matters
-
-In production environments—containers, process managers, CI/CD pipelines, or orchestration platforms—applications are frequently restarted or terminated.
-
-Without a graceful shutdown mechanism, your server may:
-
-- Drop active HTTP requests
-- Leave database connections open
-- Interrupt background jobs
-- Cause unexpected client-side errors during deployments
-
-ServerCN provides a standardized and reusable shutdown lifecycle for production systems.
-
-
-## Features
-
-- Listens to system termination signals
-- Stops accepting new HTTP connections
-- Waits for ongoing requests to complete
-- Supports async cleanup hooks
-- Configurable shutdown timeout
-- Centralized and predictable shutdown flow
-
-
-## Installation
+## Installation Guide
 
 Install the component using the ServerCN CLI:
 
 <PackageManagerTabs command="npx servercn add shutdown-handler" />
 
-## Basic Usage
+## Why Graceful Shutdown Matters
 
-### Create the Graceful Shutdown Handler
+When an application is restarted or stopped (e.g., during a deployment or scaling event), it's important to finish current work. Without graceful shutdown:
+
+- Active HTTP requests are abruptly terminated, leading to errors for users.
+- Database connections might be left in a "hanging" state.
+- Background tasks might be interrupted without saving progress.
+
+## Implementation
+
+### 1. Utility Setup
+
+The component provides a <Code children="configureGracefulShutdown" /> function that takes your HTTP server instance.
+
+#### MVC Structure
+
+<Code children="src/utils/shutdown.ts" />
 
 ```ts
-import { createGracefulShutdown } from "@/servercn/graceful-shutdown";
+import { Server } from "http";
 
-const shutdown = createGracefulShutdown({
-  server,
-  timeout: 10000, // 10 seconds
+export const configureGracefulShutdown = (server: Server) => {
+  const signals = ["SIGTERM", "SIGINT"];
+
+  signals.forEach(signal => {
+    process.on(signal, () => {
+      console.log(`\n${signal} signal received. Shutting down gracefully...`);
+
+      server.close(err => {
+        if (err) {
+          console.error("Error during server close:", err);
+          process.exit(1);
+        }
+
+        console.log("HTTP server closed.");
+        // Add additional cleanup logic here (e.g., closing database connections)
+        process.exit(0);
+      });
+
+      // Force shutdown after 10 seconds
+      setTimeout(() => {
+        console.error("Could not close connections in time, forcefully shutting down");
+        process.exit(1);
+      }, 10000);
+    });
+  });
+};
+```
+
+### 2. Usage in Server
+
+Import and apply the shutdown handler in your main entry file (usually <Code children="server.ts" />).
+
+```ts
+import http from "http";
+import app from "./app";
+import { configureGracefulShutdown } from "./utils/shutdown";
+
+const server = http.createServer(app);
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
+
+// Apply graceful shutdown
+configureGracefulShutdown(server);
+```
+
+## Best Practices
+
+### Release Database Connections
+
+You should extend the <Code children="server.close" /> callback to include logic for closing your database connections.
+
+```ts
+server.close(async err => {
+  // Example: Mongoose cleanup
+  await mongoose.connection.close();
+  console.log("Database connection closed.");
+  process.exit(err ? 1 : 0);
+});
+```
+
+### Environment Signals
+
+In modern cloud environments:
+
+- **SIGTERM**: Sent by Kubernetes or Docker when a pod/container is being deleted.
+- **SIGINT**: Sent when you press <Code children="Ctrl+C" /> in your terminal.
+
+Both are handled by this component.
+
+## Summary
+
+The **Graceful Shutdown Handler** is a critical component for production-ready applications, ensuring high availability and data integrity during process termination.

@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -34,34 +33,33 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -72,7 +70,6 @@ mvc_structure:
           - type: file
             name: error-handler.ts
             content: |
-
               import { Request, Response, NextFunction } from "express";
               import env from "../configs/env";
 
@@ -94,7 +91,7 @@ mvc_structure:
                 }
 
                 logger.error(
-                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                  <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                   err
                 );
 
@@ -113,7 +110,6 @@ mvc_structure:
           - type: file
             name: api-error.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
               export class ApiError extends Error {
@@ -170,7 +166,6 @@ mvc_structure:
           - type: file
             name: logger.ts
             content: |
-
               import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
@@ -271,7 +266,6 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-
                   interface Config {
                     PORT: number;
                     NODE_ENV: string;
@@ -292,34 +286,33 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
-                  // 2xx Success
-                  OK: 200,
-                  CREATED: 201,
-                  ACCEPTED: 202,
-                  NO_CONTENT: 204,
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
 
-                  // 3xx Redirection
-                  MOVED_PERMANENTLY: 301,
-                  FOUND: 302,
-                  NOT_MODIFIED: 304,
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
 
-                  // 4xx Client Errors
-                  BAD_REQUEST: 400,
-                  UNAUTHORIZED: 401,
-                  FORBIDDEN: 403,
-                  NOT_FOUND: 404,
-                  CONFLICT: 409,
-                  UNPROCESSABLE_ENTITY: 422,
-                  TOO_MANY_REQUESTS: 429,
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
 
-                  // 5xx Server Errors
-                  INTERNAL_SERVER_ERROR: 500,
-                  NOT_IMPLEMENTED: 501,
-                  BAD_GATEWAY: 502,
-                  SERVICE_UNAVAILABLE: 503,
-                  GATEWAY_TIMEOUT: 504,
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
                   } as const;
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -330,7 +323,6 @@ feature_structure:
               - type: file
                 name: api-error.ts
                 content: |
-
                   import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
                   export class ApiError extends Error {
@@ -390,7 +382,6 @@ feature_structure:
               - type: file
                 name: logger.ts
                 content: |
-
                   import env from "../configs/env";
                   import winston from "winston";
                   import DailyRotateFile from "winston-daily-rotate-file";
@@ -458,7 +449,6 @@ feature_structure:
               - type: file
                 name: error-handler.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
                   import env from "../configs/env";
 
@@ -480,7 +470,7 @@ feature_structure:
                     }
 
                     logger.error(
-                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                      <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                       err
                     );
 
@@ -528,14 +518,14 @@ feature_structure:
 
 # Global Error Handling
 
-A **global error handler** is a core part of any production-ready Express application.  
+A <Code children="global error handler" /> is a core part of any production-ready Express application.  
 It ensures that **all errors—expected or unexpected—are handled consistently**, securely, and predictably.
 
 ServerCN provides a structured approach using:
 
-- `ApiError` for operational errors
-- `ApiResponse` for consistent responses
-- `STATUS_CODES` for standardized HTTP status codes
+- <Code children="ApiError" /> for operational errors
+- <Code children="ApiResponse" /> for consistent responses
+- <Code children="STATUS_CODES" /> for standardized HTTP status codes
 - Express error middleware for central handling
 
 ## Installation Guide
@@ -605,7 +595,7 @@ LOG_LEVEL="info"
 
 Ensure the following configuration are defined:
 
-`src/configs/env.ts`
+<Code children="src/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -617,7 +607,7 @@ interface Config {
 const env: Config = {
   PORT: Number(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
-  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info"
 };
 
 export default env;
@@ -627,7 +617,7 @@ export default env;
 
 ### 1. MVC Structure
 
-`src/middlewares/error-handler.ts`
+<Code children="src/middlewares/error-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -637,12 +627,7 @@ import { ApiError } from "../utils/api-error";
 import { logger } from "../utils/logger";
 import { STATUS_CODES } from "../constants/status-codes";
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
   let statusCode = 500;
   let message = "Internal server error";
 
@@ -651,15 +636,12 @@ export const errorHandler = (
     message = err.message;
   }
 
-  logger.error(
-    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
-    err,
-  );
+  logger.error(`Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`, err);
 
   const response = {
     success: false,
     message,
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+    ...(env.NODE_ENV === "development" && { stack: err.stack })
   };
 
   res.status(statusCode).json(response);
@@ -668,7 +650,7 @@ export const errorHandler = (
 
 ### 1. Feature Structure
 
-`src/shared/middlewares/error-handler.ts`
+<Code children="src/shared/middlewares/error-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -678,12 +660,7 @@ import { ApiError } from "../errors/api-error";
 import { logger } from "../utils/logger";
 import { STATUS_CODES } from "../constants/status-codes";
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
   let statusCode = 500;
   let message = "Internal server error";
 
@@ -692,15 +669,12 @@ export const errorHandler = (
     message = err.message;
   }
 
-  logger.error(
-    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
-    err,
-  );
+  logger.error(`Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`, err);
 
   const response = {
     success: false,
     message,
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+    ...(env.NODE_ENV === "development" && { stack: err.stack })
   };
 
   res.status(statusCode).json(response);
@@ -709,7 +683,7 @@ export const errorHandler = (
 
 ## Usage Example
 
-`src/app.ts`
+<Code children="src/app.ts" />
 
 ```ts
 import express, { type Application } from "express";

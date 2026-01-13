@@ -1,7 +1,7 @@
 ---
 title: Logger
 description: Structured and configurable logging for Node.js applications using Winston or Pino.
-command: npx servercn add logger
+command: npx servercn add logger-pino
 
 mvc_structure:
   - type: folder
@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -34,7 +33,6 @@ mvc_structure:
           - type: file
             name: logger.ts
             content: |
-
               // winston logger usage
 
               import env from "../configs/env";
@@ -123,7 +121,6 @@ mvc_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT='3000'
           NODE_ENV='development'
           LOG_LEVEL='info'
@@ -141,7 +138,6 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-
                   interface Config {
                     PORT: number;
                     NODE_ENV: string;
@@ -162,7 +158,6 @@ feature_structure:
               - type: file
                 name: logger.ts
                 content: |
-
                   // pino logger usage
 
                   import pino from "pino";
@@ -217,7 +212,6 @@ feature_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT='3000'
           NODE_ENV='development'
           LOG_LEVEL='info'
@@ -243,7 +237,9 @@ Both approaches follow the same philosophy:
 
 Install the component using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add logger" />
+<PackageManagerTabs command="npx servercn add logger-pino" />
+
+<PackageManagerTabs command="npx servercn add logger-winston" />
 
 ## Choosing a Logger
 
@@ -263,10 +259,11 @@ PORT = "3000";
 NODE_ENV = "development";
 LOG_LEVEL = "info";
 ```
+<br/>
+<Code children="src/configs/env.ts" />
 
 Ensure the following configuration are defined:
 
-`src/configs/env.ts`
 
 ```ts
 interface Config {
@@ -278,7 +275,7 @@ interface Config {
 const config: Config = {
   PORT: Number(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
-  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info"
 };
 
 export default config;
@@ -297,7 +294,21 @@ Winston is ideal if you want:
 
 **Winston Configuration**
 
-**`src/utils/logger.ts`**
+<Code children="src/utils/logger.ts" />
+
+**Minimal Configuration**
+
+```ts
+import winston from "winston";
+
+export const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: winston.format.combine(winston.format.timestamp(), winston.format.errors({ stack: true }), winston.format.json()),
+  transports: [new winston.transports.Console()]
+});
+```
+
+**Advanced Configuration**
 
 ```ts
 import env from "../configs/env";
@@ -318,13 +329,8 @@ const transports: winston.transport[] = [];
 if (env.NODE_ENV !== "production") {
   transports.push(
     new winston.transports.Console({
-      format: combine(
-        colorize(),
-        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        errors({ stack: true }),
-        logFormat,
-      ),
-    }),
+      format: combine(colorize(), timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), errors({ stack: true }), logFormat)
+    })
   );
 }
 
@@ -340,8 +346,8 @@ if (env.NODE_ENV !== "development") {
       zippedArchive: true,
       maxSize: "20m",
       maxFiles: "14d",
-      level: "info",
-    }),
+      level: "info"
+    })
   );
 
   transports.push(
@@ -352,20 +358,16 @@ if (env.NODE_ENV !== "development") {
       zippedArchive: true,
       maxSize: "20m",
       maxFiles: "30d",
-      level: "error",
-    }),
+      level: "error"
+    })
   );
 }
 
 export const logger = winston.createLogger({
   level: env.LOG_LEVEL,
-  format: combine(
-    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    errors({ stack: true }),
-    logFormat,
-  ),
+  format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), errors({ stack: true }), logFormat),
   transports,
-  exitOnError: false,
+  exitOnError: false
 });
 ```
 
@@ -387,7 +389,18 @@ logger.error("Failed to connect to database");
 2026-01-03 18:43:23 [error] : Failed to connect to database
 ```
 
-<br />
+**Child Logger**
+
+```ts
+const authLogger = logger.child({ module: "auth" });
+
+authLogger.info("Login started");
+authLogger.error({ userId }, "Invalid credentials");
+```
+
+**Winston Installation**
+
+<PackageManagerTabs command="npx servercn add logger-winston" />
 
 ### 2. Pino Logger ✅
 
@@ -400,7 +413,9 @@ It is the recommended choice for:
 
 **Pino Configuration**
 
-`src/utils/logger.ts`
+<Code children="src/utils/logger.ts" />
+
+**Minimal Configuration**
 
 ```ts
 import pino from "pino";
@@ -415,10 +430,53 @@ export const logger = pino({
           options: {
             colorize: true,
             translateTime: "yyyy-mm-dd HH:MM:ss",
-            ignore: "pid,hostname",
-          },
+            ignore: "pid,hostname"
+          }
         }
-      : undefined,
+      : undefined
+});
+```
+
+**Advanced Configuration**
+
+```ts
+import pino from "pino";
+import env from "../configs/env";
+
+const isProduction = env.NODE_ENV !== "production";
+
+export const logger = pino({
+  level: env.LOG_LEVEL || "info",
+
+  base: {
+    pid: process.pid
+  },
+
+  timestamp: pino.stdTimeFunctions.isoTime,
+
+  formatters: {
+    level(label) {
+      return { level: label };
+    }
+  },
+
+  redact: {
+    paths: ["req.headers.authorization", "req.headers.cookie", "password", "token", "refreshToken"],
+    censor: "[REDACTED]"
+  },
+
+  ...(isProduction
+    ? {}
+    : {
+        transport: {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname"
+          }
+        }
+      })
 });
 ```
 
@@ -429,10 +487,7 @@ import { logger } from "../utils/logger";
 
 logger.info("Server started");
 logger.warn({ userId: "123" }, "Suspicious activity detected");
-logger.error(
-  { err: "Database connection failed" },
-  "Database connection failed",
-);
+logger.error({ err: "Database connection failed" }, "Database connection failed");
 ```
 
 **Pino Usage Output**
@@ -446,12 +501,25 @@ logger.error(
 ```
 
 <br />
-```json 
-// NODE_ENV: development
+```json // NODE_ENV: development
 
 [2026-01-04 08:17:19] INFO: Server started
 [2026-01-04 08:17:19] WARN: Suspicious activity detected
 userId: "123"
 [2026-01-04 08:17:19] ERROR: Database connection failed
 err: "Database connection failed"
-```
+
+````
+
+**Child Logger**
+
+```ts
+const authLogger = logger.child({ module: "auth" });
+
+authLogger.info("Login started");
+authLogger.error({ userId }, "Invalid credentials");
+````
+
+**Pino Installation**
+
+<PackageManagerTabs command="npx servercn add logger-pino" />

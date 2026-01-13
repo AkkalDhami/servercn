@@ -1,0 +1,186 @@
+---
+title: Drizzle MySQL Starter | Foundation
+description: The Drizzle MySQL Starter Foundation is the core starting block provided by servercn.
+command: npx servercn init drizzle-mysql-starter
+---
+
+# Drizzle MySQL Starter
+
+The **Drizzle MySQL Starter** is a database foundation provided by **servercn** for projects that use **MySQL with Drizzle ORM**. When you run:
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn init drizzle-mysql-starter" />
+
+you get a **production‑ready MySQL + Drizzle setup** that integrates cleanly with the Express Server Foundation.
+
+This starter focuses on **type‑safe database access, clear schema ownership, and predictable migrations**, without hiding SQL or introducing heavy abstractions.
+
+[Official Docs](https://orm.drizzle.team/docs/get-started)
+
+## What This Starter Solves
+
+Setting up Drizzle with MySQL repeatedly involves:
+
+- Database connection management
+- Schema organization
+- Migration configuration
+- Environment‑based credentials
+- Type safety across queries
+
+The Drizzle MySQL Starter standardizes these concerns using a **minimal, explicit setup**.
+
+## What You Get Out of the Box
+
+After initialization, your project includes:
+
+### Database Core
+
+- Drizzle ORM configured for MySQL
+- Type‑safe schema definitions
+- Centralized database client
+
+### Configuration
+
+- Environment‑based database config
+- Safe startup validation
+- Production‑ready connection handling
+
+### Migrations
+
+- Drizzle migration setup
+- Structured migration folder
+- CLI‑ready workflow
+
+### Developer Experience
+
+- Fully typed queries
+- Clean schema organization
+- Zero runtime magic
+
+## Environment Configuration
+
+Database credentials are loaded via environment variables.
+
+```bash
+NODE_ENV='development'
+PORT='9000'
+LOG_LEVEL='info'
+
+DATABASE_URL=mysql://root:password@localhost:3306/db-name
+```
+
+The server fails fast if required database variables are missing.
+
+## Defining Schemas
+
+Schemas are written using Drizzle’s SQL‑first, type‑safe API.
+
+<Code children="src/drizzle/schema.ts" />
+
+```ts
+import { mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
+
+export const usersTable = mysqlTable("users_table", {
+  id: serial().primaryKey(),
+  name: varchar({ length: 255 }).notNull(),
+  email: varchar({ length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull()
+});
+```
+
+Schemas are:
+
+- Explicit
+- Version‑controlled
+- Fully typed across queries
+
+## Database Client Setup
+
+<Code children="src/configs/db.ts" /> or <Code children="src/db/db.ts" />
+
+```ts
+import { drizzle } from "drizzle-orm/mysql2";
+import env from "./env";
+
+const db = drizzle(env.DATABASE_URL!);
+
+export default db;
+```
+
+No repositories or hidden layers — you interact directly with Drizzle.
+
+## Migrations Workflow
+
+### Generate migrations
+
+<PackageManagerTabs command="npm run db:generate" />
+
+### Apply migrations
+
+<PackageManagerTabs command="npm run db:migrate" />
+
+Migrations are SQL‑first and fully auditable.
+
+### Database Studio
+
+<PackageManagerTabs command="npm run db:studio" />
+
+## Production Considerations
+
+The starter is designed for production:
+
+- No dynamic schema generation at runtime
+- Controlled migration execution
+- Environment‑safe credentials
+- Predictable connection behavior
+
+## Integration with Express Server Foundation
+
+The Drizzle MySQL Starter is designed to layer cleanly on top of:
+
+- Express Server Foundation
+- Request validation (Zod)
+- Auth and RBAC blocks
+
+This keeps responsibilities separated:
+
+- Express handles HTTP
+- Drizzle handles data
+
+## Why This Is a Starter (Not an ORM Wrapper)
+
+This setup intentionally avoids:
+
+- Custom query builders
+- Repository patterns by default
+- Magic decorators
+
+You write SQL‑like queries with **full type safety**.
+
+## When to Use Drizzle MySQL Starter
+
+Use this starter when:
+
+- You want type‑safe MySQL access
+- You prefer explicit schema control
+- You want predictable migrations
+- You are building production APIs
+
+## Extending the Starter
+
+Once initialized, you can add:
+
+- Relations and joins
+- Soft deletes
+- Indexes and constraints
+- Transaction helpers
+- TTL or archival strategies
+
+Each extension builds on the same explicit schema foundation.
+
+## Summary
+
+The **Drizzle MySQL Starter** gives you a clean, production‑ready database foundation using **MySQL + Drizzle ORM**.
+
+It prioritizes clarity, type safety, and long‑term maintainability — without taking control away from you.

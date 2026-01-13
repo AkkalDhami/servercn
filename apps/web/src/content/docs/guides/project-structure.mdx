@@ -70,7 +70,7 @@ src/
 
 ### Directory Purposes
 
-#### `configs/`
+#### <Code children="configs/" />
 
 Configuration files for your application:
 
@@ -85,7 +85,7 @@ interface Config {
 const env: Config = {
   PORT: Number(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
-  DATABASE_URL: process.env.DATABASE_URL!,
+  DATABASE_URL: process.env.DATABASE_URL!
 };
 
 export default env;
@@ -93,26 +93,24 @@ export default env;
 
 <br />
 
-#### `constants/`
-
+#### <Code children="constants/" />
 
 Application-wide constants:
 
 ```ts
-// src/constants/status-codes.ts
-export const STATUS_CODES = {
+// src/constants/status-codes.tsexport const STATUS_CODES = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500,
+  INTERNAL_SERVER_ERROR: 500
 } as const;
 ```
 
 <br />
 
-#### `controllers/`
+#### <Code children="controllers/" />
 
 Route handlers that process requests and return responses:
 
@@ -126,9 +124,10 @@ export const getUser = async (req: Request, res: Response) => {
   return res.json({ success: true, data: user });
 };
 ```
+
 <br />
 
-#### `middlewares/`
+#### <Code children="middlewares/" />
 
 Express middleware functions:
 
@@ -137,11 +136,7 @@ Express middleware functions:
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 
-export const authenticate = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization;
   const user = verifyToken(token);
   req.user = user;
@@ -151,7 +146,7 @@ export const authenticate = (
 
 <br />
 
-#### `models/`
+#### <Code children="models/" />
 
 Database models and schemas:
 
@@ -168,14 +163,15 @@ interface IUser {
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }
 });
 
 export const User: Model<IUser> = mongoose.model("User", userSchema);
 ```
+
 <br />
 
-#### `routes/`
+#### <Code children="routes/" />
 
 Route definitions that map URLs to controllers:
 
@@ -192,9 +188,10 @@ router.post("/", createUser);
 
 export default router;
 ```
+
 <br />
 
-#### `services/`
+#### <Code children="services/" />
 
 Business logic layer:
 
@@ -212,9 +209,10 @@ export class UserService {
   }
 }
 ```
+
 <br />
 
-#### `utils/`
+#### <Code children="utils/" />
 
 Reusable utility functions:
 
@@ -223,15 +221,16 @@ Reusable utility functions:
 export class ApiError extends Error {
   constructor(
     public statusCode: number,
-    message: string,
+    message: string
   ) {
     super(message);
   }
 }
 ```
+
 <br />
 
-#### `validations/`
+#### <Code children="validations/" />
 
 Request validation schemas:
 
@@ -242,8 +241,8 @@ import { z } from "zod";
 export const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2),
-    email: z.string().email(),
-  }),
+    email: z.string().email()
+  })
 });
 ```
 
@@ -267,7 +266,7 @@ src/
 
 ## Feature-Based Architecture
 
-Feature-based architecture organizes code by **features** or **modules**. Each feature is self-contained with its own controllers, services, models, and routes. Shared code lives in a `shared/` directory.
+Feature-based architecture organizes code by **features** or **modules**. Each feature is self-contained with its own controllers, services, models, and routes. Shared code lives in a <Code children="shared/" /> directory.
 
 ### Directory Structure
 
@@ -314,32 +313,32 @@ src/
 
 ### Directory Purposes
 
-#### `shared/`
+#### <Code children="shared/" />
 
 Code shared across all features:
 
-- **`shared/configs/`**: Application configuration
-- **`shared/constants/`**: Shared constants
-- **`shared/errors/`**: Error classes and handlers
-- **`shared/middlewares/`**: Global middlewares
-- **`shared/utils/`**: Shared utility functions
+- **<Code children="shared/configs/" />**: Application configuration
+- **<Code children="shared/constants/" />**: Shared constants
+- **<Code children="shared/errors/" />**: Error classes and handlers
+- **<Code children="shared/middlewares/" />**: Global middlewares
+- **<Code children="shared/utils/" />**: Shared utility functions
 
 <br />
 
-#### `modules/`
+#### <Code children="modules/" />
 
 Self-contained feature modules. Each module contains:
 
-- **`controllers/`**: Feature-specific controllers
-- **`services/`**: Feature-specific business logic
-- **`models/`**: Feature-specific database models
-- **`routes/`**: Feature-specific routes
-- **`validations/`**: Feature-specific validation schemas
-- **`types/`**: Feature-specific TypeScript types
+- **<Code children="controllers/" />**: Feature-specific controllers
+- **<Code children="services/" />**: Feature-specific business logic
+- **<Code children="models/" />**: Feature-specific database models
+- **<Code children="routes/" />**: Feature-specific routes
+- **<Code children="validations/" />**: Feature-specific validation schemas
+- **<Code children="types/" />**: Feature-specific TypeScript types
 
 <br />
 
-#### `routes/index.ts`
+#### <Code children="routes/index.ts" />
 
 Main route aggregator:
 
@@ -388,23 +387,23 @@ When you add a ServerCN component, it's placed according to your architecture:
 
 ### MVC Architecture
 
-| Component Type | Location                  |
-| -------------- | ------------------------- |
-| Middlewares    | `src/middlewares/`        |
-| Utilities      | `src/utils/`              |
-| Constants      | `src/constants/`          |
-| Errors         | `src/utils/` (as utility) |
-| Validations    | `src/validations/`        |
+| Component Type | Location                                    |
+| -------------- | ------------------------------------------- |
+| Middlewares    | <Code children="src/middlewares/" />        |
+| Utilities      | <Code children="src/utils/" />              |
+| Constants      | <Code children="src/constants/" />          |
+| Errors         | <Code children="src/utils/" /> (as utility) |
+| Validations    | <Code children="src/validations/" />        |
 
 ### Feature-Based Architecture
 
-| Component Type | Location                             |
-| -------------- | ------------------------------------ |
-| Middlewares    | `src/shared/middlewares/`            |
-| Utilities      | `src/shared/utils/`                  |
-| Constants      | `src/shared/constants/`              |
-| Errors         | `src/shared/errors/`                 |
-| Validations    | `src/modules/{feature}/validations/` |
+| Component Type | Location                                               |
+| -------------- | ------------------------------------------------------ |
+| Middlewares    | <Code children="src/shared/middlewares/" />            |
+| Utilities      | <Code children="src/shared/utils/" />                  |
+| Constants      | <Code children="src/shared/constants/" />              |
+| Errors         | <Code children="src/shared/errors/" />                 |
+| Validations    | <Code children="src/modules/{feature}/validations/" /> |
 
 ## Choosing an Architecture
 
@@ -507,7 +506,7 @@ import { UserService } from "../../user/services/user.service";
 
 ### 2. Use Shared for Common Code
 
-Put reusable code in `shared/`:
+Put reusable code in <Code children="shared/" />:
 
 - Error classes
 - Common utilities
@@ -641,7 +640,7 @@ my-backend/
 
 If you need to switch architectures:
 
-1. **Update `servercn.json`**:
+1. **Update <Code children="servercn.json" />**:
 
    ```json
    {
@@ -659,7 +658,7 @@ If you need to switch architectures:
 
 ## Configuration
 
-Your architecture choice is stored in `servercn.json`:
+Your architecture choice is stored in <Code children="servercn.json" />:
 
 ```json
 {

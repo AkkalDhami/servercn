@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -40,7 +39,6 @@ mvc_structure:
           - type: file
             name: google-oauth.ts
             content: |
-
               import { OAuth2Client } from "google-auth-library";
               import env from "../configs/env";
 
@@ -94,7 +92,7 @@ mvc_structure:
                   "https://www.googleapis.com/oauth2/v2/userinfo",
                   {
                     headers: {
-                      Authorization: `Bearer ${accessToken}`,
+                      Authorization: <Code children="Bearer ${accessToken}" />,
                     },
                   }
                 );
@@ -146,7 +144,6 @@ mvc_structure:
           - type: file
             name: auth.routes.ts
             content: |
-
               import { Router } from "express";
               import { asyncHandler } from "../middlewares/async-handler";
               import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../utils/google-oauth";
@@ -236,7 +233,6 @@ mvc_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT="8000"
           NODE_ENV="development"
           LOG_LEVEL="info"
@@ -258,7 +254,6 @@ feature_structure:
               - type: file
                 name: google-oauth.helpers.ts
                 content: |
-
                   import { OAuth2Client } from "google-auth-library";
 
                   const oauth2Client = new OAuth2Client(
@@ -310,7 +305,7 @@ feature_structure:
                       "https://www.googleapis.com/oauth2/v2/userinfo",
                       {
                         headers: {
-                          Authorization: `Bearer ${accessToken}`,
+                          Authorization: <Code children="Bearer ${accessToken}" />,
                         },
                       }
                     );
@@ -362,7 +357,6 @@ feature_structure:
           - type: file
             name: auth.routes.ts
             content: |
-
               import { Router } from "express";
               import { asyncHandler } from "../shared/middlewares/async-handler";
               import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../modules/auth/google-oauth.helpers";
@@ -452,7 +446,6 @@ feature_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT="8000"
           NODE_ENV="development"
           LOG_LEVEL="info"
@@ -526,12 +519,12 @@ Documentation:
    - Fill in the required information
 6. Create OAuth 2.0 Client ID:
    - Application type: **Web application**
-   - Authorized redirect URIs: Add your callback URL (e.g., `http://localhost:8000/api/auth/google/callback`)
+   - Authorized redirect URIs: Add your callback URL (e.g., <Code children="http://localhost:8000/api/auth/google/callback" />)
 7. Copy the **Client ID** and **Client Secret**
 
 ### Environment Variables
 
-Add the following to your `.env` file:
+Add the following to your <Code children=".env" /> file:
 
 ```bash
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
@@ -541,7 +534,7 @@ GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
 
 Ensure the following configuration are defined:
 
-`src/configs/env.ts` || `src/shared/configs/env.ts`
+<Code children="src/configs/env.ts" /> || <Code children="src/shared/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -561,7 +554,7 @@ const env: Config = {
 
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
-  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!
 };
 
 export default env;
@@ -571,30 +564,23 @@ export default env;
 
 ### MVC Structure
 
-Place the Google OAuth utilities in `src/utils/google-oauth.ts`:
+Place the Google OAuth utilities in <Code children="src/utils/google-oauth.ts" />:
 
 ```ts
 import { OAuth2Client } from "google-auth-library";
 import env from "../configs/env";
 
-const oauth2Client = new OAuth2Client(
-  env.GOOGLE_CLIENT_ID,
-  env.GOOGLE_CLIENT_SECRET,
-  env.GOOGLE_REDIRECT_URI,
-);
+const oauth2Client = new OAuth2Client(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET, env.GOOGLE_REDIRECT_URI);
 
 export function getGoogleAuthUrl(
-  scopes: string[] = [
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-  ],
+  scopes: string[] = ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 ) {
   const state = Math.random().toString(36).substring(2, 15);
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
     state,
-    prompt: "consent",
+    prompt: "consent"
   });
 
   return { authUrl, state };
@@ -607,14 +593,11 @@ export async function getGoogleTokens(code: string) {
 }
 
 export async function getGoogleUserInfo(accessToken: string) {
-  const userInfoResponse = await fetch(
-    "https://www.googleapis.com/oauth2/v2/userinfo",
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
+  const userInfoResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  });
 
   if (!userInfoResponse.ok) {
     throw new Error("Failed to fetch user info from Google");
@@ -626,16 +609,12 @@ export async function getGoogleUserInfo(accessToken: string) {
 
 ### Feature-Based Structure
 
-For feature-based architecture, place helpers in `src/modules/auth/google-oauth.helpers.ts`:
+For feature-based architecture, place helpers in <Code children="src/modules/auth/google-oauth.helpers.ts" />:
 
 ```ts
 import { OAuth2Client } from "google-auth-library";
 
-const oauth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID!,
-  process.env.GOOGLE_CLIENT_SECRET!,
-  process.env.GOOGLE_REDIRECT_URI!,
-);
+const oauth2Client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID!, process.env.GOOGLE_CLIENT_SECRET!, process.env.GOOGLE_REDIRECT_URI!);
 
 // Same functions as MVC structure
 ```
@@ -757,7 +736,7 @@ router.get("/auth/google/callback", async (req, res) => {
         name: userInfo.name,
         picture: userInfo.picture,
         provider: "google",
-        providerId: userInfo.id,
+        providerId: userInfo.id
       });
     }
 
@@ -771,8 +750,8 @@ router.get("/auth/google/callback", async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
-        name: user.name,
-      },
+        name: user.name
+      }
     });
   } catch (error) {
     res.status(500).json({ error: "Authentication failed" });
@@ -784,11 +763,11 @@ router.get("/auth/google/callback", async (req, res) => {
 
 Common Google OAuth scopes you can request:
 
-- `https://www.googleapis.com/auth/userinfo.email` - User's email address
-- `https://www.googleapis.com/auth/userinfo.profile` - User's basic profile info
-- `https://www.googleapis.com/auth/user.birthday.read` - User's birthday
-- `https://www.googleapis.com/auth/user.phonenumbers.read` - User's phone numbers
-- `https://www.googleapis.com/auth/calendar.readonly` - Read-only access to user's calendar
+- <Code children="https://www.googleapis.com/auth/userinfo.email" /> - User's email address
+- <Code children="https://www.googleapis.com/auth/userinfo.profile" /> - User's basic profile info
+- <Code children="https://www.googleapis.com/auth/user.birthday.read" /> - User's birthday
+- <Code children="https://www.googleapis.com/auth/user.phonenumbers.read" /> - User's phone numbers
+- <Code children="https://www.googleapis.com/auth/calendar.readonly" /> - Read-only access to user's calendar
 
 ## Security Best Practices
 
@@ -818,7 +797,7 @@ try {
 
 ### "redirect_uri_mismatch"
 
-Ensure your redirect URI in `.env` exactly matches the one configured in Google Cloud Console.
+Ensure your redirect URI in <Code children=".env" /> exactly matches the one configured in Google Cloud Console.
 
 ### "invalid_grant"
 

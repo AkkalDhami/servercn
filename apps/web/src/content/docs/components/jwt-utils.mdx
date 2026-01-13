@@ -1,7 +1,7 @@
 ---
-title: JWT Authentication
-description: Production-ready JSON Web Token authentication with access and refresh tokens for Express applications.
-command: npx servercn add jwt-auth
+title: JWT Utils Function
+description: JWT Utils Function for JSON Web Token authentication with access & refresh token support for Express
+command: npx servercn add jwt-utils
 mvc_structure:
   - type: folder
     name: src
@@ -12,7 +12,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 JWT_ACCESS_SECRET: string;
                 JWT_REFRESH_SECRET: string;
@@ -31,7 +30,6 @@ mvc_structure:
           - type: file
             name: jwt.ts
             content: |
-
               import jwt from "jsonwebtoken";
               import env from "../configs/env";
 
@@ -86,7 +84,6 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-
                   interface Config {
                     JWT_REFRESH_SECRET: string;
                     JWT_ACCESS_SECRET: string;
@@ -108,7 +105,6 @@ feature_structure:
               - type: file
                 name: jwt.helpers.ts
                 content: |
-
                   import jwt from "jsonwebtoken";
                   import env from "../../shared/configs/env";
 
@@ -165,7 +161,7 @@ It is designed to be:
 
 Install the component using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add jwt-auth" />
+<PackageManagerTabs command="npx servercn add jwt-utils" />
 
 ## What Is JWT?
 
@@ -254,7 +250,7 @@ must be different and kept private
 
 Ensure the following configuration are defined:
 
-`src/configs/env.ts`
+<Code children="src/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -264,7 +260,7 @@ interface Config {
 
 const env: Config = {
   JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!
 };
 
 export default env;
@@ -274,7 +270,7 @@ export default env;
 
 ### 1. MVC Structure
 
-`src/utils/jwt.ts`
+<Code children="src/utils/jwt.ts" />
 
 ```ts
 import jwt from "jsonwebtoken";
@@ -286,14 +282,14 @@ const REFRESH_TOKEN_EXPIRY = "7d";
 // Generate a short-lived access token
 export function generateAccessToken(user: { _id: string }) {
   return jwt.sign({ _id: user._id }, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: ACCESS_TOKEN_EXPIRY,
+    expiresIn: ACCESS_TOKEN_EXPIRY
   });
 }
 
 // Generate a long-lived refresh token
 export function generateRefreshToken(userId: string) {
   return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: REFRESH_TOKEN_EXPIRY,
+    expiresIn: REFRESH_TOKEN_EXPIRY
   });
 }
 
@@ -314,7 +310,7 @@ export function verifyRefreshToken(token: string) {
 
 ### 2. Feature Structure
 
-`src/modules/auth/jwt.helpers.ts`
+<Code children="src/modules/auth/jwt.helpers.ts" />
 
 ```ts
 import jwt from "jsonwebtoken";
@@ -326,14 +322,14 @@ const REFRESH_TOKEN_EXPIRY = "7d";
 // Generate a short-lived access token
 export function generateAccessToken(user: { _id: string }) {
   return jwt.sign({ _id: user._id }, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: ACCESS_TOKEN_EXPIRY,
+    expiresIn: ACCESS_TOKEN_EXPIRY
   });
 }
 
 // Generate a long-lived refresh token
 export function generateRefreshToken(userId: string) {
   return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
-    expiresIn: REFRESH_TOKEN_EXPIRY,
+    expiresIn: REFRESH_TOKEN_EXPIRY
   });
 }
 
@@ -355,11 +351,7 @@ export function verifyRefreshToken(token: string) {
 ## Usage Example
 
 ```ts
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyAccessToken,
-} from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken, verifyAccessToken } from "../utils/jwt";
 
 export async function issueTokens(userId: string) {
   // Short-lived token used for authorization
@@ -384,3 +376,21 @@ export async function decodeAccessToken(token?: string) {
   return payload._id;
 }
 ```
+
+## Best Practices
+
+### Keep Payloads Small
+
+Avoid storing large objects or sensitive personal information (PII) in the JWT payload. The token is sent with every request, so keeping it small reduces bandwidth usage and improves performance.
+
+- **Do:** Store only essential identifiers (e.g., <Code children="userId" />, <Code children="role" />).
+- **Don't:** Store entire user profiles, preferences, or large arrays.
+
+### Secure Storage
+
+- **Access Tokens:** Store in memory (for single-page apps) or HTTP-only cookies if possible to mitigate XSS attacks.
+- **Refresh Tokens:** Store in HTTP-only, Secure, SameSite cookies to prevent XSS and CSRF attacks.
+
+### Token Rotation
+
+Implement refresh token rotation to detect token theft. If a refresh token is reused, invalidate the entire token family for that user.

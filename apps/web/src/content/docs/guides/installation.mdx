@@ -20,11 +20,11 @@ Before installing ServerCN, ensure you have:
 
 The fastest way to get started with ServerCN:
 
-**Initialize ServerCN in your project**
+### 1. Initialize ServerCN in your project
 
 <PackageManagerTabs command="npx servercn init" />
 
-**Add your first component**
+### 2. Add your first component
 
 <PackageManagerTabs command="npx servercn add error-handler" />
 
@@ -61,12 +61,12 @@ This will prompt you with a series of questions to configure your project:
 
 **Project Root Directory**
 
-- Default: `.` (current directory)
+- Default: <Code children="." /> (current directory)
 - The root directory where your project lives
 
 **Source Directory**
 
-- Default: `src`
+- Default: <Code children="src" />
 - Where your source code will be located
 
 **Architecture**
@@ -92,24 +92,12 @@ This will prompt you with a series of questions to configure your project:
 - **npm**: Node Package Manager
 - **pnpm**: Fast, disk space efficient
 - **yarn**: Alternative package manager
-- **bun**: Alternative package manager
+- **bun**: Superfast Node.js-compatible package manager
 
-**File Naming Convention**
-
-- **camelCase**: `userController.ts`
-- **kebab-case**: `user-controller.ts` (recommended)
-- **snake_case**: `user_controller.ts`
-- **PascalCase**: `UserController.ts`
-
-**Function Naming Convention**
-
-- **camelCase**: `getUser()` (recommended)
-- **snake_case**: `get_user()`
-- **PascalCase**: `GetUser()`
 
 ### 4. Configuration File
 
-After initialization, ServerCN creates a `servercn.json` file in your project root:
+After initialization, ServerCN creates a <Code children="servercn.json" /> file in your project root:
 
 ```json
 {
@@ -125,18 +113,13 @@ After initialization, ServerCN creates a `servercn.json` file in your project ro
     "runtime": "node",
     "language": "typescript",
     "framework": "express",
-    "architecture": "mvc"
+    "architecture": "feature"
   },
   "database": {
     "type": "mongodb",
     "orm": "mongoose"
   },
-  "conventions": {
-    "fileNaming": "kebab-case",
-    "functionNaming": "camel-case",
-    "envFile": ".env",
-    "testDir": "__tests__"
-  }
+  "overrides": {}
 }
 ```
 
@@ -152,7 +135,7 @@ npx servercn add <component-name>
 
 # Examples
 npx servercn add error-handler
-npx servercn add jwt-auth
+npx servercn add jwt-utils
 npx servercn add request-validator
 ```
 
@@ -222,6 +205,10 @@ src/
 
 <PackageManagerTabs command="npx servercn add <component-name>" />
 
+Or you can add multiple components like this:
+
+<PackageManagerTabs command="npx servercn add jwt-utils http-status-codes logger-pino" />
+
 ### List Available Components
 
 <PackageManagerTabs command="npx servercn list" />
@@ -236,7 +223,7 @@ When you add a component, ServerCN will:
 
 1. **Copy component files** to your project following your architecture
 2. **Install dependencies** required by the component
-3. **Update `.env.example`** with required environment variables
+3. **Update <Code children=".env.example" />** with required environment variables
 4. **Create necessary directories** if they don't exist
 
 ### Example: Adding Error Handler
@@ -245,14 +232,14 @@ When you add a component, ServerCN will:
 
 This will:
 
-- Create `src/middlewares/error-handler.ts` (MVC) or `src/shared/middlewares/error-handler.ts` (Feature)
-- Create `src/utils/api-error.ts` or `src/shared/errors/api-error.ts`
-- Create `src/constants/status-codes.ts` or `src/shared/constants/status-codes.ts`
+- Create **src/middlewares/error-handler.ts** (MVC) or **src/shared/middlewares/error-handler.ts** (Feature)
+- Create **src/utils/api-error.ts** or **src/shared/errors/api-error.ts**
+- Create **src/constants/status-codes.ts** or **src/shared/constants/status-coes.ts**
 - Install any required npm packages
 
 ## Updating Configuration
 
-You can manually edit `servercn.json` to change your project configuration:
+You can manually edit <Code children="servercn.json" /> to change your project configuration:
 
 ```json
 {
@@ -268,31 +255,19 @@ After updating, new components will use the updated configuration.
 
 To verify ServerCN is properly installed:
 
-1. Check for `servercn.json` in your project root
-2. Run `npx servercn list` to see available components
-3. Try adding a component: `npx servercn add error-handler`
+1. Check for <Code children="servercn.json" /> in your project root
+2. Run <Code children="npx servercn list" /> to see available components
+3. Try adding a component: <Code children="npx servercn add error-handler" />
 
 ## Troubleshooting
-
-### ServerCN Not Found
-
-If you get `command not found`, ensure you're using `npx`:
-
-```bash
-# ✅ Correct
-npx servercn init
-
-# ❌ Incorrect
-servercn init
-```
 
 ### Already Initialized
 
 If you see "ServerCN is already initialized":
 
-- Your project already has a `servercn.json` file
+- Your project already has a <Code children="servercn.json" /> file
 - You can start adding components immediately
-- To reinitialize, delete `servercn.json` first
+- To reinitialize, delete <Code children="servercn.json" /> first
 
 ### Component Not Found
 
@@ -311,30 +286,30 @@ npx servercn add errorhandler   # ❌ Incorrect
 
 If you encounter TypeScript errors:
 
-1. Ensure TypeScript is installed: `npm install -D typescript @types/node`
-2. Check `tsconfig.json` exists and is properly configured
+1. Ensure TypeScript is installed: <Code children="npm install -D typescript @types/node" />
+2. Check <Code children="tsconfig.json" /> exists and is properly configured
 3. Ensure component dependencies are installed
 
 ### Architecture Mismatch
 
 If components aren't appearing in the expected location:
 
-1. Check your `servercn.json` architecture setting
-2. Verify your `srcDir` configuration
+1. Check your <Code children="servercn.json" /> architecture setting
+2. Verify your <Code children="srcDir" /> configuration
 3. Ensure directories exist before adding components
 
 ## Next Steps
 
 After installation:
 
-1. **Add your first component**: `npx servercn add error-handler`
-2. **Set up your Express app**: Create `src/app.ts`
-3. **Add more components**: Explore available components with `npx servercn list`
+1. **Add your first component**: <Code children="npx servercn add error-handler" />
+2. **Set up your Express app**: Create <Code children='src/app.ts' />
+3. **Add more components**: Explore available components with <Code children="npx servercn list" />
 4. **Read component docs**: Each component has detailed documentation
 
 ## Getting Help
 
-- **Documentation**: Check component-specific docs in `/docs/components/`
+- **Documentation**: Check component-specific docs in <Code children="/docs/components/" />
 - **Issues**: Report issues on GitHub
 - **Community**: Join our community discussions
 
@@ -342,7 +317,7 @@ After installation:
 
 To remove ServerCN from your project:
 
-1. Delete `servercn.json` configuration file
+1. Delete <Code children="servercn.json" /> configuration file
 2. Remove any ServerCN components you've added
 3. Remove ServerCN-specific dependencies (if any)
 

@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: async-handler.ts
             content: |
-
               import { Request, Response, NextFunction } from "express";
 
               export type AsyncRouteHandler = (
@@ -38,7 +37,6 @@ mvc_structure:
           - type: file
             name: user.routes.ts
             content: |
-
               import { NextFunction, Request, Response, Router } from "express";
               import { AsyncHandler } from "../utils/async-handler";
 
@@ -69,7 +67,6 @@ feature_structure:
               - type: file
                 name: user.routes.ts
                 content: |
-
                   import { NextFunction, Request, Response, Router } from "express";
                   import { AsyncHandler } from "../../utils/async-handler";
 
@@ -96,7 +93,6 @@ feature_structure:
               - type: file
                 name: async-handler.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
 
                   export type AsyncRouteHandler = (
@@ -118,7 +114,7 @@ feature_structure:
 
 # Async Handler
 
-The **Async Handler** component is a **foundational Express utility** that ensures all errors thrown inside asynchronous route handlers are **reliably captured and forwarded** to Express’s global error middleware.
+The <Code>Async Handler</Code> component is a **foundational Express utility** that ensures all errors thrown inside asynchronous route handlers are **reliably captured and forwarded** to Express’s global error middleware.
 
 It eliminates repetitive **try/catch** blocks and ensures all rejected promises are properly forwarded to Express’s centralized error-handling middleware.
 
@@ -162,16 +158,13 @@ router.get("/users", async (_req, res) => {
 ## Basic Implementation
 
 ### 1. MVC Structure
-`src/utils/async-handler.ts` 
+
+<Code children="src/utils/async-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
 
-export type AsyncRouteHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => Promise<unknown>;
+export type AsyncRouteHandler = (req: Request, res: Response, next: NextFunction) => Promise<unknown>;
 
 export function AsyncHandler(fn: AsyncRouteHandler) {
   return function (req: Request, res: Response, next: NextFunction) {
@@ -181,16 +174,13 @@ export function AsyncHandler(fn: AsyncRouteHandler) {
 ```
 
 ### 2. Feature Structure
-`src/shared/utils/async-handler.ts`
+
+<Code children="src/shared/utils/async-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
 
-export type AsyncRouteHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => Promise<unknown>;
+export type AsyncRouteHandler = (req: Request, res: Response, next: NextFunction) => Promise<unknown>;
 
 export function AsyncHandler(fn: AsyncRouteHandler) {
   return function (req: Request, res: Response, next: NextFunction) {

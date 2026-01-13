@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -39,11 +38,9 @@ mvc_structure:
               };
 
               export default env;
-
           - type: file
             name: nodemailer.ts
             content: |
-
               import nodemailer from "nodemailer";
               import env from "./env";
 
@@ -65,7 +62,6 @@ mvc_structure:
           - type: file
             name: email.service.ts
             content: |
-
               import transporter from "../configs/nodemailer";
               import { ApiError } from "../utils/error-handler";
               import { STATUS_CODES } from "../constants/status-codes";
@@ -171,7 +167,6 @@ mvc_structure:
           - type: file
             name: email.controller.ts
             content: |
-
               import { Request, Response } from "express";
               import { asyncHandler } from "../middlewares/async-handler";
               import { sendEmail, sendHtmlEmail, sendTextEmail } from "../services/email.service";
@@ -278,7 +273,6 @@ mvc_structure:
           - type: file
             name: email.routes.ts
             content: |
-
               import { Router } from "express";
               import {
                 sendEmailHandler,
@@ -297,7 +291,6 @@ mvc_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT="8000"
           NODE_ENV="development"
           LOG_LEVEL="info"
@@ -322,7 +315,6 @@ feature_structure:
               - type: file
                 name: email.service.ts
                 content: |
-
                   import nodemailer from "nodemailer";
 
                   const transporter = nodemailer.createTransport({
@@ -438,7 +430,6 @@ feature_structure:
           - type: file
             name: email.routes.ts
             content: |
-
               import { Router } from "express";
               import { asyncHandler } from "../shared/middlewares/async-handler";
               import { sendEmail, sendHtmlEmail, sendTextEmail } from "../modules/email/email.service";
@@ -537,7 +528,6 @@ feature_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT="8000"
           NODE_ENV="development"
           LOG_LEVEL="info"
@@ -605,7 +595,7 @@ Documentation: [Api Error Handler:](/docs/components/error-handler)
 
 ### Environment Variables
 
-Add the following to your `.env` file:
+Add the following to your <Code children=".env" /> file:
 
 ```bash
 EMAIL_HOST="smtp.gmail.com"
@@ -655,7 +645,7 @@ EMAIL_FROM="noreply@yourdomain.com"
 
 ### 1. MVC Structure
 
-Create email service in `src/services/email.service.ts`:
+Create email service in <Code children="src/services/email.service.ts" />:
 
 ```ts
 import nodemailer from "nodemailer";
@@ -667,22 +657,17 @@ const transporter = nodemailer.createTransport({
   secure: env.EMAIL_SECURE,
   auth: {
     user: env.EMAIL_USER,
-    pass: env.EMAIL_PASSWORD,
-  },
+    pass: env.EMAIL_PASSWORD
+  }
 });
 
-export async function sendEmail(options: {
-  to: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-}) {
+export async function sendEmail(options: { to: string | string[]; subject: string; text?: string; html?: string }) {
   const info = await transporter.sendMail({
     from: env.EMAIL_FROM,
     to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
     subject: options.subject,
     text: options.text,
-    html: options.html,
+    html: options.html
   });
 
   return info;
@@ -691,7 +676,7 @@ export async function sendEmail(options: {
 
 ### 2. Feature-Based Structure
 
-For feature-based architecture, place service in `src/modules/email/email.service.ts`:
+For feature-based architecture, place service in <Code children="src/modules/email/email.service.ts" />:
 
 ```ts
 import nodemailer from "nodemailer";
@@ -702,8 +687,8 @@ const transporter = nodemailer.createTransport({
   secure: process.env.EMAIL_SECURE === "true",
   auth: {
     user: process.env.EMAIL_USER!,
-    pass: process.env.EMAIL_PASSWORD!,
-  },
+    pass: process.env.EMAIL_PASSWORD!
+  }
 });
 
 // Same functions as MVC structure
@@ -716,11 +701,7 @@ const transporter = nodemailer.createTransport({
 ```ts
 import { sendTextEmail } from "../services/email.service";
 
-await sendTextEmail(
-  "user@example.com",
-  "Welcome to ServerCN",
-  "Thank you for joining us!",
-);
+await sendTextEmail("user@example.com", "Welcome to ServerCN", "Thank you for joining us!");
 ```
 
 ### 2. Send HTML Email
@@ -747,7 +728,7 @@ await sendEmail({
   subject: "Team Update",
   html: "<p>This is a team update.</p>",
   cc: ["manager@example.com"],
-  bcc: ["archive@example.com"],
+  bcc: ["archive@example.com"]
 });
 ```
 
@@ -764,14 +745,14 @@ await sendEmail({
   attachments: [
     {
       filename: "invoice.pdf",
-      path: "./invoices/invoice-123.pdf",
+      path: "./invoices/invoice-123.pdf"
     },
     {
       filename: "logo.png",
       content: fs.readFileSync("./assets/logo.png"),
-      contentType: "image/png",
-    },
-  ],
+      contentType: "image/png"
+    }
+  ]
 });
 ```
 
@@ -785,26 +766,22 @@ import { ApiResponse } from "../utils/api-response";
 import { ApiError } from "../utils/error-handler";
 import { STATUS_CODES } from "../constants/status-codes";
 
-export const sendWelcomeEmail = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { email, name } = req.body;
+export const sendWelcomeEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { email, name } = req.body;
 
-    if (!email) {
-      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Email address is required");
-    }
+  if (!email) {
+    throw new ApiError(STATUS_CODES.BAD_REQUEST, "Email address is required");
+  }
 
-    const htmlContent = `
+  const htmlContent = `
       <h1>Welcome ${name || "User"}!</h1>
       <p>Thank you for joining ServerCN.</p>
     `;
 
-    await sendHtmlEmail(email, "Welcome to ServerCN", htmlContent);
+  await sendHtmlEmail(email, "Welcome to ServerCN", htmlContent);
 
-    return res
-      .status(STATUS_CODES.OK)
-      .json(ApiResponse.success(null, "Welcome email sent successfully"));
-  },
-);
+  return res.status(STATUS_CODES.OK).json(ApiResponse.success(null, "Welcome email sent successfully"));
+});
 ```
 
 ### 6. Verify Email Configuration
@@ -824,10 +801,7 @@ if (!isValid) {
 import { sendHtmlEmail } from "../services/email.service";
 
 // Password reset email
-export async function sendPasswordResetEmail(
-  email: string,
-  resetToken: string,
-) {
+export async function sendPasswordResetEmail(email: string, resetToken: string) {
   const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
   const html = `
     <h2>Password Reset Request</h2>
@@ -840,10 +814,7 @@ export async function sendPasswordResetEmail(
 }
 
 // Email verification
-export async function sendVerificationEmail(
-  email: string,
-  verificationToken: string,
-) {
+export async function sendVerificationEmail(email: string, verificationToken: string) {
   const verifyUrl = `https://yourapp.com/verify-email?token=${verificationToken}`;
   const html = `
     <h2>Verify Your Email</h2>
@@ -871,7 +842,7 @@ const template = handlebars.compile(templateSource);
 
 const html = template({
   name: "John Doe",
-  activationLink: "https://yourapp.com/activate",
+  activationLink: "https://yourapp.com/activate"
 });
 
 await sendHtmlEmail("user@example.com", "Welcome!", html);
@@ -889,7 +860,7 @@ try {
   await sendEmail({
     to: "user@example.com",
     subject: "Test",
-    html: "<p>Test email</p>",
+    html: "<p>Test email</p>"
   });
 } catch (error) {
   if (error instanceof ApiError) {

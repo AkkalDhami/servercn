@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -38,7 +37,6 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
                 // 2xx Success
                 OK: 200,
@@ -76,7 +74,6 @@ mvc_structure:
           - type: file
             name: error-handler.ts
             content: |
-
               import { Request, Response, NextFunction } from "express";
               import env from "../configs/env";
 
@@ -98,7 +95,7 @@ mvc_structure:
                 }
 
                 logger.error(
-                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                  <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                   err
                 );
 
@@ -114,7 +111,6 @@ mvc_structure:
           - type: file
             name: verify-auth.ts
             content: |
-
               import { NextFunction, Request, Response } from "express";
               import {
                 generateAccessToken,
@@ -218,14 +214,12 @@ mvc_structure:
                 }
               }
 
-
       - type: folder
         name: models
         children:
           - type: file
             name: user.model.ts
             content: |
-
               import mongoose, { Document, Model, Schema } from "mongoose";
 
               export interface IUser extends Document {
@@ -283,7 +277,6 @@ mvc_structure:
           - type: file
             name: user.routes.ts
             content: |
-
               import { Response, Router } from "express";
               import { verifyAuthentication } from "../middlewares/verify-auth";
               import { UserRequest } from "../types/user";
@@ -307,7 +300,6 @@ mvc_structure:
           - type: file
             name: user.ts
             content: |
-
               import { Request } from "express";
               import mongoose from "mongoose";
 
@@ -323,7 +315,6 @@ mvc_structure:
           - type: file
             name: api-error.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
               export class ApiError extends Error {
@@ -380,77 +371,74 @@ mvc_structure:
           - type: file
             name: api-response.ts
             content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
 
-                import { STATUS_CODES, StatusCode } from "../constants/status-codes";
-                import type { Response } from "express";
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
 
-                type ApiResponseParams<T> = {
-                  success: boolean;
-                  message: string;
-                  statusCode: StatusCode;
-                  data?: T | null;
-                  errors?: unknown;
-                };
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
 
-                export class ApiResponse<T = unknown> {
-                  public readonly success: boolean;
-                  public readonly message: string;
-                  public readonly statusCode: StatusCode;
-                  public readonly data?: T | null;
-                  public readonly errors?: unknown;
-
-                  constructor({
-                    success,
-                    message,
-                    statusCode,
-                    data = null,
-                    errors,
-                  }: ApiResponseParams<T>) {
-                    this.success = success;
-                    this.message = message;
-                    this.statusCode = statusCode;
-                    this.data = data;
-                    this.errors = errors;
-                  }
-
-                  send(res: Response): Response {
-                    return res.status(this.statusCode).json({
-                      success: this.success,
-                      message: this.message,
-                      statusCode: this.statusCode,
-                      ...(this.data !== undefined && { data: this.data }),
-                      ...(this.errors !== undefined && { errors: this.errors }),
-                    });
-                  }
-
-                  static Success<T>(
-                    res: Response,
-                    message: string,
-                    data?: T,
-                    statusCode: StatusCode = STATUS_CODES.OK
-                  ): Response {
-                    return new ApiResponse<T>({
-                      success: true,
-                      message,
-                      data,
-                      statusCode,
-                    }).send(res);
-                  }
-
-                  static ok<T>(res: Response, message = "OK", data?: T) {
-                    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
-                  }
-
-                  static created<T>(res: Response, message = "Created", data?: T) {
-                    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
-                  }
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors,
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
                 }
 
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors }),
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
 
           - type: file
             name: jwt.ts
             content: |
-
               import jwt from "jsonwebtoken";
               import env from "../configs/env";
 
@@ -492,7 +480,6 @@ mvc_structure:
           - type: file
             name: logger.ts
             content: |
-
               import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
@@ -578,7 +565,6 @@ mvc_structure:
   - type: file
     name: .env.example
     content: |
-
       PORT='3000'
       NODE_ENV='development'
       LOG_LEVEL='info'
@@ -598,7 +584,6 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-
                   interface Config {
                     PORT: number;
                     NODE_ENV: string;
@@ -623,7 +608,6 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
                     // 2xx Success
                     OK: 200,
@@ -661,59 +645,58 @@ feature_structure:
               - type: file
                 name: api-error.ts
                 content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
-                    import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
 
-                    export class ApiError extends Error {
-                      public readonly statusCode: StatusCode;
-                      public readonly isOperational: boolean;
-                      public readonly errors?: unknown;
+                    constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                    ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
 
-                      constructor(
-                        statusCode: StatusCode,
-                        message: string,
-                        errors?: unknown,
-                        isOperational = true
-                      ) {
-                        super(message);
-                        this.name = "ApiError";
-                        this.statusCode = statusCode;
-                        this.errors = errors;
-                        this.isOperational = isOperational;
-
-                        Error.captureStackTrace(this, this.constructor);
-                      }
-
-                      static badRequest(message = "Bad Request", errors?: unknown) {
-                        return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
-                      }
-
-                      static unauthorized(message = "Unauthorized") {
-                        return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
-                      }
-
-                      static forbidden(message = "Forbidden") {
-                        return new ApiError(STATUS_CODES.FORBIDDEN, message);
-                      }
-
-                      static notFound(message = "Not Found") {
-                        return new ApiError(STATUS_CODES.NOT_FOUND, message);
-                      }
-
-                      static conflict(message = "Conflict") {
-                        return new ApiError(STATUS_CODES.CONFLICT, message);
-                      }
-
-                      static server(message = "Internal Server Error") {
-                        return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
-                      }
+                      Error.captureStackTrace(this, this.constructor);
                     }
 
-                    /*
-                      ? Usage:
-                      * throw new ApiError(404, "Not found");
-                      * throw ApiError.badRequest("Bad request");
-                    */
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+                  /*
+                    ? Usage:
+                    * throw new ApiError(404, "Not found");
+                    * throw ApiError.badRequest("Bad request");
+                  */
 
           - type: folder
             name: utils
@@ -721,77 +704,74 @@ feature_structure:
               - type: file
                 name: api-response.ts
                 content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
 
-                    import { STATUS_CODES, StatusCode } from "../constants/status-codes";
-                    import type { Response } from "express";
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
 
-                    type ApiResponseParams<T> = {
-                      success: boolean;
-                      message: string;
-                      statusCode: StatusCode;
-                      data?: T | null;
-                      errors?: unknown;
-                    };
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
 
-                    export class ApiResponse<T = unknown> {
-                      public readonly success: boolean;
-                      public readonly message: string;
-                      public readonly statusCode: StatusCode;
-                      public readonly data?: T | null;
-                      public readonly errors?: unknown;
-
-                      constructor({
-                        success,
-                        message,
-                        statusCode,
-                        data = null,
-                        errors,
-                      }: ApiResponseParams<T>) {
-                        this.success = success;
-                        this.message = message;
-                        this.statusCode = statusCode;
-                        this.data = data;
-                        this.errors = errors;
-                      }
-
-                      send(res: Response): Response {
-                        return res.status(this.statusCode).json({
-                          success: this.success,
-                          message: this.message,
-                          statusCode: this.statusCode,
-                          ...(this.data !== undefined && { data: this.data }),
-                          ...(this.errors !== undefined && { errors: this.errors }),
-                        });
-                      }
-
-                      static Success<T>(
-                        res: Response,
-                        message: string,
-                        data?: T,
-                        statusCode: StatusCode = STATUS_CODES.OK
-                      ): Response {
-                        return new ApiResponse<T>({
-                          success: true,
-                          message,
-                          data,
-                          statusCode,
-                        }).send(res);
-                      }
-
-                      static ok<T>(res: Response, message = "OK", data?: T) {
-                        return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
-                      }
-
-                      static created<T>(res: Response, message = "Created", data?: T) {
-                        return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
-                      }
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors,
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
                     }
 
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors }),
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
 
               - type: file
                 name: jwt.ts
                 content: |
-
                   import jwt from "jsonwebtoken";
                   import env from "../configs/env";
 
@@ -833,7 +813,6 @@ feature_structure:
               - type: file
                 name: logger.ts
                 content: |
-
                   import env from "../configs/env";
                   import winston from "winston";
                   import DailyRotateFile from "winston-daily-rotate-file";
@@ -901,7 +880,6 @@ feature_structure:
               - type: file
                 name: error-handler.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
                   import env from "../configs/env";
 
@@ -923,7 +901,7 @@ feature_structure:
                     }
 
                     logger.error(
-                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                      <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                       err
                     );
 
@@ -939,106 +917,104 @@ feature_structure:
               - type: file
                 name: verify-auth.ts
                 content: |
+                  import { NextFunction, Response } from "express";
+                  import {
+                    generateAccessToken,
+                    generateRefreshToken,
+                    verifyAccessToken,
+                    verifyRefreshToken,
+                  } from "../utils/jwt";
+                  import { logger } from "../utils/logger";
+                  import env from "../configs/env";
+                  import { UserRequest } from "../../types/user";
+                  import { ApiError } from "../errors/api-error";
+                  import User from "../../modules/user/user.model";
 
-                    import { NextFunction, Response } from "express";
-                    import {
-                      generateAccessToken,
-                      generateRefreshToken,
-                      verifyAccessToken,
-                      verifyRefreshToken,
-                    } from "../utils/jwt";
-                    import { logger } from "../utils/logger";
-                    import env from "../configs/env";
-                    import { UserRequest } from "../../types/user";
-                    import { ApiError } from "../errors/api-error";
-                    import User from "../../modules/user/user.model";
+                  const isProduction = env.NODE_ENV === "production";
+                  const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
+                  const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
-                    const isProduction = env.NODE_ENV === "production";
-                    const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
-                    const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+                  export const COOKIE_OPTIONS = {
+                    httpOnly: true,
+                    secure: isProduction,
+                    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+                    path: "/",
+                  };
 
-                    export const COOKIE_OPTIONS = {
-                      httpOnly: true,
-                      secure: isProduction,
-                      sameSite: isProduction ? ("none" as const) : ("lax" as const),
-                      path: "/",
-                    };
+                  export async function verifyAuthentication(
+                    req: UserRequest,
+                    res: Response,
+                    next: NextFunction
+                  ): Promise<void> {
+                    const accessToken = req.cookies?.accessToken;
+                    const refreshToken = req.cookies?.refreshToken;
 
-                    export async function verifyAuthentication(
-                      req: UserRequest,
-                      res: Response,
-                      next: NextFunction
-                    ): Promise<void> {
-                      const accessToken = req.cookies?.accessToken;
-                      const refreshToken = req.cookies?.refreshToken;
+                    // Step 1: Try validating access token
 
-                      // Step 1: Try validating access token
-
-                      try {
-                        if (accessToken) {
-                          const decoded = verifyAccessToken(accessToken);
-                          req.user = decoded;
-                          return next();
-                        }
-                      } catch (err) {
-                        // Access token expired or invalid
-                        logger.warn("Access token verification failed");
-                        return next(ApiError.badRequest("Invalid or expired access token"));
-                      }
-
-                      // Step 2: Refresh token required if access token fails
-
-                      if (!refreshToken) {
-                        return next(ApiError.unauthorized("Unauthorized, Please login first."));
-                      }
-
-                      try {
-                        const decodedRefresh = verifyRefreshToken(refreshToken);
-
-                        // Step 3: Ensure user still exists
-
-                        const userInDb = await User.findOne({
-                          _id: decodedRefresh.userId,
-                        });
-
-                        if (!userInDb) {
-                          return next(ApiError.unauthorized("Unauthorized, Please login first."));
-                        }
-
-                        // Step 4: Issue new tokens
-
-                        const newAccessToken = generateAccessToken({
-                          _id: userInDb._id.toString(),
-                        });
-
-                        const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
-
-                        // Step 5: Saved accessToken and refreshToken in cookie
-                        res.cookie("accessToken", newAccessToken, {
-                          ...COOKIE_OPTIONS,
-                          maxAge: ACCESS_TOKEN_EXPIRY,
-                        });
-
-                        res.cookie("refreshToken", newRefreshToken, {
-                          ...COOKIE_OPTIONS,
-                          maxAge: REFRESH_TOKEN_EXPIRY,
-                        });
-
-                        // Step 6: Attach user to request
-
-                        req.user = {
-                          _id: decodedRefresh.userId,
-                        };
-
-                        // you can update the refresh token in the database here if you store it in the database
-
+                    try {
+                      if (accessToken) {
+                        const decoded = verifyAccessToken(accessToken);
+                        req.user = decoded;
                         return next();
-                      } catch (err: any) {
-                        logger.warn("Refresh token verification failed");
-                        return next(ApiError.unauthorized("Unauthorized, Please login first."));
                       }
+                    } catch (err) {
+                      // Access token expired or invalid
+                      logger.warn("Access token verification failed");
+                      return next(ApiError.badRequest("Invalid or expired access token"));
                     }
 
+                    // Step 2: Refresh token required if access token fails
+
+                    if (!refreshToken) {
+                      return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                    }
+
+                    try {
+                      const decodedRefresh = verifyRefreshToken(refreshToken);
+
+                      // Step 3: Ensure user still exists
+
+                      const userInDb = await User.findOne({
+                        _id: decodedRefresh.userId,
+                      });
+
+                      if (!userInDb) {
+                        return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                      }
+
+                      // Step 4: Issue new tokens
+
+                      const newAccessToken = generateAccessToken({
+                        _id: userInDb._id.toString(),
+                      });
+
+                      const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
+
+                      // Step 5: Saved accessToken and refreshToken in cookie
+                      res.cookie("accessToken", newAccessToken, {
+                        ...COOKIE_OPTIONS,
+                        maxAge: ACCESS_TOKEN_EXPIRY,
+                      });
+
+                      res.cookie("refreshToken", newRefreshToken, {
+                        ...COOKIE_OPTIONS,
+                        maxAge: REFRESH_TOKEN_EXPIRY,
+                      });
+
+                      // Step 6: Attach user to request
+
+                      req.user = {
+                        _id: decodedRefresh.userId,
+                      };
+
+                      // you can update the refresh token in the database here if you store it in the database
+
+                      return next();
+                    } catch (err: any) {
+                      logger.warn("Refresh token verification failed");
+                      return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                    }
+                  }
 
       - type: folder
         name: modules
@@ -1049,7 +1025,6 @@ feature_structure:
               - type: file
                 name: user.routes.ts
                 content: |
-
                   import { Response, Router } from "express";
                   import { UserRequest } from "../../types/user";
                   import { ApiResponse } from "../../shared/utils/api-response";
@@ -1070,58 +1045,56 @@ feature_structure:
               - type: file
                 name: user.model.ts
                 content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
 
-                    import mongoose, { Document, Model, Schema } from "mongoose";
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
 
-                    export interface IUser extends Document {
-                      _id: mongoose.Types.ObjectId;
-                      name: string;
-                      email: string;
-                      password: string;
-                      role: "user" | "admin";
-                      isEmailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
 
-                      createdAt: Date;
-                      updatedAt: Date;
-                    }
-
-                    const userSchema = new Schema<IUser>(
-                      {
-                        name: {
-                          type: String,
-                          required: [true, "Name is required"],
-                          trim: true,
-                        },
-                        email: {
-                          type: String,
-                          required: [true, "Email is required"],
-                          unique: true,
-                          lowercase: true,
-                          trim: true,
-                        },
-                        password: {
-                          type: String,
-                          select: false,
-                          default: null,
-                        },
-                        role: {
-                          type: String,
-                          enum: ["user", "admin"],
-                          default: "user",
-                        },
-                        isEmailVerified: {
-                          type: Boolean,
-                          default: false,
-                        },
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true,
                       },
-                      {
-                        timestamps: true,
-                      }
-                    );
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true,
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null,
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user",
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false,
+                      },
+                    },
+                    {
+                      timestamps: true,
+                    }
+                  );
 
-                    const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
-                    export default User;
-
+                  const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+                  export default User;
 
       - type: folder
         name: routes
@@ -1161,7 +1134,6 @@ feature_structure:
       - type: file
         name: .env.example
         content: |
-
           PORT='3000'
           NODE_ENV='development'
           LOG_LEVEL='info'
@@ -1171,7 +1143,7 @@ feature_structure:
 
 # Verify Authentication Middleware
 
-The **Verify Authentication Middleware** protects private routes by validating user authentication using **JWT access tokens and refresh tokens**.
+The <Code children='Verify Authentication Middleware' /> protects private routes by validating user authentication using **JWT access tokens and refresh tokens**.
 
 It automatically:
 
@@ -1186,7 +1158,7 @@ This middleware is designed for **secure, session-like authentication** in REST 
 
 The middleware follows this sequence:
 
-1. Read `accessToken` and `refreshToken` from cookies
+1. Read <Code children='accessToken' /> and <Code children='refreshToken' /> from cookies
 2. If access token is valid → allow request
 3. If access token is expired:
    - Verify refresh token
@@ -1206,31 +1178,31 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-<PackageManagerTabs command="npx servercn add http-status-codes" />
+  <PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-<PackageManagerTabs command="npx servercn add response-formatter" />
+  <PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-<PackageManagerTabs command="npx servercn add error-handler" />
+  <PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **JWT Authentication:**
-<PackageManagerTabs command="npx servercn add jwt-auth" />
+  <PackageManagerTabs command="npx servercn add jwt-utils" />
 
 Documentation:
 [JWT Authentication](/docs/components/jwt-auth)
 
 - **Logger:**
-<PackageManagerTabs command="npx servercn add logger" />
+  <PackageManagerTabs command="npx servercn add logger" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -1255,7 +1227,7 @@ JWT_REFRESH_SECRET = "your-refresh-secret";
 
 Ensure the following configuration are defined:
 
-`src/configs/env.ts`
+<Code children="src/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -1271,7 +1243,7 @@ const env: Config = {
   NODE_ENV: process.env.NODE_ENV || "development",
   LOG_LEVEL: process.env.LOG_LEVEL || "info",
   JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!
 };
 
 export default env;
@@ -1279,7 +1251,7 @@ export default env;
 
 To ensure the authentication middleware functions correctly, your project must define a User model with a structure similar to the following.
 
-`src/models/user.model.ts`
+<Code children="src/models/user.model.ts" />
 
 ```ts
 import mongoose, { Document, Model, Schema } from "mongoose";
@@ -1301,33 +1273,33 @@ const userSchema = new Schema<IUser>(
     name: {
       type: String,
       required: [true, "Name is required"],
-      trim: true,
+      trim: true
     },
     email: {
       type: String,
       required: [true, "Email is required"],
       unique: true,
       lowercase: true,
-      trim: true,
+      trim: true
     },
     password: {
       type: String,
       select: false,
-      default: null,
+      default: null
     },
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user",
+      default: "user"
     },
     isEmailVerified: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   {
-    timestamps: true,
-  },
+    timestamps: true
+  }
 );
 
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
@@ -1336,7 +1308,7 @@ export default User;
 
 To access authenticated user data inside request handlers, define a custom request type.
 
-`src/types/user.ts`
+<Code children="src/types/user.ts" />
 
 ```ts
 import { Request } from "express";
@@ -1353,16 +1325,11 @@ export interface UserRequest extends Request {
 
 ### 1. MVC Structure
 
-`src/middlewares/verify-auth.ts`
+<Code children="src/middlewares/verify-auth.ts" />
 
 ```ts
 import { NextFunction, Request, Response } from "express";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-} from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { UserRequest } from "../types/user";
 import { ApiError } from "../utils/api-error";
 import { logger } from "../utils/logger";
@@ -1377,14 +1344,10 @@ export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
   sameSite: isProduction ? ("none" as const) : ("lax" as const),
-  path: "/",
+  path: "/"
 };
 
-export async function verifyAuthentication(
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -1414,7 +1377,7 @@ export async function verifyAuthentication(
     // Step 3: Ensure user still exists
 
     const userInDb = await User.findOne({
-      _id: decodedRefresh.userId,
+      _id: decodedRefresh.userId
     });
 
     if (!userInDb) {
@@ -1424,7 +1387,7 @@ export async function verifyAuthentication(
     // Step 4: Issue new tokens
 
     const newAccessToken = generateAccessToken({
-      _id: userInDb._id.toString(),
+      _id: userInDb._id.toString()
     });
 
     const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
@@ -1432,18 +1395,18 @@ export async function verifyAuthentication(
     // Step 5: Saved accessToken and refreshToken in cookie
     res.cookie("accessToken", newAccessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: ACCESS_TOKEN_EXPIRY,
+      maxAge: ACCESS_TOKEN_EXPIRY
     });
 
     res.cookie("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY,
+      maxAge: REFRESH_TOKEN_EXPIRY
     });
 
     // Step 6: Attach user to request
 
     req.user = {
-      _id: decodedRefresh.userId,
+      _id: decodedRefresh.userId
     };
 
     // you can update the refresh token in the database here if you store it in the database
@@ -1458,15 +1421,10 @@ export async function verifyAuthentication(
 
 ### 2. Feature Structure
 
-`src/shared/middlewares/verify-auth.ts`
+<Code children="src/shared/middlewares/verify-auth.ts" />
 
 ```ts
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-} from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { logger } from "../utils/logger";
 import env from "../configs/env";
 import { UserRequest } from "../../types/user";
@@ -1482,14 +1440,10 @@ export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
   sameSite: isProduction ? ("none" as const) : ("lax" as const),
-  path: "/",
+  path: "/"
 };
 
-export async function verifyAuthentication(
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -1519,7 +1473,7 @@ export async function verifyAuthentication(
     // Step 3: Ensure user still exists
 
     const userInDb = await User.findOne({
-      _id: decodedRefresh.userId,
+      _id: decodedRefresh.userId
     });
 
     if (!userInDb) {
@@ -1529,7 +1483,7 @@ export async function verifyAuthentication(
     // Step 4: Issue new tokens
 
     const newAccessToken = generateAccessToken({
-      _id: userInDb._id.toString(),
+      _id: userInDb._id.toString()
     });
 
     const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
@@ -1537,18 +1491,18 @@ export async function verifyAuthentication(
     // Step 5: Saved accessToken and refreshToken in cookie
     res.cookie("accessToken", newAccessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: ACCESS_TOKEN_EXPIRY,
+      maxAge: ACCESS_TOKEN_EXPIRY
     });
 
     res.cookie("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY,
+      maxAge: REFRESH_TOKEN_EXPIRY
     });
 
     // Step 6: Attach user to request
 
     req.user = {
-      _id: decodedRefresh.userId,
+      _id: decodedRefresh.userId
     };
 
     // you can update the refresh token in the database here if you store it in the database
@@ -1563,7 +1517,7 @@ export async function verifyAuthentication(
 
 ## Usage Example
 
-`src/routes/user.routes.ts`
+<Code children="src/routes/user.routes.ts" />
 
 ```ts
 import { Router } from "express";

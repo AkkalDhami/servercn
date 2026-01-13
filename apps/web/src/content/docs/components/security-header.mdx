@@ -1,0 +1,194 @@
+---
+title: Security Headers
+description: A standardized, production-ready security header configuration for Express applications using Helmet and CORS.
+command: npx servercn add security-header
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: security-header.ts
+            content: |
+              import cors from "cors";
+              import { Express } from "express";
+              import helmet from "helmet";
+
+              export const configureSecurityHeaders = (app: Express) => {
+                // Use Helmet to set various security-related HTTP headers
+                app.use(helmet());
+
+                // Configure CORS
+                app.use(
+                  cors({
+                    origin: process.env.CORS_ORIGIN || "*",
+                    credentials: true,
+                    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+                    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+                  })
+                );
+
+                // Additional custom security headers
+                app.use((req, res, next) => {
+                  res.setHeader("X-Content-Type-Options", "nosniff");
+                  res.setHeader("X-Frame-Options", "DENY");
+                  res.setHeader("X-XSS-Protection", "1; mode=block");
+                  next();
+                });
+              };
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: security-header.ts
+                content: |
+                  import cors from "cors";
+                  import { Express } from "express";
+                  import helmet from "helmet";
+
+                  export const configureSecurityHeaders = (app: Express) => {
+                    // Use Helmet to set various security-related HTTP headers
+                    app.use(helmet());
+
+                    // Configure CORS
+                    app.use(
+                      cors({
+                        origin: process.env.CORS_ORIGIN || "*",
+                        credentials: true,
+                        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+                        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+                      })
+                    );
+
+                    // Additional custom security headers
+                    app.use((req, res, next) => {
+                      res.setHeader("X-Content-Type-Options", "nosniff");
+                      res.setHeader("X-Frame-Options", "DENY");
+                      res.setHeader("X-XSS-Protection", "1; mode=block");
+                      next();
+                    });
+                  };
+---
+
+# Security Headers
+
+**Security Headers** provides a unified configuration for protecting your Express applications from common web vulnerabilities like Cross-Site Scripting (XSS), Clickjacking, and Cross-Origin Resource Sharing (CORS) issues.
+
+It leverages industry-standard tools:
+
+- **Helmet**: A collection of 15 smaller middleware functions that set security-related HTTP headers.
+- **CORS**: Middleware to enable Cross-Origin Resource Sharing with various options.
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add security-header" />
+
+## What This Component Solves
+
+Manually configuring security headers can be error-prone and tedious. This component standardizes:
+
+- **XSS Protection**: Prevents browsers from loading scripts that appear to be XSS attacks.
+- **Clickjacking Protection**: Prevents your site from being embedded in an iframe.
+- **Content Type Sniffing**: Prevents browsers from trying to guess the content type.
+- **CORS Policy**: Configures which domains can access your API.
+
+## Implementation
+
+### 1. Middleware Configuration
+
+The component provides a <Code children="configureSecurityHeaders" /> function that you should call during your Express app initialization.
+
+#### MVC Structure
+
+<Code children="src/middlewares/security-header.ts" />
+
+```ts
+import cors from "cors";
+import { Express } from "express";
+import helmet from "helmet";
+
+export const configureSecurityHeaders = (app: Express) => {
+  app.use(helmet());
+
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || "*",
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+    })
+  );
+
+  app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    next();
+  });
+};
+```
+
+### 2. Usage in App
+
+Import and use the configuration in your main <Code children="app.ts" /> file.
+
+```ts
+import express from "express";
+import { configureSecurityHeaders } from "./middlewares/security-header";
+
+const app = express();
+
+// Apply security headers before other middlewares and routes
+configureSecurityHeaders(app);
+
+app.use(express.json());
+// ... rest of your app
+```
+
+## Best Practices
+
+### CORS Configuration
+
+In production, always replace <Code children="*" /> with your actual frontend domain to prevent unauthorized access.
+
+```ts
+cors({
+  origin: "https://your-frontend-domain.com"
+  // ...
+});
+```
+
+### Content Security Policy (CSP)
+
+By default, Helmet sets a basic CSP. If you need to load resources from external domains (like Google Fonts or Cloudinary), you should customize the Helmet configuration:
+
+```ts
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "trusted-scripts.com"],
+        imgSrc: ["'self'", "res.cloudinary.com"]
+      }
+    }
+  })
+);
+```
+
+### Verification
+
+You can verify your security headers using online tools like [SecurityHeaders.com](https://securityheaders.com/).

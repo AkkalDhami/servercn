@@ -13,34 +13,33 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -51,7 +50,6 @@ mvc_structure:
           - type: file
             name: api-error.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
               export class ApiError extends Error {
@@ -118,7 +116,6 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
                   // 2xx Success
                   OK: 200,
@@ -155,7 +152,6 @@ feature_structure:
               - type: file
                 name: api-error.ts
                 content: |
-
                   import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
                   export class ApiError extends Error {
@@ -250,7 +246,7 @@ Documentation:
 
 ### 1. MVC Structure
 
-`src/utils/api-error.ts`
+<Code children="src/utils/api-error.ts" />
 
 ```ts
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
@@ -260,12 +256,7 @@ export class ApiError extends Error {
   public readonly isOperational: boolean;
   public readonly errors?: unknown;
 
-  constructor(
-    statusCode: StatusCode,
-    message: string,
-    errors?: unknown,
-    isOperational = true,
-  ) {
+  constructor(statusCode: StatusCode, message: string, errors?: unknown, isOperational = true) {
     super(message);
     this.name = "ApiError";
     this.statusCode = statusCode;
@@ -329,7 +320,7 @@ export class ApiError extends Error {
 
 ### 2. Feature Structure
 
-`src/shared/errors/api-error.ts`
+<Code children="src/shared/errors/api-error.ts" />
 
 ```ts
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
@@ -339,12 +330,7 @@ export class ApiError extends Error {
   public readonly isOperational: boolean;
   public readonly errors?: unknown;
 
-  constructor(
-    statusCode: StatusCode,
-    message: string,
-    errors?: unknown,
-    isOperational = true,
-  ) {
+  constructor(statusCode: StatusCode, message: string, errors?: unknown, isOperational = true) {
     super(message);
     this.name = "ApiError";
     this.statusCode = statusCode;

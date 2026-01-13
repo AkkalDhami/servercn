@@ -14,7 +14,6 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
@@ -35,7 +34,6 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
               // 2xx Success
               OK: 200,
@@ -73,7 +71,6 @@ mvc_structure:
           - type: file
             name: error-handler.ts
             content: |
-
               import { Request, Response, NextFunction } from "express";
               import env from "../configs/env";
 
@@ -95,7 +92,7 @@ mvc_structure:
                 }
 
                 logger.error(
-                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                  <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                   err
                 );
 
@@ -110,7 +107,6 @@ mvc_structure:
           - type: file
             name: not-found-handler.ts
             content: |
-
               import { Request, Response, NextFunction } from "express";
               import { ApiError } from "../utils/api-error";
 
@@ -119,7 +115,7 @@ mvc_structure:
                 res: Response,
                 next: NextFunction
               ) => {
-                throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                throw ApiError.notFound(<Code children="Route ${req.method} ${req.originalUrl} not found" />);
               };
 
       - type: folder
@@ -128,7 +124,6 @@ mvc_structure:
           - type: file
             name: api-error.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
               export class ApiError extends Error {
@@ -184,7 +179,6 @@ mvc_structure:
           - type: file
             name: logger.ts
             content: |
-
               import env from "../configs/env";
               import winston from "winston";
               import DailyRotateFile from "winston-daily-rotate-file";
@@ -291,7 +285,6 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-
                   interface Config {
                     PORT: number;
                     NODE_ENV: string;
@@ -312,7 +305,6 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
                   // 2xx Success
                   OK: 200,
@@ -350,7 +342,6 @@ feature_structure:
               - type: file
                 name: api-error.ts
                 content: |
-
                   import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
                   export class ApiError extends Error {
@@ -410,7 +401,6 @@ feature_structure:
               - type: file
                 name: logger.ts
                 content: |
-
                   import env from "../configs/env";
                   import winston from "winston";
                   import DailyRotateFile from "winston-daily-rotate-file";
@@ -478,7 +468,6 @@ feature_structure:
               - type: file
                 name: error-handler.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
                   import env from "../configs/env";
 
@@ -500,7 +489,7 @@ feature_structure:
                     }
 
                     logger.error(
-                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
+                      <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
                       err
                     );
 
@@ -516,7 +505,6 @@ feature_structure:
               - type: file
                 name: not-found-handler.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
                   import { ApiError } from "../errors/api-error";
 
@@ -525,7 +513,7 @@ feature_structure:
                     res: Response,
                     next: NextFunction
                   ) => {
-                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                    throw ApiError.notFound(<Code children="Route ${req.method} ${req.originalUrl} not found" />);
                   };
 
       - type: file
@@ -550,7 +538,7 @@ feature_structure:
           app.use(errorHandler);
 
           export default app;
-  
+
   - type: file
     name: .env.example
     content: |
@@ -601,34 +589,26 @@ The Not Found Handler is a middleware that catches all unmatched routes and thro
 
 ### 1. MVC Structure
 
-`src/middlewares/not-found-handler.ts`
+<Code children="src/middlewares/not-found-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/api-error";
 
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
 };
 ```
 
 ### 2. Feature Structure
 
-`src/shared/middlewares/not-found-handler.ts`
+<Code children="src/shared/middlewares/not-found-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../errors/api-error";
 
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
 };
 ```
@@ -639,7 +619,7 @@ The Not Found Handler must be placed **after all routes** but **before the error
 
 ### 1. MVC Structure
 
-`src/app.ts`
+<Code children="src/app.ts" />
 
 ```ts
 import express, { type Application } from "express";
@@ -665,7 +645,7 @@ export default app;
 
 ### 2. Feature Structure
 
-`src/app.ts`
+<Code children="src/app.ts" />
 
 ```ts
 import express, { type Application } from "express";
@@ -701,19 +681,19 @@ When a route is not found, the handler returns a standardized 404 response:
 }
 ```
 
-The exact format depends on your `ApiError` and `ApiResponse` configuration.
+The exact format depends on your <Code children='ApiError' /> and <Code children='ApiResponse' /> configuration.
 
 ## How It Works
 
 1. **Route Matching**: Express processes routes in the order they are defined
 2. **Catch-All**: The Not Found Handler is placed after all defined routes
 3. **Error Throwing**: When a request doesn't match any route, it reaches the Not Found Handler
-4. **Error Propagation**: The handler throws an `ApiError` with a 404 status code
+4. **Error Propagation**: The handler throws an <Code children='ApiError' /> with a 404 status code
 5. **Error Handling**: The global error handler catches the error and returns a standardized response
 
 ## Best Practices
 
-- Use `ApiError.notFound()` for consistency
+- Use <Code children="ApiError.notFound()" /> for consistency
 - Always place the Not Found Handler **after** all route definitions
 - Always place the Not Found Handler **before** the global error handler
 - The handler will catch all HTTP methods (GET, POST, PUT, DELETE, etc.)

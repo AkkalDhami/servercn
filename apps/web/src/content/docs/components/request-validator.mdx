@@ -13,7 +13,6 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
                 // 2xx Success
                 OK: 200,
@@ -51,31 +50,29 @@ mvc_structure:
           - type: file
             name: validate-request.ts
             content: |
+              import { Request, Response, NextFunction } from "express";
+              import z, { ZodError, type ZodObject } from "zod";
 
-                import { Request, Response, NextFunction } from "express";
-                import z, { ZodError, type ZodObject } from "zod";
+              import { ApiError } from "../utils/api-error";
 
-                import { ApiError } from "../utils/api-error";
+              export const validateRequest = (schema: ZodObject<any>) => {
+                return (req: Request, res: Response, next: NextFunction) => {
+                  try {
+                    schema.parse(req.body);
 
-                export const validateRequest = (schema: ZodObject<any>) => {
-                  return (req: Request, res: Response, next: NextFunction) => {
-                    try {
-                      schema.parse(req.body);
-
-                      next();
-                    } catch (error) {
-                      if (!(error instanceof ZodError)) {
-                        return next(error);
-                      }
-
-                      throw ApiError.badRequest(
-                        "Invalid request data",
-                        z.flattenError(error).fieldErrors || z.flattenError(error)
-                      );
+                    next();
+                  } catch (error) {
+                    if (!(error instanceof ZodError)) {
+                      return next(error);
                     }
-                  };
-                };
 
+                    throw ApiError.badRequest(
+                      "Invalid request data",
+                      z.flattenError(error).fieldErrors || z.flattenError(error)
+                    );
+                  }
+                };
+              };
 
       - type: folder
         name: utils
@@ -83,7 +80,6 @@ mvc_structure:
           - type: file
             name: api-error.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
               export class ApiError extends Error {
@@ -143,7 +139,6 @@ mvc_structure:
           - type: file
             name: user.validation.ts
             content: |
-
               import { z } from "zod";
 
               export const createUserSchema = z.object({
@@ -159,24 +154,22 @@ mvc_structure:
           - type: file
             name: user.routes.ts
             content: |
+              import { Router } from "express";
+              import { validateRequest } from "../middlewares/validate-request";
+              import { createUserSchema } from "../validations/user.validation";
+              import { STATUS_CODES } from "../constants/status-codes";
 
-                import { Router } from "express";
-                import { validateRequest } from "../middlewares/validate-request";
-                import { createUserSchema } from "../validations/user.validation";
-                import { STATUS_CODES } from "../constants/status-codes";
+              const router = Router();
 
-                const router = Router();
-
-                router.post("/", validateRequest(createUserSchema), (req, res) => {
-                  return res.status(STATUS_CODES.CREATED).json({
-                    success: true,
-                    message: "User created successfully",
-                    data: req.body,
-                  });
+              router.post("/", validateRequest(createUserSchema), (req, res) => {
+                return res.status(STATUS_CODES.CREATED).json({
+                  success: true,
+                  message: "User created successfully",
+                  data: req.body,
                 });
+              });
 
-                export default router;
-
+              export default router;
 
       - type: file
         name: app.ts
@@ -206,7 +199,6 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
                     // 2xx Success
                     OK: 200,
@@ -244,7 +236,6 @@ feature_structure:
               - type: file
                 name: api-error.ts
                 content: |
-
                   import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
                   export class ApiError extends Error {
@@ -304,7 +295,6 @@ feature_structure:
               - type: file
                 name: validate-request.ts
                 content: |
-
                   import { Request, Response, NextFunction } from "express";
                   import z, { ZodError, type ZodObject } from "zod";
 
@@ -338,7 +328,6 @@ feature_structure:
               - type: file
                 name: user.validation.ts
                 content: |
-
                   import { z } from "zod";
 
                   export const createUserSchema = z.object({
@@ -351,7 +340,6 @@ feature_structure:
               - type: file
                 name: user.routes.ts
                 content: |
-
                   import { Router } from "express";
                   import { validateRequest } from "../../shared/middlewares/validate-request";
                   import { createUserSchema } from "./user.validation";
@@ -445,7 +433,7 @@ Documentation: [API Error Handler](/docs/components/error-handler)
 The Request Validator middleware follows this sequence:
 
 1. **Schema Definition**: Define Zod schemas for body, query, or params
-2. **Middleware Application**: Apply `validateRequest` middleware to routes
+2. **Middleware Application**: Apply <Code children="validateRequest" /> middleware to routes
 3. **Validation**: Middleware validates incoming request data against schemas
 4. **Error Handling**: If validation fails, returns detailed error messages
 5. **Type Safety**: Validated data is typed and attached to the request object
@@ -456,7 +444,7 @@ This ensures **type-safe request handling** with clear validation error messages
 
 ### 1. MVC Structure
 
-`src/middlewares/validate-request.ts`
+<Code children="src/middlewares/validate-request.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -475,10 +463,7 @@ export const validateRequest = (schema: ZodObject<any>) => {
         return next(error);
       }
 
-      throw ApiError.badRequest(
-        "Invalid request data",
-        z.flattenError(error).fieldErrors || z.flattenError(error),
-      );
+      throw ApiError.badRequest("Invalid request data", z.flattenError(error).fieldErrors || z.flattenError(error));
     }
   };
 };
@@ -486,7 +471,7 @@ export const validateRequest = (schema: ZodObject<any>) => {
 
 ### 2. Feature Structure
 
-`src/shared/middlewares/validate-request.ts`
+<Code children="src/shared/middlewares/validate-request.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -505,10 +490,7 @@ export const validateRequest = (schema: ZodObject<any>) => {
         return next(error);
       }
 
-      throw ApiError.badRequest(
-        "Invalid request data",
-        z.flattenError(error).fieldErrors || z.flattenError(error),
-      );
+      throw ApiError.badRequest("Invalid request data", z.flattenError(error).fieldErrors || z.flattenError(error));
     }
   };
 };
@@ -520,7 +502,7 @@ Create validation schemas using Zod.
 
 ### 1. MVC Structure
 
-`src/validations/user.validation.ts`
+<Code children="src/validations/user.validation.ts" />
 
 ```ts
 import z from "zod";
@@ -529,13 +511,13 @@ export const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  age: z.number().int().min(18).max(100).optional(),
+  age: z.number().int().min(18).max(100).optional()
 });
 ```
 
 ### 2. Feature Structure
 
-`src/modules/user/user.validation.ts`
+<Code children="src/modules/user/user.validation.ts" />
 
 ```ts
 import z from "zod";
@@ -544,17 +526,17 @@ export const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  age: z.number().int().min(18).max(100).optional(),
+  age: z.number().int().min(18).max(100).optional()
 });
 ```
 
 ## Usage Example
 
-Apply the `validateRequest` middleware to your routes with the appropriate schema.
+Apply the <Code children="validateRequest" /> middleware to your routes with the appropriate schema.
 
 ### 1. MVC Structure
 
-`src/routes/user.routes.ts`
+<Code children="src/routes/user.routes.ts" />
 
 ```ts
 import { Router } from "express";
@@ -572,7 +554,7 @@ export default router;
 
 ### 2. Feature Structure
 
-`src/modules/user/user.routes.ts`
+<Code children="src/modules/user/user.routes.ts" />
 
 ```ts
 import { Router } from "express";
@@ -605,7 +587,7 @@ When validation fails, the handler returns a standardized 400 Bad Request respon
 }
 ```
 
-(The exact structure depends on your `ApiError` implementation.)
+(The exact structure depends on your <Code children='ApiError' /> implementation.)
 
 ## Best Practices
 

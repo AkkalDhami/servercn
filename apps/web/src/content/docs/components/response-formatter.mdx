@@ -12,34 +12,33 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -50,7 +49,6 @@ mvc_structure:
           - type: file
             name: api-response.ts
             content: |
-
               import { STATUS_CODES, StatusCode } from "../constants/status-codes";
               import type { Response } from "express";
 
@@ -129,34 +127,33 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
-                  // 2xx Success
-                  OK: 200,
-                  CREATED: 201,
-                  ACCEPTED: 202,
-                  NO_CONTENT: 204,
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
 
-                  // 3xx Redirection
-                  MOVED_PERMANENTLY: 301,
-                  FOUND: 302,
-                  NOT_MODIFIED: 304,
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
 
-                  // 4xx Client Errors
-                  BAD_REQUEST: 400,
-                  UNAUTHORIZED: 401,
-                  FORBIDDEN: 403,
-                  NOT_FOUND: 404,
-                  CONFLICT: 409,
-                  UNPROCESSABLE_ENTITY: 422,
-                  TOO_MANY_REQUESTS: 429,
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
 
-                  // 5xx Server Errors
-                  INTERNAL_SERVER_ERROR: 500,
-                  NOT_IMPLEMENTED: 501,
-                  BAD_GATEWAY: 502,
-                  SERVICE_UNAVAILABLE: 503,
-                  GATEWAY_TIMEOUT: 504,
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504
                   } as const;
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -166,7 +163,6 @@ feature_structure:
               - type: file
                 name: api-response.ts
                 content: |
-
                   import { STATUS_CODES, StatusCode } from "../constants/status-codes";
                   import type { Response } from "express";
 
@@ -241,7 +237,7 @@ feature_structure:
 
 # API Response Handling
 
-The **API Response** component provides a **consistent, predictable, and type-safe response structure** for Express-based APIs.
+The <Code>API Response Formatter</Code> component provides a **consistent, predictable, and type-safe response structure** for Express-based APIs.
 
 It enforces a unified response contract across your entire backend, improving:
 
@@ -290,7 +286,7 @@ res.status(400).json({ error: "Invalid input" });
 
 ### 1. MVC Structure
 
-`src/utils/api-response.ts`
+<Code children="src/utils/api-response.ts" />
 
 ```ts
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
@@ -311,13 +307,7 @@ export class ApiResponse<T = unknown> {
   public readonly data?: T | null;
   public readonly errors?: unknown;
 
-  constructor({
-    success,
-    message,
-    statusCode,
-    data = null,
-    errors,
-  }: ApiResponseParams<T>) {
+  constructor({ success, message, statusCode, data = null, errors }: ApiResponseParams<T>) {
     this.success = success;
     this.message = message;
     this.statusCode = statusCode;
@@ -331,21 +321,16 @@ export class ApiResponse<T = unknown> {
       message: this.message,
       statusCode: this.statusCode,
       ...(this.data !== undefined && { data: this.data }),
-      ...(this.errors !== undefined && { errors: this.errors }),
+      ...(this.errors !== undefined && { errors: this.errors })
     });
   }
 
-  static Success<T>(
-    res: Response,
-    message: string,
-    data?: T,
-    statusCode: StatusCode = STATUS_CODES.OK,
-  ): Response {
+  static Success<T>(res: Response, message: string, data?: T, statusCode: StatusCode = STATUS_CODES.OK): Response {
     return new ApiResponse<T>({
       success: true,
       message,
       data,
-      statusCode,
+      statusCode
     }).send(res);
   }
 
@@ -367,7 +352,7 @@ export class ApiResponse<T = unknown> {
 
 ### 2. Feature Structure
 
-`src/shared/utils/api-response.ts`
+<Code children="src/shared/utils/api-response.ts" />
 
 ```ts
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
@@ -388,13 +373,7 @@ export class ApiResponse<T = unknown> {
   public readonly data?: T | null;
   public readonly errors?: unknown;
 
-  constructor({
-    success,
-    message,
-    statusCode,
-    data = null,
-    errors,
-  }: ApiResponseParams<T>) {
+  constructor({ success, message, statusCode, data = null, errors }: ApiResponseParams<T>) {
     this.success = success;
     this.message = message;
     this.statusCode = statusCode;
@@ -408,21 +387,16 @@ export class ApiResponse<T = unknown> {
       message: this.message,
       statusCode: this.statusCode,
       ...(this.data !== undefined && { data: this.data }),
-      ...(this.errors !== undefined && { errors: this.errors }),
+      ...(this.errors !== undefined && { errors: this.errors })
     });
   }
 
-  static Success<T>(
-    res: Response,
-    message: string,
-    data?: T,
-    statusCode: StatusCode = STATUS_CODES.OK,
-  ): Response {
+  static Success<T>(res: Response, message: string, data?: T, statusCode: StatusCode = STATUS_CODES.OK): Response {
     return new ApiResponse<T>({
       success: true,
       message,
       data,
-      statusCode,
+      statusCode
     }).send(res);
   }
 

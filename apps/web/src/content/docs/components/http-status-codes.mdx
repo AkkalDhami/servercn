@@ -13,34 +13,33 @@ mvc_structure:
           - type: file
             name: status-codes.ts
             content: |
-
               export const STATUS_CODES = {
-              // 2xx Success
-              OK: 200,
-              CREATED: 201,
-              ACCEPTED: 202,
-              NO_CONTENT: 204,
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-              // 3xx Redirection
-              MOVED_PERMANENTLY: 301,
-              FOUND: 302,
-              NOT_MODIFIED: 304,
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              // 4xx Client Errors
-              BAD_REQUEST: 400,
-              UNAUTHORIZED: 401,
-              FORBIDDEN: 403,
-              NOT_FOUND: 404,
-              CONFLICT: 409,
-              UNPROCESSABLE_ENTITY: 422,
-              TOO_MANY_REQUESTS: 429,
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              // 5xx Server Errors
-              INTERNAL_SERVER_ERROR: 500,
-              NOT_IMPLEMENTED: 501,
-              BAD_GATEWAY: 502,
-              SERVICE_UNAVAILABLE: 503,
-              GATEWAY_TIMEOUT: 504,
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -58,34 +57,33 @@ feature_structure:
               - type: file
                 name: status-codes.ts
                 content: |
-
                   export const STATUS_CODES = {
-                  // 2xx Success
-                  OK: 200,
-                  CREATED: 201,
-                  ACCEPTED: 202,
-                  NO_CONTENT: 204,
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
 
-                  // 3xx Redirection
-                  MOVED_PERMANENTLY: 301,
-                  FOUND: 302,
-                  NOT_MODIFIED: 304,
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
 
-                  // 4xx Client Errors
-                  BAD_REQUEST: 400,
-                  UNAUTHORIZED: 401,
-                  FORBIDDEN: 403,
-                  NOT_FOUND: 404,
-                  CONFLICT: 409,
-                  UNPROCESSABLE_ENTITY: 422,
-                  TOO_MANY_REQUESTS: 429,
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
 
-                  // 5xx Server Errors
-                  INTERNAL_SERVER_ERROR: 500,
-                  NOT_IMPLEMENTED: 501,
-                  BAD_GATEWAY: 502,
-                  SERVICE_UNAVAILABLE: 503,
-                  GATEWAY_TIMEOUT: 504,
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
                   } as const;
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
@@ -95,7 +93,7 @@ feature_structure:
 
 The **HTTP Status Codes** component provides a **centralized and type-safe** way to reference HTTP status codes across your backend.
 
-Rather than relying on hard-coded numeric values such as `200`, `404`, or `500`, this component exposes a consistent, strongly typed API that improves clarity and reduces errors across the codebase.
+Rather than relying on hard-coded numeric values such as <Code children="200" />, <Code children="404" />, or <Code children="500" />, this component exposes a consistent, strongly typed API that improves clarity and reduces errors across the codebase.
 
 **Key benefits include**:
 
@@ -139,7 +137,8 @@ The **HTTP Status Codes** component solves this by providing a clear, standardiz
 ## Basic Implementation
 
 ### 1. MVC Structure
-`src/constants/status-codes.ts`
+
+<Code children="src/constants/status-codes.ts" />
 
 ```ts
 export const STATUS_CODES = {
@@ -168,14 +167,15 @@ export const STATUS_CODES = {
   NOT_IMPLEMENTED: 501,
   BAD_GATEWAY: 502,
   SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504,
+  GATEWAY_TIMEOUT: 504
 } as const;
 
 export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
 ```
 
 ### 2. Feature Structure
-`src/shared/constants/status-codes.ts`
+
+<Code children="src/shared/constants/status-codes.ts" />
 
 ```ts
 export const STATUS_CODES = {
@@ -204,7 +204,7 @@ export const STATUS_CODES = {
   NOT_IMPLEMENTED: 501,
   BAD_GATEWAY: 502,
   SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504,
+  GATEWAY_TIMEOUT: 504
 } as const;
 
 export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];

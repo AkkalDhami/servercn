@@ -1,0 +1,212 @@
+---
+title: Mongoose Starter | Foundation
+description: The Mongoose Starter Foundation is the core starting block for MongoDB applications provided by servercn.
+command: npx servercn init mongoose-starter
+---
+
+# Mongoose Starter
+
+The **Mongoose Starter** is a database foundation provided by **servercn** for projects that use **MongoDB with Mongoose ODM**. When you run:
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn init mongoose-starter" />
+
+you get a **production‑ready MongoDB + Mongoose setup** that integrates cleanly with the Express Server Foundation.
+
+This starter focuses on **schema-based modeling, powerful validation, and developer productivity**, providing a structured way to interact with MongoDB.
+
+[Official Docs](https://mongoosejs.com/docs/guide.html)
+
+## What This Starter Solves
+
+Setting up Mongoose with MongoDB repeatedly involves:
+
+- Database connection reliability
+- Schema & Model organization
+- Validation logic
+- Environment‑based credentials
+- TypeScript integration
+
+The Mongoose Starter standardizes these concerns using a **structured, explicit setup**.
+
+## What You Get Out of the Box
+
+After initialization, your project includes:
+
+### Database Core
+
+- Mongoose configured for MongoDB
+- Typed Schema definitions
+- Centralized database connection logic
+
+### Configuration
+
+- Environment‑based database config
+- Connection event handling (success, error)
+- Production‑ready settings
+
+### Developer Experience
+
+- Type inference from schemas
+- Clean model separation
+- Ready-to-use patterns
+
+## Environment Configuration
+
+Database credentials are loaded via environment variables.
+
+```bash
+NODE_ENV='development'
+PORT='9000'
+LOG_LEVEL='info'
+
+DATABASE_URL=mongodb://localhost:27017/db-name
+```
+
+The server fails fast if required database variables are missing.
+
+## Defining Schemas
+
+Schemas are written using Mongoose's Schema API with TypeScript support.
+
+<Code children="src/models/user.model.ts" />
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export default User;
+```
+
+Schemas are:
+
+- Typings enabled
+- Validation-rich
+- Easy to extend
+
+## Database Client Setup
+
+<Code children="src/configs/db.ts" />
+
+```ts
+import mongoose from "mongoose";
+import env from "./env";
+import { logger } from "../utils/logger";
+
+export const connectDB = async (): Promise<void> => {
+  try {
+    const conn = await mongoose.connect(env.DATABASE_URL as string);
+    logger.info(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    logger.error(error, "❌ MongoDB Connection Failed:");
+    process.exit(1);
+  }
+};
+```
+
+This setup ensures a robust connection handling strategy, exiting the process on failure to prevent undefined behaviors.
+
+## Production Considerations
+
+The starter is designed for production:
+
+- Index creation handled by Mongoose
+- Connection pooling (default Mongoose behavior)
+- Strict query mode enabled by default (in newer Mongoose versions)
+- Environment‑safe credentials
+
+## Integration with Express Server Foundation
+
+The Mongoose Starter is designed to layer cleanly on top of:
+
+- Express Server Foundation
+- Request validation (Zod)
+- Auth and RBAC blocks
+
+This keeps responsibilities separated:
+
+- Express handles HTTP
+- Mongoose handles data modeling and persistence
+
+## Why This Is a Starter
+
+This setup intentionally avoids:
+
+- Over-abstracted repository layers (unless requested)
+- Complex manual driver usage
+- Hidden configuration
+
+You use standard Mongoose patterns with **modern TypeScript practices**.
+
+## When to Use Mongoose Starter
+
+Use this starter when:
+
+- You are building a document-oriented application
+- You need flexible schemas (with validation)
+- You prefer an ODM over raw SQL
+- You are comfortable with MongoDB ecosystems
+
+## Extending the Starter
+
+Once initialized, you can add:
+
+- Virtuals and Methods
+- Middleware (Pre/Post hooks)
+- Aggregation pipelines
+- Plugins (e.g., auto-populate)
+
+Each extension builds on the same explicit model foundation.
+
+## Summary
+
+The **Mongoose Starter** gives you a clean, production‑ready database foundation using **MongoDB + Mongoose**.
+
+It prioritizes developer experience, schema validation, and rapid iteration — providing a reliable data layer for your Node.js applications.
