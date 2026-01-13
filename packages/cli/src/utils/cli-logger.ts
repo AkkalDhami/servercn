@@ -4,7 +4,7 @@ const icons = {
   error: "✖",
   warn: "⚠",
   info: "ℹ",
-  success: "✔",
+  success: "✔"
 };
 
 export const logger = {
@@ -34,5 +34,5 @@ export const logger = {
 
   break() {
     console.log("");
-  },
+  }
 };

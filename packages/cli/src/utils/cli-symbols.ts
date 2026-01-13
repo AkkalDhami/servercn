@@ -3,5 +3,5 @@ export const symbols = {
   warn: "⚠",
   info: "ℹ",
   success: "✔",
-  step: "➜",
+  step: "➜"
 };

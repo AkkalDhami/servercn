@@ -1,27 +1,30 @@
 export const siteConfig = {
   title: {
     default: "ServerCN",
-    template: "%s | ServerCN",
+    template: "%s | ServerCN"
   },
   url: "https://servercn.com",
   github: "https://github.com/akkaldhami/servercn",
   navItems: [
     {
       label: "Docs",
-      href: "/docs",
+      href: "/docs"
     },
     {
       label: "Components",
-      href: "/components",
+      href: "/components"
     },
     {
       label: "Foundations",
-      href: "/foundations",
+      href: "/foundations"
     },
+    {
+      label: "Blueprints",
+      href: "/blueprints"
+    }
   ],
 
-  description:
-    "Official ServerCN documentation. Guides, components, and best practices for building scalable Node.js backends.",
+  description: "Official ServerCN documentation. Guides, components, and best practices for building scalable Node.js backends.",
   applicationName: "ServerCN",
   authors: [{ name: "akkaldhami" }],
   generator: "Next.js",
@@ -35,8 +38,8 @@ export const siteConfig = {
     "Documentation",
     "Nodejs",
     "Express",
-    "Server",
+    "Server"
   ],
   author: "Akkal Dhami",
-  metadataBase: new URL("https://servercn.com"),
+  metadataBase: new URL("https://servercn.com")
 };

@@ -7,7 +7,7 @@ type ArchStore = {
   setArch: (file: string) => void;
 };
 
-export const useArchitecture = create<ArchStore>((set) => ({
+export const useArchitecture = create<ArchStore>(set => ({
   arch: null,
-  setArch: (arch) => set({ arch: arch }),
+  setArch: arch => set({ arch: arch })
 }));

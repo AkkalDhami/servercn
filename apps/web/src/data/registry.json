@@ -28,12 +28,12 @@
       "docs": "/docs/project-structure"
     },
     {
-      "slug": "jwt-auth",
-      "title": "JWT Authentication",
-      "description": "JSON Web Token authentication with access & refresh token support for Express",
+      "slug": "jwt-utils",
+      "title": "JWT Utils Function",
+      "description": "JWT Utils Function for JSON Web Token authentication with access & refresh token support for Express",
       "type": "component",
       "status": "stable",
-      "docs": "/docs/components/jwt-auth"
+      "docs": "/docs/components/jwt-utils"
     },
     {
       "slug": "global-error-handler",
@@ -104,7 +104,7 @@
       "title": "File Upload",
       "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/file-upload"
     },
     {
@@ -160,16 +160,16 @@
       "title": "Graceful Shutdown Handler",
       "description": "The Graceful Shutdown Handler ensures that your ServerCN application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/shutdown-handler"
     },
     {
       "slug": "session-auth",
       "title": "Session Authentication",
       "description": "The Session Authentication component provides a standardized way to handle session authentication in ServerCN using express-session.",
-      "type": "component",
+      "type": "blueprint",
       "status": "unstable",
-      "docs": "/docs/components/session-auth"
+      "docs": "/docs/blueprints/session-auth"
     },
     {
       "slug": "rbac",
@@ -208,7 +208,7 @@
       "title": "Security Headers",
       "description": "The Security Headers component provides a standardized way to handle security headers in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/security-header"
     },
     {
@@ -220,56 +220,46 @@
       "docs": "/docs/components/validate-objectId"
     },
 
-
     {
       "slug": "express-server",
       "title": "Basic Express Server",
-      "description": "The Basic Express Server foundation provides a standardized way to handle security headers in ServerCN.",
+      "description": "A robust Express.js server foundation with TypeScript, error handling, and structured logging.",
       "type": "foundation",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/foundations/express-server"
-    },
-    {
-      "slug": "mvc-architecture",
-      "title": "MVC Architecture",
-      "description": "The MVC Architecture foundation provides a standardized way to handle security headers in ServerCN.",
-      "type": "foundation",
-      "status": "unstable",
-      "docs": "/docs/foundations/mvc-architecture"
-    },
-    {
-      "slug": "feature-architecture",
-      "title": "Feature Based Architecture",
-      "description": "The Feature Based Architecture foundation provides a standardized way to handle security headers in ServerCN.",
-      "type": "foundation",
-      "status": "unstable",
-      "docs": "/docs/foundations/feature-architecture"
     },
     {
       "slug": "mongoose-starter",
       "title": "Mongoose Starter",
-      "description": "The Mongoose Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "description": "A production-ready MongoDB foundation with Mongoose, featuring schema validation and type safety.",
       "type": "foundation",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/foundations/mongoose-starter"
     },
     {
       "slug": "drizzle-mysql-starter",
       "title": "Drizzle MySQL Starter",
-      "description": "The Drizzle MySQL Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "description": "A production-ready MySQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/foundations/drizzle-mysql-starter"
     },
     {
-      "slug": "prisma-starter",
-      "title": "Prisma Starter",
-      "description": "The Prisma Starter foundation provides a standardized way to handle security headers in ServerCN.",
+      "slug": "drizzle-pg-starter",
+      "title": "Drizzle PostgreSQL Starter",
+      "description": "A production-ready PostgreSQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
-      "status": "unstable",
-      "docs": "/docs/foundations/prisma-starter"
+      "status": "stable",
+      "docs": "/docs/foundations/drizzle-pg-starter"
+    },
+    {
+      "slug": "prisma-mongo-starter",
+      "title": "Prisma MongoDB Starter",
+      "description": "A production-ready MongoDB foundation using Prisma ORM for type-safe database interactions.",
+      "type": "foundation",
+      "status": "stable",
+      "docs": "/docs/foundations/prisma-mongo-starter"
     }
-
   ],
   "version": {
     "version": "1.0.0",

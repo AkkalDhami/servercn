@@ -45,3 +45,19 @@ export type ServerCNConfig = {
     createdBy: string;
   };
 };
+
+export type PackageManager = "pnpm" | "yarn" | "npm" | "bun";
+
+export type InstallOptions = {
+  runtime?: string[];
+  dev?: string[];
+  cwd: string;
+};
+
+export type ItemType = "component" | "blueprint" | "guide" | "model" | "foundation";
+
+export type StackConfig = {
+  framework: "express";
+  database: "mongodb" | "postgres" | "mysql";
+  language: "ts" | "js";
+};

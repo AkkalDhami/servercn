@@ -6,5 +6,5 @@ export const colors = {
   info: kleur.cyan,
   success: kleur.green,
   muted: kleur.gray,
-  created: kleur.magenta,
+  created: kleur.magenta
 };
