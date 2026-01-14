@@ -1,0 +1,17 @@
+{
+  "title": "Not Found Handler",
+  "slug": "not-found-handler",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/not-found-handler/express/mvc",
+      "feature": "components/not-found-handler/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "pino", "dotenv"],
+    "dev": []
+  }
+}
