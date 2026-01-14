@@ -1,0 +1,17 @@
+{
+  "title": "File Upload",
+  "slug": "file-upload",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/file-upload/express/mvc",
+      "feature": "components/file-upload/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "pino", "pino-pretty", "dotenv", "multer", "cloudinary"],
+    "dev": ["@types/multer", "@types/express", "@types/express", "nodemon", "ts-node", "tsx", "typescript"]
+  }
+}
