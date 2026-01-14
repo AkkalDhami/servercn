@@ -1,3 +1,8 @@
+interface ISchema {
+  label: string;
+  slug: string;
+}
+
 export interface IRegistryItems {
   slug: string;
   title: string;
@@ -5,6 +10,12 @@ export interface IRegistryItems {
   type: string;
   status: string;
   docs: string;
+  meta?: {
+    models?: ISchema[];
+    adapters?: string[];
+    useCases?: string[];
+    relations?: boolean;
+  };
 }
 
-export type ItemType = "component" | "blueprint" | "guide" | "model" | "foundation";
+export type ItemType = "component" | "blueprint" | "guide" | "schema" | "foundation";

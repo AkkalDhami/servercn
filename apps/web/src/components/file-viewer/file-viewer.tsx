@@ -28,8 +28,8 @@ export default function FileViewer({ content }: { content?: string }) {
   }
 
   return (
-    <div className="h-full max-h-125 w-full bg-black whitespace-nowrap">
-      <div className="relative  [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:p-3.5" dangerouslySetInnerHTML={{ __html: html }} />
+    <div className="bg-editor h-full max-h-125 w-full whitespace-nowrap">
+      <div className="relative [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:p-3.5" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
 }

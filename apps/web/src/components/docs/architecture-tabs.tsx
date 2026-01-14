@@ -13,7 +13,6 @@ const archNaming = {
 export default function ArchitectureTabs({ current, className }: { current: string; className?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  console.log(current);
 
   function onChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());

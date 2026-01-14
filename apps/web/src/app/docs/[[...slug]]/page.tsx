@@ -28,14 +28,15 @@ export const dynamicParams = false;
 const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
 
 export async function generateStaticParams() {
-  const registryParams = registry.items.map(({ docs }) => {
+  const registryParams = registry.items.map(({ meta, docs }) => {
+    const nestedSlugs = meta && meta.models.length > 0 ? meta.models.map(({ slug }) => slug) : [];
     const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
-    return { slug: slugArray };
+    return [...slugArray, ...nestedSlugs];
   });
 
   // Include special routes
   const specialRoutes = [
-    { slug: [] }, // Root/introduction
+    { slug: [] },
     { slug: ["introduction"] },
     { slug: ["components"] },
     { slug: ["installation"] },
@@ -49,7 +50,6 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
   const params = await props.params;
   const slug = params.slug ?? [];
   const filePath = getDocPath(slug);
-
   if (!fs.existsSync(filePath)) {
     return {
       title: "Not Found | ServerCN Docs"
@@ -93,9 +93,14 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
   } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
-  } else if (slug.length === 1 && slug[0] === "project-structure") {
-    return path.join(DOCS_PATH, "guides", "project-structure.mdx");
+  } else if (slug.length === 2 && slug[0] === "schemas" && slug[1] === "auth") {
+    return path.join(DOCS_PATH, "schemas", "auth-user.mdx");
   }
+
+  if (slug.length === 2 && slug[0] === "schemas") {
+    return path.join(DOCS_PATH, `${slug.join("/")}.mdx`);
+  }
+
   return path.join(DOCS_PATH, `${slug.join("/")}.mdx`);
 }
 
@@ -107,7 +112,6 @@ interface DocsSlugRouterProps {
 export default async function DocsPage({ params, searchParams }: DocsSlugRouterProps) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
-
   const currentArch = (resolvedSearchParams?.arch as string) ?? "mvc";
 
   const filePath = getDocPath(slug);

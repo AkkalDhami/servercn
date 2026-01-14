@@ -11,6 +11,7 @@ import { Route } from "next";
 import { CircleArrowRight, CircleCheckBig, CircleDashed, CircleIcon } from "lucide-react";
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
+import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
 
 export default function SearchCommand({ className, size }: { className?: string; size?: "sm" | "lg" }) {
   const [open, setOpen] = React.useState(false);
@@ -31,6 +32,7 @@ export default function SearchCommand({ className, size }: { className?: string;
   const components = getTypeItems("component");
   const foundations = getTypeItems("foundation");
   const blueprints = getTypeItems("blueprint");
+  const schemas = getTypeItems("schema");
 
   return (
     <>
@@ -48,42 +50,61 @@ export default function SearchCommand({ className, size }: { className?: string;
         <CommandInput placeholder="Search documentation..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="GETTING STARTED">
-            {guideItems.map(item => (
-              <CommandItem asChild key={item.title}>
-                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
-                  <CircleArrowRight className="text-muted-secondary size-2.5" /> {item.title}
-                </Link>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="FOUNDATIONS">
-            {foundations.map(item => (
-              <CommandItem asChild key={item.title}>
-                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
-                  <CircleCheckBig className="text-muted-secondary size-2.5" /> {item.title}
-                </Link>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="COMPONENTS">
-            {components.map(item => (
-              <CommandItem asChild key={item.title}>
-                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
-                  <CircleIcon className="text-muted-secondary size-2.5" /> {item.title}
-                </Link>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="BLUEPRINTS">
-            {blueprints.map(item => (
-              <CommandItem asChild key={item.title}>
-                <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
-                  <CircleDashed className="text-muted-secondary size-2.5" /> {item.title}
-                </Link>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {guideItems.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.guide.toUpperCase()}>
+              {guideItems.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                    <CircleArrowRight className="text-muted-secondary size-2.5" /> {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {foundations.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.foundation.toUpperCase()}>
+              {foundations.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                    <CircleCheckBig className="text-muted-secondary size-2.5" /> {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {components.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.component.toUpperCase()}>
+              {components.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                    <CircleIcon className="text-muted-secondary size-2.5" /> {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {blueprints.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.blueprint.toUpperCase()}>
+              {blueprints.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                    <CircleDashed className="text-muted-secondary size-2.5" /> {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {schemas.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.schema.toUpperCase()}>
+              {schemas.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
+                    <CircleDashed className="text-muted-secondary size-2.5" /> {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
           <CommandSeparator />
         </CommandList>
       </CommandDialog>

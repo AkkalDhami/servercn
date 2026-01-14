@@ -16,12 +16,16 @@ export default function HeroSection() {
       <div className="relative pt-18 pb-20 md:pt-22 md:pb-28">
         <div className="mx-auto max-w-6xl space-y-5 sm:px-6">
           {/* Badge */}
-          <div className="hidden justify-center sm:flex">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="hidden justify-center sm:flex">
             <HeaderBadge className="py-1 text-sm sm:text-base">
               <Sparkles className="size-4" />
               Build faster with composable backends
             </HeaderBadge>
-          </div>
+          </motion.div>
 
           <div className="text-center">
             <motion.h1
@@ -40,8 +44,8 @@ export default function HeroSection() {
             <TextEffect
               per="line"
               preset="fade-in-blur"
-              speedSegment={0.3}
-              delay={0.4}
+              speedSegment={0.6}
+              delay={0.06}
               as="p"
               className="text-muted-primary mx-auto mt-10 max-w-2xl text-lg tracking-tight md:text-xl">
               ServerCN , the backend component registry for Node.js inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus on
@@ -75,9 +79,13 @@ export default function HeroSection() {
                 </Link>
               </Button>
             </AnimatedGroup>
-            <div className="mt-12 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-12 flex items-center justify-center">
               <InitCopyButton />
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

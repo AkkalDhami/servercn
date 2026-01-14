@@ -39,7 +39,9 @@ function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?:
   if (node.type === "folder") {
     return (
       <div className="pl-2">
-        <button onClick={() => setOpen(!open)} className="flex w-full cursor-pointer items-center gap-1 py-1 text-neutral-300 hover:text-white">
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-muted-foreground hover:text-accent-foreground flex w-full cursor-pointer items-center gap-1 py-1">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           {open ? <FolderOpenIcon size={14} /> : <Folder size={14} />}
           <span>{node.name}</span>
@@ -60,8 +62,8 @@ function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?:
     <button
       onClick={() => onSelect(node)}
       className={cn(
-        "ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-neutral-300 hover:bg-neutral-800 hover:text-white",
-        activeFile === node.name && "bg-neutral-800 font-medium text-white"
+        "text-muted-foreground hover:bg-muted hover:text-accent-foreground ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left",
+        activeFile === node.name && "bg-muted text-accent-foreground font-medium"
       )}>
       <File size={14} />
       {node.name}

@@ -17,7 +17,7 @@ export function CodeWrapper({ children, code }: { children: React.ReactNode; cod
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="absolute top-1/2 right-2 z-10 w-auto -translate-y-1/2 cursor-pointer bg-transparent p-1.5 text-xs text-neutral-400 hover:text-white"
+        className="absolute top-1/2 right-2 z-10 w-auto -translate-y-1/2 cursor-pointer bg-transparent p-1.5 text-xs"
       />
       {children}
     </div>

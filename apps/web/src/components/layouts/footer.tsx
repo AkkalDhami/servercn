@@ -57,11 +57,11 @@ export default function Footer() {
             <p>&copy; {new Date().getFullYear()} ServerCN | All rights reserved.</p>
             <div>
               Built with 🗡️{" "}
-              <Link className="hover:text-foreground" href="https://github.com/akkaldhami" target="_blank">
+              <Link className="hover:text-foreground underline" href="https://github.com/akkaldhami" target="_blank">
                 Akkal Dhami
               </Link>
             </div>
-            <Link className="hover:text-foreground" href="https://github.com/akkaldhami/servercn" target="_blank">
+            <Link className="hover:text-foreground underline" href="https://github.com/akkaldhami/servercn" target="_blank">
               Github
             </Link>
           </div>
@@ -74,7 +74,7 @@ export default function Footer() {
 const components = getTypeItems("component");
 const foundations = getTypeItems("foundation");
 const blueprints = getTypeItems("blueprint");
-const models = getTypeItems("model");
+const models = getTypeItems("schema");
 
 const footerLinkGroups: FooterLinkGroup[] = [
   {
@@ -137,9 +137,9 @@ const footerLinkGroups: FooterLinkGroup[] = [
     ]
   },
   {
-    label: "Models",
+    label: "Schemas",
     links: [
-      { title: "All Models", href: "/models" },
+      { title: "All Schemas", href: "/schemas" },
       ...models.map(item => ({
         title: item.title,
         href: `${item.url}`

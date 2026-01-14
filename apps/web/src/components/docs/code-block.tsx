@@ -21,7 +21,7 @@ export async function CodeBlock({ code, lang = "bash" }: { code: string; lang?: 
 
   return (
     <div
-      className="relative [&_pre]:max-h-80 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:px-4 [&_pre]:py-4"
+      className="relative [&_pre]:max-h-80 [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
