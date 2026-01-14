@@ -1,0 +1,525 @@
+---
+title: Rate Limiter
+description: Protect your API from brute-force attacks and abuse by limiting the number of requests a user can make within a specific timeframe.
+command: npx servercn add rate-limiter
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: rate-limiter.ts
+            content: |
+                import { rateLimit } from "express-rate-limit";
+                import { ApiError } from "../utils/api-error";
+                import { STATUS_CODES } from "../constants/status-codes";
+
+                /**
+                * Standard rate limiter middleware
+                * Limits each IP to 100 requests per 15-minute window
+                */
+                export const rateLimiter = rateLimit({
+                  windowMs: 15 * 60 * 1000, // 15 minutes
+                  max: 100, // Limit each IP to 100 requests per window
+                  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+                  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                  message: {
+                    status: 429,
+                    message: "Too many requests from this IP, please try again after 15 minutes"
+                  },
+                  handler: (req, res, next, options) => {
+                    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+                  }
+                });
+
+                /**
+                * Stricter rate limiter for sensitive routes (e.g., auth, login)
+                */
+                export const authRateLimiter = rateLimit({
+                  windowMs: 60 * 60 * 1000, // 1 hour
+                  max: 5, // Limit each IP to 5 failed attempts per hour
+                  handler: (req, res, next, options) => {
+                    next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+                  }
+                });
+
+                /**
+                * Make sure global error handler is set up to handle ApiError
+                * If you don't have a global error handler, you can install:
+                * npx servercn add global-error-handler
+                */
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+                public readonly statusCode: StatusCode;
+                public readonly isOperational: boolean;
+                public readonly errors?: unknown;
+
+                constructor(statusCode: StatusCode, message: string, errors?: unknown, isOperational = true) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+                }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static validation(message = "Validation failed", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static notImplemented(message = "Not Implemented") {
+                  return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                }
+
+                static badGateway(message = "Bad Gateway") {
+                  return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                }
+
+                static serviceUnavailable(message = "Service Unavailable") {
+                  return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                }
+
+                static tooManyRequests(message = "Too Many Requests") {
+                  return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              * Usage:
+              * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(statusCode: StatusCode, message: string, errors?: unknown, isOperational = true) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                    }
+
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static validation(message = "Validation failed", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static notImplemented(message = "Not Implemented") {
+                      return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                    }
+
+                    static badGateway(message = "Bad Gateway") {
+                      return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                    }
+
+                    static serviceUnavailable(message = "Service Unavailable") {
+                      return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                    }
+
+                    static tooManyRequests(message = "Too Many Requests") {
+                      return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+                  /*
+                  * Usage:
+                  * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+                  * throw ApiError.badRequest("Bad request");
+                  */
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: rate-limiter.ts
+                content: |
+                    import { rateLimit } from "express-rate-limit";
+                    import { ApiError } from "../errors/api-error";
+                    import { STATUS_CODES } from "../constants/status-codes";
+
+                    /**
+                    * Standard rate limiter middleware
+                    * Limits each IP to 100 requests per 15-minute window
+                    */
+                    export const rateLimiter = rateLimit({
+                      windowMs: 15 * 60 * 1000, // 15 minutes
+                      max: 100, // Limit each IP to 100 requests per window
+                      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+                      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                      message: {
+                        status: 429,
+                        message: "Too many requests from this IP, please try again after 15 minutes"
+                      },
+                      handler: (req, res, next, options) => {
+                        next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+                      }
+                    });
+
+                    /**
+                    * Stricter rate limiter for sensitive routes (e.g., auth, login)
+                    */
+                    export const authRateLimiter = rateLimit({
+                      windowMs: 60 * 60 * 1000, // 1 hour
+                      max: 5, // Limit each IP to 5 failed attempts per hour
+                      handler: (req, res, next, options) => {
+                        next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+                      }
+                    });
+
+                    /**
+                    * Make sure global error handler is set up to handle ApiError
+                    * If you don't have a global error handler, you can install:
+                    * npx servercn add global-error-handler
+                    */
+
+---
+
+# Rate Limiter
+
+The **Rate Limiter** component protects your application from abuse, denial-of-service (DoS) attacks, and brute-force attempts by limiting the frequency of incoming requests from a single IP address.
+
+Built on top of `express-rate-limit`, it provides a standardized way to apply rate limits globally or to specific sensitive routes.
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+
+### 1. Install ServerCN dependencies(Optional)
+
+- **HTTP Status Codes:**
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation: [HTTP Status Codes](/docs/components/http-status-codes)
+
+- **API Error Handler:**
+
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation: [API Error Handler](/docs/components/error-handler)
+
+- **Global Error Handler:**
+
+<PackageManagerTabs command="npx servercn add global-error-handler" />
+
+Documentation: [Global Error Handler](/docs/components/global-error-handler)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add rate-limiter" />
+
+## Configuration Options
+
+The rate limiter can be customized to fit your application's needs:
+
+- **windowMs**: The timeframe for which requests are checked (in milliseconds).
+- **max**: The maximum number of connections to allow during the `windowMs` before returning a 429 error.
+- **standardHeaders**: Enables the `RateLimit-*` headers in the response.
+- **handler**: A custom function to execute when the limit is reached. In ServerCN, we use it to forward the error to our global error handler.
+
+## Basic Implementation
+
+#### **MVC:**  <Code children="src/middlewares/rate-limiter.ts" />
+
+#### **Modular:**  <Code children="src/shared/middlewares/rate-limiter.ts" />
+
+```ts
+import { rateLimit } from "express-rate-limit";
+
+/**
+ * Standard rate limiter middleware
+ * Limits each IP to 100 requests per 15-minute window
+ */
+export const rateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: {
+    success: false,
+    message: "Too many requests from this IP, please try again after 15 minutes",
+    status: 429
+  },
+  handler: (req, res, next, options) => {
+    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+  }
+});
+
+/**
+ * Stricter rate limiter for sensitive routes (e.g., auth, login)
+ */
+export const authRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Limit each IP to 5 failed attempts per hour
+  handler: (req, res, next, options) => {
+    next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+  }
+});
+
+/**
+ * Rate limiter for login route
+ */
+export const signinRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: {
+    success: false,
+    message: "Too many login attempts, please try again later.",
+    statusCode: 429,
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
+ * Rate limiter for registration route
+ */
+export const signupRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: {
+    success: false,
+    message: "Too many registration attempts, please try again later.",
+    statusCode: 429,
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+```
+
+## Usage Guide
+
+### Global Rate Limiting
+
+Apply the rate limiter globally in your main `app.ts` file to protect all routes by default.
+
+<Code children="src/app.ts" />
+
+```ts
+import express from "express";
+import { rateLimiter } from "./middlewares/rate-limiter";
+
+const app = express();
+
+// Apply the rate limiting middleware to all requests
+app.use(rateLimiter);
+
+// ... rest of your app configuration
+```
+
+### Route-Specific Rate Limiting
+
+For sensitive routes like login, password reset, or expensive search operations, you should apply stricter limits.
+
+<Code children="src/routes/auth.routes.ts" />
+
+```ts
+import { Router } from "express";
+import { authRateLimiter } from "../middlewares/rate-limiter";
+
+const router = Router();
+
+// Only apply to the login route
+router.post("/login", authRateLimiter, (req, res) => {
+  // Login logic...
+});
+
+export default router;
+```
+
+## Integrating with Redis (Optional)
+
+For distributed applications (multiple server instances), you should use a centralized store like Redis to sync rate limits across all instances.
+
+### 1. Install Redis adapter
+
+<PackageManagerTabs command="npm install rate-limit-redis redis" />
+
+### 2. Update Middleware
+
+```ts
+import { rateLimit } from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+import { createClient } from "redis";
+
+const redisClient = createClient({
+  /* redis config */
+});
+redisClient.connect();
+
+export const redisRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  store: new RedisStore({
+    sendCommand: (...args: string[]) => redisClient.sendCommand(args)
+  })
+});
+```
+
+## Best Practices
+
+1.  **Trust Proxy**: If your app is behind a reverse proxy (like Nginx, Heroku, Cloudflare), you must enable `trust proxy` in Express to get the real IP address.
+    ```ts
+    app.set("trust proxy", 1);
+    ```
+2.  **Informative Errors**: Always use the `handler` option to return a structured error message using `ApiError`.
+3.  **Exemptions**: If you have internal services or webhooks that should never be throttled, use the `skip` option:
+    ```ts
+    skip: (req) => req.ip === "127.0.0.1",
+    ```

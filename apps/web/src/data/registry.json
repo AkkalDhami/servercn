@@ -19,14 +19,7 @@
       "status": "stable",
       "docs": "/docs/installation"
     },
-    {
-      "slug": "project-structure",
-      "title": "Project Structure",
-      "description": "Understand how ServerCN organizes your project files based on your chosen architecture.",
-      "type": "guide",
-      "status": "stable",
-      "docs": "/docs/project-structure"
-    },
+
     {
       "slug": "jwt-utils",
       "title": "JWT Utils Function",
@@ -184,7 +177,7 @@
       "title": "Rate Limiter",
       "description": "The Rate Limiter component provides a standardized way to handle rate limiting in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "stable",
       "docs": "/docs/components/rate-limiter"
     },
     {
@@ -259,6 +252,73 @@
       "type": "foundation",
       "status": "stable",
       "docs": "/docs/foundations/prisma-mongo-starter"
+    },
+    {
+      "slug": "prisma-pg-starter",
+      "title": "Prisma PostgreSQL Starter",
+      "description": "A production-ready PostgreSQL foundation using Prisma ORM for type-safe database interactions.",
+      "type": "foundation",
+      "status": "unstable",
+      "docs": "/docs/foundations/prisma-pg-starter"
+    },
+
+    {
+      "slug": "auth",
+      "title": "Auth Domain",
+      "description": "Blog domain schemas including posts, categories, tags, and comments.",
+      "type": "schema",
+      "status": "stable",
+      "docs": "/docs/schemas/auth-user",
+      "meta": {
+        "models": [
+          {
+            "label": "user",
+            "slug": "auth-user"
+          },
+          {
+            "label": "otp",
+            "slug": "auth-otp"
+          },
+          {
+            "label": "session",
+            "slug": "auth-session"
+          }
+        ],
+        "adapters": ["mongoose", "drizzle", "mysql2"],
+        "useCases": ["cms", "content-platform"],
+        "relations": true
+      }
+    },
+    {
+      "slug": "blog",
+      "title": "Blog Domain",
+      "description": "Blog domain schemas including posts, categories, tags, and comments.",
+      "type": "schema",
+      "status": "stable",
+      "docs": "/docs/schemas/blog-post",
+      "meta": {
+        "models": [
+          {
+            "label": "post",
+            "slug": "blog-post"
+          },
+          {
+            "label": "category",
+            "slug": "blog-category"
+          },
+          {
+            "label": "tag",
+            "slug": "blog-tag"
+          },
+          {
+            "label": "comment",
+            "slug": "blog-comment"
+          }
+        ],
+        "adapters": ["mongoose", "drizzle", "mysql2"],
+        "useCases": ["cms", "content-platform"],
+        "relations": true
+      }
     }
   ],
   "version": {

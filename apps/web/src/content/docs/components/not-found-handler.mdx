@@ -92,7 +92,7 @@ mvc_structure:
                 }
 
                 logger.error(
-                  <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
                   err
                 );
 
@@ -115,7 +115,7 @@ mvc_structure:
                 res: Response,
                 next: NextFunction
               ) => {
-                throw ApiError.notFound(<Code children="Route ${req.method} ${req.originalUrl} not found" />);
+                throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
               };
 
       - type: folder
@@ -489,7 +489,7 @@ feature_structure:
                     }
 
                     logger.error(
-                      <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
+                    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
                       err
                     );
 
@@ -513,7 +513,7 @@ feature_structure:
                     res: Response,
                     next: NextFunction
                   ) => {
-                    throw ApiError.notFound(<Code children="Route ${req.method} ${req.originalUrl} not found" />);
+                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
                   };
 
       - type: file

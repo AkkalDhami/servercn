@@ -180,7 +180,7 @@ mvc_structure:
                 }
 
                 logger.error(
-                  <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
                   err
                 );
 
