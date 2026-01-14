@@ -1,0 +1,18 @@
+{
+  "title": "HTTP Status Codes",
+  "slug": "http-status-codes",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/http-status-codes/express/mvc",
+      "feature": "components/http-status-codes/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": []
+  },
+  "env": [""]
+}
