@@ -1,0 +1,18 @@
+{
+  "title": "Health Check",
+  "slug": "health-check",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/health-check/express/mvc",
+      "feature": "components/health-check/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": []
+  },
+  "env": ["PORT"]
+}
