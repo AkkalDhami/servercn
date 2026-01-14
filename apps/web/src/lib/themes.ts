@@ -2,11 +2,18 @@ export interface ITheme {
   label: string;
   value: string;
   isFavorite?: boolean;
+  light?: boolean;
 }
+
 export const CODE_THEMES: ITheme[] = [
   {
     label: "Ayu Dark",
     value: "ayu-dark",
+    isFavorite: true
+  },
+  {
+    label: "Aurora X",
+    value: "aurora-x",
     isFavorite: true
   },
   {
@@ -28,7 +35,8 @@ export const CODE_THEMES: ITheme[] = [
   },
   {
     label: "Vitesse Light",
-    value: "vitesse-light"
+    value: "vitesse-light",
+    light: true
   },
   {
     label: "Vitesse Dark",
@@ -66,7 +74,8 @@ export const CODE_THEMES: ITheme[] = [
 
   {
     label: "Light Plus",
-    value: "light-plus"
+    value: "light-plus",
+    light: true
   },
   {
     label: "Gruvbox Dark Hard",
@@ -100,7 +109,8 @@ export const CODE_THEMES: ITheme[] = [
   },
   {
     label: "GitHub Light Default",
-    value: "github-light-default"
+    value: "github-light-default",
+    light: true
   },
   {
     label: "GitHub Dark High Contrast",
@@ -124,7 +134,8 @@ export const CODE_THEMES: ITheme[] = [
   },
   {
     label: "Rose Pine Dawn",
-    value: "rose-pine-dawn"
+    value: "rose-pine-dawn",
+    light: true
   },
   {
     label: "Rose Pine",
@@ -152,3 +163,5 @@ export const CODE_THEMES: ITheme[] = [
     isFavorite: true
   }
 ];
+
+export const LIGHT_THEMES: ITheme[] = CODE_THEMES.filter(t => t.light);

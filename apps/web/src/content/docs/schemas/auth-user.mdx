@@ -1,0 +1,684 @@
+---
+title: Auth | User | Schema
+description: The Auth User schema is the core data model for handling user authentication and profile information.
+command: npx servercn add model auth/user --variant=advanced
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: user.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IAvatar {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IAvatar;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date;
+                reActivateAvailableAt?: Date;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null
+                  },
+                  provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                  },
+                  providerId: {
+                    type: String,
+                    default: null
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                  },
+                  avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                  },
+                  lastLoginAt: {
+                    type: Date
+                  },
+                  failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                  },
+                  lockUntil: {
+                    type: Date
+                  },
+                  isDeleted: {
+                    type: Boolean,
+                    default: false
+                  },
+                  deletedAt: {
+                    type: Date
+                  },
+                  reActivateAvailableAt: {
+                    type: Date
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              userSchema.index({ email: 1 });
+              userSchema.index({ provider: 1, providerId: 1 });
+              userSchema.index({ role: 1 });
+              userSchema.index({ isDeleted: 1 });
+
+              const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+              export default User;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: user.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password?: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
+                    lastLoginAt?: Date;
+                    failedLoginAttempts: number;
+                    lockUntil?: Date;
+                    avatar?: IAvatar;
+
+                    provider: "local" | "google" | "github";
+                    providerId?: string;
+
+                    isDeleted: boolean;
+                    deletedAt?: Date;
+                    reActivateAvailableAt?: Date;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null
+                      },
+                      provider: {
+                        type: String,
+                        enum: ["local", "google", "github"],
+                        default: "local"
+                      },
+                      providerId: {
+                        type: String,
+                        default: null
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user"
+                      },
+                      avatar: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false
+                      },
+                      lastLoginAt: {
+                        type: Date
+                      },
+                      failedLoginAttempts: {
+                        type: Number,
+                        required: true,
+                        default: 0
+                      },
+                      lockUntil: {
+                        type: Date
+                      },
+                      isDeleted: {
+                        type: Boolean,
+                        default: false
+                      },
+                      deletedAt: {
+                        type: Date
+                      },
+                      reActivateAvailableAt: {
+                        type: Date
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  // Performance Indexes
+                  userSchema.index({ email: 1 });
+                  userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+                  userSchema.index({ role: 1 });
+                  userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+                  const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                  export default User;
+---
+
+# Auth User Schema
+
+The **Auth User** model is the core identity schema used for authentication and authorization in servercn-based applications.
+
+It defines how users are stored, authenticated, verified, and managed across different databases and architectures.  
+
+This model is designed to scale from **minimal MVPs** to **production-grade systems**.
+
+## Installation Guide
+
+To add the Auth User schema to your project, run the following command:
+
+<PackageManagerTabs command="npx servercn add model auth/user" />
+
+This command generates the User schema based on your existing <Code children={'servercn.json'} /> configuration.
+
+### Configuration & Overrides
+
+By default, the CLI uses the configuration defined in your <Code children={'servercn.json'} /> file (typically initialized during `npx servercn init`). It will automatically detect your project's **Database**, **Architecture**, and **Language**.
+
+If you wish to override these defaults, you can use the following flags:
+
+- **Variant**:
+  - <Code children={'--variant=minimal'} /> -> lightweight schema
+    <PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
+
+  - <Code children={'--variant=advanced'} /> -> full production-ready schema (default)
+    <PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
+
+- **Database**:
+  - <Code children={'--db=mongodb'} /> -> MongoDB (default)
+    <PackageManagerTabs command="npx servercn add model auth/user --db=mongodb" />
+
+  - <Code children={'--db=mysql'} /> -> MySQL
+    <PackageManagerTabs command="npx servercn add model auth/user --db=mysql" />
+
+  - <Code children={'--db=pg'} /> -> PostgreSQL
+    <PackageManagerTabs command="npx servercn add model auth/user --db=pg" />
+
+- **Overwrite**:
+  - <Code children={'--force'} /> -> overwrite existing files if they already exist.
+
+When no configuration is found, initialize it using <Code children={'npx servercn init'} />.
+
+
+## Schema Definition
+
+### 1. Mongoose (MongoDB)
+
+**I. Minimal Variant**
+
+A simple, straightforward schema ideal for smaller applications or MVPs.
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  role: "user" | "admin";
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+      maxlength: [50, "Name cannot exceed 50 characters"]
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"]
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
+      select: false
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Indexes
+userSchema.index({ email: 1 });
+
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=mongodb" />
+
+**II. Advanced Variant (Recommended)**
+
+A production-grade schema featuring TypeScript interfaces, OAuth support, account locking logic, and soft deletes.
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IAvatar {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IAvatar;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date;
+  reActivateAvailableAt?: Date;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date
+    },
+    reActivateAvailableAt: {
+      type: Date
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ email: 1 });
+userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced --db=mongodb" />
+
+### 2. Drizzle ORM (MySQL)
+
+**I. Minimal Variant**
+
+A simple Drizzle schema for MySQL.
+
+```ts
+import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+
+export const users = mysqlTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 50 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }).notNull(),
+    role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+    isVerified: boolean("is_verified").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+  },
+  table => {
+    return {
+      emailIdx: uniqueIndex("email_idx").on(table.email)
+    };
+  }
+);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=mysql" />  
+
+**II. Advanced Variant**
+
+A production-ready Drizzle schema with provider support and soft deletes.
+
+```ts
+import { mysqlTable, serial, varchar, boolean, timestamp, int, json, uniqueIndex, index, mysqlEnum } from "drizzle-orm/mysql-core";
+
+export const users = mysqlTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }),
+    role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+    // OAuth Provider
+    provider: mysqlEnum("provider", ["local", "google", "github"]).default("local").notNull(),
+    providerId: varchar("provider_id", { length: 255 }),
+
+    // Profile
+    avatar: json("avatar").$type<{ public_id: string; url: string; size: number }>(),
+
+    // Auth Metadata
+    isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+    lastLoginAt: timestamp("last_login_at"),
+    failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+    lockUntil: timestamp("lock_until"),
+
+    // Soft Delete
+    isDeleted: boolean("is_deleted").default(false).notNull(),
+    deletedAt: timestamp("deleted_at"),
+    reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+  },
+  table => {
+    return {
+      emailIdx: uniqueIndex("email_idx").on(table.email),
+      providerIdx: index("provider_idx").on(table.provider, table.providerId),
+      roleIdx: index("role_idx").on(table.role),
+      isDeletedIdx: index("is_deleted_idx").on(table.isDeleted)
+    };
+  }
+);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced --db=mysql" />
+
+### 3. Drizzle ORM (PostgreSQL)
+
+**I. Minimal Variant**
+
+A simple Drizzle schema for PostgreSQL.
+
+```ts
+import { pgTable, serial, varchar, boolean, timestamp, uniqueIndex, pgEnum } from "drizzle-orm/pg-core";
+
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 50 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }).notNull(),
+    role: roleEnum("role").default("user").notNull(),
+    isVerified: boolean("is_verified").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
+  },
+  table => {
+    return {
+      emailIdx: uniqueIndex("email_idx").on(table.email)
+    };
+  }
+);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=pg" />
+
+**II. Advanced Variant**
+
+A production-ready Drizzle schema for PostgreSQL with enum support and soft deletes.
+
+```ts
+import { pgTable, serial, varchar, boolean, timestamp, integer, jsonb, uniqueIndex, index, pgEnum } from "drizzle-orm/pg-core";
+
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }),
+    role: roleEnum("role").default("user").notNull(),
+
+    // OAuth Provider
+    provider: providerEnum("provider").default("local").notNull(),
+    providerId: varchar("provider_id", { length: 255 }),
+
+    // Profile
+    avatar: jsonb("avatar").$type<{ public_id: string; url: string; size: number }>(),
+
+    // Auth Metadata
+    isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+    lastLoginAt: timestamp("last_login_at"),
+    failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+    lockUntil: timestamp("lock_until"),
+
+    // Soft Delete
+    isDeleted: boolean("is_deleted").default(false).notNull(),
+    deletedAt: timestamp("deleted_at"),
+    reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
+  },
+  table => {
+    return {
+      emailIdx: uniqueIndex("email_idx").on(table.email),
+      providerIdx: index("provider_idx").on(table.provider, table.providerId),
+      roleIdx: index("role_idx").on(table.role),
+      isDeletedIdx: index("is_deleted_idx").on(table.isDeleted)
+    };
+  }
+);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+**Install this variant**
+
+<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
+
+## Key Features
+
+- **Optimized Indexes**: Optimized indexes for common queries (email, provider, role, isDeleted).
+- **Standardized Fields**: Includes `name`, `email`, `password`, `role`, and `isVerified`.
+- **Security**: Password field is configured to be excluded from default queries in Mongoose (`select: false`).
+- **Timestamps**: Automatically tracks when a user record was created and last updated.
+- **Type Safety**: Drizzle implementation provides full TypeScript inference for selects and inserts.
+
+## Best Practices
+
+- **Password Hashing**: Never store passwords in plain text. Use a password hashing component (like `bcryptjs` or `argon2`) before saving to the database.
+- **Email Normalization**: Always store emails in lowercase to avoid duplicate accounts with different casing.
+- **Role Validation**: Ensure that role updates are protected and only accessible by authorized administrators.

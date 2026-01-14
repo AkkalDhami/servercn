@@ -18,7 +18,10 @@ export function getTypeItems(type: ItemType) {
     .map(item => ({
       title: item.title,
       url: item.docs,
-      status: item.status
+      status: item.status,
+      slug: item.slug,
+      meta: item.meta,
+      type: item.type
     }));
   return items.length > 0 ? items : [];
 }
