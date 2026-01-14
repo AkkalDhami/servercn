@@ -1,24 +1,17 @@
 {
-    "slug": "response-formatter",
-    "title": "API Response Formatter",
-    "type": "component",
-    "stacks": [
-        "express"
-    ],
-    "architectures": [
-        "mvc",
-        "feature"
-    ],
-    "templates": {
-        "express": {
-            "mvc": "components/response-formatter/express/mvc",
-            "feature": "components/response-formatter/express/feature"
-        }
-    },
-    "dependencies": {
-        "runtime": [
-            "express"
-        ],
-        "dev": [ ]
+  "slug": "response-formatter",
+  "title": "API Response Formatter",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/response-formatter/express/mvc",
+      "feature": "components/response-formatter/express/feature"
     }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": []
+  }
 }
