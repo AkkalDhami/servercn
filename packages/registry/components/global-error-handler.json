@@ -1,0 +1,17 @@
+{
+  "title": "Global Error Handler",
+  "slug": "global-error-handler",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/global-error-handler/express/mvc",
+      "feature": "components/global-error-handler/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "pino", "dotenv"],
+    "dev": []
+  }
+}
