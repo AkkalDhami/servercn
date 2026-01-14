@@ -1,0 +1,18 @@
+{
+  "title": "JWT Utils Function",
+  "slug": "jwt-utils",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/jwt-utils/express/mvc",
+      "feature": "components/jwt-utils/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["jsonwebtoken", "express"],
+    "dev": ["@types/jsonwebtoken", "@types/express"]
+  },
+  "env": ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]
+}
