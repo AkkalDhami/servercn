@@ -33,7 +33,7 @@ export default function BackendStructureViewer({
   }
 
   return (
-    <div className={cn("bg-editor border flex h-130 w-full max-w-[800px] overflow-auto rounded-xl", className)}>
+    <div className={cn("bg-editor flex h-130 w-full max-w-[800px] overflow-auto rounded-xl border", className)}>
       <div className="code-wrapper w-72 overflow-auto p-4">
         <FileTree data={structure} activeFile={activeFile?.name} onSelect={setActiveFile} />
       </div>

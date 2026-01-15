@@ -207,8 +207,8 @@
   .border-hover {
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
-  .bg-editor{
-    @apply dark:bg-[#101010] bg-[#ffffff]
+  .bg-editor {
+    @apply bg-[#ffffff] dark:bg-[#101010];
   }
 }
 html {
@@ -233,7 +233,6 @@ body {
 .code-wrapper:hover {
   scrollbar-width: thin;
 }
-
 
 [data-rehype-pretty-code-figure] {
   /* max-width: 800px; */

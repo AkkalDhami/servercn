@@ -55,7 +55,7 @@ export function OnThisPage() {
         });
       },
       {
-        root: null, 
+        root: null,
         rootMargin: "-96px 0px -60% 0px",
         threshold: 0
       }

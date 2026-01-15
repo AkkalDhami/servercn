@@ -66,7 +66,7 @@ export default function CodeTheme() {
                     {t.label}
                     <div className="flex items-center gap-2">
                       {theme === t.value && <CheckIcon className="ml-auto" size={16} />}
-                      {t.isFavorite && <span className="size-2 rounded-full bg-primary"></span>}
+                      {t.isFavorite && <span className="bg-primary size-2 rounded-full"></span>}
                     </div>
                   </CommandItem>
                 ))}
