@@ -1,0 +1,17 @@
+{
+  "title": "Security Headers",
+  "slug": "security-header",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/security-header/express/mvc",
+      "feature": "components/security-header/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["helmet", "cors"],
+    "dev": ["@types/cors"]
+  }
+}
