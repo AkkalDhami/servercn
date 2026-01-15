@@ -1,0 +1,18 @@
+{
+  "title": "Request Validator(Zod)",
+  "slug": "request-validator",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/request-validator/express/mvc",
+      "feature": "components/request-validator/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "zod"],
+    "dev": []
+  },
+  "env": []
+}

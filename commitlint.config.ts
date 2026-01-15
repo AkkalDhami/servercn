@@ -8,7 +8,6 @@ export default {
     ],
 
     "body-max-length": [0, "always", 500],
-    "header-max-length": [0, "always", 200],
-    "subject-case": [2, "always", ["lower-case"]]
+    "header-max-length": [0, "always", 200]
   }
 };
