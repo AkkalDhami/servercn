@@ -1,0 +1,34 @@
+{
+  "title": "Drizzle PostgreSQL Starter",
+  "slug": "drizzle-pg-starter",
+  "type": "foundation",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "foundations/drizzle-pg-starter/mvc",
+      "feature": "foundations/drizzle-pg-starter/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "dotenv", "cors", "helmet", "cookie-parser", "drizzle-orm", "pg", "pino-pretty", "pino"],
+    "dev": [
+      "typescript",
+      "ts-node-dev",
+      "@types/node",
+      "@types/express",
+      "@types/node",
+      "morgan",
+      "@types/cors",
+      "@types/helmet",
+      "@types/morgan",
+      "@types/cookie-parser",
+      "drizzle-kit",
+      "@types/pg",
+      "prettier",
+      "@commitlint/cli",
+      "@commitlint/config-conventional"
+    ]
+  },
+  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]
+}
