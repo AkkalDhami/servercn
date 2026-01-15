@@ -1,0 +1,17 @@
+{
+  "title": "Graceful Shutdown Handler",
+  "slug": "shutdown-handler",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/shutdown-handler/express/mvc",
+      "feature": "components/shutdown-handler/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": ["@types/node"]
+  }
+}
