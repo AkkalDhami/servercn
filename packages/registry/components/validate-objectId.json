@@ -1,0 +1,18 @@
+{
+  "title": "Validate ObjectId Middleware",
+  "slug": "validate-objectId",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/validate-objectId/express/mvc",
+      "feature": "components/validate-objectId/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "mongoose"],
+    "dev": []
+  },
+  "env": []
+}
