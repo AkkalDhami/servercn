@@ -49,44 +49,44 @@ mvc_structure:
           - type: file
             name: rate-limiter.ts
             content: |
-                import { rateLimit } from "express-rate-limit";
-                import { ApiError } from "../utils/api-error";
-                import { STATUS_CODES } from "../constants/status-codes";
+              import { rateLimit } from "express-rate-limit";
+              import { ApiError } from "../utils/api-error";
+              import { STATUS_CODES } from "../constants/status-codes";
 
-                /**
-                * Standard rate limiter middleware
-                * Limits each IP to 100 requests per 15-minute window
-                */
-                export const rateLimiter = rateLimit({
-                  windowMs: 15 * 60 * 1000, // 15 minutes
-                  max: 100, // Limit each IP to 100 requests per window
-                  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-                  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-                  message: {
-                    status: 429,
-                    message: "Too many requests from this IP, please try again after 15 minutes"
-                  },
-                  handler: (req, res, next, options) => {
-                    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
-                  }
-                });
+              /**
+              * Standard rate limiter middleware
+              * Limits each IP to 100 requests per 15-minute window
+              */
+              export const rateLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000, // 15 minutes
+                max: 100, // Limit each IP to 100 requests per window
+                standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+                legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                message: {
+                  status: 429,
+                  message: "Too many requests from this IP, please try again after 15 minutes"
+                },
+                handler: (req, res, next, options) => {
+                  next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+                }
+              });
 
-                /**
-                * Stricter rate limiter for sensitive routes (e.g., auth, login)
-                */
-                export const authRateLimiter = rateLimit({
-                  windowMs: 60 * 60 * 1000, // 1 hour
-                  max: 5, // Limit each IP to 5 failed attempts per hour
-                  handler: (req, res, next, options) => {
-                    next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
-                  }
-                });
+              /**
+              * Stricter rate limiter for sensitive routes (e.g., auth, login)
+              */
+              export const authRateLimiter = rateLimit({
+                windowMs: 60 * 60 * 1000, // 1 hour
+                max: 5, // Limit each IP to 5 failed attempts per hour
+                handler: (req, res, next, options) => {
+                  next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+                }
+              });
 
-                /**
-                * Make sure global error handler is set up to handle ApiError
-                * If you don't have a global error handler, you can install:
-                * npx servercn add global-error-handler
-                */
+              /**
+              * Make sure global error handler is set up to handle ApiError
+              * If you don't have a global error handler, you can install:
+              * npx servercn add global-error-handler
+              */
 
       - type: folder
         name: utils
@@ -161,7 +161,6 @@ mvc_structure:
               * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
               * throw ApiError.badRequest("Bad request");
               */
-
 
 feature_structure:
   - type: folder
@@ -287,45 +286,44 @@ feature_structure:
               - type: file
                 name: rate-limiter.ts
                 content: |
-                    import { rateLimit } from "express-rate-limit";
-                    import { ApiError } from "../errors/api-error";
-                    import { STATUS_CODES } from "../constants/status-codes";
+                  import { rateLimit } from "express-rate-limit";
+                  import { ApiError } from "../errors/api-error";
+                  import { STATUS_CODES } from "../constants/status-codes";
 
-                    /**
-                    * Standard rate limiter middleware
-                    * Limits each IP to 100 requests per 15-minute window
-                    */
-                    export const rateLimiter = rateLimit({
-                      windowMs: 15 * 60 * 1000, // 15 minutes
-                      max: 100, // Limit each IP to 100 requests per window
-                      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-                      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-                      message: {
-                        status: 429,
-                        message: "Too many requests from this IP, please try again after 15 minutes"
-                      },
-                      handler: (req, res, next, options) => {
-                        next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
-                      }
-                    });
+                  /**
+                  * Standard rate limiter middleware
+                  * Limits each IP to 100 requests per 15-minute window
+                  */
+                  export const rateLimiter = rateLimit({
+                    windowMs: 15 * 60 * 1000, // 15 minutes
+                    max: 100, // Limit each IP to 100 requests per window
+                    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+                    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                    message: {
+                      status: 429,
+                      message: "Too many requests from this IP, please try again after 15 minutes"
+                    },
+                    handler: (req, res, next, options) => {
+                      next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+                    }
+                  });
 
-                    /**
-                    * Stricter rate limiter for sensitive routes (e.g., auth, login)
-                    */
-                    export const authRateLimiter = rateLimit({
-                      windowMs: 60 * 60 * 1000, // 1 hour
-                      max: 5, // Limit each IP to 5 failed attempts per hour
-                      handler: (req, res, next, options) => {
-                        next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
-                      }
-                    });
+                  /**
+                  * Stricter rate limiter for sensitive routes (e.g., auth, login)
+                  */
+                  export const authRateLimiter = rateLimit({
+                    windowMs: 60 * 60 * 1000, // 1 hour
+                    max: 5, // Limit each IP to 5 failed attempts per hour
+                    handler: (req, res, next, options) => {
+                      next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+                    }
+                  });
 
-                    /**
-                    * Make sure global error handler is set up to handle ApiError
-                    * If you don't have a global error handler, you can install:
-                    * npx servercn add global-error-handler
-                    */
-
+                  /**
+                  * Make sure global error handler is set up to handle ApiError
+                  * If you don't have a global error handler, you can install:
+                  * npx servercn add global-error-handler
+                  */
 ---
 
 # Rate Limiter
@@ -375,9 +373,9 @@ The rate limiter can be customized to fit your application's needs:
 
 ## Basic Implementation
 
-#### **MVC:**  <Code children="src/middlewares/rate-limiter.ts" />
+#### **MVC:** <Code children="src/middlewares/rate-limiter.ts" />
 
-#### **Modular:**  <Code children="src/shared/middlewares/rate-limiter.ts" />
+#### **Modular:** <Code children="src/shared/middlewares/rate-limiter.ts" />
 
 ```ts
 import { rateLimit } from "express-rate-limit";
@@ -421,10 +419,10 @@ export const signinRateLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many login attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 /**
@@ -436,10 +434,10 @@ export const signupRateLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many registration attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 ```
 
