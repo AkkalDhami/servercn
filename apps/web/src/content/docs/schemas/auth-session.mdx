@@ -1,0 +1,449 @@
+---
+title: Auth | Session | Schema
+description: The Auth Session schema manages user sessions, supporting multiple active devices, IP tracking, and automatic expiration.
+command: npx servercn add schema auth/session
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: session.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+
+                  const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+                  export const sessions = mysqlTable(
+                    "sessions",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+                      ip: varchar("ip", { length: 45 }),
+                      userAgent: varchar("user_agent", { length: 512 }),
+                      isActive: boolean("is_active").default(true).notNull(),
+                      lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("userId_idx").on(table.userId),
+                      index("tokenHash_idx").on(table.tokenHash),
+                      index("isActive_idx").on(table.isActive),
+                      index("userId_isActive_idx").on(table.userId, table.isActive),
+                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                    ]
+                  );
+
+                  export const sessionsRelations = relations(sessions, ({ one }) => ({
+                    user: one(users, {
+                      fields: [sessions.userId],
+                      references: [users.id]
+                    })
+                  }));
+
+                  export type Session = typeof sessions.$inferSelect;
+                  export type NewSession = typeof sessions.$inferInsert;
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { sessions } from "./session.schema";
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 50 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }).notNull(),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+                      isVerified: boolean("is_verified").default(false).notNull(),
+                      createdAt: timestamp("created_at").defaultNow().notNull(),
+                      updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                    },
+                    table => [uniqueIndex("idx_email").on(table.email)]
+                  );
+
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    sessions: many(sessions)
+                  }));
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: session.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+
+                  const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+                  export const sessions = mysqlTable(
+                    "sessions",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+                      ip: varchar("ip", { length: 45 }),
+                      userAgent: varchar("user_agent", { length: 512 }),
+                      isActive: boolean("is_active").default(true).notNull(),
+                      lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("userId_idx").on(table.userId),
+                      index("tokenHash_idx").on(table.tokenHash),
+                      index("isActive_idx").on(table.isActive),
+                      index("userId_isActive_idx").on(table.userId, table.isActive),
+                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                    ]
+                  );
+
+                  export const sessionsRelations = relations(sessions, ({ one }) => ({
+                    user: one(users, {
+                      fields: [sessions.userId],
+                      references: [users.id]
+                    })
+                  }));
+
+                  export type Session = typeof sessions.$inferSelect;
+                  export type NewSession = typeof sessions.$inferInsert;
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { sessions } from "./session.schema";
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 50 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }).notNull(),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+                      isVerified: boolean("is_verified").default(false).notNull(),
+                      createdAt: timestamp("created_at").defaultNow().notNull(),
+                      updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                    },
+                    table => [uniqueIndex("idx_email").on(table.email)]
+                  );
+
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    sessions: many(sessions)
+                  }));
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+---
+
+# Auth Session Schema
+
+The **Auth Session** model tracks active user sessions across different devices and browsers. It provides features like session invalidation, IP tracking, and automatic cleanup using TTL indexes.
+
+## Installation Guide
+
+To add the Auth Session schema to your project, run the following command:
+
+<PackageManagerTabs command="npx servercn add schema auth/session" />
+
+This command generates the Session schema based on your existing <Code children={'servercn.json'} /> configuration.
+
+## Schema Definition
+
+### 1. Mongoose (MongoDB)
+
+A robust session schema with IP tracking, User-Agent storage, and a TTL index for automatic expiry.
+
+```ts
+import mongoose, { Document, Schema, Model } from "mongoose";
+
+export interface ISession extends Document {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  tokenHash: string;
+  ip?: string;
+  userAgent?: string;
+  isActive: boolean;
+  lastUsedAt: Date;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const sessionSchema: Schema<ISession> = new Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    tokenHash: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    },
+    ip: { type: String },
+    userAgent: { type: String },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true
+    },
+    lastUsedAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: {
+      type: Date,
+      required: true,
+      index: { expires: 0 } // TTL index
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Supporting indexes
+sessionSchema.index({ userId: 1, isActive: 1 });
+sessionSchema.index({ userId: 1, lastUsedAt: -1 });
+
+const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+
+export default Session;
+```
+
+### 2. Drizzle ORM (MySQL)
+
+```ts
+import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+const timestamps = {
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+};
+
+export const sessions = mysqlTable(
+  "sessions",
+  {
+    id: serial("id").primaryKey(),
+    userId: int("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+    ip: varchar("ip", { length: 45 }),
+    userAgent: varchar("user_agent", { length: 512 }),
+    isActive: boolean("is_active").default(true).notNull(),
+    lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    ...timestamps
+  },
+  table => [
+    index("userId_idx").on(table.userId),
+    index("tokenHash_idx").on(table.tokenHash),
+    index("isActive_idx").on(table.isActive),
+    index("userId_isActive_idx").on(table.userId, table.isActive),
+    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+  ]
+);
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id]
+  })
+}));
+
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+```
+
+### 3. Drizzle ORM (PostgreSQL)
+
+```ts
+import { pgTable, serial, varchar, timestamp, boolean, index, integer } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+const timestamps = {
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .defaultNow()
+    .$onUpdate(() => new Date().toISOString())
+    .notNull()
+};
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+    ip: varchar("ip", { length: 45 }),
+    userAgent: varchar("user_agent", { length: 512 }),
+    isActive: boolean("is_active").default(true).notNull(),
+    lastUsedAt: timestamp("last_used_at", { mode: "string" }).defaultNow().notNull(),
+    expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
+    ...timestamps
+  },
+  table => [
+    index("userId_idx").on(table.userId),
+    index("tokenHash_idx").on(table.tokenHash),
+    index("isActive_idx").on(table.isActive),
+    index("userId_isActive_idx").on(table.userId, table.isActive),
+    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+  ]
+);
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id]
+  })
+}));
+
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
+```
+
+## Understanding Drizzle Relations
+
+When using **Drizzle ORM** with MySQL or PostgreSQL, you need to define **bidirectional relations** between the `users` and `sessions` tables to enable relational queries.
+
+### Relationship Type: One-to-Many (1:M)
+
+The relationship between **Users** and **Sessions** is a **one-to-many** relationship:
+
+- **One User** can have **Many Sessions** (multiple devices/browsers)
+- **One Session** belongs to **One User**
+
+### How to Implement Relations
+
+**1. In `session.schema.ts` (Many-to-One side)**
+
+```ts
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id]
+  })
+}));
+```
+
+This defines that:
+
+- Each session belongs to **one** user
+- The `userId` field in `sessions` references the `id` field in `users`
+
+**2. In `user.schema.ts` (One-to-Many side)**
+
+```ts
+import { relations } from "drizzle-orm";
+import { sessions } from "./session.schema";
+
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions)
+}));
+```
+
+This defines that:
+
+- Each user can have **many** sessions
+- Enables querying all sessions for a specific user
+
+### Querying with Relations
+
+Once relations are defined, you can perform powerful relational queries:
+
+```ts
+// Get user with all their active sessions
+const userWithSessions = await db.query.users.findFirst({
+  where: eq(users.id, userId),
+  with: {
+    sessions: {
+      where: eq(sessions.isActive, true)
+    }
+  }
+});
+
+// Get session with user details
+const sessionWithUser = await db.query.sessions.findFirst({
+  where: eq(sessions.tokenHash, token),
+  with: {
+    user: true
+  }
+});
+```
+
+## Important Notes
+
+<Note text="Bidirectional Relations Required
+Both schemas must define their side of the relationship for Drizzle's relational queries to work. Defining only one side will result in errors."/>
+
+Relation Types in Drizzle
+
+- **`one()`**: Used for the "many" side pointing to the "one" side (e.g., many sessions → one user)
+- **`many()`**: Used for the "one" side pointing to the "many" side (e.g., one user → many sessions)
+- **`one()` for 1:1**: Both sides use `one()` for one-to-one relationships
+
+<Warning text="Circular Import Prevention
+To avoid circular dependency issues, ensure both schema files are in the same directory and use relative imports. Drizzle handles the circular reference internally."/>
+
+## Key Features
+
+- **Multi-Device Support**: Track multiple active sessions per user.
+- **Security**: Stores hashed tokens instead of plain-text session tokens.
+- **Auditing**: Records IP addresses and User-Agents for security monitoring.
+- **Management**: Easily list and revoke active sessions for a specific user.
+- **Automatic Cleanup**: Uses MongoDB TTL indexes to remove expired sessions effortlessly.
+
+## Best Practices
+
+- **Token Rotation**: Rotate session tokens periodically or upon sensitive actions.
+- **Revocation**: Provide a way for users to "Logout from all devices" by setting `isActive: false` for all their sessions.
+- **IP Sensitivity**: Consider alerting the user if a session is initiated from a significantly different geographic location/IP.
