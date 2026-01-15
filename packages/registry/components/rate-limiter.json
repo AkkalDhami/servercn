@@ -1,0 +1,18 @@
+{
+  "slug": "rate-limiter",
+  "title": "Rate Limiter",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["feature", "mvc"],
+  "templates": {
+    "express": {
+      "mvc": "components/rate-limiter/express/mvc",
+      "feature": "components/rate-limiter/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express-rate-limit"],
+    "dev": [],
+    "peer": []
+  }
+}
