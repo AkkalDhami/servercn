@@ -1,0 +1,18 @@
+{
+  "slug": "rbac",
+  "title": "Role Based Access Control(RBAC)",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["feature", "mvc"],
+  "templates": {
+    "express": {
+      "mvc": "components/rbac/express/mvc",
+      "feature": "components/rbac/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "dotenv", "pino"],
+    "dev": ["@types/express"],
+    "peer": []
+  }
+}
