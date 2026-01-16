@@ -1,0 +1,817 @@
+---
+title: Generate OTP/Token Helper Functions
+description: Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
+command: npx servercn add generate-otp-token
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: helpers
+        children:
+          - type: file
+            name: token.helpers.ts
+            content: |
+              import crypto from "node:crypto";
+
+              //? generate otp
+              export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
+                const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
+                const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+                return { code, hashCode, expiresAt };
+              }
+
+              //? verify otp
+              export function verifyOTP(code: string, hashCode: string): boolean {
+                const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                return validCode === hashCode;
+              }
+
+              //? hash otp
+              export function hashOTP(otp: string): string {
+                return crypto.createHash("sha256").update(String(otp)).digest("hex");
+              }
+
+              //? generate secure token
+              export function generateSecureToken(length: number = 32): string {
+                return crypto.randomBytes(length).toString("hex");
+              }
+
+              //? generate hashed token
+              export function generateHashedToken(token: string): string {
+                return crypto.createHash("sha256").update(String(token)).digest("hex");
+              }
+
+              //? generate token and hashed token
+              export function generateTokenAndHashedToken(id: string) {
+                const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+                const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
+
+                const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
+                return { token, hashedToken };
+              }
+
+              //? verify hashed token
+              export function verifyHashedToken(token: string, hashedToken: string): boolean {
+                return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
+              }
+
+              //? generate uuid
+              export function generateUUID(): string {
+                return crypto.randomUUID();
+              }
+
+              //? generate alphanumeric token
+              export function generateAlphanumericToken(length: number = 32): string {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                const randomBytes = crypto.randomBytes(length);
+                let token = "";
+
+                for (let i = 0; i < length; i++) {
+                  token += chars[randomBytes[i] % chars.length];
+                }
+
+                return token;
+              }
+
+              //? generate url safe token
+              export function generateURLSafeToken(length: number = 32): string {
+                return crypto.randomBytes(length).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+              }
+
+              //? generate numeric code
+              export function generateNumericCode(length: number = 6): string {
+                const digits = "0123456789";
+                const randomBytes = crypto.randomBytes(length);
+                let code = "";
+
+                for (let i = 0; i < length; i++) {
+                  code += digits[randomBytes[i] % 10];
+                }
+
+                return code;
+              }
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: helpers
+            children:
+              - type: file
+                name: token.helpers.ts
+                content: |
+                  import crypto from "node:crypto";
+
+                  //? generate otp
+                  export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
+                    const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
+                    const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                    const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+                    return { code, hashCode, expiresAt };
+                  }
+
+                  //? verify otp
+                  export function verifyOTP(code: string, hashCode: string): boolean {
+                    const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                    return validCode === hashCode;
+                  }
+
+                  //? hash otp
+                  export function hashOTP(otp: string): string {
+                    return crypto.createHash("sha256").update(String(otp)).digest("hex");
+                  }
+
+                  //? generate secure token
+                  export function generateSecureToken(length: number = 32): string {
+                    return crypto.randomBytes(length).toString("hex");
+                  }
+
+                  //? generate hashed token
+                  export function generateHashedToken(token: string): string {
+                    return crypto.createHash("sha256").update(String(token)).digest("hex");
+                  }
+
+                  //? generate token and hashed token
+                  export function generateTokenAndHashedToken(id: string) {
+                    const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+                    const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
+
+                    const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
+                    return { token, hashedToken };
+                  }
+
+                  //? verify hashed token
+                  export function verifyHashedToken(token: string, hashedToken: string): boolean {
+                    return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
+                  }
+
+                  //? generate uuid
+                  export function generateUUID(): string {
+                    return crypto.randomUUID();
+                  }
+
+                  //? generate alphanumeric token
+                  export function generateAlphanumericToken(length: number = 32): string {
+                    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    const randomBytes = crypto.randomBytes(length);
+                    let token = "";
+
+                    for (let i = 0; i < length; i++) {
+                      token += chars[randomBytes[i] % chars.length];
+                    }
+
+                    return token;
+                  }
+
+                  //? generate url safe token
+                  export function generateURLSafeToken(length: number = 32): string {
+                    return crypto.randomBytes(length).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+                  }
+
+                  //? generate numeric code
+                  export function generateNumericCode(length: number = 6): string {
+                    const digits = "0123456789";
+                    const randomBytes = crypto.randomBytes(length);
+                    let code = "";
+
+                    for (let i = 0; i < length; i++) {
+                      code += digits[randomBytes[i] % 10];
+                    }
+
+                    return code;
+                  }
+---
+
+# Generate OTP/Token Helper Functions
+
+The **Generate OTP/Token Helper Functions** component provides **cryptographically secure** utility functions for generating one-time passwords (OTPs), random tokens, and unique identifiers.
+
+These utilities are essential for authentication workflows including email verification, password resets, two-factor authentication, and session management.
+
+All functions use Node.js's built-in `crypto` module to ensure **cryptographic randomness** and security.
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add generate-otp-token" />
+
+## File Structure
+
+**MVC Structure:** <Code children="src/helpers/token.helpers.ts" />
+
+**Feature Structure:** <Code children="src/shared/helpers/token.helpers.ts" />
+
+## Core Functions
+
+### 1. Generate OTP (One-Time Password)
+
+Generate a cryptographically secure numeric OTP of any length (default: 6 digits).
+
+```ts
+import crypto from "node:crypto";
+
+/**
+ * Generates a cryptographically secure numeric OTP
+ * @param length - Length of the OTP (default: 6)
+ * @param ttlMinutes - Time to live in minutes (default: 5)
+ * @returns An object containing the OTP code, its hash, and expiration time
+ */
+
+export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
+  //? generate random otp code
+  const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
+
+  //? generate hash of otp code
+  const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+
+  //? generate expiration time
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+
+  return { code, hashCode, expiresAt };
+}
+```
+
+**Usage Examples:**
+
+```ts
+//? generate otp with default length and ttl
+const otp = generateOTP();
+{
+  code: '434741',
+  hashCode: '8958319959f69db8f78e94c0f3bba4df00f01744769c88d459ff189793bd4fa3',
+  expiresAt: '2026-01-15T12:52:00.573Z'
+}
+```
+
+```ts
+//? generate otp with custom length and ttl
+const { code, hashCode, expiresAt } = generateOTP(8, 10);
+{
+  code: '01925315',
+  hashCode: '838738959ab68115fbc10e67948bc0bf193bd464a2ff5dc0db9e4270de4693f5',
+  expiresAt: '2026-01-15T13:05:13.004Z'
+}
+```
+
+**Use Cases:**
+
+- Email verification codes
+- SMS verification codes
+- Two-factor authentication (2FA)
+- Password reset codes
+
+### 2. Verify OTP
+
+Verify an OTP code against its hash and expiration time.
+
+```ts
+import crypto from "node:crypto";
+
+export function verifyOTP(code: string, hashCode: string): boolean {
+  const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+  return validCode === hashCode;
+}
+```
+
+**Usage Example:**
+
+```ts
+const isValid = verifyOTP("123456", "8958319959f69db8f78e94c0f3bba4df00f01744769c88d459ff189793bd4fa3"); //? true if valid, false otherwise
+```
+
+### 3. Generate Secure Random Token
+
+Generate a cryptographically secure random token using hexadecimal encoding.
+
+```ts
+import crypto from "node:crypto";
+
+export function generateSecureToken(length: number = 32): string {
+  return crypto.randomBytes(length).toString("hex");
+}
+```
+
+**Usage Example:**
+
+```ts
+const token = generateSecureToken(); // "a3f5c8e9d2b1f4a6c7e8d9b0a1f2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+const shortToken = generateSecureToken(16); // "a3f5c8e9d2b1f4a6c7e8d9b0a1f2c3d4"
+```
+
+**Use Cases:**
+
+- Password reset tokens
+- Email verification tokens
+- API keys
+- Session tokens
+- CSRF tokens
+
+### 4. Generate Hashed Token
+
+Generate a hashed token using SHA-256.
+
+```ts
+import crypto from "node:crypto";
+
+export function generateHashedToken(token: string): string {
+  return crypto.createHash("sha256").update(String(token)).digest("hex");
+}
+```
+
+**Usage Example:**
+
+```ts
+const hashedToken = generateHashedToken("my-token"); // "8958319959f69db8f78e94c0f3bba4df00f01744769c88d459ff189793bd4fa3"
+```
+
+**Use Cases:**
+
+- Password reset tokens
+- Email verification tokens
+- API keys
+- Session tokens
+- CSRF tokens
+
+### 5. Generate Token and Hashed Token
+
+Generate a token and hashed token using SHA-256.
+
+```ts
+import crypto from "node:crypto";
+
+export function generateTokenAndHashedToken(id: string) {
+  const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+  const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
+
+  const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
+  return { token, hashedToken };
+}
+```
+
+**Usage Example:**
+
+```ts
+const { token, hashedToken } = generateTokenAndHashedToken("my-token");
+{
+  token: 'b24cec4f5f059638e6945b6b30178b2ac286398dbb4bdf2d78e9d665aa574a24',
+  hashedToken: '82d8db5da99e3a848fcfb0c7ee00f60eff7e38d6356df6ecff65e12335bb8e78'
+}
+```
+
+### 6. Verify Hashed Token
+
+Verify a hashed token using SHA-256.
+
+```ts
+import crypto from "node:crypto";
+
+export function verifyHashedToken(token: string, hashedToken: string): boolean {
+  return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
+}
+```
+
+**Usage Example:**
+
+```ts
+const isValid = verifyHashedToken("my-token", "8958319959f69db8f78e94c0f3bba4df00f01744769c88d459ff189793bd4fa3"); // true if valid, false otherwise
+```
+
+### 7. Generate UUID (Universally Unique Identifier)
+
+Generate a RFC 4122 version 4 UUID.
+
+```ts
+import crypto from "node:crypto";
+
+export function generateUUID(): string {
+  return crypto.randomUUID();
+}
+```
+
+**Usage Example:**
+
+```ts
+const uuid = generateUUID(); // "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+```
+
+**Use Cases:**
+
+- Unique identifiers for database records
+- Request/transaction IDs
+- Session IDs
+- File upload identifiers
+
+### 8. Generate Alphanumeric Token
+
+Generate a cryptographically secure alphanumeric token (letters + numbers).
+
+```ts
+import crypto from "node:crypto";
+
+export function generateAlphanumericToken(length: number = 32): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const randomBytes = crypto.randomBytes(length);
+  let token = "";
+
+  for (let i = 0; i < length; i++) {
+    token += chars[randomBytes[i] % chars.length];
+  }
+
+  return token;
+}
+```
+
+**Usage Example:**
+
+```ts
+const token = generateAlphanumericToken(); // "Kx7mP9qR2sT4vW6yZ8aB1cD3eF5gH7jL"
+const shortToken = generateAlphanumericToken(16); // "Kx7mP9qR2sT4vW6y"
+```
+
+**Use Cases:**
+
+- User-friendly verification codes
+- Invite codes
+- Referral codes
+- Promo codes
+
+### 9. Generate URL-Safe Token
+
+Generate a cryptographically secure URL-safe token (base64url encoding).
+
+```ts
+import crypto from "node:crypto";
+
+export function generateURLSafeToken(length: number = 32): string {
+  return crypto.randomBytes(length).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+```
+
+**Usage Example:**
+
+```ts
+const token = generateURLSafeToken(); // "Kx7mP9qR2sT4vW6yZ8aB1cD3eF5gH7jL9nM0pQ3rS5tU7vX9wY1zA2bC4dE6fG"
+```
+
+**Use Cases:**
+
+- Email verification links
+- Password reset links
+- Magic link authentication
+- Share links
+
+### 10. Generate Numeric Code
+
+Generate a cryptographically secure numeric code (alternative to OTP with better distribution).
+
+```ts
+import crypto from "node:crypto";
+
+export function generateNumericCode(length: number = 6): string {
+  const digits = "0123456789";
+  const randomBytes = crypto.randomBytes(length);
+  let code = "";
+
+  for (let i = 0; i < length; i++) {
+    code += digits[randomBytes[i] % 10];
+  }
+
+  return code;
+}
+```
+
+**Usage:**
+
+```ts
+const code = generateNumericCode(); // "847392"
+const longCode = generateNumericCode(10); // "8473920156"
+```
+
+## Complete Implementation
+
+Here's a complete implementation file with all utility functions:
+
+**MVC Structure:** <Code children="src/helpers/token.helpers.ts" />
+
+**Feature Structure:** <Code children="src/shared/helpers/token.helpers.ts" />
+
+```ts
+import crypto from "node:crypto";
+
+//? generate otp
+export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
+  const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
+  const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+  return { code, hashCode, expiresAt };
+}
+
+//? verify otp
+export function verifyOTP(code: string, hashCode: string): boolean {
+  const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+  return validCode === hashCode;
+}
+
+//? hash otp
+export function hashOTP(otp: string): string {
+  return crypto.createHash("sha256").update(String(otp)).digest("hex");
+}
+
+//? generate secure token
+export function generateSecureToken(length: number = 32): string {
+  return crypto.randomBytes(length).toString("hex");
+}
+
+//? generate hashed token
+export function generateHashedToken(token: string): string {
+  return crypto.createHash("sha256").update(String(token)).digest("hex");
+}
+
+//? generate token and hashed token
+export function generateTokenAndHashedToken(id: string) {
+  const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+  const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
+
+  const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
+  return { token, hashedToken };
+}
+
+//? verify hashed token
+export function verifyHashedToken(token: string, hashedToken: string): boolean {
+  return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
+}
+
+//? generate uuid
+export function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
+//? generate alphanumeric token
+export function generateAlphanumericToken(length: number = 32): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const randomBytes = crypto.randomBytes(length);
+  let token = "";
+
+  for (let i = 0; i < length; i++) {
+    token += chars[randomBytes[i] % chars.length];
+  }
+
+  return token;
+}
+
+//? generate url safe token
+export function generateURLSafeToken(length: number = 32): string {
+  return crypto.randomBytes(length).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+//? generate numeric code
+export function generateNumericCode(length: number = 6): string {
+  const digits = "0123456789";
+  const randomBytes = crypto.randomBytes(length);
+  let code = "";
+
+  for (let i = 0; i < length; i++) {
+    code += digits[randomBytes[i] % 10];
+  }
+
+  return code;
+}
+```
+
+## Usage Examples
+
+### Email Verification Flow
+
+```ts
+import { generateOTP, generateSecureToken } from "@/helpers/token.helpers";
+import { hashOTP } from "@/helpers/auth.helpers";
+import Otp from "@/models/otp";
+import { sendEmail } from "@/services/email.service";
+
+export async function sendVerificationEmail(userId: string, email: string) {
+  // Generate 6-digit OTP
+  const otp = generateOTP(6);
+
+  // Hash the OTP before storing
+  const hashedOTP = await hashOTP(otp);
+
+  // Store in database
+  await Otp.create({
+    userId,
+    email,
+    otpHashCode: hashedOTP,
+    type: "email-verification",
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+    nextResendAllowedAt: new Date(Date.now() + 60 * 1000) // 1 minute
+  });
+
+  // Send email with plain OTP (never store it)
+  await sendEmail({
+    to: email,
+    subject: "Verify Your Email",
+    text: `Your verification code is: ${otp}. Valid for 15 minutes.`
+  });
+}
+```
+
+### Password Reset Flow
+
+```ts
+import { generateURLSafeToken } from "@/helpers/token.helpers";
+import User from "@/models/user";
+import { sendEmail } from "@/services/email.service";
+
+export async function sendPasswordResetEmail(email: string) {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Generate secure token
+  const resetToken = generateURLSafeToken(32);
+
+  // Hash and store token
+  const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+  user.passwordResetToken = hashedToken;
+  user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  await user.save();
+
+  // Send email with reset link
+  const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+  await sendEmail({
+    to: email,
+    subject: "Password Reset Request",
+    html: `Click here to reset your password: <a href="${resetURL}">${resetURL}</a>`
+  });
+}
+```
+
+### API Key Generation
+
+```ts
+import { generateSecureToken, generateUUID } from "@/helpers/token.helpers";
+import ApiKey from "@/models/apiKey";
+
+export async function createAPIKey(userId: string, name: string) {
+  // Generate API key
+  const apiKey = `sk_${generateSecureToken(32)}`;
+
+  // Hash the key before storing
+  const hashedKey = crypto.createHash("sha256").update(apiKey).digest("hex");
+
+  // Create record
+  await ApiKey.create({
+    id: generateUUID(),
+    userId,
+    name,
+    keyHash: hashedKey,
+    createdAt: new Date()
+  });
+
+  // Return the plain key (only shown once)
+  return apiKey;
+}
+```
+
+### Session Token Generation
+
+```ts
+import { generateSecureToken } from "@/helpers/token.helpers";
+import Session from "@/models/session";
+
+export async function createSession(userId: string, userAgent: string, ipAddress: string) {
+  // Generate session token
+  const sessionToken = generateSecureToken(32);
+
+  // Hash the token
+  const hashedToken = crypto.createHash("sha256").update(sessionToken).digest("hex");
+
+  // Create session
+  await Session.create({
+    userId,
+    tokenHash: hashedToken,
+    userAgent,
+    ipAddress,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+  });
+
+  return sessionToken;
+}
+```
+
+### Invite Code Generation
+
+```ts
+import { generateAlphanumericToken } from "@/helpers/token.helpers";
+import Invite from "@/models/invite";
+
+export async function createInviteCode(userId: string, maxUses: number = 1) {
+  // Generate user-friendly invite code
+  const inviteCode = generateAlphanumericToken(8).toUpperCase();
+
+  // Create invite
+  await Invite.create({
+    code: inviteCode,
+    createdBy: userId,
+    maxUses,
+    usedCount: 0,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+  });
+
+  return inviteCode;
+}
+```
+
+## Security Best Practices
+
+### 1. Always Use Crypto Module
+
+❌ **Don't use Math.random():**
+
+```ts
+// INSECURE - Predictable
+function generateOTP() {
+  return Math.floor(Math.random() * 1000000).toString();
+}
+```
+
+✅ **Use crypto.randomInt() or crypto.randomBytes():**
+
+```ts
+// SECURE - Cryptographically random
+function generateOTP() {
+  return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
+}
+```
+
+### 2. Hash Tokens Before Storing
+
+Always hash tokens before storing them in the database:
+
+```ts
+import crypto from "node:crypto";
+
+// Hash the token
+const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+// Store only the hash
+await TokenModel.create({ tokenHash: hashedToken });
+```
+
+### 3. Set Expiration Times
+
+Always set expiration times for tokens and OTPs:
+
+```ts
+const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+```
+
+### 4. Implement Rate Limiting
+
+Prevent abuse by limiting token generation:
+
+```ts
+// Allow only 3 OTP requests per hour per user
+const recentOTPs = await Otp.countDocuments({
+  userId,
+  createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) }
+});
+
+if (recentOTPs >= 3) {
+  throw new Error("Too many OTP requests. Please try again later.");
+}
+```
+
+### 5. Use Appropriate Token Lengths
+
+- **OTP**: 6 digits (1 million combinations)
+- **Short tokens**: 16 bytes (32 hex characters)
+- **Standard tokens**: 32 bytes (64 hex characters)
+- **High-security tokens**: 64 bytes (128 hex characters)
+
+### 6. Never Log Sensitive Tokens
+
+```ts
+// ❌ Don't log tokens
+console.log("Generated OTP:", otp);
+
+// ✅ Log only metadata
+console.log("OTP generated for user:", userId);
+```
+
+## Related Components
+
+- [Password Hashing](/docs/components/password-hashing) - Secure password hashing utilities
+- [JWT Utils](/docs/components/jwt-utils) - JSON Web Token generation and verification
+- [Auth OTP Schema](/docs/schemas/auth-otp) - OTP database schema and management

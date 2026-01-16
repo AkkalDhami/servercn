@@ -1,0 +1,17 @@
+{
+  "title": "Generate OTP/Token",
+  "slug": "generate-otp-token",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/generate-otp-token/express/mvc",
+      "feature": "components/generate-otp-token/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": []
+  }
+}
