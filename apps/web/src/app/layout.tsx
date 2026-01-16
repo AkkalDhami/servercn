@@ -14,6 +14,28 @@ export const metadata: Metadata = {
   generator: siteConfig.generator,
   keywords: siteConfig.keywords,
   metadataBase: siteConfig.metadataBase,
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.applicationName,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: siteConfig.applicationName
+      }
+    ]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true
+    }
+  },
   twitter: {
     title: siteConfig.title,
     description: siteConfig.description,

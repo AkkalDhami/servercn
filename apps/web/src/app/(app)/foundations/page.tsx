@@ -5,17 +5,37 @@ import registry from "@/data/registry.json";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Heading } from "@/components/ui/heading";
 import ComponentCard from "@/components/docs/component-card";
-import { BackendComponent } from "../components/page";
+import { IRegistryItems } from "@/@types/registry";
+
 
 export const generateMetadata = (): Metadata => {
   return {
-    title: "Foundations"
+    title: "Foundations",
+    description:
+      "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+    keywords: ["ServerCN", "Foundations", "ServerCN Foundations", "ServerCN Foundations for building scalable backends"],
+    openGraph: {
+      title: "Foundations",
+      description:
+        "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+      type: "website",
+      locale: "en"
+    },
+    twitter: {
+      title: "Foundations",
+      description:
+        "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+      card: "summary_large_image"
+    },
+    icons: {
+      icon: "/favicon.ico"
+    }
   };
 };
 
 const foundations = registry.items
   .filter(component => component.type === "foundation")
-  .sort((a, b) => a.title.localeCompare(b.title)) as BackendComponent[];
+  .sort((a, b) => a.title.localeCompare(b.title)) as IRegistryItems[];
 
 export default function FoundationsPage() {
   return (
@@ -23,8 +43,8 @@ export default function FoundationsPage() {
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Foundations</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN foundations for building scalable backends. Here you can find all the components available in the library. We are
-          working on adding more components.
+          Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are
+          working on adding more foundations.
         </SubHeading>
       </div>
 
@@ -36,7 +56,7 @@ export default function FoundationsPage() {
       {/* verwsion details and totoal components count */}
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total foundations: {foundations.length} | Last updated: {registry.version.lastUpdated}
+          Version: {registry.version.version} | Total foundations: {foundations.length}
         </p>
       </div>
     </Container>

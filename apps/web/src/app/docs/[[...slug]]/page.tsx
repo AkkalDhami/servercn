@@ -61,12 +61,21 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
   return {
     title: data.title ?? "Documentation",
     description: data.description ?? "ServerCN documentation for building modern Node.js backends.",
+    keywords: data.keywords ?? ["ServerCN", "ServerCN Docs", "ServerCN Documentation", "ServerCN Backend", "ServerCN Backend Documentation"],
     openGraph: {
       title: data.title ?? "ServerCN Docs",
       description: data.description ?? "ServerCN documentation for backend components and guides.",
       url: `/docs/${slug.length > 0 ? slug.join("/") : ""}`,
       siteName: "ServerCN",
-      type: "article"
+      type: "article",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "ServerCN Docs"
+        }
+      ]
     },
     twitter: {
       card: "summary_large_image",
@@ -93,9 +102,7 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
   } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
-  } else if (slug.length === 2 && slug[0] === "schemas" && slug[1] === "auth") {
-    return path.join(DOCS_PATH, "schemas", "auth-user.mdx");
-  }
+  } 
 
   if (slug.length === 2 && slug[0] === "schemas") {
     return path.join(DOCS_PATH, `${slug.join("/")}.mdx`);
