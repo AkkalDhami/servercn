@@ -5,6 +5,7 @@ import Logo from "./logo";
 import { getTypeItems } from "@/lib/source";
 import Link from "next/link";
 import { Route } from "next";
+import { TextHoverEffect } from "../ui/text-hover-effect";
 
 type FooterLink = {
   title: string;
@@ -53,7 +54,13 @@ export default function Footer() {
               </AnimatedContainer>
             ))}
           </div>
+
+          <div className="relative mt-10">
+            <TextHoverEffect text="ServerCN" />
+          </div>
+
           <div className="text-muted-foreground relative flex flex-col items-center justify-between gap-2 border-t py-4 text-sm md:flex-row">
+            <div className="via-muted-secondary/40 absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent to-transparent"></div>
             <p>&copy; {new Date().getFullYear()} ServerCN | All rights reserved.</p>
             <div>
               Built with 🗡️{" "}

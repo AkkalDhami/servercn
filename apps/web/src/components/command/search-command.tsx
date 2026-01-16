@@ -8,7 +8,7 @@ import { Kbd } from "../ui/kbd";
 
 import Link from "next/link";
 import { Route } from "next";
-import { CircleArrowRight, CircleCheckBig, CircleDashed, CircleIcon } from "lucide-react";
+import { CircleArrowRight, CircleCheckBig, CircleChevronRight, CircleDashed, CircleIcon } from "lucide-react";
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
@@ -96,12 +96,23 @@ export default function SearchCommand({ className, size }: { className?: string;
           )}
           {schemas.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.schema.toUpperCase()}>
-              {schemas.map(item => (
-                <CommandItem asChild key={item.title}>
-                  <Link href={item.url as Route} onClick={() => setOpen(!open)} className="mb-0.5 w-full cursor-pointer">
-                    <CircleDashed className="text-muted-secondary size-2.5" /> {item.title}
-                  </Link>
-                </CommandItem>
+              {schemas.map((item, i) => (
+                <div key={item.slug} className="">
+                  <h3 className="text-muted-foreground mt-2 pl-4 text-base">
+                    {i + 1}. {item.title}
+                  </h3>
+                  <div className="mt-2 flex flex-col space-y-1">
+                    {item.meta &&
+                      item.meta?.models.length > 0 &&
+                      item.meta?.models.map(i => (
+                        <CommandItem asChild key={i.slug}>
+                          <Link href={i.slug as Route} onClick={() => setOpen(!open)} className="cursor-pointer pl-4 capitalize">
+                            <CircleChevronRight className="text-muted-secondary size-2.5" /> {i.label} Schema
+                          </Link>
+                        </CommandItem>
+                      ))}
+                  </div>
+                </div>
               ))}
             </CommandGroup>
           )}

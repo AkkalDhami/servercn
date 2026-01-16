@@ -25,7 +25,7 @@ export function Pre({ className, children, ...props }: React.HTMLAttributes<HTML
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="bg-editor absolute top-5 right-5 z-20 flex items-center justify-center rounded-md transition-all"
+        className="bg-editor absolute right-5 bottom-6 z-20 flex items-center justify-center rounded-md py-1 transition-all"
       />
       <pre ref={ref} {...props} className={cn("bg-editor mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed", className)}>
         {children}

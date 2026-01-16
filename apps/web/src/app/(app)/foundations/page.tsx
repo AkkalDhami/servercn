@@ -7,7 +7,6 @@ import { Heading } from "@/components/ui/heading";
 import ComponentCard from "@/components/docs/component-card";
 import { IRegistryItems } from "@/@types/registry";
 
-
 export const generateMetadata = (): Metadata => {
   return {
     title: "Foundations",

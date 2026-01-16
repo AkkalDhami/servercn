@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Route } from "next";
 
-import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getTypeItems } from "@/lib/source";
 import CodeTheme from "../docs/code-theme";
@@ -28,7 +26,6 @@ const navSections = [
 
 export default function DocsSidebar() {
   const pathname = usePathname();
-  const [openSlug, setOpenSlug] = useState<string | null>(null);
 
   return (
     <nav className="no-scrollbar font-inter sticky top-18 left-0 z-10 h-full max-h-[calc(100vh-2rem)] w-full space-y-6 overflow-y-auto px-3 pb-14">
@@ -46,44 +43,38 @@ export default function DocsSidebar() {
                 const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
 
                 const isSchema = item.type === "schema";
-                const isOpen = openSlug === item.slug;
 
                 return (
                   <li key={item.slug}>
                     <Link
                       href={item.url as Route}
-                      onClick={() => (isSchema ? setOpenSlug(isOpen ? null : item.slug) : setOpenSlug(null))}
                       className={cn(
                         "relative flex w-full cursor-pointer items-center justify-between pl-4 text-base font-medium transition-colors",
-                        isActive ? "text-accent-foreground" : "text-muted-foreground hover:text-foreground"
+                        isActive ? "text-accent-foreground" : "text-muted-primary hover:text-primary"
                       )}>
                       {isActive && <span className="bg-primary absolute top-0 left-0 h-full w-px" />}
 
                       <span>{item.title}</span>
 
-                      {isSchema && item.meta && item.meta?.models?.length > 0 && (
-                        <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
-                      )}
-
-                      {item.status === "unstable" && <span className="ml-2 h-2 w-2 rounded-full bg-yellow-500" />}
+                      {item.status !== "stable" && <span className="ml-2 h-2 w-2 rounded-full bg-yellow-500" />}
                     </Link>
 
                     {/* Schema models */}
-                    {isSchema && isOpen && item.meta?.models && (
-                      <ul className="mt-2 space-y-2 border-l border-zinc-200 pl-6 dark:border-zinc-800">
+                    {isSchema && item.meta?.models && (
+                      <ul className="mt-2 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
                         {item.meta.models.map(model => {
-                          const modelPath = model.slug;
+                          const modelPath = `/docs/schemas/${model.slug}`;
                           const modelActive = pathname === modelPath || pathname.startsWith(`${modelPath}/`);
-                          console.log({ model, modelActive, modelPath });
                           return (
                             <li key={model.slug}>
                               <Link
                                 href={modelPath as Route}
                                 className={cn(
-                                  "block text-sm capitalize transition-colors",
-                                  modelActive ? "text-accent-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                                  "relative block text-sm capitalize transition-colors",
+                                  modelActive ? "text-accent-foreground font-medium" : "text-muted-secondary hover:text-primary"
                                 )}>
-                                {model.label} Schema
+                                {modelActive && <span className="bg-primary absolute top-0 -left-[17px] h-full w-px" />}
+                                <span> {model.label} Schema</span>
                               </Link>
                             </li>
                           );

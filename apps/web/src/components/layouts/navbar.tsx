@@ -66,7 +66,7 @@ export default function Navbar() {
             <SearchCommand />
             <ThemeToggle />
 
-            <Button asChild size="icon" variant="secondary">
+            <Button asChild size="icon" className="hidden md:flex" variant="secondary">
               <Link href="https://github.com/akkaldhami" target="_blank">
                 <FaGithub className="size-4" />
               </Link>
@@ -105,18 +105,28 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
 
   return (
     <motion.aside
-      initial={{ x: "100%" }}
-      animate={{ x: 0 }}
-      exit={{ x: "100%" }}
-      transition={{ type: "spring", stiffness: 260, damping: 25 }}
+      initial={{
+        x: "100%"
+      }}
+      animate={{
+        x: 0
+      }}
+      exit={{
+        x: "100%"
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 260,
+        damping: 25
+      }}
       className="bg-background/90 fixed top-0 right-0 z-50 h-full w-90 backdrop-blur-md md:hidden">
       <Button variant="secondary" onClick={onClose} className="absolute top-4 right-3">
         <X />
       </Button>
 
-      <ul className="mt-16 flex flex-col space-y-5 pl-6">
+      <ul className="mt-16 flex flex-col space-y-5 px-12 pl-6">
         {links.map((link, index) => (
-          <motion.li key={link.href} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>
+          <motion.li key={link.href} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.08 }}>
             <Link
               href={link.href as Route}
               onClick={onClose}
@@ -129,7 +139,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
           </motion.li>
         ))}
       </ul>
-      <div className="absolute bottom-4 flex w-full items-center gap-3 px-3">
+      <div className="absolute right-2 bottom-4 flex w-full items-center gap-3 px-6">
         <div className="flex-1">
           <SearchCommand size="lg" />
         </div>

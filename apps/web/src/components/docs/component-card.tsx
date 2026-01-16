@@ -1,8 +1,8 @@
-import { BackendComponent } from "@/app/(app)/components/page";
+import { IRegistryItems } from "@/@types/registry";
 import { Route } from "next";
 import Link from "next/link";
 
-export default function ComponentCard({ component }: { component: BackendComponent }) {
+export default function ComponentCard({ component }: { component: IRegistryItems }) {
   return (
     <Link href={component.docs as Route} className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
       {component.status !== "stable" && (

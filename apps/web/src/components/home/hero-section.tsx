@@ -1,29 +1,40 @@
 "use client";
 import Link from "next/link";
-import { ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TextEffect } from "../ui/text-effect";
 import { AnimatedGroup } from "../ui/animated-group";
 import { FaGithub } from "react-icons/fa";
 import { HeaderBadge } from "../ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
+import Code from "../docs/custom-code";
 
 export default function HeroSection() {
   return (
     <section id="hero" className="relative overflow-hidden">
       <div className="relative pt-18 pb-20 md:pt-22 md:pb-28">
-        <div className="mx-auto max-w-6xl space-y-5 sm:px-6">
+        <div className="mx-auto max-w-6xl sm:px-6">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="hidden justify-center sm:flex">
-            <HeaderBadge className="py-1 text-sm sm:text-base">
-              <Sparkles className="size-4" />
-              Build faster with composable backends
+            <HeaderBadge className="px-0 py-1 pl-3 text-sm">
+              <Link href={"/docs"} className="flex items-center gap-2">
+                <span>Build backends by composition, not boilerplate</span>
+                <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
+                  <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
+                    <span className="flex size-6">
+                      <ArrowRight className="m-auto size-3" />
+                    </span>
+                    <span className="flex size-6">
+                      <ArrowRight className="m-auto size-3" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
             </HeaderBadge>
           </motion.div>
 
@@ -32,7 +43,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
+              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-semibold tracking-tight md:text-6xl lg:text-7xl">
               <span className="bg-linear-to-b from-neutral-400 from-5% to-neutral-900 bg-clip-text text-transparent dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
                 Build backends faster with
               </span>{" "}
@@ -41,18 +52,18 @@ export default function HeroSection() {
               </span>
             </motion.h1>
 
-            <TextEffect
-              per="line"
-              preset="fade-in-blur"
-              speedSegment={0.6}
-              delay={0.06}
-              as="p"
-              className="text-muted-primary mx-auto mt-10 max-w-2xl text-lg tracking-tight md:text-xl">
-              ServerCN , the backend component registry for Node.js inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus on
-              business logic, not boilerplate.
-            </TextEffect>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-muted-primary mx-auto mt-6 max-w-2xl text-lg leading-relaxed tracking-tight md:text-xl">
+              ServerCN is a <span className="text-accent-foreground font-medium">component registry</span> for building{" "}
+              <span className="text-accent-foreground font-medium">production-ready</span>{" "}
+              <span className="text-accent-foreground font-medium">Node.js backends</span> by composition, inspired by shadcn/ui. ServerCN
+              standardizes backend patterns so you can focus on business logic, not boilerplate.
+            </motion.div>
 
-            <AnimatedGroup className="mt-12 flex items-center justify-center gap-4">
+            <AnimatedGroup className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
                 key={1}
                 asChild
@@ -79,11 +90,12 @@ export default function HeroSection() {
                 </Link>
               </Button>
             </AnimatedGroup>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mt-12 flex items-center justify-center">
+              className="mt-10 flex items-center justify-center">
               <InitCopyButton />
             </motion.div>
           </div>
