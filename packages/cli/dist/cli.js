@@ -405,7 +405,6 @@ async function init(foundation) {
     try {
       const component = await getRegistryComponent(foundation, "foundation");
       const config2 = {
-        $schema: "https://servercn.dev/schema/v1.json",
         version: "1.0.0",
         project: {
           root: response2.root,
@@ -470,7 +469,7 @@ async function init(foundation) {
       await fs8.writeFile(path11.join(rootPath2, ".prettierignore"), `build
 dist
 .env
-ode_modules`);
+node_modules`);
       await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig2, {
         spaces: 2
       });
@@ -587,7 +586,6 @@ Success! ServerCN initialized with ${foundation}.`);
   await fs8.ensureDir(rootPath);
   await fs8.ensureDir(srcPath);
   const config = {
-    $schema: "https://servercn.dev/schema/v1.json",
     version: "1.0.0",
     project: {
       root: response.root,

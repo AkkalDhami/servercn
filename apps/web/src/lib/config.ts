@@ -3,7 +3,7 @@ export const siteConfig = {
     default: "ServerCN",
     template: "%s | ServerCN"
   },
-  url: "https://servercn.com",
+  url: "https://servercn.vercel.app",
   github: "https://github.com/akkaldhami/servercn",
   navItems: [
     {
@@ -21,6 +21,10 @@ export const siteConfig = {
     {
       label: "Blueprints",
       href: "/blueprints"
+    },
+    {
+      label: "Schemas",
+      href: "/schemas"
     }
   ],
 
@@ -41,5 +45,5 @@ export const siteConfig = {
     "Server"
   ],
   author: "Akkal Dhami",
-  metadataBase: new URL("https://servercn.com")
+  metadataBase: new URL("https://servercn.vercel.app")
 };

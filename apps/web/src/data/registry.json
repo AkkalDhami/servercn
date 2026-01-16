@@ -105,7 +105,7 @@
       "title": "Email Service",
       "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
       "type": "component",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/components/email-service"
     },
     {
@@ -137,7 +137,7 @@
       "title": "Basic REST API",
       "description": "A production-ready REST API foundation for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
       "type": "blueprint",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/blueprints/rest-api"
     },
     {
@@ -145,7 +145,7 @@
       "title": "Google OAuth",
       "description": "Google OAuth",
       "type": "component",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/components/google-oauth"
     },
     {
@@ -161,7 +161,7 @@
       "title": "Session Authentication",
       "description": "The Session Authentication component provides a standardized way to handle session authentication in ServerCN using express-session.",
       "type": "blueprint",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/blueprints/session-auth"
     },
     {
@@ -185,7 +185,7 @@
       "title": "SMS Service",
       "description": "The SMS Service component provides a standardized way to handle SMS notifications in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/components/sms-service"
     },
     {
@@ -193,7 +193,7 @@
       "title": "GitHub OAuth",
       "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in ServerCN.",
       "type": "component",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/components/github-oauth"
     },
     {
@@ -211,6 +211,14 @@
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/validate-objectId"
+    },
+    {
+      "slug": "generate-otp-token",
+      "title": "Generate OTP/Token Utils",
+      "description": "Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/generate-otp-token"
     },
 
     {
@@ -258,7 +266,7 @@
       "title": "Prisma PostgreSQL Starter",
       "description": "A production-ready PostgreSQL foundation using Prisma ORM for type-safe database interactions.",
       "type": "foundation",
-      "status": "unstable",
+      "status": "experimental",
       "docs": "/docs/foundations/prisma-pg-starter"
     },
 
@@ -268,7 +276,7 @@
       "description": "Blog domain schemas including posts, categories, tags, and comments.",
       "type": "schema",
       "status": "stable",
-      "docs": "/docs/schemas/auth-user",
+      "docs": "/docs/schemas/auth",
       "meta": {
         "models": [
           {
@@ -284,7 +292,7 @@
             "slug": "auth-session"
           }
         ],
-        "adapters": ["mongoose", "drizzle", "mysql2"],
+        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
         "useCases": ["cms", "content-platform"],
         "relations": true
       }
@@ -315,7 +323,7 @@
             "slug": "blog-comment"
           }
         ],
-        "adapters": ["mongoose", "drizzle", "mysql2"],
+        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
         "useCases": ["cms", "content-platform"],
         "relations": true
       }

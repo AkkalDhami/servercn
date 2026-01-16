@@ -557,34 +557,34 @@ mvc_structure:
             logger.info(<Code children="Server is running on http://localhost:${PORT}" />);
           });
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
 
-          CLOUDINARY_CLOUD_NAME="your-cloud-name"
-          CLOUDINARY_API_KEY="your-api-key"
-          CLOUDINARY_API_SECRET="your-api-secret"
+      CLOUDINARY_CLOUD_NAME="your-cloud-name"
+      CLOUDINARY_API_KEY="your-api-key"
+      CLOUDINARY_API_SECRET="your-api-secret"
 
-      - type: file
-        name: tsconfig.json
-        content: |
-          {
-            "compilerOptions": {
-              "target": "ES2021",
-              "module": "es2022",
-              "moduleResolution": "bundler",
-              "strict": true,
-              "esModuleInterop": true,
-              "skipLibCheck": true,
-              "outDir": "dist",
-              "rootDir": "src"
-            },
-            "include": [ "src/**/*" ],
-            "exclude": [ "node_modules" ]
-          }
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": [ "src/**/*" ],
+        "exclude": [ "node_modules" ]
+      }
 
 feature_structure:
   - type: folder
@@ -1115,34 +1115,34 @@ feature_structure:
             logger.info(<Code children="Server is running on http://localhost:${PORT}" />);
           });
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
 
-          CLOUDINARY_CLOUD_NAME="your-cloud-name"
-          CLOUDINARY_API_KEY="your-api-key"
-          CLOUDINARY_API_SECRET="your-api-secret"
+      CLOUDINARY_CLOUD_NAME="your-cloud-name"
+      CLOUDINARY_API_KEY="your-api-key"
+      CLOUDINARY_API_SECRET="your-api-secret"
 
-      - type: file
-        name: tsconfig.json
-        content: |
-          {
-            "compilerOptions": {
-              "target": "ES2021",
-              "module": "es2022",
-              "moduleResolution": "bundler",
-              "strict": true,
-              "esModuleInterop": true,
-              "skipLibCheck": true,
-              "outDir": "dist",
-              "rootDir": "src"
-            },
-            "include": [ "src/**/*" ],
-            "exclude": [ "node_modules" ]
-          }
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": [ "src/**/*" ],
+        "exclude": [ "node_modules" ]
+      }
 ---
 
 # File Upload (Cloudinary)
@@ -1163,7 +1163,7 @@ It abstracts common concerns such as multipart handling, Cloudinary configuratio
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any dependencies manually. Installing this component will automatically install all required dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
 
 ### 1. Install ServerCN dependencies(Optional)
 
