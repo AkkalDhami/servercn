@@ -52,7 +52,6 @@ export async function init(foundation?: string) {
       const component = await getRegistryComponent(foundation, "foundation");
 
       const config = {
-        $schema: "https://servercn.dev/schema/v1.json",
         version: "1.0.0",
 
         project: {
@@ -126,7 +125,7 @@ export async function init(foundation?: string) {
         spaces: 2
       });
 
-      await fs.writeFile(path.join(rootPath, ".prettierignore"), `build\ndist\n.env\node_modules`);
+      await fs.writeFile(path.join(rootPath, ".prettierignore"), `build\ndist\n.env\nnode_modules`);
 
       await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
         spaces: 2
@@ -255,7 +254,6 @@ export async function init(foundation?: string) {
   await fs.ensureDir(srcPath);
 
   const config = {
-    $schema: "https://servercn.dev/schema/v1.json",
     version: "1.0.0",
 
     project: {

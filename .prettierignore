@@ -4,4 +4,4 @@ node_modules
 build
 dist
 .env
-.mdx
+**/*.mdx
