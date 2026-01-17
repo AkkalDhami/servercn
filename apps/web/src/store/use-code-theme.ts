@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { STORAGE_THEME_KEY, DEFAULT_CODE_THEME, COOKIE_THEME_KEY } from "@/lib/constants";
+import {
+  STORAGE_THEME_KEY,
+  DEFAULT_CODE_THEME,
+  COOKIE_THEME_KEY
+} from "@/lib/constants";
 import { CODE_THEMES } from "@/lib/themes";
 
 interface CodeThemeState {

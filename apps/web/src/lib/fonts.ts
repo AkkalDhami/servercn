@@ -1,5 +1,10 @@
 import { cn } from "./utils";
-import { Geist_Mono as FontMono, Geist as FontSans, Inter, Fira_Code as FontCode } from "next/font/google";
+import {
+  Geist_Mono as FontMono,
+  Geist as FontSans,
+  Inter,
+  Fira_Code as FontCode
+} from "next/font/google";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -22,4 +27,9 @@ const fontCode = FontCode({
   variable: "--font-code"
 });
 
-export const fontVariables = cn(fontSans.variable, fontMono.variable, fontInter.variable, fontCode.variable);
+export const fontVariables = cn(
+  fontSans.variable,
+  fontMono.variable,
+  fontInter.variable,
+  fontCode.variable
+);

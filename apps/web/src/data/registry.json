@@ -290,6 +290,10 @@
           {
             "label": "session",
             "slug": "auth-session"
+          },
+          {
+            "label": "refresh token",
+            "slug": "auth-refresh-token"
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],

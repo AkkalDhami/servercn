@@ -28,7 +28,8 @@ export const siteConfig = {
     }
   ],
 
-  description: "Official ServerCN documentation. Guides, components, and best practices for building scalable Node.js backends.",
+  description:
+    "Official ServerCN documentation. Guides, components, and best practices for building scalable Node.js backends.",
   applicationName: "ServerCN",
   authors: [{ name: "akkaldhami" }],
   generator: "Next.js",
