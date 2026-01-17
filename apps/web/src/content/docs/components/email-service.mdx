@@ -576,8 +576,9 @@ Documentation: [Api Response Handler:](/docs/components/response-formatter)
 Documentation: [Api Error Handler:](/docs/components/error-handler)
 
 - **Async Handler:**
-  <PackageManagerTabs command="npx servercn add async-handler" />
-  Documentation: [Async Handler](/docs/components/async-handler)
+
+<PackageManagerTabs command="npx servercn add async-handler" />
+Documentation: [Async Handler](/docs/components/async-handler)
 
 ### 3. Install this component
 
@@ -661,7 +662,12 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export async function sendEmail(options: { to: string | string[]; subject: string; text?: string; html?: string }) {
+export async function sendEmail(options: {
+  to: string | string[];
+  subject: string;
+  text?: string;
+  html?: string;
+}) {
   const info = await transporter.sendMail({
     from: env.EMAIL_FROM,
     to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
@@ -701,7 +707,11 @@ const transporter = nodemailer.createTransport({
 ```ts
 import { sendTextEmail } from "../services/email.service";
 
-await sendTextEmail("user@example.com", "Welcome to ServerCN", "Thank you for joining us!");
+await sendTextEmail(
+  "user@example.com",
+  "Welcome to ServerCN",
+  "Thank you for joining us!"
+);
 ```
 
 ### 2. Send HTML Email
@@ -766,22 +776,26 @@ import { ApiResponse } from "../utils/api-response";
 import { ApiError } from "../utils/error-handler";
 import { STATUS_CODES } from "../constants/status-codes";
 
-export const sendWelcomeEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { email, name } = req.body;
+export const sendWelcomeEmail = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email, name } = req.body;
 
-  if (!email) {
-    throw new ApiError(STATUS_CODES.BAD_REQUEST, "Email address is required");
-  }
+    if (!email) {
+      throw new ApiError(STATUS_CODES.BAD_REQUEST, "Email address is required");
+    }
 
-  const htmlContent = `
+    const htmlContent = `
       <h1>Welcome ${name || "User"}!</h1>
       <p>Thank you for joining ServerCN.</p>
     `;
 
-  await sendHtmlEmail(email, "Welcome to ServerCN", htmlContent);
+    await sendHtmlEmail(email, "Welcome to ServerCN", htmlContent);
 
-  return res.status(STATUS_CODES.OK).json(ApiResponse.success(null, "Welcome email sent successfully"));
-});
+    return res
+      .status(STATUS_CODES.OK)
+      .json(ApiResponse.success(null, "Welcome email sent successfully"));
+  }
+);
 ```
 
 ### 6. Verify Email Configuration
@@ -801,7 +815,10 @@ if (!isValid) {
 import { sendHtmlEmail } from "../services/email.service";
 
 // Password reset email
-export async function sendPasswordResetEmail(email: string, resetToken: string) {
+export async function sendPasswordResetEmail(
+  email: string,
+  resetToken: string
+) {
   const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
   const html = `
     <h2>Password Reset Request</h2>
@@ -814,7 +831,10 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
 }
 
 // Email verification
-export async function sendVerificationEmail(email: string, verificationToken: string) {
+export async function sendVerificationEmail(
+  email: string,
+  verificationToken: string
+) {
   const verifyUrl = `https://yourapp.com/verify-email?token=${verificationToken}`;
   const html = `
     <h2>Verify Your Email</h2>

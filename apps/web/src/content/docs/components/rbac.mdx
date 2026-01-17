@@ -93,31 +93,36 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-  <PackageManagerTabs command="npx servercn add http-status-codes" />
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-formatter" />
+
+<PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-  <PackageManagerTabs command="npx servercn add error-handler" />
+
+<PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
-- **JWT Authentication:**
-  <PackageManagerTabs command="npx servercn add jwt-utils" />
+- **JWT Authentication:** 
+
+<PackageManagerTabs command="npx servercn add jwt-utils" />
 
 Documentation:
 [JWT Authentication](/docs/components/jwt-auth)
 
-- **Logger:**
-  <PackageManagerTabs command="npx servercn add logger" />
+- **Logger:** 
+
+<PackageManagerTabs command="npx servercn add logger" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -284,8 +289,15 @@ export const authorizeRoles = (...allowedRoles: userRoles[]) => {
 
     // 2. Check if user has required role
     // Note: Ensure 'role' exists on req.user. You might strictly type this.
-    if (!req.user.role || !allowedRoles.includes(req?.user?.role as userRoles)) {
-      return next(ApiError.forbidden("Forbidden. You do not have permission to access this resource"));
+    if (
+      !req.user.role ||
+      !allowedRoles.includes(req?.user?.role as userRoles)
+    ) {
+      return next(
+        ApiError.forbidden(
+          "Forbidden. You do not have permission to access this resource"
+        )
+      );
     }
     next();
   };
@@ -310,8 +322,15 @@ export const authorizeRoles = (...allowedRoles: userRoles[]) => {
 
     // 2. Check if user has required role
     // Note: Ensure 'role' exists on req.user. You might strictly type this.
-    if (!req.user.role || !allowedRoles.includes(req?.user?.role as userRoles)) {
-      return next(ApiError.forbidden("Forbidden. You do not have permission to access this resource"));
+    if (
+      !req.user.role ||
+      !allowedRoles.includes(req?.user?.role as userRoles)
+    ) {
+      return next(
+        ApiError.forbidden(
+          "Forbidden. You do not have permission to access this resource"
+        )
+      );
     }
     next();
   };
@@ -331,9 +350,14 @@ import { authorizeRoles } from "../middlewares/authorize-role";
 
 const router = Router();
 
-router.get("/profile", verifyAuthentication, authorizeRoles("user", "admin"), (req: UserRequest, res: Response) => {
-  return ApiResponse.ok(res, "User profile", req.user);
-});
+router.get(
+  "/profile",
+  verifyAuthentication,
+  authorizeRoles("user", "admin"),
+  (req: UserRequest, res: Response) => {
+    return ApiResponse.ok(res, "User profile", req.user);
+  }
+);
 
 export default router;
 ```

@@ -11,7 +11,22 @@
     }
   },
   "dependencies": {
-    "runtime": ["express", "pino", "pino-pretty", "dotenv", "multer", "cloudinary"],
-    "dev": ["@types/multer", "@types/express", "@types/express", "nodemon", "ts-node", "tsx", "typescript"]
+    "runtime": [
+      "express",
+      "pino",
+      "pino-pretty",
+      "dotenv",
+      "multer",
+      "cloudinary"
+    ],
+    "dev": [
+      "@types/multer",
+      "@types/express",
+      "@types/express",
+      "nodemon",
+      "ts-node",
+      "tsx",
+      "typescript"
+    ]
   }
 }

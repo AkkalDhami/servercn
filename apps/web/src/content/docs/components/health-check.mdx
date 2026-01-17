@@ -473,25 +473,29 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-  <PackageManagerTabs command="npx servercn add http-status-codes" />
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-formatter" />
+
+<PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-  <PackageManagerTabs command="npx servercn add error-handler" />
+
+<PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **Async Handler:**
-  <PackageManagerTabs command="npx servercn add async-handler" />
+
+<PackageManagerTabs command="npx servercn add async-handler" />
 
 Documentation:
 [Async Handler](/docs/components/async-handler)
@@ -597,8 +601,10 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
     environment: process.env.NODE_ENV || "development",
     version: process.env.npm_package_version || "1.0.0",
     memory: {
-      used: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
-      total: Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
+      used:
+        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
+      total:
+        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,
       unit: "MB"
     },
     cpu: {
@@ -655,7 +661,9 @@ export const healthCheckWithServices = async (_req: Request, res: Response) => {
   };
 
   // Determine overall health
-  const allHealthy = Object.values(checks.checks).every(status => status === "healthy");
+  const allHealthy = Object.values(checks.checks).every(
+    status => status === "healthy"
+  );
 
   if (!allHealthy) {
     checks.status = "degraded";
@@ -700,13 +708,15 @@ With async handler for better error handling:
 ```ts
 import { AsyncHandler } from "../utils/async-handler";
 
-export const healthCheck = AsyncHandler(async (_req: Request, res: Response) => {
-  return ApiResponse.Success(res, "Service is healthy", {
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
+export const healthCheck = AsyncHandler(
+  async (_req: Request, res: Response) => {
+    return ApiResponse.Success(res, "Service is healthy", {
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  }
+);
 ```
 
 ## Route Setup
@@ -735,7 +745,11 @@ app.use("/api/health", healthRoutes);
 
 ```ts
 import { Router } from "express";
-import { healthCheck, detailedHealthCheck, healthCheckWithDB } from "../controllers/health.controller";
+import {
+  healthCheck,
+  detailedHealthCheck,
+  healthCheckWithDB
+} from "../controllers/health.controller";
 
 const router = Router();
 
