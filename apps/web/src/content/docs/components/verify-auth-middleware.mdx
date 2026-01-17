@@ -1178,31 +1178,36 @@ This component requires additional ServerCN components.
 ### 1. Install ServerCN dependencies(Optional)
 
 - **HTTP Status Codes:**
-  <PackageManagerTabs command="npx servercn add http-status-codes" />
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **Api Response Handler:**
-  <PackageManagerTabs command="npx servercn add response-formatter" />
+
+<PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
 - **Api Error Handler:**
-  <PackageManagerTabs command="npx servercn add error-handler" />
+
+<PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
 - **JWT Authentication:**
-  <PackageManagerTabs command="npx servercn add jwt-utils" />
+
+<PackageManagerTabs command="npx servercn add jwt-utils" />
 
 Documentation:
 [JWT Authentication](/docs/components/jwt-auth)
 
 - **Logger:**
-  <PackageManagerTabs command="npx servercn add logger" />
+
+<PackageManagerTabs command="npx servercn add logger" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -1329,7 +1334,12 @@ export interface UserRequest extends Request {
 
 ```ts
 import { NextFunction, Request, Response } from "express";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
+} from "../utils/jwt";
 import { UserRequest } from "../types/user";
 import { ApiError } from "../utils/api-error";
 import { logger } from "../utils/logger";
@@ -1347,7 +1357,11 @@ export const COOKIE_OPTIONS = {
   path: "/"
 };
 
-export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
+export async function verifyAuthentication(
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -1424,7 +1438,12 @@ export async function verifyAuthentication(req: UserRequest, res: Response, next
 <Code children="src/shared/middlewares/verify-auth.ts" />
 
 ```ts
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
+} from "../utils/jwt";
 import { logger } from "../utils/logger";
 import env from "../configs/env";
 import { UserRequest } from "../../types/user";
@@ -1443,7 +1462,11 @@ export const COOKIE_OPTIONS = {
   path: "/"
 };
 
-export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
+export async function verifyAuthentication(
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 

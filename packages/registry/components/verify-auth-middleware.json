@@ -1,5 +1,5 @@
 {
-  "name": "verify-auth-middleware",
+  "slug": "verify-auth-middleware",
   "title": "Verify Authentication Middleware",
   "type": "component",
   "stacks": ["express"],
