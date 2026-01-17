@@ -29,7 +29,8 @@ const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
 
 export async function generateStaticParams() {
   const registryParams = registry.items.map(({ meta, docs }) => {
-    const nestedSlugs = meta && meta.models.length > 0 ? meta.models.map(({ slug }) => slug) : [];
+    const nestedSlugs =
+      meta && meta.models.length > 0 ? meta.models.map(({ slug }) => slug) : [];
     const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
     return [...slugArray, ...nestedSlugs];
   });
@@ -46,7 +47,9 @@ export async function generateStaticParams() {
   return [...specialRoutes, ...registryParams];
 }
 
-export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug?: string[] }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const slug = params.slug ?? [];
   const filePath = getDocPath(slug);
@@ -60,11 +63,21 @@ export async function generateMetadata(props: { params: Promise<{ slug?: string[
   const { data } = matter(source);
   return {
     title: data.title ?? "Documentation",
-    description: data.description ?? "ServerCN documentation for building modern Node.js backends.",
-    keywords: data.keywords ?? ["ServerCN", "ServerCN Docs", "ServerCN Documentation", "ServerCN Backend", "ServerCN Backend Documentation"],
+    description:
+      data.description ??
+      "ServerCN documentation for building modern Node.js backends.",
+    keywords: data.keywords ?? [
+      "ServerCN",
+      "ServerCN Docs",
+      "ServerCN Documentation",
+      "ServerCN Backend",
+      "ServerCN Backend Documentation"
+    ],
     openGraph: {
       title: data.title ?? "ServerCN Docs",
-      description: data.description ?? "ServerCN documentation for backend components and guides.",
+      description:
+        data.description ??
+        "ServerCN documentation for backend components and guides.",
       url: `/docs/${slug.length > 0 ? slug.join("/") : ""}`,
       siteName: "ServerCN",
       type: "article",
@@ -116,7 +129,10 @@ interface DocsSlugRouterProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function DocsPage({ params, searchParams }: DocsSlugRouterProps) {
+export default async function DocsPage({
+  params,
+  searchParams
+}: DocsSlugRouterProps) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
   const currentArch = (resolvedSearchParams?.arch as string) ?? "mvc";
@@ -127,9 +143,12 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
   }
 
   const lastComponentIndex = slug.length > 0 ? slug.length - 1 : -1;
-  const lastSlug = lastComponentIndex >= 0 ? slug[lastComponentIndex] : undefined;
+  const lastSlug =
+    lastComponentIndex >= 0 ? slug[lastComponentIndex] : undefined;
 
-  const { next, prev } = lastSlug ? findNeighbour(lastSlug as string) : { next: undefined, prev: undefined };
+  const { next, prev } = lastSlug
+    ? findNeighbour(lastSlug as string)
+    : { next: undefined, prev: undefined };
 
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
@@ -137,7 +156,8 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
   const mvcStructure = (data.mvc_structure as FileNode[]) || [];
   const featureStructure = (data.feature_structure as FileNode[]) || [];
 
-  const currentArchStructure = currentArch === "mvc" ? mvcStructure : featureStructure;
+  const currentArchStructure =
+    currentArch === "mvc" ? mvcStructure : featureStructure;
 
   const cookieStore = await cookies();
   const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
@@ -156,20 +176,28 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
             }}
           />
         </article>
-        <div className="min-w-[700px] overflow-x-auto">
+        <div className="w-full overflow-x-auto">
           {(mvcStructure.length > 0 || featureStructure.length > 0) &&
             currentArchStructure &&
             lastSlug &&
             !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
               <>
-                <h2 className="mt-8 text-2xl font-semibold tracking-tight">File &amp; Folder Structure</h2>
+                <h2 className="mt-8 text-2xl font-semibold tracking-tight">
+                  File &amp; Folder Structure
+                </h2>
                 <ArchitectureTabs current={currentArch || "mvc"} />
-                <BackendStructureViewer structure={currentArch === "mvc" ? mvcStructure : featureStructure} />
+                <BackendStructureViewer
+                  structure={
+                    currentArch === "mvc" ? mvcStructure : featureStructure
+                  }
+                />
               </>
             )}
           {data.command && (
             <>
-              <h2 className="mt-8 text-2xl font-semibold tracking-tight">Installation</h2>
+              <h2 className="mt-8 text-2xl font-semibold tracking-tight">
+                Installation
+              </h2>
               <PackageManagerTabs command={data.command} />
             </>
           )}
@@ -186,16 +214,22 @@ export default async function DocsPage({ params, searchParams }: DocsSlugRouterP
   );
 }
 
-const NextSteps = ({ next, prev }: { next?: IRegistryItems; prev?: IRegistryItems }) => {
+const NextSteps = ({
+  next,
+  prev
+}: {
+  next?: IRegistryItems | undefined;
+  prev?: IRegistryItems | undefined;
+}) => {
   return (
     <div className="mt-8 flex items-center justify-between">
       {prev && (
         <div className="flex items-center justify-start">
           <Link
             href={`${prev.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200">
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium duration-200 sm:py-1.5">
             <ArrowLeftIcon className="size-4" />
-            {prev.title}
+            <span className="hidden sm:inline">{prev.title}</span>
           </Link>
         </div>
       )}
@@ -203,8 +237,9 @@ const NextSteps = ({ next, prev }: { next?: IRegistryItems; prev?: IRegistryItem
         <div className="flex items-center justify-end">
           <Link
             href={`${next.docs as Route}`}
-            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-1.5 text-base font-medium duration-200">
-            {next.title} <ArrowRightIcon className="size-4" />
+            className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium duration-200 sm:py-1.5">
+            <span className="hidden sm:inline"> {next.title}</span>{" "}
+            <ArrowRightIcon className="size-4" />
           </Link>
         </div>
       )}

@@ -1,7 +1,12 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-import type { TargetAndTransition, Transition, Variant, Variants } from "motion/react";
+import type {
+  TargetAndTransition,
+  Transition,
+  Variant,
+  Variants
+} from "motion/react";
 import React from "react";
 
 export type PresetType = "blur" | "fade-in-blur" | "scale" | "fade" | "slide";
@@ -57,7 +62,10 @@ const defaultItemVariants: Variants = {
   exit: { opacity: 0 }
 };
 
-const presetVariants: Record<PresetType, { container: Variants; item: Variants }> = {
+const presetVariants: Record<
+  PresetType,
+  { container: Variants; item: Variants }
+> = {
   blur: {
     container: defaultContainerVariants,
     item: {
@@ -112,13 +120,20 @@ const AnimationComponent: React.FC<{
         {segment}
       </motion.span>
     ) : per === "word" ? (
-      <motion.span aria-hidden="true" variants={variants} className="inline-block whitespace-pre">
+      <motion.span
+        aria-hidden="true"
+        variants={variants}
+        className="inline-block whitespace-pre">
         {segment}
       </motion.span>
     ) : (
       <motion.span className="inline-block whitespace-pre">
         {segment.split("").map((char, charIndex) => (
-          <motion.span key={`char-${charIndex}`} aria-hidden="true" variants={variants} className="inline-block whitespace-pre">
+          <motion.span
+            key={`char-${charIndex}`}
+            aria-hidden="true"
+            variants={variants}
+            className="inline-block whitespace-pre">
             {char}
           </motion.span>
         ))}
@@ -131,7 +146,11 @@ const AnimationComponent: React.FC<{
 
   const defaultWrapperClassName = per === "line" ? "block" : "inline-block";
 
-  return <span className={cn(defaultWrapperClassName, segmentWrapperClassName)}>{content}</span>;
+  return (
+    <span className={cn(defaultWrapperClassName, segmentWrapperClassName)}>
+      {content}
+    </span>
+  );
 });
 
 AnimationComponent.displayName = "AnimationComponent";
@@ -141,12 +160,17 @@ const splitText = (text: string, per: PerType) => {
   return text.split(/(\s+)/);
 };
 
-const hasTransition = (variant?: Variant): variant is TargetAndTransition & { transition?: Transition } => {
+const hasTransition = (
+  variant?: Variant
+): variant is TargetAndTransition & { transition?: Transition } => {
   if (!variant) return false;
   return typeof variant === "object" && "transition" in variant;
 };
 
-const createVariantsWithTransition = (baseVariants: Variants, transition?: Transition & { exit?: Transition }): Variants => {
+const createVariantsWithTransition = (
+  baseVariants: Variants,
+  transition?: Transition & { exit?: Transition }
+): Variants => {
   if (!transition) return baseVariants;
 
   const { exit: _, ...mainTransition } = transition;
@@ -156,14 +180,18 @@ const createVariantsWithTransition = (baseVariants: Variants, transition?: Trans
     visible: {
       ...baseVariants.visible,
       transition: {
-        ...(hasTransition(baseVariants.visible) ? baseVariants.visible.transition : {}),
+        ...(hasTransition(baseVariants.visible)
+          ? baseVariants.visible.transition
+          : {}),
         ...mainTransition
       }
     },
     exit: {
       ...baseVariants.exit,
       transition: {
-        ...(hasTransition(baseVariants.exit) ? baseVariants.exit.transition : {}),
+        ...(hasTransition(baseVariants.exit)
+          ? baseVariants.exit.transition
+          : {}),
         ...mainTransition,
         staggerDirection: -1
       }
@@ -192,30 +220,37 @@ export function TextEffect({
   const segments = splitText(children, per);
   const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
 
-  const baseVariants = preset ? presetVariants[preset] : { container: defaultContainerVariants, item: defaultItemVariants };
+  const baseVariants = preset
+    ? presetVariants[preset]
+    : { container: defaultContainerVariants, item: defaultItemVariants };
 
   const stagger = defaultStaggerTimes[per] / speedReveal;
 
   const baseDuration = 0.3 / speedSegment;
 
   const customStagger = hasTransition(variants?.container?.visible ?? {})
-    ? (variants?.container?.visible as TargetAndTransition).transition?.staggerChildren
+    ? (variants?.container?.visible as TargetAndTransition).transition
+        ?.staggerChildren
     : undefined;
 
   const customDelay = hasTransition(variants?.container?.visible ?? {})
-    ? (variants?.container?.visible as TargetAndTransition).transition?.delayChildren
+    ? (variants?.container?.visible as TargetAndTransition).transition
+        ?.delayChildren
     : undefined;
 
   const computedVariants = {
-    container: createVariantsWithTransition(variants?.container || baseVariants.container, {
-      staggerChildren: customStagger ?? stagger,
-      delayChildren: customDelay ?? delay,
-      ...containerTransition,
-      exit: {
+    container: createVariantsWithTransition(
+      variants?.container || baseVariants.container,
+      {
         staggerChildren: customStagger ?? stagger,
-        staggerDirection: -1
+        delayChildren: customDelay ?? delay,
+        ...containerTransition,
+        exit: {
+          staggerChildren: customStagger ?? stagger,
+          staggerDirection: -1
+        }
       }
-    }),
+    ),
     item: createVariantsWithTransition(variants?.item || baseVariants.item, {
       duration: baseDuration,
       ...segmentTransition

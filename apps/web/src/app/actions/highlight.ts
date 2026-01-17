@@ -9,7 +9,11 @@ const getHighlighter = (theme: string) =>
     langs: ["bash", "ts", "json"]
   });
 
-export async function highlightCode(code: string, lang: string = "ts", theme: string = DEFAULT_CODE_THEME) {
+export async function highlightCode(
+  code: string,
+  lang: string = "ts",
+  theme: string = DEFAULT_CODE_THEME
+) {
   try {
     const highlighter = await getHighlighter(theme);
     return highlighter.codeToHtml(code, {

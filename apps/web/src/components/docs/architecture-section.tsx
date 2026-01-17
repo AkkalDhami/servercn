@@ -25,7 +25,9 @@ export function ArchitectureSection({
 
   return (
     <>
-      <h2 className="mt-8 text-2xl font-semibold tracking-tight">File &amp; Folder Structure</h2>
+      <h2 className="mt-8 text-2xl font-semibold tracking-tight">
+        File &amp; Folder Structure
+      </h2>
       <ArchitectureTabs current={arch} />
       <BackendStructureViewer structure={structure} />
     </>

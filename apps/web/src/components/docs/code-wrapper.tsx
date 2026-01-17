@@ -3,7 +3,13 @@
 import { useState } from "react";
 import CopyButton from "./copy-button";
 
-export function CodeWrapper({ children, code }: { children: React.ReactNode; code: string }) {
+export function CodeWrapper({
+  children,
+  code
+}: {
+  children: React.ReactNode;
+  code: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {

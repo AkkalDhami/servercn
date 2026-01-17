@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronRight, File, Folder, FolderOpenIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  File,
+  Folder,
+  FolderOpenIcon
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type FileNode =
@@ -27,13 +33,26 @@ export default function FileTree({ data, activeFile, onSelect }: Props) {
   return (
     <div className="text-sm">
       {data?.map(node => (
-        <TreeNode key={node.name} node={node} activeFile={activeFile} onSelect={onSelect} />
+        <TreeNode
+          key={node.name}
+          node={node}
+          activeFile={activeFile}
+          onSelect={onSelect}
+        />
       ))}
     </div>
   );
 }
 
-function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?: string; onSelect(file: FileNode & { type: "file" }): void }) {
+function TreeNode({
+  node,
+  activeFile,
+  onSelect
+}: {
+  node: FileNode;
+  activeFile?: string;
+  onSelect(file: FileNode & { type: "file" }): void;
+}) {
   const [open, setOpen] = React.useState(true);
 
   if (node.type === "folder") {
@@ -50,7 +69,12 @@ function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?:
         {open && (
           <div className="pl-4">
             {node?.children?.map(child => (
-              <TreeNode key={child.name} node={child} activeFile={activeFile} onSelect={onSelect} />
+              <TreeNode
+                key={child.name}
+                node={child}
+                activeFile={activeFile}
+                onSelect={onSelect}
+              />
             ))}
           </div>
         )}
@@ -63,7 +87,8 @@ function TreeNode({ node, activeFile, onSelect }: { node: FileNode; activeFile?:
       onClick={() => onSelect(node)}
       className={cn(
         "text-muted-foreground hover:bg-muted hover:text-accent-foreground ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left",
-        activeFile === node.name && "bg-muted text-accent-foreground font-medium"
+        activeFile === node.name &&
+          "bg-muted text-accent-foreground font-medium"
       )}>
       <File size={14} />
       {node.name}

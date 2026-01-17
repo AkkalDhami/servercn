@@ -12,7 +12,12 @@ export const generateMetadata = (): Metadata => {
     title: "Blueprints",
     description:
       "Production-ready ServerCN blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are working on adding more blueprints.",
-    keywords: ["ServerCN", "Blueprints", "ServerCN Blueprints", "ServerCN Blueprints for building scalable backends"],
+    keywords: [
+      "ServerCN",
+      "Blueprints",
+      "ServerCN Blueprints",
+      "ServerCN Blueprints for building scalable backends"
+    ],
     openGraph: {
       title: "Blueprints",
       description:
@@ -42,7 +47,8 @@ export default function BlueprintsPage() {
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Blueprints</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are
+          Production-ready ServerCN blueprints for building scalable backends.
+          Here you can find all the blueprints available in the library. We are
           working on adding more blueprints.
         </SubHeading>
       </div>
@@ -55,7 +61,8 @@ export default function BlueprintsPage() {
 
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total blueprints: {blueprints.length}
+          Version: {registry.version.version} | Total blueprints:{" "}
+          {blueprints.length}
         </p>
       </div>
     </Container>

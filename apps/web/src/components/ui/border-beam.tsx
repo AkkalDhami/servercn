@@ -73,7 +73,11 @@ export const BorderBeam = ({
         } as React.CSSProperties
       }>
       <motion.div
-        className={cn("absolute aspect-square", "bg-gradient-to-l from-[var(--color-from)] via-[var(--color-to)] to-transparent", className)}
+        className={cn(
+          "absolute aspect-square",
+          "bg-gradient-to-l from-[var(--color-from)] via-[var(--color-to)] to-transparent",
+          className
+        )}
         style={
           {
             width: size,
@@ -85,7 +89,9 @@ export const BorderBeam = ({
         }
         initial={{ offsetDistance: `${initialOffset}%` }}
         animate={{
-          offsetDistance: reverse ? [`${100 - initialOffset}%`, `${-initialOffset}%`] : [`${initialOffset}%`, `${100 + initialOffset}%`]
+          offsetDistance: reverse
+            ? [`${100 - initialOffset}%`, `${-initialOffset}%`]
+            : [`${initialOffset}%`, `${100 + initialOffset}%`]
         }}
         transition={{
           repeat: Infinity,

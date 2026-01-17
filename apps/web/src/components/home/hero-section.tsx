@@ -8,14 +8,12 @@ import { HeaderBadge } from "../ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import Code from "../docs/custom-code";
 
 export default function HeroSection() {
   return (
     <section id="hero" className="relative overflow-hidden">
       <div className="relative pt-18 pb-20 md:pt-22 md:pb-28">
         <div className="mx-auto max-w-6xl sm:px-6">
-          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -43,7 +41,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-semibold tracking-tight md:text-6xl lg:text-7xl">
+              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
               <span className="bg-linear-to-b from-neutral-400 from-5% to-neutral-900 bg-clip-text text-transparent dark:from-neutral-100 dark:from-55% dark:to-neutral-600">
                 Build backends faster with
               </span>{" "}
@@ -57,10 +55,20 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="text-muted-primary mx-auto mt-6 max-w-2xl text-lg leading-relaxed tracking-tight md:text-xl">
-              ServerCN is a <span className="text-accent-foreground font-medium">component registry</span> for building{" "}
-              <span className="text-accent-foreground font-medium">production-ready</span>{" "}
-              <span className="text-accent-foreground font-medium">Node.js backends</span> by composition, inspired by shadcn/ui. ServerCN
-              standardizes backend patterns so you can focus on business logic, not boilerplate.
+              ServerCN is a{" "}
+              <span className="text-accent-foreground font-medium">
+                component registry
+              </span>{" "}
+              for building{" "}
+              <span className="text-accent-foreground font-medium">
+                production-ready
+              </span>{" "}
+              <span className="text-accent-foreground font-medium">
+                Node.js backends
+              </span>{" "}
+              by composition, inspired by shadcn/ui. ServerCN standardizes
+              backend patterns so you can focus on business logic, not
+              boilerplate.
             </motion.div>
 
             <AnimatedGroup className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -69,7 +77,10 @@ export default function HeroSection() {
                 asChild
                 size="lg"
                 variant="default"
-                className={cn("hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none", "h-10 px-1 sm:h-12 sm:px-6")}>
+                className={cn(
+                  "hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none",
+                  "h-10 px-1 sm:h-12 sm:px-6"
+                )}>
                 <Link href="/docs" className="flex items-center gap-2">
                   <span>Start Building</span>
                   <ChevronRight className="size-4" />
@@ -84,7 +95,10 @@ export default function HeroSection() {
                   "hover:bg-card-hover hover:shadow-tertiary h-9 gap-2 border-2 px-1 text-base shadow-none",
                   "h-10 px-2 sm:h-12 sm:px-8"
                 )}>
-                <Link href="https://github.com/akkaldhami/servercn" target="_blank" className="flex items-center">
+                <Link
+                  href="https://github.com/akkaldhami/servercn"
+                  target="_blank"
+                  className="flex items-center">
                   <FaGithub className="size-5" />
                   <span>Star on GitHub</span>
                 </Link>

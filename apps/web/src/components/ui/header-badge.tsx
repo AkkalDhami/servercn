@@ -9,7 +9,10 @@ interface HeaderBadgeProps {
   className?: string;
 }
 
-export const HeaderBadge: React.FC<HeaderBadgeProps> = ({ children, className }) => {
+export const HeaderBadge: React.FC<HeaderBadgeProps> = ({
+  children,
+  className
+}) => {
   return (
     <div
       className={cn(

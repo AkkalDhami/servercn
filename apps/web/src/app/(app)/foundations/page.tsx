@@ -12,7 +12,12 @@ export const generateMetadata = (): Metadata => {
     title: "Foundations",
     description:
       "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
-    keywords: ["ServerCN", "Foundations", "ServerCN Foundations", "ServerCN Foundations for building scalable backends"],
+    keywords: [
+      "ServerCN",
+      "Foundations",
+      "ServerCN Foundations",
+      "ServerCN Foundations for building scalable backends"
+    ],
     openGraph: {
       title: "Foundations",
       description:
@@ -42,7 +47,8 @@ export default function FoundationsPage() {
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Foundations</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are
+          Production-ready ServerCN foundations for building scalable backends.
+          Here you can find all the foundations available in the library. We are
           working on adding more foundations.
         </SubHeading>
       </div>
@@ -55,7 +61,8 @@ export default function FoundationsPage() {
       {/* verwsion details and totoal components count */}
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total foundations: {foundations.length}
+          Version: {registry.version.version} | Total foundations:{" "}
+          {foundations.length}
         </p>
       </div>
     </Container>

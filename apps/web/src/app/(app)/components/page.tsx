@@ -12,7 +12,12 @@ export const generateMetadata = (): Metadata => {
     title: "Components",
     description:
       "Production-ready ServerCN components for building scalable backends. Here you can find all the components available in the library. We are working on adding more components.",
-    keywords: ["ServerCN", "Components", "ServerCN Components", "ServerCN Components for building scalable backends"],
+    keywords: [
+      "ServerCN",
+      "Components",
+      "ServerCN Components",
+      "ServerCN Components for building scalable backends"
+    ],
     openGraph: {
       title: "Components",
       description:
@@ -35,7 +40,9 @@ const components = registry.items
   .filter(component => component.type === "component")
   .sort((a, b) => a.title.localeCompare(b.title)) as IRegistryItems[];
 
-const stableComponents = components.filter(component => component.status === "stable");
+const stableComponents = components.filter(
+  component => component.status === "stable"
+);
 
 export default function ComponentsPage() {
   return (
@@ -43,7 +50,8 @@ export default function ComponentsPage() {
       <div className="mb-6">
         <Heading className="tracking-tight">ServerCN Components</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN components for building scalable backends. Here you can find all the components available in the library. We are
+          Production-ready ServerCN components for building scalable backends.
+          Here you can find all the components available in the library. We are
           working on adding more components.
         </SubHeading>
       </div>
@@ -56,7 +64,8 @@ export default function ComponentsPage() {
       {/* verwsion details and totoal components count */}
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total components: {components.length} | Stable components: {stableComponents.length}
+          Version: {registry.version.version} | Total components:{" "}
+          {components.length} | Stable components: {stableComponents.length}
         </p>
       </div>
     </Container>

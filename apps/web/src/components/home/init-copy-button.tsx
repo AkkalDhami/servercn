@@ -21,14 +21,29 @@ export default function InitCopyButton() {
       onClick={handleCopy}
       className="group bg-background relative flex w-60 cursor-pointer items-center gap-5 rounded-md px-3 py-1 text-center font-mono">
       <div className="text-primary">
-        <span className={cn("text-muted-secondary", "group-hover:text-accent-foreground duration-200", copied && "text-accent-foreground")}>$</span>{" "}
+        <span
+          className={cn(
+            "text-muted-secondary",
+            "group-hover:text-accent-foreground duration-200",
+            copied && "text-accent-foreground"
+          )}>
+          $
+        </span>{" "}
         <span
           ref={inputRef}
-          className={cn("text-muted-secondary", "group-hover:text-accent-foreground duration-200", copied && "text-accent-foreground")}>
+          className={cn(
+            "text-muted-secondary",
+            "group-hover:text-accent-foreground duration-200",
+            copied && "text-accent-foreground"
+          )}>
           npx servercn init
         </span>
       </div>
-      <CopyButton handleCopy={handleCopy} copied={copied} className="group-hover:text-accent-foreground" />
+      <CopyButton
+        handleCopy={handleCopy}
+        copied={copied}
+        className="group-hover:text-accent-foreground"
+      />
     </div>
   );
 }

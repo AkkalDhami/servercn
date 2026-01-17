@@ -18,4 +18,9 @@ export interface IRegistryItems {
   };
 }
 
-export type ItemType = "component" | "blueprint" | "guide" | "schema" | "foundation";
+export type ItemType =
+  | "component"
+  | "blueprint"
+  | "guide"
+  | "schema"
+  | "foundation";

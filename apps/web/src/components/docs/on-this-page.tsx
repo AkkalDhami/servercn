@@ -21,7 +21,9 @@ export function OnThisPage() {
 
     const slugger = new GithubSlugger();
 
-    const elements = Array.from(container.querySelectorAll("h2, h3")) as HTMLHeadingElement[];
+    const elements = Array.from(
+      container.querySelectorAll("h2, h3")
+    ) as HTMLHeadingElement[];
 
     const list: Heading[] = elements
       .map(el => {
@@ -82,7 +84,9 @@ export function OnThisPage() {
               href={`#${h.id}`}
               className={clsx(
                 "block transition-colors",
-                activeId === h.id ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                activeId === h.id
+                  ? "text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
               )}>
               {h.text}
             </a>

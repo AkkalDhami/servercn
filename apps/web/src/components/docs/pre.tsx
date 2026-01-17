@@ -4,7 +4,11 @@ import * as React from "react";
 import CopyButton from "./copy-button";
 import { cn } from "@/lib/utils";
 
-export function Pre({ className, children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+export function Pre({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLPreElement>) {
   const ref = React.useRef<HTMLPreElement>(null);
   const [copied, setCopied] = React.useState(false);
 
@@ -27,7 +31,13 @@ export function Pre({ className, children, ...props }: React.HTMLAttributes<HTML
         copied={copied}
         className="bg-editor absolute right-5 bottom-6 z-20 flex items-center justify-center rounded-md py-1 transition-all"
       />
-      <pre ref={ref} {...props} className={cn("bg-editor mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed", className)}>
+      <pre
+        ref={ref}
+        {...props}
+        className={cn(
+          "bg-editor mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed",
+          className
+        )}>
         {children}
       </pre>
     </div>

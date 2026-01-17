@@ -8,7 +8,13 @@ const getHighlighter = (theme: string) =>
     langs: ["bash", "ts"]
   });
 
-export async function CodeBlock({ code, lang = "bash" }: { code: string; lang?: string }) {
+export async function CodeBlock({
+  code,
+  lang = "bash"
+}: {
+  code: string;
+  lang?: string;
+}) {
   const cookieStore = await cookies();
   const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
 

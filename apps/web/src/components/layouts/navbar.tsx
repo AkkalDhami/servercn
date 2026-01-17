@@ -46,7 +46,10 @@ export default function Navbar() {
                 <li key={link.href} className="relative">
                   <Link
                     href={link.href as Route}
-                    className={cn("text-muted-foreground hover:text-foreground font-medium transition-colors", active && "text-foreground")}>
+                    className={cn(
+                      "text-muted-foreground hover:text-foreground font-medium transition-colors",
+                      active && "text-foreground"
+                    )}>
                     {link.label}
                   </Link>
 
@@ -54,7 +57,11 @@ export default function Navbar() {
                     <motion.span
                       layoutId="nav-underline"
                       className="bg-foreground absolute -bottom-1 left-0 h-px w-full"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30
+                      }}
                     />
                   )}
                 </li>
@@ -66,14 +73,23 @@ export default function Navbar() {
             <SearchCommand />
             <ThemeToggle />
 
-            <Button asChild size="icon" className="hidden md:flex" variant="secondary">
+            <Button
+              asChild
+              size="icon"
+              className="hidden md:flex"
+              variant="secondary">
               <Link href="https://github.com/akkaldhami" target="_blank">
                 <FaGithub className="size-4" />
               </Link>
             </Button>
 
-            <Button onClick={() => setOpen(prev => !prev)} variant="outline" className="px-2 py-1 md:hidden">
-              <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
+            <Button
+              onClick={() => setOpen(prev => !prev)}
+              variant="outline"
+              className="px-2 py-1 md:hidden">
+              <motion.div
+                animate={{ rotate: open ? 90 : 0 }}
+                transition={{ duration: 0.2 }}>
                 <MenuIcon className="text-accent-foreground size-5" />
               </motion.div>
             </Button>
@@ -120,13 +136,20 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
         damping: 25
       }}
       className="bg-background/90 fixed top-0 right-0 z-50 h-full w-90 backdrop-blur-md md:hidden">
-      <Button variant="secondary" onClick={onClose} className="absolute top-4 right-3">
+      <Button
+        variant="secondary"
+        onClick={onClose}
+        className="absolute top-4 right-3">
         <X />
       </Button>
 
       <ul className="mt-16 flex flex-col space-y-5 px-12 pl-6">
         {links.map((link, index) => (
-          <motion.li key={link.href} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.08 }}>
+          <motion.li
+            key={link.href}
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: index * 0.08 }}>
             <Link
               href={link.href as Route}
               onClick={onClose}

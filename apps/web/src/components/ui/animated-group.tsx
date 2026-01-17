@@ -3,7 +3,17 @@ import { ReactNode } from "react";
 import { motion, Variants } from "motion/react";
 import React from "react";
 
-export type PresetType = "fade" | "slide" | "scale" | "blur" | "blur-slide" | "zoom" | "flip" | "bounce" | "rotate" | "swing";
+export type PresetType =
+  | "fade"
+  | "slide"
+  | "scale"
+  | "blur"
+  | "blur-slide"
+  | "zoom"
+  | "flip"
+  | "bounce"
+  | "rotate"
+  | "swing";
 
 export type AnimatedGroupProps = {
   children: ReactNode;
@@ -90,7 +100,14 @@ const addDefaultVariants = (variants: Variants) => ({
   visible: { ...defaultItemVariants.visible, ...variants.visible }
 });
 
-function AnimatedGroup({ children, className, variants, preset, as = "div", asChild = "div" }: AnimatedGroupProps) {
+function AnimatedGroup({
+  children,
+  className,
+  variants,
+  preset,
+  as = "div",
+  asChild = "div"
+}: AnimatedGroupProps) {
   const selectedVariants = {
     item: addDefaultVariants(preset ? presetVariants[preset] : {}),
     container: addDefaultVariants(defaultContainerVariants)
@@ -102,7 +119,11 @@ function AnimatedGroup({ children, className, variants, preset, as = "div", asCh
   const MotionChild = motion[asChild] as typeof motion.div;
 
   return (
-    <MotionComponent initial="hidden" animate="visible" variants={containerVariants} className={className}>
+    <MotionComponent
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className={className}>
       {React.Children.map(children, (child, index) => (
         <MotionChild key={index} variants={itemVariants}>
           {child}

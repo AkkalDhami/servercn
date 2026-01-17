@@ -23,7 +23,9 @@ export default function Footer() {
     <footer className="font-inter relative mt-8 w-full border-t">
       <div className="w-full">
         <div className="relative flex size-full flex-col justify-between gap-5 px-4">
-          <div aria-hidden className="absolute inset-0 isolate z-0 opacity-50 contain-strict dark:opacity-100">
+          <div
+            aria-hidden
+            className="absolute inset-0 isolate z-0 opacity-50 contain-strict dark:opacity-100">
             <div className="bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,--theme(--color-foreground/.06)_0,hsla(0,0%,55%,.02)_50%,--theme(--color-foreground/.01)_80%)] absolute top-0 left-0 h-320 w-140 -translate-y-87.5 -rotate-45 rounded-full" />
             <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 [translate:5%_-50%] -rotate-45 rounded-full" />
             <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 -translate-y-87.5 -rotate-45 rounded-full" />
@@ -32,18 +34,26 @@ export default function Footer() {
             <AnimatedContainer className="w-full max-w-sm min-w-2xs space-y-4">
               <Logo />
               <p className="text-muted-foreground mt-8 text-sm md:mt-4">
-                ServerCN , the backend component registry for Node.js inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus
-                on business logic, not boilerplate.
+                ServerCN , the backend component registry for Node.js inspired
+                by shadcn/ui. ServerCN standardizes backend patterns so you can
+                focus on business logic, not boilerplate.
               </p>
             </AnimatedContainer>
             {footerLinkGroups.map((group, index) => (
-              <AnimatedContainer className="w-full" delay={0.1 + index * 0.1} key={group.label}>
+              <AnimatedContainer
+                className="w-full"
+                delay={0.1 + index * 0.1}
+                key={group.label}>
                 <div className="mb-10 md:mb-0">
-                  <h3 className="text-sm font-medium uppercase">{group.label}</h3>
+                  <h3 className="text-sm font-medium uppercase">
+                    {group.label}
+                  </h3>
                   <ul className="text-muted-foreground md:text-s mt-4 space-y-2 text-sm lg:text-sm">
                     {group.links.map(link => (
                       <li key={link.title}>
-                        <Link className="hover:text-foreground inline-flex items-center transition-all duration-300" href={link.href as Route}>
+                        <Link
+                          className="hover:text-foreground inline-flex items-center transition-all duration-300"
+                          href={link.href as Route}>
                           {link.icon && <link.icon className="me-1 size-4" />}
                           {link.title}
                         </Link>
@@ -56,19 +66,27 @@ export default function Footer() {
           </div>
 
           <div className="relative mt-10">
-            <TextHoverEffect text="ServerCN" />
+            <TextHoverEffect text="SERVERCN" />
           </div>
 
           <div className="text-muted-foreground relative flex flex-col items-center justify-between gap-2 border-t py-4 text-sm md:flex-row">
             <div className="via-muted-secondary/40 absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent to-transparent"></div>
-            <p>&copy; {new Date().getFullYear()} ServerCN | All rights reserved.</p>
+            <p>
+              &copy; {new Date().getFullYear()} ServerCN | All rights reserved.
+            </p>
             <div>
               Built with 🗡️{" "}
-              <Link className="hover:text-foreground underline" href="https://github.com/akkaldhami" target="_blank">
+              <Link
+                className="hover:text-foreground underline"
+                href="https://github.com/akkaldhami"
+                target="_blank">
                 Akkal Dhami
               </Link>
             </div>
-            <Link className="hover:text-foreground underline" href="https://github.com/akkaldhami/servercn" target="_blank">
+            <Link
+              className="hover:text-foreground underline"
+              href="https://github.com/akkaldhami/servercn"
+              target="_blank">
               Github
             </Link>
           </div>
@@ -160,7 +178,11 @@ type AnimatedContainerProps = React.ComponentProps<typeof motion.div> & {
   delay?: number;
 };
 
-function AnimatedContainer({ delay = 0.1, children, ...props }: AnimatedContainerProps) {
+function AnimatedContainer({
+  delay = 0.1,
+  children,
+  ...props
+}: AnimatedContainerProps) {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {

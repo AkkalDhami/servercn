@@ -24,12 +24,19 @@ export default function FileViewer({ content }: { content?: string }) {
   }, [content, theme]);
 
   if (!content) {
-    return <div className="text-muted-foreground flex h-full items-center justify-center">Select a file to view its contents</div>;
+    return (
+      <div className="text-muted-foreground flex h-full items-center justify-center">
+        Select a file to view its contents
+      </div>
+    );
   }
 
   return (
     <div className="bg-editor h-full max-h-125 w-full whitespace-nowrap">
-      <div className="relative [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:p-3.5" dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        className="relative [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:p-3.5"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </div>
   );
 }

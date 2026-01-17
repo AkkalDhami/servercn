@@ -2,7 +2,14 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "motion/react";
 
-export const TextHoverEffect = ({ text, duration }: { text: string; duration?: number; automatic?: boolean }) => {
+export const TextHoverEffect = ({
+  text,
+  duration
+}: {
+  text: string;
+  duration?: number;
+  automatic?: boolean;
+}) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
@@ -32,7 +39,12 @@ export const TextHoverEffect = ({ text, duration }: { text: string; duration?: n
       onMouseMove={e => setCursor({ x: e.clientX, y: e.clientY })}
       className="overflow-hidden select-none">
       <defs>
-        <linearGradient id="textGradient" gradientUnits="userSpaceOnUse" cx="50%" cy="50%" r="25%">
+        <linearGradient
+          id="textGradient"
+          gradientUnits="userSpaceOnUse"
+          cx="50%"
+          cy="50%"
+          r="25%">
           {hovered && (
             <>
               <stop offset="0%" stopColor="#e5e7eb" /> {/* near-black */}
@@ -58,7 +70,13 @@ export const TextHoverEffect = ({ text, duration }: { text: string; duration?: n
           <stop offset="100%" stopColor="black" />
         </motion.radialGradient>
         <mask id="textMask">
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#revealMask)" />
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill="url(#revealMask)"
+          />
         </mask>
       </defs>
       <text

@@ -3,7 +3,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, LayoutGroup } from "motion/react";
 import { cn } from "@/lib/utils";
 
-export const FlipWords = ({ words, duration = 3000, className }: { words: string[]; duration?: number; className?: string }) => {
+export const FlipWords = ({
+  words,
+  duration = 3000,
+  className
+}: {
+  words: string[];
+  duration?: number;
+  className?: string;
+}) => {
   const [currentWord, setCurrentWord] = useState(words[0]);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
@@ -48,7 +56,10 @@ export const FlipWords = ({ words, duration = 3000, className }: { words: string
           scale: 2,
           position: "absolute"
         }}
-        className={cn("relative z-10 inline-block px-2 text-left text-neutral-900 dark:text-neutral-100", className)}
+        className={cn(
+          "relative z-10 inline-block px-2 text-left text-neutral-900 dark:text-neutral-100",
+          className
+        )}
         key={currentWord}>
         {/* edit suggested by Sajal: https://x.com/DewanganSajal */}
         {currentWord.split(" ").map((word, wordIndex) => (
