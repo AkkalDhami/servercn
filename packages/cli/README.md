@@ -1,10 +1,11 @@
-# servercn
+# ServerCN
 
-Opinionated backend component installer for Node.js applications.
+ServerCN is a component registry for building production-ready Node.js backends by composition.
 
 `servercn` helps you scaffold and install **production-ready backend components**
-(logging, auth, validation, error handling, etc.) into an existing project —
-similar in spirit to `shadcn/ui`, but for **backend infrastructure**.
+(logging, auth, validation, error handling, etc.) into an existing project —`similar in spirit to`shadcn/ui`, but for **backend infrastructure**.
+
+Visit [ServerCN](https://servercn.vercel.app) for more information.
 
 ---
 
@@ -21,8 +22,22 @@ similar in spirit to `shadcn/ui`, but for **backend infrastructure**.
 
 ## Installation
 
-No global install required:
-
 ```bash
 npx servercn init
 ```
+
+## Add Components
+
+Add specific modules to your existing project. This allows for incremental adoption.
+
+```bash
+npx servercn add [component-name]
+```
+
+Add multiple components like this:
+
+```bash
+npx servercn add logger-pino jwt-utils
+```
+
+Visit [ServerCN](https://servercn.vercel.app) for more information.

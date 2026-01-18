@@ -35,7 +35,8 @@ var colors = {
   info: kleur.cyan,
   success: kleur.green,
   muted: kleur.gray,
-  created: kleur.magenta
+  created: kleur.magenta,
+  overwritten: kleur.yellow
 };
 
 // src/utils/cli-logger.ts
@@ -56,7 +57,13 @@ var logger = {
     console.log(args.join(" "));
   },
   created(...args) {
-    console.log(colors.created(`\u2714 Created ${args.join(" ")}`));
+    console.log(colors.created(`Created: ${args.join(" ")}`));
+  },
+  overwritten(...args) {
+    console.log(colors.overwritten(`Overwritten: ${args.join(" ")}`));
+  },
+  muted(...args) {
+    console.log(colors.muted(`${args.join(" ")}`));
   },
   break() {
     console.log("");
@@ -64,7 +71,13 @@ var logger = {
 };
 
 // src/lib/copy.ts
-async function copyTemplate({ templateDir, targetDir, componentName, conflict = "skip", dryRun = false }) {
+async function copyTemplate({
+  templateDir,
+  targetDir,
+  componentName,
+  conflict = "skip",
+  dryRun = false
+}) {
   if (!await fs.pathExists(templateDir)) {
     logger.error(`Template not found: ${templateDir}`);
     process.exit(1);
@@ -76,6 +89,7 @@ async function copyTemplate({ templateDir, targetDir, componentName, conflict = 
     let rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
     let finalName = rawName;
     const destPath = path2.join(targetDir, finalName);
+    const relativeDestPath = path2.relative(process.cwd(), destPath);
     if (entry.isDirectory()) {
       await copyTemplate({
         templateDir: srcPath,
@@ -89,15 +103,17 @@ async function copyTemplate({ templateDir, targetDir, componentName, conflict = 
     const exists = await fs.pathExists(destPath);
     if (exists) {
       if (conflict === "skip") {
-        logger.warn(`Skipped: ${destPath}`);
+        logger.warn(`Skipped: ${relativeDestPath}`);
         continue;
       }
       if (conflict === "error") {
-        throw new Error(`File already exists: ${destPath}`);
+        throw new Error(`File already exists: ${relativeDestPath}`);
       }
     }
     if (dryRun) {
-      logger.info(`[dry-run] ${exists ? "Overwrite" : "Create"}: ${destPath}`);
+      logger.info(
+        `[dry-run] ${exists ? "Overwrite" : "Create"}: ${relativeDestPath}`
+      );
       continue;
     }
     const buffer = await fs.readFile(srcPath);
@@ -109,7 +125,7 @@ async function copyTemplate({ templateDir, targetDir, componentName, conflict = 
       let content = buffer.toString("utf8");
       await fs.writeFile(destPath, content);
     }
-    logger.created(exists ? `Overwritten: ${destPath}` : `: ${destPath}`);
+    exists ? logger.overwritten(relativeDestPath) : logger.created(relativeDestPath);
   }
 }
 
@@ -120,7 +136,7 @@ async function getRegistryComponent(name, type) {
   const registryPath = getRegistryPath(type);
   const filePath = path3.join(registryPath, `${name}.json`);
   if (!await fs2.pathExists(filePath)) {
-    logger.error(`Component "${name}" not found`);
+    logger.error(`${type} "${name}" not found`);
     process.exit(1);
   }
   return fs2.readJSON(filePath);
@@ -128,18 +144,9 @@ async function getRegistryComponent(name, type) {
 
 // src/lib/architecture.ts
 import path4 from "path";
-function resolveTargetDir(folderName, arch) {
+function resolveTargetDir(folderName) {
   const cwd = process.cwd();
-  switch (arch) {
-    case "mvc":
-      return path4.join(cwd, folderName);
-    case "feature":
-      return path4.join(cwd, folderName);
-    case "clean":
-      return path4.join(cwd, folderName);
-    default:
-      return cwd;
-  }
+  return path4.join(cwd, folderName);
 }
 
 // src/lib/install-deps.ts
@@ -156,7 +163,11 @@ function detectPackageManager(cwd = process.cwd()) {
 }
 
 // src/lib/install-deps.ts
-async function installDependencies({ runtime = [], dev = [], cwd }) {
+async function installDependencies({
+  runtime = [],
+  dev = [],
+  cwd
+}) {
   if (!runtime.length && !dev.length) return;
   const pm = detectPackageManager();
   const run = async (args) => {
@@ -242,26 +253,32 @@ function ensureTsConfig(dir) {
 
 // src/lib/prompts.ts
 import prompts from "prompts";
-async function askFolderName(defaultName) {
-  const { folder } = await prompts({
-    type: "text",
-    name: "folder",
-    message: "Where should this component be added?",
-    initial: ".",
-    format: (val) => val.trim() || "."
-  });
-  return folder || defaultName;
-}
-function getDefaultFolderName(component) {
-  return component.name;
-}
 
 // src/lib/assert-initialized.ts
 import fs6 from "fs-extra";
 import path8 from "path";
 
 // src/constants/app-constants.ts
-var SERVERCN_CONFIG_FILE = "servercn.json";
+var SERVERCN_CONFIG_FILE = "servercn.config.json";
+
+// src/configs/env.ts
+import { z } from "zod";
+import "dotenv/config";
+var envSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  SERVERCN_SILENT: z.string().default("true"),
+  LOG_LEVEL: z.string().default("info"),
+  SERVERCN_URL: z.string().default("https://servercn.vercel.app")
+});
+var parsed = envSchema.safeParse(process.env);
+if (!parsed.success) {
+  console.error(
+    "\u274C Invalid environment variables:",
+    parsed.error.flatten().fieldErrors
+  );
+  process.exit(1);
+}
+var env = parsed.data;
 
 // src/lib/assert-initialized.ts
 async function assertInitialized() {
@@ -269,7 +286,17 @@ async function assertInitialized() {
   if (!await fs6.pathExists(configPath)) {
     logger.error("ServerCN is not initialized in this project.");
     logger.info("Run the following command first:");
-    logger.info("  npx servercn init");
+    logger.log("- npx servercn init");
+    logger.muted("For express server: npx servercn init express-server");
+    logger.muted(
+      "For (Drizzle + MySQL) Starter: npx servercn init drizzle-mysql-server"
+    );
+    logger.muted(
+      "For (Drizzle + PostgreSQL) Starter: npx servercn init drizzle-pg-server"
+    );
+    logger.muted(
+      `Visit ${env.SERVERCN_URL}/docs/installation for more information`
+    );
     process.exit(1);
   }
 }
@@ -286,29 +313,59 @@ async function getServerCNConfig() {
   }
   return fs7.readJSON(configPath);
 }
+function getDatabaseConfig(foundation) {
+  switch (foundation) {
+    case "express-server":
+    case "mongoose-starter":
+      return { type: "mongodb", orm: "mongoose" };
+    case "drizzle-mysql-starter":
+      return { type: "mysql", orm: "drizzle" };
+    case "drizzle-pg-starter":
+      return { type: "postgresql", orm: "drizzle" };
+    case "prisma-mongo-starter":
+      return { type: "mongodb", orm: "prisma" };
+    case "prisma-pg-starter":
+      return { type: "postgresql", orm: "prisma" };
+    default:
+      return null;
+  }
+}
+
+// src/utils/capatalize.ts
+function capitalize(text) {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 // src/commands/add.ts
 async function add(componentName, options = {}) {
   await assertInitialized();
   const config = await getServerCNConfig();
-  const component = await getRegistryComponent(componentName, "component");
+  const type = options.type ?? "component";
+  const component = await getRegistryComponent(componentName, type);
   if (!component.stacks.includes(config.stack.framework)) {
-    logger.error(`Component "${componentName}" does not support "${config.stack.framework}"`);
+    logger.error(
+      `${type === "schema" ? "Schema" : "Component"} "${componentName}" does not support "${config.stack.framework}"`
+    );
     process.exit(1);
   }
   const stack = config.stack.framework;
   const arch = config.stack.architecture;
-  const defaultFolder = getDefaultFolderName(component);
-  const folderName = await askFolderName(defaultFolder);
-  const targetDir = resolveTargetDir(folderName, arch);
+  const targetDir = resolveTargetDir(".");
+  if (!targetDir) {
+    logger.error("Failed to resolve target directory");
+    process.exit(1);
+  }
   let templateDir;
   let runtimeDeps;
   const devDeps = component.dependencies?.dev;
-  if (component.algorithms) {
-    const choices = Object.entries(component.algorithms).map(([key, value]) => ({
-      title: value.title,
-      value: key
-    }));
+  if (component.algorithms && type !== "schema") {
+    const choices = Object.entries(component.algorithms).map(
+      ([key, value]) => ({
+        title: value.title,
+        value: key
+      })
+    );
     const { algorithm } = await prompts2({
       type: "select",
       name: "algorithm",
@@ -322,7 +379,9 @@ async function add(componentName, options = {}) {
     const algoConfig = component.algorithms[algorithm];
     const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
     if (!selectedTemplate) {
-      logger.error(`Architecture "${arch}" is not supported for "${component.name}"`);
+      logger.error(
+        `Architecture "${arch}" is not supported for "${component.title}"`
+      );
       process.exit(1);
     }
     templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
@@ -331,12 +390,49 @@ async function add(componentName, options = {}) {
   } else {
     const templateConfig = component.templates?.[stack];
     if (!templateConfig) {
-      logger.error(`Stack "${stack}" is not supported by "${component.name}"`);
+      logger.error(`Stack "${stack}" is not supported by "${component.title}"`);
       process.exit(1);
     }
-    const selectedTemplate = typeof templateConfig === "string" ? templateConfig : templateConfig[arch] ?? templateConfig.base;
+    let selectedTemplate;
+    if (type === "schema") {
+      const database = config.database?.type;
+      const databaseOrm = config.database?.orm;
+      if (!database || !databaseOrm) {
+        logger.error(
+          "Database not configured in servercn.json. Please run init first."
+        );
+        process.exit(1);
+      }
+      const dbConfig = templateConfig[database];
+      if (!dbConfig || !dbConfig[databaseOrm]) {
+        logger.error(
+          `Database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
+        );
+        process.exit(1);
+      }
+      const dbArchOptions = dbConfig[databaseOrm];
+      const archConfig = dbArchOptions[arch] ?? dbArchOptions.base;
+      if (!archConfig) {
+        logger.error(
+          `Architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
+        );
+        process.exit(1);
+      }
+      const variant = options.variant || "advanced";
+      selectedTemplate = typeof archConfig === "string" ? archConfig : archConfig[variant];
+      if (!selectedTemplate) {
+        logger.error(
+          `Variant "${variant}" is not supported for schema "${component.slug}"`
+        );
+        process.exit(1);
+      }
+    } else {
+      selectedTemplate = typeof templateConfig === "string" ? templateConfig : templateConfig[arch];
+    }
     if (!selectedTemplate) {
-      logger.error(`Architecture "${arch}" is not supported by "${component.name}"`);
+      logger.error(
+        `Architecture "${arch}" is not supported by "${component.slug}"`
+      );
       process.exit(1);
     }
     templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
@@ -359,9 +455,11 @@ async function add(componentName, options = {}) {
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
   }
-  logger.success(`
-${component.title} added successfully
-`);
+  logger.success(
+    `
+Success! ${capitalize(component.type)} ${component.title} added successfully
+`
+  );
 }
 
 // src/commands/init.ts
@@ -376,6 +474,20 @@ async function init(foundation) {
     logger.info("You can now run: servercn add <component>");
     process.exit(1);
   }
+  const tsConfig = {
+    compilerOptions: {
+      target: "ES2021",
+      module: "es2022",
+      moduleResolution: "bundler",
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      outDir: "dist",
+      rootDir: "src"
+    },
+    include: ["src/**/*"],
+    exclude: ["node_modules"]
+  };
   if (foundation) {
     const response2 = await prompts3([
       {
@@ -409,8 +521,7 @@ async function init(foundation) {
         project: {
           root: response2.root,
           srcDir: "src",
-          type: "backend",
-          packageManager: "npm"
+          type: "backend"
         },
         stack: {
           runtime: "node",
@@ -418,26 +529,12 @@ async function init(foundation) {
           framework: "express",
           architecture: response2.architecture
         },
-        database: null,
+        database: getDatabaseConfig(foundation),
         overrides: {},
         meta: {
           createdAt: (/* @__PURE__ */ new Date()).toISOString(),
           createdBy: "servercn@1.0.0"
         }
-      };
-      const tsConfig2 = {
-        compilerOptions: {
-          target: "ES2021",
-          module: "es2022",
-          moduleResolution: "bundler",
-          strict: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          outDir: "dist",
-          rootDir: "src"
-        },
-        include: ["src/**/*"],
-        exclude: ["node_modules"]
       };
       const prettierConfig = {
         singleQuote: false,
@@ -455,7 +552,21 @@ async function init(foundation) {
           "type-enum": [
             2,
             "always",
-            ["feat", "fix", "docs", "style", "refactor", "test", "chore", "ci", "perf", "build", "release", "workflow", "security"]
+            [
+              "feat",
+              "fix",
+              "docs",
+              "style",
+              "refactor",
+              "test",
+              "chore",
+              "ci",
+              "perf",
+              "build",
+              "release",
+              "workflow",
+              "security"
+            ]
           ],
           "subject-case": [2, "always", ["lower-case"]]
         }
@@ -466,19 +577,30 @@ async function init(foundation) {
       await fs8.writeJson(path11.join(rootPath2, ".prettierrc"), prettierConfig, {
         spaces: 2
       });
-      await fs8.writeFile(path11.join(rootPath2, ".prettierignore"), `build
+      await fs8.writeFile(
+        path11.join(rootPath2, ".prettierignore"),
+        `build
 dist
 .env
-node_modules`);
-      await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig2, {
+node_modules`
+      );
+      await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig, {
         spaces: 2
       });
-      await fs8.writeFile(path11.join(rootPath2, "commitlint.config.ts"), `export default ${JSON.stringify(commitlintConfig, null, 2)}`);
+      await fs8.writeFile(
+        path11.join(rootPath2, "commitlint.config.ts"),
+        `export default ${JSON.stringify(commitlintConfig, null, 2)}`
+      );
       const templatePathRelative = component.templates?.express?.[response2.architecture];
       if (!templatePathRelative) {
-        throw new Error(`Template not found for ${foundation} (express/${response2.architecture})`);
+        throw new Error(
+          `Template not found for ${foundation} (express/${response2.architecture})`
+        );
       }
-      const templateDir = path11.resolve(getTemplatesPath(), templatePathRelative);
+      const templateDir = path11.resolve(
+        getTemplatesPath(),
+        templatePathRelative
+      );
       await copyTemplate({
         templateDir,
         targetDir: rootPath2,
@@ -546,7 +668,20 @@ Success! ServerCN initialized with ${foundation}.`);
       type: "select",
       name: "databaseType",
       message: "Select database",
-      choices: [{ title: "MongoDB", value: "mongodb" }]
+      choices: [
+        {
+          title: "MongoDB",
+          value: "mongodb"
+        },
+        {
+          title: "PostgreSQL",
+          value: "postgresql"
+        },
+        {
+          title: "MySQL",
+          value: "mysql"
+        }
+      ]
     },
     {
       type: (prev) => prev === "mongodb" ? "select" : null,
@@ -555,26 +690,13 @@ Success! ServerCN initialized with ${foundation}.`);
       choices: [{ title: "Mongoose", value: "mongoose" }]
     },
     {
-      type: (_prev, values) => ["postgresql", "mysql", "sqlite"].includes(values.databaseType) ? "select" : null,
+      type: (_prev, values) => ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
       name: "orm",
       message: "ORM / Query builder",
       choices: [
-        { title: "Prisma", value: "prisma" },
-        { title: "Drizzle", value: "drizzle" },
-        { title: "Sequelize", value: "sequelize" },
-        { title: "Knex", value: "knex" }
+        { title: "Drizzle", value: "drizzle" }
+        // { title: "Prisma", value: "prisma" }
       ]
-    },
-    {
-      type: "select",
-      name: "packageManager",
-      message: "Package manager",
-      choices: [
-        { title: "npm", value: "npm" },
-        { title: "pnpm", value: "pnpm" },
-        { title: "yarn", value: "yarn" }
-      ],
-      initial: 0
     }
   ]);
   if (!response.architecture) {
@@ -590,8 +712,7 @@ Success! ServerCN initialized with ${foundation}.`);
     project: {
       root: response.root,
       srcDir: response.srcDir,
-      type: "backend",
-      packageManager: response.packageManager
+      type: "backend"
     },
     stack: {
       runtime: "node",
@@ -609,20 +730,6 @@ Success! ServerCN initialized with ${foundation}.`);
       createdBy: "servercn@1.0.0"
     }
   };
-  const tsConfig = {
-    compilerOptions: {
-      target: "ES2021",
-      module: "es2022",
-      moduleResolution: "bundler",
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true,
-      outDir: "dist",
-      rootDir: "src"
-    },
-    include: ["src/**/*"],
-    exclude: ["node_modules"]
-  };
   await fs8.writeJson(path11.join(rootPath, SERVERCN_CONFIG_FILE), config, {
     spaces: 2
   });
@@ -630,22 +737,34 @@ Success! ServerCN initialized with ${foundation}.`);
     spaces: 2
   });
   logger.success("\nSuccess! ServerCN initialized successfully.");
-  logger.info("You may now add components by running:");
-  logger.info("- servercn add <component>\n");
+  logger.log("You may now add components by running:");
+  logger.muted(`1. cd ${response.root}`);
+  logger.muted("2. npx servercn add <component>");
+  logger.muted("Ex: npx servercn add jwt-utils file-upload");
 }
 
 // src/lib/registry-list.ts
 import fs9 from "fs-extra";
 import path12 from "path";
-async function loadRegistryComponents() {
-  const registryDir = getRegistryPath("component");
+async function loadRegistry(type) {
+  const registryDir = getRegistryPath(type);
   const files = await fs9.readdir(registryDir);
   const components = [];
   for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-    const fullPath = path12.join(registryDir, file);
-    const data = await fs9.readJSON(fullPath);
-    components.push(data);
+    let nestedFiles = [];
+    if (!file.endsWith(".json")) {
+      nestedFiles = await fs9.readdir(path12.join(registryDir, file));
+      for (const nestedFile of nestedFiles) {
+        if (!nestedFile.endsWith(".json")) continue;
+        const fullPath = path12.join(registryDir, file, nestedFile);
+        const data = await fs9.readJSON(fullPath);
+        components.push(data);
+      }
+    } else {
+      const fullPath = path12.join(registryDir, file);
+      const data = await fs9.readJSON(fullPath);
+      components.push(data);
+    }
   }
   return components;
 }
@@ -661,21 +780,52 @@ function groupByCategory(components) {
 }
 
 // src/commands/list.ts
-async function list() {
-  const components = await loadRegistryComponents();
-  if (!components.length) {
-    logger.warn("No components found in registry.");
-    return;
-  }
-  const grouped = groupByCategory(components);
-  for (const category of Object.keys(grouped).sort()) {
+async function renderGrouppedRegistries(type, logs) {
+  const components = await loadRegistry(type);
+  const groupedComponents = groupByCategory(components);
+  let i = 1;
+  for (const category of Object.keys(groupedComponents).sort()) {
     logger.info(`
 ${category.toUpperCase()}S`);
-    const items = grouped[category].sort((a, b) => a.title.localeCompare(b.title));
+    const items = groupedComponents[category].sort(
+      (a, b) => a.title.localeCompare(b.title)
+    );
     for (const c of items) {
-      logger.log(`  \u2022 ${c.title}: ${c.slug}`);
+      logger.log(`${i++}. ${c.title}: ${c.slug}`);
     }
+    logger.break();
+    logs && logs.map((log) => logger.muted(log));
   }
+}
+async function list() {
+  const componentLogs = [
+    "To add components run: npx servercn add <component-name>",
+    "Ex: npx servercn add http-status-codes",
+    "Ex: npx servercn add jwt-utils rbac verify-auth-middleware",
+    `For more info, visit: ${env.SERVERCN_URL}/components`
+  ];
+  const foundationLogs = [
+    "To add foundation run: npx servercn init <foundation-name>",
+    "Ex: npx servercn init express-server",
+    "Ex: npx servercn init drizzle-mysql-starter",
+    `For more info, visit: ${env.SERVERCN_URL}/foundations`
+  ];
+  const blueprintLogs = [
+    "To add blueprint run: npx servercn add blueprint <blueprint-name>",
+    "Ex: npx servercn add blueprint jwt-utils rbac verify-auth-middleware",
+    `For more info, visit: ${env.SERVERCN_URL}/blueprints`
+  ];
+  const schemaLogs = [
+    "To add schema run: npx servercn add schema <schema-name>",
+    "Ex: npx servercn add schema auth/user",
+    "Ex: npx servercn add schema auth/otp",
+    "Ex: npx servercn add schema auth/session",
+    `For more info, visit: ${env.SERVERCN_URL}/schemas`
+  ];
+  await renderGrouppedRegistries("component", componentLogs);
+  await renderGrouppedRegistries("foundation", foundationLogs);
+  await renderGrouppedRegistries("blueprint", blueprintLogs);
+  await renderGrouppedRegistries("schema", schemaLogs);
 }
 
 // src/cli.ts
@@ -686,10 +836,19 @@ async function main() {
   program.name("servercn").description("Backend components for Node.js").version("0.0.1");
   program.command("init [foundation]").description("Initialize ServerCN in your project").action(init);
   program.command("list").description("List available ServerCN components").action(list);
-  program.command("add <components...>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature)", "mvc").option("-f, --force", "Overwrite existing files").action(async (components, options) => {
-    for (const component of components) {
-      await add(component, {
-        arch: options.arch
+  program.command("add <components...>").description("Add a backend component").option("--arch <arch>", "Architecture (mvc | feature)", "mvc").option("--variant <variant>", "Variant (advanced | minimal)", "advanced").option("-f, --force", "Overwrite existing files").action(async (components, options) => {
+    let type = "component";
+    let items = components;
+    if (components[0] === "schema") {
+      type = "schema";
+      items = components.slice(1);
+    }
+    for (const item of items) {
+      await add(item, {
+        arch: options.arch,
+        variant: options.variant,
+        type,
+        force: options.force
       });
     }
   });
