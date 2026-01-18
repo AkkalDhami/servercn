@@ -12,10 +12,14 @@ export default function ComponentCard({
       href={component.docs as Route}
       className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
       {component.status !== "stable" && (
-        <span
-          className={`absolute top-4 right-4 rounded-full border border-amber-400 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:border-amber-600`}>
-          {component.status}
-        </span>
+        <>
+          <span
+            className={`absolute top-4 right-4 hidden rounded-full border border-amber-400 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 md:block dark:border-amber-600`}>
+            {component.status}
+          </span>
+          <span
+            className={`absolute top-4 right-4 block size-2 rounded-full bg-amber-500 md:hidden`}></span>
+        </>
       )}
       <h3 className="text-lg font-medium">{component.title}</h3>
 

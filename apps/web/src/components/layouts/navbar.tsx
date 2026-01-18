@@ -155,7 +155,8 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
               onClick={onClose}
               className={cn(
                 "text-muted-foreground hover:text-foreground text-2xl font-semibold transition-colors",
-                path === link.href && "text-foreground"
+                path === link.href &&
+                  "text-foreground underline underline-offset-5"
               )}>
               {link.label}
             </Link>

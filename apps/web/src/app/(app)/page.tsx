@@ -1,12 +1,12 @@
 import WhyServerCN from "@/components/home/feature-section";
 import HeroSection from "@/components/home/hero-section";
-import VerifyAuthSection from "@/components/home/verify-auth-section";
+import GoogleOAuthSection from "@/components/home/google-auth-section";
 
 export default function Home() {
   return (
     <main className="">
       <HeroSection />
-      <VerifyAuthSection />
+      <GoogleOAuthSection />
       <WhyServerCN />
       {/* <Working /> */}
     </main>
