@@ -143,9 +143,9 @@
     {
       "slug": "google-oauth",
       "title": "Google OAuth",
-      "description": "Google OAuth",
+      "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in ServerCN.",
       "type": "component",
-      "status": "experimental",
+      "status": "stable",
       "docs": "/docs/components/google-oauth"
     },
     {
@@ -189,11 +189,19 @@
       "docs": "/docs/components/sms-service"
     },
     {
+      "slug": "github-google-oauth",
+      "title": "GitHub & Google OAuth",
+      "description": "The GitHub & Google OAuth component provides a standardized way to handle GitHub & Google OAuth authentication in ServerCN.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/github-google-oauth"
+    },
+    {
       "slug": "github-oauth",
       "title": "GitHub OAuth",
       "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in ServerCN.",
       "type": "component",
-      "status": "experimental",
+      "status": "stable",
       "docs": "/docs/components/github-oauth"
     },
     {
@@ -258,7 +266,7 @@
       "title": "Prisma MongoDB Starter",
       "description": "A production-ready MongoDB foundation using Prisma ORM for type-safe database interactions.",
       "type": "foundation",
-      "status": "stable",
+      "status": "experimental",
       "docs": "/docs/foundations/prisma-mongo-starter"
     },
     {

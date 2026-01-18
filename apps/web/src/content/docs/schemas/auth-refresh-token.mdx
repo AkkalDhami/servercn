@@ -1,0 +1,377 @@
+---
+title: Auth | Refresh Token | Schema
+description: The Auth Refresh Token schema manages long-lived tokens for renewing access tokens in JWT authentication flows.
+command: npx servercn add schema auth/refresh-token
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: refresh-token.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IRefreshToken extends Document {
+                _id: mongoose.Types.ObjectId;
+                userId: mongoose.Types.ObjectId;
+                tokenHash: string;
+                expiresAt: Date;
+                isRevoked: boolean;
+                revokedAt?: Date;
+                replacedByTokenHash?: string;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const refreshTokenSchema = new Schema<IRefreshToken>(
+                {
+                  userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: [true, "User ID is required"]
+                  },
+                  tokenHash: {
+                    type: String,
+                    required: [true, "Token hash is required"],
+                    select: false // Secure by default
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: [true, "Expiration time is required"],
+                    index: { expires: 0 } // TTL index
+                  },
+                  isRevoked: {
+                    type: Boolean,
+                    default: false
+                  },
+                  revokedAt: {
+                    type: Date
+                  },
+                  replacedByTokenHash: {
+                    type: String,
+                    select: false
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              refreshTokenSchema.index({ userId: 1 });
+              refreshTokenSchema.index({ tokenHash: 1 });
+              refreshTokenSchema.index({ isRevoked: 1 });
+
+              const RefreshToken: Model<IRefreshToken> =
+                mongoose.models.RefreshToken ||
+                mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+              export default RefreshToken;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: refresh-token.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface IRefreshToken extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    userId: mongoose.Types.ObjectId;
+                    tokenHash: string;
+                    expiresAt: Date;
+                    isRevoked: boolean;
+                    revokedAt?: Date;
+                    replacedByTokenHash?: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const refreshTokenSchema = new Schema<IRefreshToken>(
+                    {
+                      userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "User ID is required"]
+                      },
+                      tokenHash: {
+                        type: String,
+                        required: [true, "Token hash is required"],
+                        select: false // Secure by default
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: [true, "Expiration time is required"],
+                        index: { expires: 0 } // TTL index
+                      },
+                      isRevoked: {
+                        type: Boolean,
+                        default: false
+                      },
+                      revokedAt: {
+                        type: Date
+                      },
+                      replacedByTokenHash: {
+                        type: String,
+                        select: false
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  refreshTokenSchema.index({ userId: 1 });
+                  refreshTokenSchema.index({ tokenHash: 1 });
+                  refreshTokenSchema.index({ isRevoked: 1 });
+
+                  const RefreshToken: Model<IRefreshToken> =
+                    mongoose.models.RefreshToken ||
+                    mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+                  export default RefreshToken;
+---
+
+# Auth Refresh Token Schema
+
+The **Refresh Token** model is a key component of secure JWT authentication systems. It allows users to obtain new access tokens without re-entering credentials, maintaining a seamless user experience while keeping access tokens short-lived.
+
+## Installation Guide
+
+To add the Auth Refresh Token schema to your project, run the following command:
+
+<PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
+
+## Schema Definition
+
+### 1. Mongoose (MongoDB)
+
+**MVC:** <Code children="src/models/refresh-token.model.ts" />
+
+**Feature:** <Code children="src/modules/auth/refresh-token.model.ts" />
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IRefreshToken extends Document {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  tokenHash: string;
+  expiresAt: Date;
+  isRevoked: boolean;
+  revokedAt?: Date;
+  replacedByTokenHash?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const refreshTokenSchema = new Schema<IRefreshToken>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required"]
+    },
+    tokenHash: {
+      type: String,
+      required: [true, "Token hash is required"],
+      select: false // Secure by default
+    },
+    expiresAt: {
+      type: Date,
+      required: [true, "Expiration time is required"],
+      index: { expires: 0 } // TTL index
+    },
+    isRevoked: {
+      type: Boolean,
+      default: false
+    },
+    revokedAt: {
+      type: Date
+    },
+    replacedByTokenHash: {
+      type: String,
+      select: false
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+refreshTokenSchema.index({ userId: 1 });
+refreshTokenSchema.index({ tokenHash: 1 });
+refreshTokenSchema.index({ isRevoked: 1 });
+
+const RefreshToken: Model<IRefreshToken> =
+  mongoose.models.RefreshToken ||
+  mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+export default RefreshToken;
+```
+
+### 2. Drizzle ORM (MySQL)
+
+**MVC:** <Code children={'src/drizzle/schemas/refresh-token.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/refresh-token.schema.ts'} />
+
+```ts
+import {
+  mysqlTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  index,
+  int
+} from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+export const timestamps = {
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+};
+
+export const refreshTokens = mysqlTable(
+  "refresh_tokens",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    tokenHash: varchar("token_hash", { length: 255 }).notNull(),
+    expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
+    isRevoked: boolean("is_revoked").default(false).notNull(),
+    revokedAt: timestamp("revoked_at", { mode: "string" }),
+    replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
+    ...timestamps
+  },
+  table => [
+    index("user_id_idx").on(table.userId),
+    index("token_hash_idx").on(table.tokenHash),
+    index("is_revoked_idx").on(table.isRevoked),
+    index("expires_at_idx").on(table.expiresAt)
+  ]
+);
+
+export const refreshTokensRelations = relations(refreshTokens, ({one, many})=>{
+  return {
+    user: one(users, {
+      fields: [refreshTokens.userId],
+      references: [users.id]
+    })
+  }
+});
+
+export type RefreshToken = typeof refreshTokens.$inferSelect;
+export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+```
+
+### 3. Drizzle ORM (PostgreSQL)
+
+**MVC:** <Code children={'src/drizzle/schemas/refresh-token.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/refresh-token.schema.ts'} />
+
+```ts
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  index,
+  index,
+  integer
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+const timestamps = {
+  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "string" })
+    .defaultNow()
+    .$onUpdate(() => new Date().toISOString())
+    .notNull()
+};
+
+export const refreshTokens = pgTable(
+  "refresh_tokens",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull(),
+    tokenHash: varchar("token_hash", { length: 255 }).notNull(),
+    expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
+    isRevoked: boolean("is_revoked").default(false).notNull(),
+    revokedAt: timestamp("revoked_at", { mode: "string" }),
+    replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
+    ...timestamps
+  },
+  table => [
+    index("user_id_idx").on(table.userId),
+    index("token_hash_idx").on(table.tokenHash),
+    index("is_revoked_idx").on(table.isRevoked),
+    index("expires_at_idx").on(table.expiresAt)
+  ]
+);
+
+export type RefreshToken = typeof refreshTokens.$inferSelect;
+export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+```
+
+## Key Features
+
+- **Secure Storage**: Only stores the hash of the refresh token, never the raw token.
+- **Revocation Support**: Allows identifying revoked tokens and implementing token rotation.
+- **Token Rotation**: Tracks `replacedByTokenHash` to detect token theft (reuse of old tokens).
+- **Auto-Expiration**: TTL support (built-in for MongoDB, manageable for SQL).
+
+## Best Practices
+
+### 1. Token Generation
+
+```ts
+import crypto from "node:crypto";
+
+// Generate a random token
+export function generateRefreshToken() {
+  return crypto.randomBytes(40).toString("hex");
+}
+
+// Hash for storage
+export function hashToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+```
+
+### 2. Token Rotation
+
+When a user uses a refresh token to get a new access token:
+
+1. **Verify** the incoming refresh token (hash it and find it in DB).
+2. **Check Revocation**: If `isRevoked` is true:
+   - Security Alert! This might be a token theft attempt.
+   - Revoke all tokens for this user chain.
+3. **Rotate**:
+   - Mark the current token as revoked (`isRevoked: true`, `revokedAt: new Date()`).
+   - Generate a NEW refresh token pair (access + refresh).
+   - Store the new refresh token.
+   - Update the old token's `replacedByTokenHash` with the new one's hash.
+
+## Related Schemas
+
+- [User Schema](/docs/schemas/auth-user) - User identity
+- [Session Schema](/docs/schemas/auth-session) - Alternative stateful session management

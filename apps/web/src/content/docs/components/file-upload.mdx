@@ -95,7 +95,7 @@ mvc_structure:
           - type: file
             name: upload.controller.ts
             content: |
-              import { Request, Response } from "express";
+              import { Request, Response, NextFunction } from "express";
 
               import {
                 CloudinaryUploadResult,
@@ -107,9 +107,9 @@ mvc_structure:
               import { ApiResponse } from "../utils/api-response";
               import { AsyncHandler } from "../utils/async-handler";
 
-              export const uploadFile = AsyncHandler(async (req: Request, res: Response) => {
+              export const uploadFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
                 if (!req.file) {
-                  throw ApiError.badRequest("File is required");
+                  return next(ApiError.badRequest("File is required"));
                 }
 
                 const file = await uploadToCloudinary(req.file.buffer, {
@@ -121,11 +121,11 @@ mvc_structure:
               });
 
               export const uploadMultipleFile = AsyncHandler(
-                async (req: Request, res: Response) => {
+                async (req: Request, res: Response, next: NextFunction) => {
                   const files = req.files as Express.Multer.File[];
 
                   if (!files || files.length === 0) {
-                    throw ApiError.badRequest("Files are required");
+                    return next(ApiError.badRequest("Files are required"));
                   }
 
                   const results: CloudinaryUploadResult[] = await Promise.all(
@@ -140,11 +140,11 @@ mvc_structure:
                 }
               );
 
-              export const deleteFile = AsyncHandler(async (req: Request, res: Response) => {
+              export const deleteFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
                 const { public_id } = req.body;
 
                 if (!public_id) {
-                  throw ApiError.badRequest("File ID is required");
+                  return next(ApiError.badRequest("File ID is required"));
                 }
 
                 await deleteFileFromCloudinary([public_id]);
@@ -180,8 +180,8 @@ mvc_structure:
                 }
 
                 logger.error(
-                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`,
-                  err
+                  err,
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
                 );
 
                 const response = {
@@ -466,65 +466,49 @@ mvc_structure:
           - type: file
             name: logger.ts
             content: |
+              import pino from "pino";
               import env from "../configs/env";
-              import winston from "winston";
-              import DailyRotateFile from "winston-daily-rotate-file";
 
-              const { combine, timestamp, printf, colorize, errors } = winston.format;
+              const isProduction = env.NODE_ENV === "production";
 
-              const logFormat = printf(({ level, message, timestamp, stack }) => {
-                return `${timestamp} [${level}] : ${stack || message}`;
-              });
+              export const logger = pino({
+                level: env.LOG_LEVEL || "info",
 
-              const transports: winston.transport[] = [];
+                base: {
+                  pid: process.pid
+                },
 
-              if (env.NODE_ENV !== "production") {
-                transports.push(
-                  new winston.transports.Console({
-                    format: combine(
-                      colorize(),
-                      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-                      errors({ stack: true }),
-                      logFormat
-                    ),
-                  })
-                );
-              }
+                timestamp: pino.stdTimeFunctions.isoTime,
 
-              if (env.NODE_ENV !== "development") {
-                transports.push(
-                  new DailyRotateFile({
-                    dirname: "logs/app",
-                    filename: "app-%DATE%.log",
-                    datePattern: "YYYY-MM-DD",
-                    zippedArchive: true,
-                    maxSize: "20m",
-                    maxFiles: "14d",
-                    level: "info",
-                  })
-                );
-                transports.push(
-                  new DailyRotateFile({
-                    dirname: "logs/error",
-                    filename: "errors-%DATE%.log",
-                    datePattern: "YYYY-MM-DD",
-                    zippedArchive: true,
-                    maxSize: "20m",
-                    maxFiles: "30d",
-                    level: "error",
-                  })
-                );
-              }
+                formatters: {
+                  level(label) {
+                    return { level: label };
+                  }
+                },
 
-              export const logger = winston.createLogger({
-                level: env.LOG_LEVEL,
-                format: combine(
-                  timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-                  errors({ stack: true }),
-                  logFormat
-                ),
-                transports,
-                exitOnError: false,
+                redact: {
+                  paths: [
+                    "req.headers.authorization",
+                    "req.headers.cookie",
+                    "password",
+                    "token",
+                    "refreshToken"
+                  ],
+                  censor: "[REDACTED]"
+                },
+
+                ...(isProduction
+                  ? {}
+                  : {
+                      transport: {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "SYS:standard",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    })
               });
 
       - type: file
@@ -877,8 +861,8 @@ feature_structure:
                     }
 
                     logger.error(
-                      <Code children="Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}" />,
-                      err
+                      err,
+                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
                     );
 
                     const response = {
@@ -937,62 +921,66 @@ feature_structure:
               - type: file
                 name: upload.controller.ts
                 content: |
-                  import { Request, Response } from "express";
+                    import { NextFunction, Request, Response } from "express";
 
-                  import {
-                    CloudinaryUploadResult,
-                    deleteFileFromCloudinary,
-                    uploadToCloudinary,
-                  } from "./upload.service";
+                    import { ApiResponse } from "../../shared/utils/api-response";
+                    import { AsyncHandler } from "../../shared/utils/async-handler";
+                    import {
+                      CloudinaryUploadResult,
+                      deleteFileFromCloudinary,
+                      uploadToCloudinary
+                    } from "./upload.service";
+                    import { ApiError } from "../../shared/errors/api-error";
 
-                  import { ApiError } from "../../shared/errors/api-error";
-                  import { ApiResponse } from "../../shared/utils/api-response";
-                  import { AsyncHandler } from "../../shared/utils/async-handler";
+                    export const uploadFile = AsyncHandler(
+                      async (req: Request, res: Response, next: NextFunction) => {
+                        if (!req.file) {
+                          return next(ApiError.badRequest("File is required"));
+                        }
 
-                  export const uploadFile = AsyncHandler(async (req: Request, res: Response) => {
-                    if (!req.file) {
-                      throw ApiError.badRequest("File is required");
-                    }
+                        const file = await uploadToCloudinary(req.file.buffer, {
+                          folder: "uploads/files",
+                          resource_type: "auto"
+                        });
 
-                    const file = await uploadToCloudinary(req.file.buffer, {
-                      folder: "uploads/files",
-                      resource_type: "auto",
-                    });
-
-                    return ApiResponse.created(res, "File uploaded successfully", file);
-                  });
-
-                  export const uploadMultipleFile = AsyncHandler(
-                    async (req: Request, res: Response) => {
-                      const files = req.files as Express.Multer.File[];
-
-                      if (!files || files.length === 0) {
-                        throw ApiError.badRequest("Files are required");
+                        return ApiResponse.created(res, "File uploaded successfully", file);
                       }
+                    );
 
-                      const results: CloudinaryUploadResult[] = await Promise.all(
-                        files.map(async (file) => {
-                          return await uploadToCloudinary(file.buffer, {
-                            folder: "uploads/images",
-                          });
-                        })
-                      );
+                    export const uploadMultipleFile = AsyncHandler(
+                      async (req: Request, res: Response, next: NextFunction) => {
+                        const files = req.files as Express.Multer.File[];
 
-                      return ApiResponse.created(res, "Files uploaded successfully", results);
-                    }
-                  );
+                        if (!files || files.length === 0) {
+                          return next(ApiError.badRequest("Files are required"));
+                        }
 
-                  export const deleteFile = AsyncHandler(async (req: Request, res: Response) => {
-                    const { public_id } = req.body;
+                        const results: CloudinaryUploadResult[] = await Promise.all(
+                          files.map(async file => {
+                            return await uploadToCloudinary(file.buffer, {
+                              folder: "uploads/images"
+                            });
+                          })
+                        );
 
-                    if (!public_id) {
-                      throw ApiError.badRequest("File ID is required");
-                    }
+                        return ApiResponse.created(res, "Files uploaded successfully", results);
+                      }
+                    );
 
-                    await deleteFileFromCloudinary([public_id]);
+                    export const deleteFile = AsyncHandler(
+                      async (req: Request, res: Response, next: NextFunction) => {
+                        const { public_id } = req.body;
 
-                    return ApiResponse.Success(res, "File deleted successfully", null, 200);
-                  });
+                        if (!public_id) {
+                          return next(ApiError.badRequest("File ID is required"));
+                        }
+
+                        await deleteFileFromCloudinary([public_id]);
+
+                        return ApiResponse.Success(res, "File deleted successfully", null, 200);
+                      }
+                    );
+
 
               - type: file
                 name: upload.routes.ts
@@ -1190,7 +1178,7 @@ Documentation:
 
 - **Logger:**
 
-<PackageManagerTabs command="npx servercn add logger" />
+<PackageManagerTabs command="npx servercn add logger-pino" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -1231,7 +1219,9 @@ CLOUDINARY_API_SECRET="your-api-secret"
 
 Ensure the following configuration are defined:
 
-<Code children="src/configs/env.ts" />
+**MVC:** <Code children="src/configs/env.ts" />
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -1263,7 +1253,9 @@ export default env;
 
 Create a Cloudinary configuration file:
 
-<Code children="src/configs/cloudinary.ts" />
+**MVC:** <Code children="src/configs/cloudinary.ts" />
+
+**Feature:** <Code children="src/shared/configs/cloudinary.ts" />
 
 ```ts
 import { v2 as cloudinary } from "cloudinary";
@@ -1282,7 +1274,9 @@ export default cloudinary;
 
 ServerCN uses **multer** to handle multipart file uploads.
 
-<Code children="src/middlewares/upload-file.ts" />
+**MVC:** <Code children="src/middlewares/upload-file.ts" />
+
+**Feature:** <Code children="src/shared/middlewares/upload-file.ts" />
 
 ```ts
 import multer from "multer";
@@ -1321,9 +1315,12 @@ export default upload;
 
 Services for uploading files to Cloudinary and delete files from cloudinary.
 
-<Code children="src/services/cloudinary.service.ts" /> or
+**MVC:** <Code children="src/services/cloudinary.service.ts" /> or
 <Code children="src/utils/cloudinary.ts" /> or
 <Code children="src/helpers/cloudinary.ts" />
+
+**Feature:** <Code children="src/modules/upload/cloudinary.service.ts" /> or
+<Code children="src/modules/upload/upload.service.ts" />
 
 ```ts
 import { DeleteApiResponse } from "cloudinary";
@@ -1382,10 +1379,12 @@ export const deleteFileFromCloudinary = (
 
 ## Usage Example
 
-<Code children="src/controllers/upload.controller.ts" />
+### 1. Setup controllers
+
+**MVC:** <Code children="src/controllers/upload.controller.ts" />
 
 ```ts
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 
 import {
   CloudinaryUploadResult,
@@ -1397,9 +1396,9 @@ import { ApiError } from "../utils/api-error";
 import { ApiResponse } from "../utils/api-response";
 import { AsyncHandler } from "../utils/async-handler";
 
-export const uploadFile = AsyncHandler(async (req: Request, res: Response) => {
+export const uploadFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.file) {
-    throw ApiError.badRequest("File is required");
+    return next(ApiError.badRequest("File is required"));
   }
 
   const file = await uploadToCloudinary(req.file.buffer, {
@@ -1411,11 +1410,11 @@ export const uploadFile = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 export const uploadMultipleFile = AsyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const files = req.files as Express.Multer.File[];
 
     if (!files || files.length === 0) {
-      throw ApiError.badRequest("Files are required");
+      return next(ApiError.badRequest("Files are required"));
     }
 
     const results: CloudinaryUploadResult[] = await Promise.all(
@@ -1430,11 +1429,11 @@ export const uploadMultipleFile = AsyncHandler(
   }
 );
 
-export const deleteFile = AsyncHandler(async (req: Request, res: Response) => {
+export const deleteFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const { public_id } = req.body;
 
   if (!public_id) {
-    throw ApiError.badRequest("File ID is required");
+    return next(ApiError.badRequest("File ID is required"));
   }
 
   await deleteFileFromCloudinary([public_id]);
@@ -1443,8 +1442,73 @@ export const deleteFile = AsyncHandler(async (req: Request, res: Response) => {
 });
 ```
 
-<br />
-<Code children="src/routes/upload.routes.ts" />
+**Feature:** <Code children="src/modules/upload/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+
+import { ApiResponse } from "../../shared/utils/api-response";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import {
+  CloudinaryUploadResult,
+  deleteFileFromCloudinary,
+  uploadToCloudinary,
+} from "./upload.service";
+import { ApiError } from "../../shared/errors/api-error";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToCloudinary(req.file.buffer, {
+      folder: "uploads/files",
+      resource_type: "auto",
+    });
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: CloudinaryUploadResult[] = await Promise.all(
+      files.map(async (file) => {
+        return await uploadToCloudinary(file.buffer, {
+          folder: "uploads/images",
+        });
+      })
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { public_id } = req.body;
+
+    if (!public_id) {
+      return next(ApiError.badRequest("File ID is required"));
+    }
+
+    await deleteFileFromCloudinary([public_id]);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+### 2. Setup routes
+
+**MVC:** <Code children="src/routes/upload.routes.ts" />
 
 ```ts
 import { Router } from "express";
@@ -1455,6 +1519,27 @@ import {
   uploadFile,
   uploadMultipleFile
 } from "../controllers/upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+**Feature:** <Code children="src/modules/upload/upload.routes.ts" />
+
+```ts
+import { Router } from "express";
+
+import upload from "../../shared/middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "./upload.controller";
 
 const router = Router();
 

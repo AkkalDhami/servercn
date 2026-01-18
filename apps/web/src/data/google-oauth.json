@@ -1,0 +1,109 @@
+[
+  {
+    "type": "folder",
+    "name": "src",
+    "children": [
+      {
+        "type": "folder",
+        "name": "configs",
+        "children": [
+          {
+            "type": "file",
+            "name": "env.ts",
+            "content": "import \"dotenv/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n  CORS_ORIGIN: string;\n\n  GOOGLE_CLIENT_ID: string;\n  GOOGLE_CLIENT_SECRET: string;\n  GOOGLE_REDIRECT_URI: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 3000,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n  CORS_ORIGIN: process.env.CORS_ORIGIN || \"*\",\n\n  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,\n  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,\n  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!\n};\n\nexport default env;\n"
+          },
+          {
+            "type": "file",
+            "name": "passport.ts",
+            "content": "import passport from \"passport\";\nimport { Strategy as GoogleStrategy } from \"passport-google-oauth20\";\nimport env from \"./env\";\n\nconst clientId = env.GOOGLE_CLIENT_ID;\nconst clientSecret = env.GOOGLE_CLIENT_SECRET;\nconst redirectUri = env.GOOGLE_REDIRECT_URI;\n\npassport.use(\n  new GoogleStrategy(\n    {\n      clientID: clientId,\n      clientSecret,\n      callbackURL: redirectUri\n    },\n    function (accessToken, refreshToken, profile, cb) {\n      return cb(null, profile);\n    }\n  )\n);\n"
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "constants",
+        "children": [
+          {
+            "type": "file",
+            "name": "status-codes.ts",
+            "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504,\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "controllers",
+        "children": [
+          {
+            "type": "file",
+            "name": "auth.controller.ts",
+            "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile } from \"passport-google-oauth20\";\n\n//? import servercn components\nimport { ApiResponse } from \"../utils/api-response\";\nimport { AsyncHandler } from \"../utils/async-handler\";\nimport { ApiError } from \"../utils/api-error\";\n\n//? login with google\nexport const googleOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as Profile | undefined;\n    const user = data?._json;\n\n    if (!user || !data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    const userInfo = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: data?.emails && data?.emails[0]?.verified,\n      avatar: data.profileUrl || (data.photos && data.photos[0].value)\n    };\n\n    const userInfo2 = {\n      provider: data?.provider,\n      providerId: user.sub,\n      name: user.name,\n      email: user.email,\n      isEmailVerified: user.email_verified,\n      avatar: user.picture\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      userInfo,\n      userInfo2\n    });\n  }\n);\n"
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "middlewares",
+        "children": [
+          {
+            "type": "file",
+            "name": "error-handler.ts",
+            "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err\n   `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack }),\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+          },
+          {
+            "type": "file",
+            "name": "not-found-handler.ts",
+            "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "routes",
+        "children": [
+          {
+            "type": "file",
+            "name": "auth.routes.ts",
+            "content": "import { Router } from \"express\";\nimport passport from \"passport\";\n\nimport { googleOAuth } from \"../controllers/auth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "utils",
+        "children": [
+          {
+            "type": "file",
+            "name": "api-error.ts",
+            "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\npublic readonly statusCode: StatusCode;\npublic readonly isOperational: boolean;\npublic readonly errors?: unknown;\n\nconstructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n}\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n      return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n      return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n      return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n? Usage:\n* throw new ApiError(404, \"Not found\");\n* throw ApiError.badRequest(\"Bad request\");\n*/\n"
+          },
+          {
+            "type": "file",
+            "name": "api-response.ts",
+            "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\nimport type { Response } from \"express\";\n\ntype ApiResponseParams<T> = {\n  success: boolean;\n  message: string;\n  statusCode: StatusCode;\n  data?: T | null;\n  errors?: unknown;\n};\n\nexport class ApiResponse<T = unknown> {\n  public readonly success: boolean;\n  public readonly message: string;\n  public readonly statusCode: StatusCode;\n  public readonly data?: T | null;\n  public readonly errors?: unknown;\n\n  constructor({\n    success,\n    message,\n    statusCode,\n    data = null,\n    errors,\n  }: ApiResponseParams<T>) {\n    this.success = success;\n    this.message = message;\n    this.statusCode = statusCode;\n    this.data = data;\n    this.errors = errors;\n  }\n\n  send(res: Response): Response {\n    return res.status(this.statusCode).json({\n      success: this.success,\n      message: this.message,\n      statusCode: this.statusCode,\n      ...(this.data !== undefined && { data: this.data }),\n      ...(this.errors !== undefined && { errors: this.errors }),\n    });\n  }\n\n  static Success<T>(\n    res: Response,\n    message: string,\n    data?: T,\n    statusCode: StatusCode = STATUS_CODES.OK\n  ): Response {\n    return new ApiResponse<T>({\n      success: true,\n      message,\n      data,\n      statusCode,\n    }).send(res);\n  }\n\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\n  }\n\n  static created<T>(res: Response, message = \"Created\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\n  }\n}\n"
+          },
+          {
+            "type": "file",
+            "name": "async-handler.ts",
+            "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (\n    req: Request,\n    res: Response,\n    next: NextFunction\n  ) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
+          },
+          {
+            "type": "file",
+            "name": "logger.ts",
+            "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "name": "app.ts",
+        "content": "import express, { Express, Request, Response } from \"express\";\n\nimport { notFoundHandler } from \"./middlewares/not-found-handler\";\nimport { errorHandler } from \"./middlewares/error-handler\";\n\nimport AuthRoutes from \"./routes/auth.routes\";\n\nimport \"./configs/passport\";\n\nconst app: Express = express();\n\napp.use(express.json());\napp.use(express.urlencoded({ extended: true }));\n\n\n// Routes\napp.use(\"/api/auth\", AuthRoutes);\n\n// Not found handler (should be after routes)\napp.use(notFoundHandler);\n\n// Global error handler (should be last)\napp.use(errorHandler);\n\nexport default app;  \n"
+      }
+    ]
+  },
+  {
+    "type": "file",
+    "name": ".env.example",
+    "content": "PORT=\"8000\"\nNODE_ENV=\"development\"\nLOG_LEVEL=\"info\"\n\nGOOGLE_CLIENT_ID=\"your-google-client-id.apps.googleusercontent.com\"\nGOOGLE_CLIENT_SECRET=\"your-google-client-secret\"\nGOOGLE_REDIRECT_URI=\"your-google-redirect-uri\"\n"
+  }
+]

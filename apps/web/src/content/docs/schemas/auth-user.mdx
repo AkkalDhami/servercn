@@ -251,7 +251,7 @@ feature_structure:
 
 The **Auth User** model is the core identity schema used for authentication and authorization in servercn-based applications.
 
-It defines how users are stored, authenticated, verified, and managed across different databases and architectures.  
+It defines how users are stored, authenticated, verified, and managed across different databases and architectures.
 
 This model is designed to scale from **minimal MVPs** to **production-grade systems**.
 
@@ -271,30 +271,23 @@ If you wish to override these defaults, you can use the following flags:
 
 - **Variant**:
   - <Code children={'--variant=minimal'} /> -> lightweight schema
-    <PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
 
   - <Code children={'--variant=advanced'} /> -> full production-ready schema (default)
-    <PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
-
-- **Database**:
-  - <Code children={'--db=mongodb'} /> -> MongoDB (default)
-    <PackageManagerTabs command="npx servercn add model auth/user --db=mongodb" />
-
-  - <Code children={'--db=mysql'} /> -> MySQL
-    <PackageManagerTabs command="npx servercn add model auth/user --db=mysql" />
-
-  - <Code children={'--db=pg'} /> -> PostgreSQL
-    <PackageManagerTabs command="npx servercn add model auth/user --db=pg" />
+<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
 
 - **Overwrite**:
   - <Code children={'--force'} /> -> overwrite existing files if they already exist.
 
 When no configuration is found, initialize it using <Code children={'npx servercn init'} />.
 
-
 ## Schema Definition
 
 ### 1. Mongoose (MongoDB)
+
+**MVC:** <Code children={'src/models/user.model.ts'} />
+
+**Feature:** <Code children={'src/modules/auth/user.model.ts'} />
 
 **I. Minimal Variant**
 
@@ -353,14 +346,15 @@ const userSchema = new Schema<IUser>(
 // Indexes
 userSchema.index({ email: 1 });
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 
 export default User;
 ```
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=mongodb" />
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
 
 **II. Advanced Variant (Recommended)**
 
@@ -473,23 +467,36 @@ userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 
 export default User;
 ```
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced --db=mongodb" />
+<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
 
 ### 2. Drizzle ORM (MySQL)
+
+**MVC:** <Code children={'src/drizzle/schemas/user.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/user.schema.ts'} />
 
 **I. Minimal Variant**
 
 A simple Drizzle schema for MySQL.
 
 ```ts
-import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  uniqueIndex,
+  mysqlEnum
+} from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable(
   "users",
@@ -503,11 +510,7 @@ export const users = mysqlTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
   },
-  table => {
-    return {
-      emailIdx: uniqueIndex("email_idx").on(table.email)
-    };
-  }
+  table => [uniqueIndex("email_idx").on(table.email)]
 );
 
 export type User = typeof users.$inferSelect;
@@ -516,14 +519,25 @@ export type NewUser = typeof users.$inferInsert;
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=mysql" />  
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
 
 **II. Advanced Variant**
 
 A production-ready Drizzle schema with provider support and soft deletes.
 
 ```ts
-import { mysqlTable, serial, varchar, boolean, timestamp, int, json, uniqueIndex, index, mysqlEnum } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  int,
+  json,
+  uniqueIndex,
+  index,
+  mysqlEnum
+} from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable(
   "users",
@@ -535,11 +549,17 @@ export const users = mysqlTable(
     role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
 
     // OAuth Provider
-    provider: mysqlEnum("provider", ["local", "google", "github"]).default("local").notNull(),
+    provider: mysqlEnum("provider", ["local", "google", "github"])
+      .default("local")
+      .notNull(),
     providerId: varchar("provider_id", { length: 255 }),
 
     // Profile
-    avatar: json("avatar").$type<{ public_id: string; url: string; size: number }>(),
+    avatar: json("avatar").$type<{
+      public_id: string;
+      url: string;
+      size: number;
+    }>(),
 
     // Auth Metadata
     isEmailVerified: boolean("is_email_verified").default(false).notNull(),
@@ -555,14 +575,12 @@ export const users = mysqlTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
   },
-  table => {
-    return {
-      emailIdx: uniqueIndex("email_idx").on(table.email),
-      providerIdx: index("provider_idx").on(table.provider, table.providerId),
-      roleIdx: index("role_idx").on(table.role),
-      isDeletedIdx: index("is_deleted_idx").on(table.isDeleted)
-    };
-  }
+  table => [
+    uniqueIndex("email_idx").on(table.email),
+    index("provider_idx").on(table.provider, table.providerId),
+    index("role_idx").on(table.role),
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
 );
 
 export type User = typeof users.$inferSelect;
@@ -571,16 +589,28 @@ export type NewUser = typeof users.$inferInsert;
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced --db=mysql" />
+<PackageManagerTabs command="npx servercn add model auth/user" />
 
 ### 3. Drizzle ORM (PostgreSQL)
+
+**MVC:** <Code children={'src/drizzle/schemas/user.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/user.schema.ts'} />
 
 **I. Minimal Variant**
 
 A simple Drizzle schema for PostgreSQL.
 
 ```ts
-import { pgTable, serial, varchar, boolean, timestamp, uniqueIndex, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  uniqueIndex,
+  pgEnum
+} from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 
@@ -596,11 +626,7 @@ export const users = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
   },
-  table => {
-    return {
-      emailIdx: uniqueIndex("email_idx").on(table.email)
-    };
-  }
+  table => [uniqueIndex("email_idx").on(table.email)]
 );
 
 export type User = typeof users.$inferSelect;
@@ -609,14 +635,25 @@ export type NewUser = typeof users.$inferInsert;
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal --db=pg" />
+<PackageManagerTabs command="npx servercn add model auth/user --variant=minimal" />
 
 **II. Advanced Variant**
 
 A production-ready Drizzle schema for PostgreSQL with enum support and soft deletes.
 
 ```ts
-import { pgTable, serial, varchar, boolean, timestamp, integer, jsonb, uniqueIndex, index, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  integer,
+  jsonb,
+  uniqueIndex,
+  index,
+  pgEnum
+} from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
@@ -635,7 +672,11 @@ export const users = pgTable(
     providerId: varchar("provider_id", { length: 255 }),
 
     // Profile
-    avatar: jsonb("avatar").$type<{ public_id: string; url: string; size: number }>(),
+    avatar: jsonb("avatar").$type<{
+      public_id: string;
+      url: string;
+      size: number;
+    }>(),
 
     // Auth Metadata
     isEmailVerified: boolean("is_email_verified").default(false).notNull(),
@@ -651,14 +692,12 @@ export const users = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
   },
-  table => {
-    return {
-      emailIdx: uniqueIndex("email_idx").on(table.email),
-      providerIdx: index("provider_idx").on(table.provider, table.providerId),
-      roleIdx: index("role_idx").on(table.role),
-      isDeletedIdx: index("is_deleted_idx").on(table.isDeleted)
-    };
-  }
+  table => [
+    uniqueIndex("email_idx").on(table.email),
+    index("provider_idx").on(table.provider, table.providerId),
+    index("role_idx").on(table.role),
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
 );
 
 export type User = typeof users.$inferSelect;
@@ -667,7 +706,7 @@ export type NewUser = typeof users.$inferInsert;
 
 **Install this variant**
 
-<PackageManagerTabs command="npx servercn add model auth/user --variant=advanced" />
+<PackageManagerTabs command="npx servercn add model auth/user" />
 
 ## Key Features
 
@@ -682,3 +721,8 @@ export type NewUser = typeof users.$inferInsert;
 - **Password Hashing**: Never store passwords in plain text. Use a password hashing component (like `bcryptjs` or `argon2`) before saving to the database.
 - **Email Normalization**: Always store emails in lowercase to avoid duplicate accounts with different casing.
 - **Role Validation**: Ensure that role updates are protected and only accessible by authorized administrators.
+
+## Related Schemas
+
+- [Otp Schema](/docs/schemas/auth-otp) - OTP management for authentication and password reset
+- [Session Schema](/docs/schemas/auth-session) - Session management for authenticated users

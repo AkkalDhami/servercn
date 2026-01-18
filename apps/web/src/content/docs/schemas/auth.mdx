@@ -1,1 +1,998 @@
-## Auth
+---
+title: Auth Domain Schemas
+description: Complete authentication system schemas including User, OTP, and Session models for building secure authentication workflows.
+command: npx servercn add schema auth
+
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: session.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+
+                  const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+                  export const sessions = mysqlTable(
+                    "sessions",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+                      ip: varchar("ip", { length: 45 }),
+                      userAgent: varchar("user_agent", { length: 512 }),
+                      isActive: boolean("is_active").default(true).notNull(),
+                      lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("userId_idx").on(table.userId),
+                      index("tokenHash_idx").on(table.tokenHash),
+                      index("isActive_idx").on(table.isActive),
+                      index("userId_isActive_idx").on(table.userId, table.isActive),
+                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                    ]
+                  );
+
+                  export const sessionsRelations = relations(sessions, ({ one }) => ({
+                    user: one(users, {
+                      fields: [sessions.userId],
+                      references: [users.id]
+                    })
+                  }));
+
+                  export type Session = typeof sessions.$inferSelect;
+                  export type NewSession = typeof sessions.$inferInsert;
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { sessions } from "./session.schema";
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 50 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }).notNull(),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+                      isVerified: boolean("is_verified").default(false).notNull(),
+                      createdAt: timestamp("created_at").defaultNow().notNull(),
+                      updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                    },
+                    table => [uniqueIndex("idx_email").on(table.email)]
+                  );
+
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    sessions: many(sessions)
+                  }));
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: user.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password?: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
+                    lastLoginAt?: Date;
+                    failedLoginAttempts: number;
+                    lockUntil?: Date;
+                    avatar?: IAvatar;
+
+                    provider: "local" | "google" | "github";
+                    providerId?: string;
+
+                    isDeleted: boolean;
+                    deletedAt?: Date;
+                    reActivateAvailableAt?: Date;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null
+                      },
+                      provider: {
+                        type: String,
+                        enum: ["local", "google", "github"],
+                        default: "local"
+                      },
+                      providerId: {
+                        type: String,
+                        default: null
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user"
+                      },
+                      avatar: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false
+                      },
+                      lastLoginAt: {
+                        type: Date
+                      },
+                      failedLoginAttempts: {
+                        type: Number,
+                        required: true,
+                        default: 0
+                      },
+                      lockUntil: {
+                        type: Date
+                      },
+                      isDeleted: {
+                        type: Boolean,
+                        default: false
+                      },
+                      deletedAt: {
+                        type: Date
+                      },
+                      reActivateAvailableAt: {
+                        type: Date
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  userSchema.index({ email: 1 });
+                  userSchema.index({ provider: 1, providerId: 1 });
+                  userSchema.index({ role: 1 });
+                  userSchema.index({ isDeleted: 1 });
+
+                  const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                  export default User;
+
+              - type: file
+                name: otp.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+                  import { OTPTypes, OTP_MAX_ATTEMPTS, OTP_TYPES } from "../../shared/constants/auth";
+
+                  export interface IOtp extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    userId: mongoose.Types.ObjectId;
+                    email: string;
+                    otpHashCode: string;
+                    nextResendAllowedAt: Date;
+                    type: OTPTypes;
+                    expiresAt: Date;
+                    isUsed: boolean;
+                    usedAt?: Date;
+                    attempts: number;
+                    maxAttempts: number;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const otpSchema = new Schema<IOtp>(
+                    {
+                      userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "User ID is required"]
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        lowercase: true,
+                        trim: true
+                      },
+                      otpHashCode: {
+                        type: String,
+                        required: [true, "OTP hash code is required"],
+                        select: false
+                      },
+                      nextResendAllowedAt: {
+                        type: Date,
+                        required: [true, "Next resend allowed at is required"],
+                      },
+                      type: {
+                        type: String,
+                        enum: OTP_TYPES,
+                        required: [true, "OTP type is required"]
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: [true, "Expiration time is required"],
+                        index: { expires: 0 }
+                      },
+                      isUsed: {
+                        type: Boolean,
+                        default: false
+                      },
+                      usedAt: {
+                        type: Date
+                      },
+                      attempts: {
+                        type: Number,
+                        default: 0
+                      },
+                      maxAttempts: {
+                        type: Number,
+                        default: OTP_MAX_ATTEMPTS
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  otpSchema.index({ userId: 1, type: 1 });
+                  otpSchema.index({ email: 1, type: 1 });
+                  otpSchema.index({ expiresAt: 1 });
+                  otpSchema.index({ isUsed: 1 });
+
+                  const Otp: Model<IOtp> = mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
+
+                  export default Otp;
+
+              - type: file
+                name: session.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface ISession extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    userId: mongoose.Types.ObjectId;
+                    tokenHash: string;
+                    userAgent?: string;
+                    ipAddress?: string;
+                    expiresAt: Date;
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const sessionSchema = new Schema<ISession>(
+                    {
+                      userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "User ID is required"]
+                      },
+                      tokenHash: {
+                        type: String,
+                        required: [true, "Token hash is required"],
+                        select: false
+                      },
+                      userAgent: {
+                        type: String
+                      },
+                      ipAddress: {
+                        type: String
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: [true, "Expiration time is required"],
+                        index: { expires: 0 }
+                      },
+                      isActive: {
+                        type: Boolean,
+                        default: true
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  sessionSchema.index({ userId: 1 });
+                  sessionSchema.index({ tokenHash: 1 });
+                  sessionSchema.index({ expiresAt: 1 });
+                  sessionSchema.index({ isActive: 1 });
+
+                  const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+
+                  export default Session;
+
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: auth.ts
+                content: |
+                  export const OTP_MAX_ATTEMPTS = 5;
+                  export const OTP_CODE_LENGTH = 6 as const;
+                  export const OTP_EXPIRES_IN = 5 * 60 * 1000 as const; // 5 minutes
+
+                  export const OTP_TYPES = [
+                    "signin",
+                    "email-verification",
+                    "password-reset",
+                    "password-change",
+                  ] as const;
+
+                  export type OTPTypes = typeof OTP_TYPES[number];
+
+          - type: folder
+            name: helpers
+            children:
+              - type: file
+                name: token.helpers.ts
+                content: |
+                  import crypto from "node:crypto";
+
+                  export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
+                    const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
+                    const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                    const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+                    return { code, hashCode, expiresAt };
+                  }
+
+                  export function verifyOTP(code: string, hashCode: string): boolean {
+                    const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
+                    return validCode === hashCode;
+                  }
+
+                  export function hashOTP(otp: string): string {
+                    return crypto.createHash("sha256").update(String(otp)).digest("hex");
+                  }
+
+                  export function generateSecureToken(length: number = 32): string {
+                    return crypto.randomBytes(length).toString("hex");
+                  }
+
+                  export function generateHashedToken(token: string): string {
+                    return crypto.createHash("sha256").update(String(token)).digest("hex");
+                  }
+
+                  export function generateTokenAndHashedToken(id: string) {
+                    const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+                    const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
+                    const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
+                    return { token, hashedToken };
+                  }
+
+                  export function verifyHashedToken(token: string, hashedToken: string): boolean {
+                    return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
+                  }
+
+                  export function generateUUID(): string {
+                    return crypto.randomUUID();
+                  }
+---
+
+# Auth Domain Schemas
+
+The **Auth Domain** provides a complete set of production-ready schemas for building secure authentication systems in your Node.js applications.
+
+This domain includes three core schemas that work together to handle user authentication, verification, and session management.
+
+## Overview
+
+The Auth Domain consists of three interconnected schemas:
+
+1. **[User Schema](/docs/schemas/auth-user)** - Core user identity and authentication
+2. **[OTP Schema](/docs/schemas/auth-otp)** - One-time password verification for email, password resets, and 2FA
+3. **[Session Schema](/docs/schemas/auth-session)** - Session management for authenticated users
+4. **[Refresh Token Schema](/docs/schemas/auth-refresh-token)** - Long-lived tokens for JWT renewal flows
+
+Together, these schemas provide everything you need to build:
+
+- Email/password authentication
+- Email verification flows
+- Password reset functionality
+- Two-factor authentication (2FA)
+- Session management
+- OAuth integration (Google, GitHub, etc.)
+
+## Quick Start
+
+### Install All Auth Schemas
+
+To install all auth-related schemas at once, run:
+
+<PackageManagerTabs command="npx servercn add schema auth" />
+
+This will install:
+
+- User schema (`auth/user`)
+- OTP schema (`auth/otp`)
+- User schema (`auth/user`)
+- OTP schema (`auth/otp`)
+- Session schema (`auth/session`)
+- Refresh Token schema (`auth/refresh-token`)
+- Auth constants (OTP types, max attempts, etc.)
+
+### Install Individual Schemas
+
+You can also install schemas individually:
+
+**User Schema:**
+
+<PackageManagerTabs command="npx servercn add schema auth/user" />
+
+**OTP Schema:**
+
+<PackageManagerTabs command="npx servercn add schema auth/otp" />
+
+**Session Schema:**
+
+<PackageManagerTabs command="npx servercn add schema auth/session" />
+
+**Refresh Token Schema:**
+
+<PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
+
+## Schema Relationships
+
+```
+┌─────────────────┐
+│  User Schema    │
+│  - id           │
+│  - email        │
+│  - password     │
+│  - role         │
+└────────┬────────┘
+         │
+         │ references
+         │
+    ┌────┴──────────────────────────┐
+    │              │                │
+┌───▼──────────┐   │          ┌─────▼─────────────────┐
+│ OTP Schema   │   │          │ Refresh Token Schema  │
+│ - userId     │   │          │ - userId              │
+│ - otpHash    │   │          │ - tokenHash           │
+│ - type       │   │          │ - expiresAt           │
+│ - expiresAt  │   │          │ - isRevoked           │
+└──────────────┘   │          └───────────────────────┘
+            ┌──────▼──────────┐
+            │ Session Schema  │
+            │ - userId        │
+            │ - tokenHash     │
+            │ - expiresAt     │
+            │ - isActive      │
+            └─────────────────┘
+```
+
+## Schemas Breakdown
+
+### 1. User Schema
+
+The **User Schema** is the foundation of your authentication system. It stores user identity, credentials, and profile information.
+
+**Key Features:**
+
+- Email/password authentication
+- OAuth provider support (Google, GitHub)
+- Role-based access control (user, admin)
+- Email verification status
+- Account locking for security
+- Soft delete functionality
+- Avatar/profile management
+
+**[View Full Documentation](/docs/schemas/auth-user)**
+
+**Quick Example:**
+
+```ts
+import User from "@/models/user";
+
+// Create a new user
+const user = await User.create({
+  name: "John Doe",
+  email: "john@example.com",
+  password: hashedPassword,
+  role: "user",
+  isEmailVerified: false
+});
+```
+
+### 2. OTP Schema
+
+The **OTP Schema** handles one-time password verification for various authentication workflows.
+
+**Key Features:**
+
+- Multiple OTP types (signin, email-verification, password-reset, password-change)
+- Cryptographic hashing for security
+- Auto-expiration with TTL indexes
+- Rate limiting (max attempts)
+- Resend cooldown protection
+- User and email references
+
+**[View Full Documentation](/docs/schemas/auth-otp)**
+
+**Quick Example:**
+
+```ts
+import Otp from "@/models/otp";
+import { generateOTP } from "@/helpers/token.helpers";
+
+// Generate and store OTP
+const { code, hashCode, expiresAt } = generateOTP(6, 5); // 6 digits, 5 min TTL
+
+await Otp.create({
+  userId: user._id,
+  email: user.email,
+  otpHashCode: hashCode,
+  type: "email-verification",
+  expiresAt,
+  nextResendAllowedAt: new Date(Date.now() + 60 * 1000) // 1 minute
+});
+
+// Send OTP via email (never store plain code)
+await sendEmail(user.email, `Your verification code: ${code}`);
+```
+
+### 3. Session Schema
+
+The **Session Schema** manages user sessions for authenticated users, supporting both stateful and stateless authentication.
+
+**Key Features:**
+
+- Secure token hashing
+- Session expiration
+- Device tracking (user agent, IP)
+- Active/inactive status
+- Session revocation
+- Multi-device support
+
+**[View Full Documentation](/docs/schemas/auth-session)**
+
+**Quick Example:**
+
+```ts
+import Session from "@/models/session";
+import { generateSecureToken } from "@/helpers/token.helpers";
+
+// Create a session
+const token = generateSecureToken(32);
+const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+await Session.create({
+  userId: user._id,
+  tokenHash: hashedToken,
+  userAgent: req.headers["user-agent"],
+  ipAddress: req.ip,
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+});
+
+// Return token to client (only shown once)
+res.cookie("session_token", token, { httpOnly: true, secure: true });
+```
+
+### 4. Refresh Token Schema
+
+The **Refresh Token Schema** manages long-lived tokens used to renew access tokens in JWT-based authentication systems.
+
+**Key Features:**
+
+- Secure token hashing
+- Token rotation support (theft detection)
+- Family revocation
+- Auto-expiration
+
+**[View Full Documentation](/docs/schemas/auth-refresh-token)**
+
+**Quick Example:**
+
+```ts
+import RefreshToken from "@/models/refresh-token";
+import { generateSecureToken } from "@/helpers/token.helpers";
+
+// Create a refresh token
+const token = generateSecureToken(40);
+const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+await RefreshToken.create({
+  userId: user._id,
+  tokenHash: hashedToken,
+  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+});
+```
+
+## Database Support
+
+All auth schemas support multiple databases:
+
+- **MongoDB** - via Mongoose
+- **MySQL** - via Drizzle ORM
+- **PostgreSQL** - via Drizzle ORM
+
+The CLI automatically detects your database configuration from `servercn.json` and generates the appropriate schema.
+
+## File Structure
+
+### MVC Architecture
+
+```
+src/
+├── constants/
+│   └── auth.ts                 # OTP types, max attempts, etc.
+├── models/
+│   ├── user.model.ts          # User schema
+│   ├── otp.model.ts           # OTP schema
+│   └── session.model.ts       # Session schema
+└── helpers/
+    └── token.helpers.ts       # OTP/token generation utilities
+```
+
+### Feature Architecture
+
+```
+src/
+├── modules/
+│   └── auth/
+│       ├── user.model.ts      # User schema
+│       ├── otp.model.ts       # OTP schema
+│       └── session.model.ts   # Session schema
+└── shared/
+    ├── constants/
+    │   └── auth.ts            # Auth constants
+    └── helpers/
+        └── token.helpers.ts   # Token utilities
+```
+
+## Common Authentication Flows
+
+### Email Verification Flow
+
+```ts
+// 1. User signs up
+const user = await User.create({ email, password: hashedPassword });
+
+// 2. Generate OTP
+const { code, hashCode, expiresAt } = generateOTP(6, 15);
+
+// 3. Store OTP
+await Otp.create({
+  userId: user._id,
+  email: user.email,
+  otpHashCode: hashCode,
+  type: "email-verification",
+  expiresAt
+});
+
+// 4. Send email
+await sendEmail(user.email, `Verification code: ${code}`);
+
+// 5. User submits OTP
+const otpRecord = await Otp.findOne({
+  userId,
+  type: "email-verification"
+}).select("+otpHashCode");
+
+const isValid = verifyOTP(userProvidedCode, otpRecord.otpHashCode);
+
+if (isValid) {
+  user.isEmailVerified = true;
+  await user.save();
+
+  otpRecord.isUsed = true;
+  await otpRecord.save();
+}
+```
+
+### Password Reset Flow
+
+```ts
+// 1. User requests password reset
+const user = await User.findOne({ email });
+
+// 2. Generate OTP
+const { code, hashCode, expiresAt } = generateOTP(6, 10);
+
+// 3. Store OTP
+await Otp.create({
+  userId: user._id,
+  email: user.email,
+  otpHashCode: hashCode,
+  type: "password-reset",
+  expiresAt
+});
+
+// 4. Send email
+await sendEmail(user.email, `Reset code: ${code}`);
+
+// 5. User submits OTP and new password
+const otpRecord = await Otp.findOne({ userId, type: "password-reset" }).select(
+  "+otpHashCode"
+);
+
+const isValid = verifyOTP(userProvidedCode, otpRecord.otpHashCode);
+
+if (isValid) {
+  user.password = await hashPassword(newPassword);
+  await user.save();
+
+  // Invalidate all sessions
+  await Session.updateMany({ userId }, { isActive: false });
+
+  otpRecord.isUsed = true;
+  await otpRecord.save();
+}
+```
+
+### Session-Based Login Flow
+
+```ts
+// 1. User logs in
+const user = await User.findOne({ email }).select("+password");
+const isValidPassword = await verifyPassword(password, user.password);
+
+if (!isValidPassword) {
+  throw new Error("Invalid credentials");
+}
+
+// 2. Create session
+const token = generateSecureToken(32);
+const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+await Session.create({
+  userId: user._id,
+  tokenHash: hashedToken,
+  userAgent: req.headers["user-agent"],
+  ipAddress: req.ip,
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+});
+
+// 3. Return token
+res.cookie("session_token", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "strict",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
+```
+
+## Security Best Practices
+
+### Password Security
+
+- Always hash passwords before storing (use [Password Hashing](/docs/components/password-hashing))
+- Never return password field in queries (`select: false`)
+- Implement account locking after failed attempts
+
+### OTP Security
+
+- Hash OTPs before storing (SHA-256)
+- Set appropriate expiration times (5-15 minutes)
+- Implement rate limiting (max 5 attempts)
+- Add resend cooldown (1 minute)
+- Never log OTP values
+
+### Session Security
+
+- Hash session tokens before storing
+- Set reasonable expiration times
+- Track device and IP information
+- Implement session revocation
+- Use secure, httpOnly cookies
+- Rotate tokens on sensitive actions
+
+### General Security
+
+- Use HTTPS in production
+- Implement CSRF protection
+- Add rate limiting on auth endpoints
+- Log authentication events
+- Notify users of suspicious activity
+
+## Related Components
+
+These components work well with the Auth Domain schemas:
+
+- **[Password Hashing](/docs/components/password-hashing)** - Secure password hashing with argon2/bcrypt
+- **[Generate OTP/Token](/docs/components/generate-otp-token)** - Cryptographic token generation
+- **[JWT Utils](/docs/components/jwt-utils)** - JWT token generation and verification
+- **[Email Service](/docs/components/email-service)** - Send verification emails
+- **[Rate Limiter](/docs/components/rate-limiter)** - Protect auth endpoints
+- **[RBAC](/docs/components/rbac)** - Role-based access control
+
+## Examples
+
+### Complete Registration Flow
+
+```ts
+import User from "@/models/user";
+import Otp from "@/models/otp";
+import { hashPassword } from "@/helpers/auth.helpers";
+import { generateOTP } from "@/helpers/token.helpers";
+import { sendEmail } from "@/services/email.service";
+
+export async function registerUser(
+  name: string,
+  email: string,
+  password: string
+) {
+  // 1. Check if user exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new Error("Email already registered");
+  }
+
+  // 2. Hash password
+  const hashedPassword = await hashPassword(password);
+
+  // 3. Create user
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    role: "user",
+    isEmailVerified: false
+  });
+
+  // 4. Generate OTP
+  const { code, hashCode, expiresAt } = generateOTP(6, 15);
+
+  // 5. Store OTP
+  await Otp.create({
+    userId: user._id,
+    email: user.email,
+    otpHashCode: hashCode,
+    type: "email-verification",
+    expiresAt,
+    nextResendAllowedAt: new Date(Date.now() + 60 * 1000)
+  });
+
+  // 6. Send verification email
+  await sendEmail({
+    to: email,
+    subject: "Verify Your Email",
+    text: `Your verification code is: ${code}. Valid for 15 minutes.`
+  });
+
+  return {
+    userId: user._id,
+    message: "Registration successful. Please check your email."
+  };
+}
+```
+
+### Complete Login Flow
+
+```ts
+import User from "@/models/user";
+import Session from "@/models/session";
+import { verifyPassword } from "@/helpers/auth.helpers";
+import { generateSecureToken } from "@/helpers/token.helpers";
+import crypto from "node:crypto";
+
+export async function loginUser(email: string, password: string, req: Request) {
+  // 1. Find user
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    throw new Error("Invalid credentials");
+  }
+
+  // 2. Check if account is locked
+  if (user.lockUntil && user.lockUntil > new Date()) {
+    throw new Error("Account is locked. Please try again later.");
+  }
+
+  // 3. Verify password
+  const isValidPassword = await verifyPassword(password, user.password);
+
+  if (!isValidPassword) {
+    // Increment failed attempts
+    user.failedLoginAttempts += 1;
+
+    // Lock account after 5 failed attempts
+    if (user.failedLoginAttempts >= 5) {
+      user.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    }
+
+    await user.save();
+    throw new Error("Invalid credentials");
+  }
+
+  // 4. Check email verification
+  if (!user.isEmailVerified) {
+    throw new Error("Please verify your email first");
+  }
+
+  // 5. Reset failed attempts
+  user.failedLoginAttempts = 0;
+  user.lockUntil = undefined;
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  // 6. Create session
+  const token = generateSecureToken(32);
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  await Session.create({
+    userId: user._id,
+    tokenHash: hashedToken,
+    userAgent: req.headers["user-agent"],
+    ipAddress: req.ip,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  });
+
+  return {
+    token,
+    user: { id: user._id, name: user.name, email: user.email, role: user.role }
+  };
+}
+```
+
+## Next Steps
+
+1. **Install the schemas**: Run `npx servercn add schema auth`
+2. **Install helper components**: Add password hashing and token generation utilities
+3. **Set up email service**: Configure email delivery for OTPs
+4. **Implement auth routes**: Create registration, login, and verification endpoints
+5. **Add middleware**: Protect routes with authentication middleware
+6. **Test thoroughly**: Ensure all flows work correctly
+
+## Learn More
+
+- [User Schema Documentation](/docs/schemas/auth-user)
+- [OTP Schema Documentation](/docs/schemas/auth-otp)
+- [Session Schema Documentation](/docs/schemas/auth-session)
+- [Refresh Token Schema Documentation](/docs/schemas/auth-refresh-token)
+- [Password Hashing Component](/docs/components/password-hashing)
+- [Generate OTP/Token Component](/docs/components/generate-otp-token)

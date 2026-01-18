@@ -81,7 +81,7 @@ Schemas are written using Drizzle’s SQL‑first, type‑safe API.
 ```ts
 import { PgTable, serial, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = PgTable("users_table", {
+export const usersTable = PgTable("users", {
   id: serial().primaryKey(),
   name: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull().unique(),

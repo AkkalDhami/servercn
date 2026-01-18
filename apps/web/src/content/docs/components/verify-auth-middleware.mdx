@@ -1131,14 +1131,14 @@ feature_structure:
 
           export default app
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT='3000'
-          NODE_ENV='development'
-          LOG_LEVEL='info'
-          JWT_ACCESS_SECRET='your-access-secret'
-          JWT_REFRESH_SECRET='your-refresh-secret'
+  - type: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
+      JWT_ACCESS_SECRET='your-access-secret'
+      JWT_REFRESH_SECRET='your-refresh-secret'
 ---
 
 # Verify Authentication Middleware
@@ -1207,7 +1207,7 @@ Documentation:
 
 - **Logger:**
 
-<PackageManagerTabs command="npx servercn add logger" />
+<PackageManagerTabs command="npx servercn add logger-winston" />
 
 Documentation:
 [Logger](/docs/components/logger)
@@ -1232,7 +1232,9 @@ JWT_REFRESH_SECRET = "your-refresh-secret";
 
 Ensure the following configuration are defined:
 
-<Code children="src/configs/env.ts" />
+**MVC:** <Code children="src/configs/env.ts" />
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
 
 ```ts
 interface Config {
@@ -1256,7 +1258,9 @@ export default env;
 
 To ensure the authentication middleware functions correctly, your project must define a User model with a structure similar to the following.
 
-<Code children="src/models/user.model.ts" />
+**MVC:** <Code children="src/models/user.model.ts" />
+
+**Feature:** <Code children="src/shared/modules/user/user.model.ts" />
 
 ```ts
 import mongoose, { Document, Model, Schema } from "mongoose";

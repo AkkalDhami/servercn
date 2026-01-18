@@ -157,29 +157,9 @@ router.get("/users", async (_req, res) => {
 
 ## Basic Implementation
 
-### 1. MVC Structure
+**MVC:** <Code children="src/utils/async-handler.ts" />
 
-<Code children="src/utils/async-handler.ts" />
-
-```ts
-import { Request, Response, NextFunction } from "express";
-
-export type AsyncRouteHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => Promise<unknown>;
-
-export function AsyncHandler(fn: AsyncRouteHandler) {
-  return function (req: Request, res: Response, next: NextFunction) {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-}
-```
-
-### 2. Feature Structure
-
-<Code children="src/shared/utils/async-handler.ts" />
+**Feature:** <Code children="src/shared/utils/async-handler.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -196,10 +176,10 @@ export function AsyncHandler(fn: AsyncRouteHandler) {
   };
 }
 ```
+
 
 ## Usage Example
 
-<br/>
 ```ts
 import { Request, Response, NextFunction } from "express";
 import { AsyncHandler } from "..utils/async-handler";

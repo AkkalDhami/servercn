@@ -38,6 +38,7 @@ mvc_structure:
               };
 
               export default env;
+              
           - type: file
             name: nodemailer.ts
             content: |
@@ -288,19 +289,19 @@ mvc_structure:
 
               export default router;
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
 
-          EMAIL_HOST="smtp.gmail.com"
-          EMAIL_PORT="587"
-          EMAIL_SECURE="false"
-          EMAIL_USER="your-email@gmail.com"
-          EMAIL_PASSWORD="your-app-password"
-          EMAIL_FROM="your-email@gmail.com"
+      EMAIL_HOST="smtp.gmail.com"
+      EMAIL_PORT="587"
+      EMAIL_SECURE="false"
+      EMAIL_USER="your-email@gmail.com"
+      EMAIL_PASSWORD="your-app-password"
+      EMAIL_FROM="your-email@gmail.com"
 
 feature_structure:
   - type: folder
@@ -525,19 +526,19 @@ feature_structure:
 
               export default router;
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
 
-          EMAIL_HOST="smtp.gmail.com"
-          EMAIL_PORT="587"
-          EMAIL_SECURE="false"
-          EMAIL_USER="your-email@gmail.com"
-          EMAIL_PASSWORD="your-app-password"
-          EMAIL_FROM="your-email@gmail.com"
+      EMAIL_HOST="smtp.gmail.com"
+      EMAIL_PORT="587"
+      EMAIL_SECURE="false"
+      EMAIL_USER="your-email@gmail.com"
+      EMAIL_PASSWORD="your-app-password"
+      EMAIL_FROM="your-email@gmail.com"
 ---
 
 # Email Service

@@ -13,8 +13,7 @@ Before installing ServerCN, ensure you have:
 
 - **Node.js** version 18 or higher
 - **npm**, **yarn**, **bun** or **pnpm** package manager
-- An existing Node.js project (or create a new one)
-- **TypeScript** (recommended but not required)
+- An existing Node.js project (or create a new with servercn foundations)
 
 ## Quick Start
 
@@ -28,36 +27,44 @@ The fastest way to get started with ServerCN:
 
 <PackageManagerTabs command="npx servercn add error-handler" />
 
-## Step-by-Step Installation
+## ServerCN Starter Foundations
 
-### 1. Create a New Project (Optional)
+You can directly start your project with servercn foundations. Initializing with foundations will set up the project with the foundation's configuration and dependencies.
 
-If you're starting a new project, create a new directory and initialize it:
+### 1. Express Server
 
-```bash
-mkdir my-backend
-cd my-backend
-npm init -y
-```
+The Express Server Foundation is the core starting block provided by servercn 
 
-### 2. Install TypeScript (Recommended)
+<PackageManagerTabs command="npx servercn init express-server" />
 
-ServerCN works best with TypeScript:
+[Express Server Docs](/docs/foundations/express-server)
 
-```bash
-npm install -D typescript @types/node @types/express
-npx tsc --init
-```
+### 2. Drizzle MySQL Starter
 
-### 3. Initialize ServerCN
+The Drizzle MySQL Starter is a database foundation provided by servercn for projects that use MySQL with Drizzle ORM
 
-Run the initialization command in your project root:
+<PackageManagerTabs command="npx servercn init drizzle-mysql-starter" />
 
-<PackageManagerTabs command="npx servercn init" />
+[Drizzle MySQL Starter Docs](/docs/foundations/drizzle-mysql-starter)
 
-This will prompt you with a series of questions to configure your project:
+### 3. Drizzle PostgreSQL Starter
 
-#### Configuration Options
+The Drizzle PostgreSQL Starter is a database foundation provided by servercn for projects that use PostgreSQL with Drizzle ORM
+
+<PackageManagerTabs command="npx servercn init drizzle-pg-starter" />
+
+[Drizzle PostgreSQL Starter Docs](/docs/foundations/drizzle-pg-starter)
+
+### 4. Mongoose Starter
+
+The Mongoose Starter is a database foundation provided by servercn for projects that use MongoDB with Mongoose ODM
+
+<PackageManagerTabs command="npx servercn init mongoose-starter" />
+
+[Mongoose Starter Docs](/docs/foundations/mongoose-starter)
+
+
+## Configuration Options
 
 **Project Root Directory**
 
@@ -76,7 +83,7 @@ This will prompt you with a series of questions to configure your project:
 
 **Language**
 
-- **TypeScript**: Recommended for type safety
+- **TypeScript**: for type safety
 
 **Backend Framework**
 
@@ -84,29 +91,22 @@ This will prompt you with a series of questions to configure your project:
 
 **Database**
 
-- **MongoDB**: With Mongoose ORM
-- More databases coming soon
+- **MongoDB**: With Mongoose ODM
+- **MySQL**: With Drizzle ORM
+- **PostgreSQL**: With Drizzle ORM
+-  More databases coming soon
 
-**Package Manager**
+## servercn.config.json
 
-- **npm**: Node Package Manager
-- **pnpm**: Fast, disk space efficient
-- **yarn**: Alternative package manager
-- **bun**: Superfast Node.js-compatible package manager
-
-### 4. Configuration File
-
-After initialization, ServerCN creates a <Code children="servercn.json" /> file in your project root:
+This file stores your project configuration and is used by ServerCN to generate components in the correct structure.
 
 ```json
 {
-  "$schema": "https://servercn.dev/schema/v1.json",
   "version": "1.0.0",
   "project": {
     "root": ".",
     "srcDir": "src",
-    "type": "backend",
-    "packageManager": "npm"
+    "type": "backend"
   },
   "stack": {
     "runtime": "node",
@@ -118,11 +118,14 @@ After initialization, ServerCN creates a <Code children="servercn.json" /> file 
     "type": "mongodb",
     "orm": "mongoose"
   },
-  "overrides": {}
+  "overrides": {},
+  "meta": {
+    "createdAt": "2026-01-17T12:09:31.721Z",
+    "createdBy": "servercn@1.0.0"
+  }
 }
 ```
 
-This file stores your project configuration and is used by ServerCN to generate components in the correct structure.
 
 ## Adding Components
 
@@ -134,13 +137,14 @@ npx servercn add <component-name>
 
 # Examples
 npx servercn add error-handler
-npx servercn add jwt-utils
-npx servercn add request-validator
+
+# Add multiple components
+npx servercn add jwt-utils http-status-codes
 ```
 
-### Listing Available Components
+## Listing Available Components
 
-To see all available components:
+To see all available components, foundations, blueprints, schemas.
 
 <PackageManagerTabs command="npx servercn list" />
 
@@ -151,7 +155,7 @@ After initialization, your project structure will look like this:
 ```
 my-backend/
 ├── src/                    # Source directory
-├── servercn.json          # ServerCN configuration
+├── servercn.config.json          # ServerCN configuration
 ├── package.json           # Node.js dependencies
 └── tsconfig.json          # TypeScript configuration
 ```
@@ -187,10 +191,10 @@ src/
 │   └── utils/
 ├── modules/              # Feature modules
 │   └── user/
-│       ├── controllers/
-│       ├── routes/
-│       ├── services/
-│       └── validations/
+│       ├── user.controllers.ts
+│       ├── user.routes.ts
+│       ├── user.services.ts
+│       └── user.validations.ts
 └── routes/               # Main route index
 ```
 
@@ -211,10 +215,6 @@ Or you can add multiple components like this:
 ### List Available Components
 
 <PackageManagerTabs command="npx servercn list" />
-
-### Add Component with Architecture Override
-
-<PackageManagerTabs command="npx servercn add <component-name> --arch=feature" />
 
 ## Installing Components
 
@@ -238,7 +238,7 @@ This will:
 
 ## Updating Configuration
 
-You can manually edit <Code children="servercn.json" /> to change your project configuration:
+You can manually edit <Code children="servercn.config.json" /> to change your project configuration:
 
 ```json
 {
@@ -254,7 +254,7 @@ After updating, new components will use the updated configuration.
 
 To verify ServerCN is properly installed:
 
-1. Check for <Code children="servercn.json" /> in your project root
+1. Check for <Code children="servercn.config.json" /> in your project root
 2. Run <Code children="npx servercn list" /> to see available components
 3. Try adding a component: <Code children="npx servercn add error-handler" />
 
@@ -264,9 +264,9 @@ To verify ServerCN is properly installed:
 
 If you see "ServerCN is already initialized":
 
-- Your project already has a <Code children="servercn.json" /> file
+- Your project already has a <Code children="servercn.config.json" /> file
 - You can start adding components immediately
-- To reinitialize, delete <Code children="servercn.json" /> first
+- To reinitialize, delete <Code children="servercn.config.json" /> first
 
 ### Component Not Found
 
@@ -281,19 +281,11 @@ npx servercn add error-handler  # ✅ Correct
 npx servercn add errorhandler   # ❌ Incorrect
 ```
 
-### TypeScript Errors
-
-If you encounter TypeScript errors:
-
-1. Ensure TypeScript is installed: <Code children="npm install -D typescript @types/node" />
-2. Check <Code children="tsconfig.json" /> exists and is properly configured
-3. Ensure component dependencies are installed
-
 ### Architecture Mismatch
 
 If components aren't appearing in the expected location:
 
-1. Check your <Code children="servercn.json" /> architecture setting
+1. Check your <Code children="servercn.config.json" /> architecture setting
 2. Verify your <Code children="srcDir" /> configuration
 3. Ensure directories exist before adding components
 
@@ -308,16 +300,16 @@ After installation:
 
 ## Getting Help
 
-- **Documentation**: Check component-specific docs in <Code children="/docs/components/" />
-- **Issues**: Report issues on GitHub
+- **Documentation**: Check component-specific docs in <Code children="/docs/**" />
+- **Issues**: Report issues on [GitHub](https://github.com/AkkalDhami/servercn)
 - **Community**: Join our community discussions
 
 ## Uninstalling
 
 To remove ServerCN from your project:
 
-1. Delete <Code children="servercn.json" /> configuration file
+1. Delete <Code children="servercn.config.json" /> configuration file
 2. Remove any ServerCN components you've added
 3. Remove ServerCN-specific dependencies (if any)
 
-> **Note**: ServerCN doesn't install itself as a runtime dependency. Components are copied into your codebase, so you own the code completely.
+<Note text={"Note: ServerCN doesn't install itself as a runtime dependency. Components are copied into your codebase, so you own the code completely."} />

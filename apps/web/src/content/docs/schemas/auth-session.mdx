@@ -188,6 +188,10 @@ This command generates the Session schema based on your existing <Code children=
 
 ### 1. Mongoose (MongoDB)
 
+**MVC:** <Code children={'src/models/session.model.ts'} />
+
+**Feature:** <Code children={'src/modules/auth/session.model.ts'} />
+
 A robust session schema with IP tracking, User-Agent storage, and a TTL index for automatic expiry.
 
 ```ts
@@ -246,15 +250,28 @@ const sessionSchema: Schema<ISession> = new Schema(
 sessionSchema.index({ userId: 1, isActive: 1 });
 sessionSchema.index({ userId: 1, lastUsedAt: -1 });
 
-const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+const Session: Model<ISession> =
+  mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
 
 export default Session;
 ```
 
 ### 2. Drizzle ORM (MySQL)
 
+**MVC:** <Code children={'src/drizzle/schemas/session.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/session.schema.ts'} />
+
 ```ts
-import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  serial,
+  varchar,
+  timestamp,
+  boolean,
+  index,
+  int
+} from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 
@@ -300,8 +317,20 @@ export type NewSession = typeof sessions.$inferInsert;
 
 ### 3. Drizzle ORM (PostgreSQL)
 
+**MVC:** <Code children={'src/drizzle/schemas/session.schema.ts'} />
+
+**Feature:** <Code children={'src/drizzle/schemas/session.schema.ts'} />
+
 ```ts
-import { pgTable, serial, varchar, timestamp, boolean, index, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  timestamp,
+  boolean,
+  index,
+  integer
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 
@@ -324,7 +353,9 @@ export const sessions = pgTable(
     ip: varchar("ip", { length: 45 }),
     userAgent: varchar("user_agent", { length: 512 }),
     isActive: boolean("is_active").default(true).notNull(),
-    lastUsedAt: timestamp("last_used_at", { mode: "string" }).defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at", { mode: "string" })
+      .defaultNow()
+      .notNull(),
     expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
     ...timestamps
   },
@@ -422,8 +453,10 @@ const sessionWithUser = await db.query.sessions.findFirst({
 
 ## Important Notes
 
-<Note text="Bidirectional Relations Required
-Both schemas must define their side of the relationship for Drizzle's relational queries to work. Defining only one side will result in errors."/>
+<Note
+  text="Bidirectional Relations Required
+Both schemas must define their side of the relationship for Drizzle's relational queries to work. Defining only one side will result in errors."
+/>
 
 Relation Types in Drizzle
 
@@ -431,8 +464,10 @@ Relation Types in Drizzle
 - **`many()`**: Used for the "one" side pointing to the "many" side (e.g., one user → many sessions)
 - **`one()` for 1:1**: Both sides use `one()` for one-to-one relationships
 
-<Warning text="Circular Import Prevention
-To avoid circular dependency issues, ensure both schema files are in the same directory and use relative imports. Drizzle handles the circular reference internally."/>
+<Warning
+  text="Circular Import Prevention
+To avoid circular dependency issues, ensure both schema files are in the same directory and use relative imports. Drizzle handles the circular reference internally."
+/>
 
 ## Key Features
 
@@ -447,3 +482,8 @@ To avoid circular dependency issues, ensure both schema files are in the same di
 - **Token Rotation**: Rotate session tokens periodically or upon sensitive actions.
 - **Revocation**: Provide a way for users to "Logout from all devices" by setting `isActive: false` for all their sessions.
 - **IP Sensitivity**: Consider alerting the user if a session is initiated from a significantly different geographic location/IP.
+
+## Related Schemas
+
+- [Otp Schema](/docs/schemas/auth-otp) - OTP management for authentication and password reset
+- [User Schema](/docs/schemas/auth-user) - User authentication and profile management
