@@ -1,6 +1,6 @@
 ---
 title: Google OAuth
-description: Secure Google OAuth authentication integration using google-auth-library for Express applications.
+description: Secure Google OAuth authentication integration using passport, passport-google-oauth20 for Express applications.
 command: npx servercn add google-oauth
 
 mvc_structure:
@@ -13,10 +13,14 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
+              import "dotenv/config";
+
               interface Config {
                 PORT: number;
                 NODE_ENV: string;
                 LOG_LEVEL: string;
+                CORS_ORIGIN: string;
+
                 GOOGLE_CLIENT_ID: string;
                 GOOGLE_CLIENT_SECRET: string;
                 GOOGLE_REDIRECT_URI: string;
@@ -24,119 +28,181 @@ mvc_structure:
 
               const env: Config = {
                 PORT: Number(process.env.PORT) || 3000,
-                NODE_ENV: process.env.NODE_ENV || 'development',
-                LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
                 GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
                 GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
-                GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+                GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!
               };
 
               export default env;
 
-      - type: folder
-        name: utils
-        children:
           - type: file
-            name: google-oauth.ts
+            name: passport.ts
             content: |
-              import { OAuth2Client } from "google-auth-library";
-              import env from "../configs/env";
+              import passport from "passport";
+              import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+              import env from "./env";
 
-              const oauth2Client = new OAuth2Client(
-                env.GOOGLE_CLIENT_ID,
-                env.GOOGLE_CLIENT_SECRET,
-                env.GOOGLE_REDIRECT_URI
+              const clientId = env.GOOGLE_CLIENT_ID;
+              const clientSecret = env.GOOGLE_CLIENT_SECRET;
+              const redirectUri = env.GOOGLE_REDIRECT_URI;
+
+              passport.use(
+                new GoogleStrategy(
+                  {
+                    clientID: clientId,
+                    clientSecret,
+                    callbackURL: redirectUri
+                  },
+                  function (accessToken, refreshToken, profile, cb) {
+                    return cb(null, profile);
+                  }
+                )
               );
 
-              /**
-               * Get the Google OAuth authorization URL
-               * @param scopes - Array of OAuth scopes to request
-               * @returns Authorization URL and state for CSRF protection
-               */
-              export function getGoogleAuthUrl(scopes: string[] = [
-                "https://www.googleapis.com/auth/userinfo.email",
-                "https://www.googleapis.com/auth/userinfo.profile"
-              ]) {
-                const state = Math.random().toString(36).substring(2, 15);
-                const authUrl = oauth2Client.generateAuthUrl({
-                  access_type: "offline",
-                  scope: scopes,
-                  state,
-                  prompt: "consent",
-                });
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
 
-                return { authUrl, state };
-              }
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
 
-              /**
-               * Exchange authorization code for tokens
-               * @param code - Authorization code from Google callback
-               * @returns Token information including access_token and refresh_token
-               */
-              export async function getGoogleTokens(code: string) {
-                const { tokens } = await oauth2Client.getToken(code);
-                oauth2Client.setCredentials(tokens);
-                return tokens;
-              }
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
 
-              /**
-               * Get user information from Google using access token
-               * @param accessToken - Google access token
-               * @returns User profile information
-               */
-              export async function getGoogleUserInfo(accessToken: string) {
-                oauth2Client.setCredentials({ access_token: accessToken });
-                const oauth2 = oauth2Client;
-                
-                const userInfoResponse = await fetch(
-                  "https://www.googleapis.com/oauth2/v2/userinfo",
-                  {
-                    headers: {
-                      Authorization: <Code children="Bearer ${accessToken}" />,
-                    },
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: auth.controller.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { Profile } from "passport-google-oauth20";
+
+              //? import servercn components
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+              import { ApiError } from "../utils/api-error";
+
+              //? login with google
+              export const googleOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as Profile | undefined;
+                  const user = data?._json;
+
+                  if (!user || !data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
                   }
-                );
 
-                if (!userInfoResponse.ok) {
-                  throw new Error("Failed to fetch user info from Google");
+                  const userInfo = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified: data?.emails && data?.emails[0]?.verified,
+                    avatar: data.profileUrl || (data.photos && data.photos[0].value)
+                  };
+
+                  const userInfo2 = {
+                    provider: data?.provider,
+                    providerId: user.sub,
+                    name: user.name,
+                    email: user.email,
+                    isEmailVerified: user.email_verified,
+                    avatar: user.picture
+                  };
+
+                  //? save the data into your databases
+
+                  ApiResponse.ok(res, "Auth Successfull", {
+                    userInfo,
+                    userInfo2
+                  });
+                }
+              );
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
                 }
 
-                return userInfoResponse.json() as Promise<{
-                  id: string;
-                  email: string;
-                  verified_email: boolean;
-                  name: string;
-                  given_name: string;
-                  family_name: string;
-                  picture: string;
-                  locale: string;
-                }>;
-              }
+                logger.error(
+                  err
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
 
-              /**
-               * Verify and decode Google ID token
-               * @param idToken - Google ID token
-               * @returns Decoded token payload
-               */
-              export async function verifyGoogleIdToken(idToken: string) {
-                const ticket = await oauth2Client.verifyIdToken({
-                  idToken,
-                  audience: env.GOOGLE_CLIENT_ID,
-                });
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                };
 
-                return ticket.getPayload();
-              }
-
-              /**
-               * Refresh access token using refresh token
-               * @param refreshToken - Google refresh token
-               * @returns New token information
-               */
-              export async function refreshGoogleToken(refreshToken: string) {
-                oauth2Client.setCredentials({ refresh_token: refreshToken });
-                const { credentials } = await oauth2Client.refreshAccessToken();
-                return credentials;
-              }
+                res.status(statusCode).json(response);
+              };
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+              
+              export const notFoundHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+              };
 
       - type: folder
         name: routes
@@ -145,321 +211,711 @@ mvc_structure:
             name: auth.routes.ts
             content: |
               import { Router } from "express";
-              import { asyncHandler } from "../middlewares/async-handler";
-              import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../utils/google-oauth";
-              import { ApiResponse } from "../utils/api-response";
-              import { ApiError } from "../utils/error-handler";
-              import { STATUS_CODES } from "../constants/status-codes";
+              import passport from "passport";
+
+              import { googleOAuth } from "../controllers/auth.controller";
 
               const router = Router();
 
-              /**
-               * Initiate Google OAuth flow
-               * GET /api/auth/google
-               */
               router.get(
                 "/google",
-                asyncHandler(async (req, res) => {
-                  const { authUrl, state } = getGoogleAuthUrl();
-                  
-                  // Store state in session or return to client for verification
-                  // In production, store state in Redis or session store
-                  
-                  return res.status(STATUS_CODES.OK).json(
-                    ApiResponse.success({
-                      authUrl,
-                      state,
-                    }, "Redirect user to authUrl")
-                  );
+                passport.authenticate("google", {
+                  scope: ["email", "profile", "openid"],
+                  prompt: "consent"
                 })
               );
 
-              /**
-               * Handle Google OAuth callback
-               * GET /api/auth/google/callback
-               */
               router.get(
                 "/google/callback",
-                asyncHandler(async (req, res) => {
-                  const { code, state } = req.query;
-
-                  if (!code || typeof code !== "string") {
-                    throw new ApiError(
-                      STATUS_CODES.BAD_REQUEST,
-                      "Authorization code is required"
-                    );
-                  }
-
-                  // Verify state to prevent CSRF attacks
-                  // Compare with stored state from initial request
-
-                  try {
-                    // Exchange code for tokens
-                    const tokens = await getGoogleTokens(code);
-
-                    if (!tokens.access_token) {
-                      throw new ApiError(
-                        STATUS_CODES.INTERNAL_SERVER_ERROR,
-                        "Failed to obtain access token"
-                      );
-                    }
-
-                    // Get user information
-                    const userInfo = await getGoogleUserInfo(tokens.access_token);
-
-                    // Here you would typically:
-                    // 1. Check if user exists in your database
-                    // 2. Create or update user record
-                    // 3. Generate your own JWT tokens
-                    // 4. Return tokens to client
-
-                    return res.status(STATUS_CODES.OK).json(
-                      ApiResponse.success({
-                        tokens,
-                        user: userInfo,
-                      }, "Authentication successful")
-                    );
-                  } catch (error) {
-                    throw new ApiError(
-                      STATUS_CODES.INTERNAL_SERVER_ERROR,
-                      "Failed to authenticate with Google"
-                    );
-                  }
-                })
+                passport.authenticate("google", {
+                  failureRedirect: "/login", //? redirect route if authenticated is failed
+                  session: false
+                }),
+                googleOAuth
               );
 
               export default router;
 
-      - type: file
-        name: .env.example
-        content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 
-          GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
-          GOOGLE_CLIENT_SECRET="your-google-client-secret"
-          GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                    return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(404, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: api-response.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors,
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors }),
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (
+                  req: Request,
+                  res: Response,
+                  next: NextFunction
+                ) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+              import pino from "pino";
+              import env from "../configs/env";
+              
+              export const logger = pino({
+                level: env.LOG_LEVEL,
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
+              });
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          
+          import { notFoundHandler } from "./middlewares/not-found-handler";
+          import { errorHandler } from "./middlewares/error-handler";
+          
+          import AuthRoutes from "./routes/auth.routes";
+          
+          import "./configs/passport";
+          
+          const app: Express = express();
+          
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          
+          
+          // Routes
+          app.use("/api/auth", AuthRoutes);
+          
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+          
+          // Global error handler (should be last)
+          app.use(errorHandler);
+          
+          export default app;  
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+      GOOGLE_CLIENT_SECRET="your-google-client-secret"
+      GOOGLE_REDIRECT_URI="your-google-redirect-uri"
 
 feature_structure:
   - type: folder
     name: src
     children:
       - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+                  import "dotenv/config";
+
+                  interface Config {
+                    PORT: number;
+                    NODE_ENV: string;
+                    LOG_LEVEL: string;
+                    CORS_ORIGIN: string;
+
+                    GOOGLE_CLIENT_ID: string;
+                    GOOGLE_CLIENT_SECRET: string;
+                    GOOGLE_REDIRECT_URI: string;
+                  }
+
+                  const env: Config = {
+                    PORT: Number(process.env.PORT) || 3000,
+                    NODE_ENV: process.env.NODE_ENV || "development",
+                    LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                    CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+                    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+                    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+                    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!
+                  };
+
+                  export default env;
+
+              - type: file
+                name: passport.ts
+                content: |
+                  import passport from "passport";
+                  import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+                  import env from "./env";
+
+                  const clientId = env.GOOGLE_CLIENT_ID;
+                  const clientSecret = env.GOOGLE_CLIENT_SECRET;
+                  const redirectUri = env.GOOGLE_REDIRECT_URI;
+
+                  passport.use(
+                    new GoogleStrategy(
+                      {
+                        clientID: clientId,
+                        clientSecret,
+                        callbackURL: redirectUri
+                      },
+                      function (accessToken, refreshToken, profile, cb) {
+                        return cb(null, profile);
+                      }
+                    )
+                  );
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                    ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                    }
+
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+                  /*
+                    ? Usage:
+                    * throw new ApiError(404, "Not found");
+                    * throw ApiError.badRequest("Bad request");
+                  */
+
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      err
+                    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+              - type: file
+                name: not-found-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+                  
+                  export const notFoundHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                  };
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
+
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
+
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
+
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors,
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
+                    }
+
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors }),
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
+
+              - type: file
+                name: async-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+
+                  export type AsyncRouteHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => Promise<unknown>;
+
+                  export function AsyncHandler(fn: AsyncRouteHandler) {
+                    return function (
+                      req: Request,
+                      res: Response,
+                      next: NextFunction
+                    ) {
+                      Promise.resolve(fn(req, res, next)).catch(next);
+                    };
+                  }
+
+              - type: file
+                name: logger.ts
+                content: |
+                  import pino from "pino";
+                  import env from "../configs/env";
+                  
+                  export const logger = pino({
+                    level: env.LOG_LEVEL,
+                    transport:
+                      env.NODE_ENV !== "production"
+                        ? {
+                            target: "pino-pretty",
+                            options: {
+                              colorize: true,
+                              translateTime: "yyyy-mm-dd HH:MM:ss",
+                              ignore: "pid,hostname"
+                            }
+                          }
+                        : undefined
+                  });
+
+      - type: folder
         name: modules
         children:
           - type: folder
-            name: auth
+            name: oauth
             children:
               - type: file
-                name: google-oauth.helpers.ts
+                name: oauth.controller.ts
                 content: |
-                  import { OAuth2Client } from "google-auth-library";
+                  import { NextFunction, Request, Response } from "express";
+                  import { Profile } from "passport-google-oauth20";
 
-                  const oauth2Client = new OAuth2Client(
-                    process.env.GOOGLE_CLIENT_ID!,
-                    process.env.GOOGLE_CLIENT_SECRET!,
-                    process.env.GOOGLE_REDIRECT_URI!
+                  import { AsyncHandler } from "../../shared/utils/async-handler";
+                  import { ApiError } from "../../shared/errors/api-error";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+
+                  //? login with google
+                  export const googleOAuth = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const data = req.user as Profile | undefined;
+                      const user = data?._json;
+
+                      if (!user || !data) {
+                        return next(ApiError.unauthorized("Authenticated failed!"));
+                      }
+
+                      const userInfo = {
+                        provider: data?.provider,
+                        providerId: data.id,
+                        name: data.displayName,
+                        email: data?.emails && data?.emails[0]?.value,
+                        isEmailVerified: data?.emails && data?.emails[0]?.verified,
+                        avatar: data.profileUrl || (data.photos && data.photos[0].value)
+                      };
+
+                      const userInfo2 = {
+                        provider: data?.provider,
+                        providerId: user.sub,
+                        name: user.name,
+                        email: user.email,
+                        isEmailVerified: user.email_verified,
+                        avatar: user.picture
+                      };
+
+                      //? save the data into your databases
+
+                      ApiResponse.ok(res, "Auth Successfull", {
+                        userInfo,
+                        userInfo2
+                      });
+                    }
                   );
 
-                  /**
-                   * Get the Google OAuth authorization URL
-                   * @param scopes - Array of OAuth scopes to request
-                   * @returns Authorization URL and state for CSRF protection
-                   */
-                  export function getGoogleAuthUrl(scopes: string[] = [
-                    "https://www.googleapis.com/auth/userinfo.email",
-                    "https://www.googleapis.com/auth/userinfo.profile"
-                  ]) {
-                    const state = Math.random().toString(36).substring(2, 15);
-                    const authUrl = oauth2Client.generateAuthUrl({
-                      access_type: "offline",
-                      scope: scopes,
-                      state,
-                      prompt: "consent",
-                    });
+              - type: file
+                name: oauth.routes.ts
+                content: |
+                  import { Router } from "express";
+                  import passport from "passport";
 
-                    return { authUrl, state };
-                  }
+                  import { googleOAuth } from "./oauth.controller";
 
-                  /**
-                   * Exchange authorization code for tokens
-                   * @param code - Authorization code from Google callback
-                   * @returns Token information including access_token and refresh_token
-                   */
-                  export async function getGoogleTokens(code: string) {
-                    const { tokens } = await oauth2Client.getToken(code);
-                    oauth2Client.setCredentials(tokens);
-                    return tokens;
-                  }
+                  const router = Router();
 
-                  /**
-                   * Get user information from Google using access token
-                   * @param accessToken - Google access token
-                   * @returns User profile information
-                   */
-                  export async function getGoogleUserInfo(accessToken: string) {
-                    oauth2Client.setCredentials({ access_token: accessToken });
-                    
-                    const userInfoResponse = await fetch(
-                      "https://www.googleapis.com/oauth2/v2/userinfo",
-                      {
-                        headers: {
-                          Authorization: <Code children="Bearer ${accessToken}" />,
-                        },
-                      }
-                    );
+                  router.get(
+                    "/google",
+                    passport.authenticate("google", {
+                      scope: ["email", "profile", "openid"],
+                      prompt: "consent"
+                    })
+                  );
 
-                    if (!userInfoResponse.ok) {
-                      throw new Error("Failed to fetch user info from Google");
-                    }
+                  router.get(
+                    "/google/callback",
+                    passport.authenticate("google", {
+                      failureRedirect: "/login", //? redirect route if authenticated is failed
+                      session: false
+                    }),
+                    googleOAuth
+                  );
 
-                    return userInfoResponse.json() as Promise<{
-                      id: string;
-                      email: string;
-                      verified_email: boolean;
-                      name: string;
-                      given_name: string;
-                      family_name: string;
-                      picture: string;
-                      locale: string;
-                    }>;
-                  }
-
-                  /**
-                   * Verify and decode Google ID token
-                   * @param idToken - Google ID token
-                   * @returns Decoded token payload
-                   */
-                  export async function verifyGoogleIdToken(idToken: string) {
-                    const ticket = await oauth2Client.verifyIdToken({
-                      idToken,
-                      audience: process.env.GOOGLE_CLIENT_ID!,
-                    });
-
-                    return ticket.getPayload();
-                  }
-
-                  /**
-                   * Refresh access token using refresh token
-                   * @param refreshToken - Google refresh token
-                   * @returns New token information
-                   */
-                  export async function refreshGoogleToken(refreshToken: string) {
-                    oauth2Client.setCredentials({ refresh_token: refreshToken });
-                    const { credentials } = await oauth2Client.refreshAccessToken();
-                    return credentials;
-                  }
+                  export default router;
 
       - type: folder
         name: routes
         children:
           - type: file
-            name: auth.routes.ts
+            name: index.ts
             content: |
               import { Router } from "express";
-              import { asyncHandler } from "../shared/middlewares/async-handler";
-              import { getGoogleAuthUrl, getGoogleTokens, getGoogleUserInfo } from "../modules/auth/google-oauth.helpers";
-              import { ApiResponse } from "../shared/utils/response-handler";
-              import { ApiError } from "../shared/utils/error-handler";
-              import { STATUS_CODES } from "../shared/constants/status-codes";
-
+              import OAuthRoutes from "../modules/oauth/auth.routes";
+              
               const router = Router();
-
-              /**
-               * Initiate Google OAuth flow
-               * GET /api/auth/google
-               */
-              router.get(
-                "/google",
-                asyncHandler(async (req, res) => {
-                  const { authUrl, state } = getGoogleAuthUrl();
-                  
-                  // Store state in session or return to client for verification
-                  // In production, store state in Redis or session store
-                  
-                  return res.status(STATUS_CODES.OK).json(
-                    ApiResponse.success({
-                      authUrl,
-                      state,
-                    }, "Redirect user to authUrl")
-                  );
-                })
-              );
-
-              /**
-               * Handle Google OAuth callback
-               * GET /api/auth/google/callback
-               */
-              router.get(
-                "/google/callback",
-                asyncHandler(async (req, res) => {
-                  const { code, state } = req.query;
-
-                  if (!code || typeof code !== "string") {
-                    throw new ApiError(
-                      STATUS_CODES.BAD_REQUEST,
-                      "Authorization code is required"
-                    );
-                  }
-
-                  // Verify state to prevent CSRF attacks
-                  // Compare with stored state from initial request
-
-                  try {
-                    // Exchange code for tokens
-                    const tokens = await getGoogleTokens(code);
-
-                    if (!tokens.access_token) {
-                      throw new ApiError(
-                        STATUS_CODES.INTERNAL_SERVER_ERROR,
-                        "Failed to obtain access token"
-                      );
-                    }
-
-                    // Get user information
-                    const userInfo = await getGoogleUserInfo(tokens.access_token);
-
-                    // Here you would typically:
-                    // 1. Check if user exists in your database
-                    // 2. Create or update user record
-                    // 3. Generate your own JWT tokens
-                    // 4. Return tokens to client
-
-                    return res.status(STATUS_CODES.OK).json(
-                      ApiResponse.success({
-                        tokens,
-                        user: userInfo,
-                      }, "Authentication successful")
-                    );
-                  } catch (error) {
-                    throw new ApiError(
-                      STATUS_CODES.INTERNAL_SERVER_ERROR,
-                      "Failed to authenticate with Google"
-                    );
-                  }
-                })
-              );
-
+              
+              router.use("/auth", OAuthRoutes);
+              
               export default router;
-
+ 
       - type: file
-        name: .env.example
+        name: app.ts
         content: |
-          PORT="8000"
-          NODE_ENV="development"
-          LOG_LEVEL="info"
+          import express, { Express } from "express";
+ 
+          import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+          import { errorHandler } from "./shared/middlewares/error-handler";
+          
+          import Routes from "./routes/index";
+          
+          import "./shared/configs/passport";
+          
+          const app: Express = express();
+          
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          
+          // Routes
+          app.use("/api", Routes);
+          
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+          
+          // Global error handler (should be last)
+          app.use(errorHandler);
+          
+          export default app;
 
-          GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
-          GOOGLE_CLIENT_SECRET="your-google-client-secret"
-          GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+  - type: file
+    name: .env.example
+    content: |      
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+      GOOGLE_CLIENT_SECRET="your-google-client-secret"
+      GOOGLE_REDIRECT_URI="your-google-redirect-uri"
 ---
 
-# Google OAuth
+# Google OAuth (Passport)
 
-The **Google OAuth** component provides a secure and standardized way to integrate Google authentication into your ServerCN Express applications using the official **google-auth-library**.
+The **Google OAuth** component provides a secure and standardized way to integrate Google authentication into your ServerCN Express applications using the official **passport, passport-google-oauth20**.
 
 It handles the complete OAuth 2.0 flow including authorization URL generation, token exchange, user information retrieval, and token refresh.
+
+[Official Docs](https://www.passportjs.org/)
 
 ## Features
 
@@ -499,6 +955,13 @@ Documentation:
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
+- **Global Error Handler:** 
+
+<PackageManagerTabs command="npx servercn add global-error-handler" />
+
+Documentation:
+[Global Error Handler](/docs/components/global-error-handler)
+
 - **Async Handler:** 
 
 <PackageManagerTabs command="npx servercn add async-handler" />
@@ -523,7 +986,8 @@ Documentation:
    - Fill in the required information
 6. Create OAuth 2.0 Client ID:
    - Application type: **Web application**
-   - Authorized redirect URIs: Add your callback URL (e.g., <Code children="http://localhost:8000/api/auth/google/callback" />)
+   - Authorized JavaScript origins: Add your origin URL (e.g., <Code children="http://localhost:9000" />)
+   - Authorized redirect URIs: Add your callback URL (e.g., <Code children="http://localhost:9000/api/auth/google/callback" />)
 7. Copy the **Client ID** and **Client Secret**
 
 ### Environment Variables
@@ -533,19 +997,24 @@ Add the following to your <Code children=".env" /> file:
 ```bash
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GOOGLE_REDIRECT_URI="http://localhost:8000/api/auth/google/callback"
+GOOGLE_REDIRECT_URI="http://localhost:9000/api/auth/google/callback" 
+# replace all with your values
 ```
 
 Ensure the following configuration are defined:
 
-<Code children="src/configs/env.ts" /> ||
-<Code children="src/shared/configs/env.ts" />
+**MVC:** <Code children="src/configs/env.ts" /> 
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
 
 ```ts
+import "dotenv/config";
+
 interface Config {
   PORT: number;
   NODE_ENV: string;
   LOG_LEVEL: string;
+  CORS_ORIGIN: string;
 
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
@@ -556,6 +1025,7 @@ const env: Config = {
   PORT: Number(process.env.PORT) || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
   LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
 
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
@@ -567,255 +1037,326 @@ export default env;
 
 ## Basic Implementation
 
-### MVC Structure
+### 1. MVC Structure
 
-Place the Google OAuth utilities in <Code children="src/utils/google-oauth.ts" />:
+**1. Configure passport in** <Code children="src/configs/passport.ts" />:
 
 ```ts
-import { OAuth2Client } from "google-auth-library";
-import env from "../configs/env";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import env from "./env";
 
-const oauth2Client = new OAuth2Client(
-  env.GOOGLE_CLIENT_ID,
-  env.GOOGLE_CLIENT_SECRET,
-  env.GOOGLE_REDIRECT_URI
-);
+const clientId = env.GOOGLE_CLIENT_ID;
+const clientSecret = env.GOOGLE_CLIENT_SECRET;
+const redirectUri = env.GOOGLE_REDIRECT_URI;
 
-export function getGoogleAuthUrl(
-  scopes: string[] = [
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile"
-  ]
-) {
-  const state = Math.random().toString(36).substring(2, 15);
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: scopes,
-    state,
-    prompt: "consent"
-  });
-
-  return { authUrl, state };
-}
-
-export async function getGoogleTokens(code: string) {
-  const { tokens } = await oauth2Client.getToken(code);
-  oauth2Client.setCredentials(tokens);
-  return tokens;
-}
-
-export async function getGoogleUserInfo(accessToken: string) {
-  const userInfoResponse = await fetch(
-    "https://www.googleapis.com/oauth2/v2/userinfo",
+passport.use(
+  new GoogleStrategy(
     {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+      clientID: clientId,
+      clientSecret,
+      callbackURL: redirectUri
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
     }
-  );
-
-  if (!userInfoResponse.ok) {
-    throw new Error("Failed to fetch user info from Google");
-  }
-
-  return userInfoResponse.json();
-}
+  )
+);
 ```
 
-### Feature-Based Structure
-
-For feature-based architecture, place helpers in <Code children="src/modules/auth/google-oauth.helpers.ts" />:
+**2. Create a Google OAuth controller in** <Code children="src/controllers/google-oauth.controller.ts" /> **or** <Code children="src/controllers/auth.controller.ts" />
 
 ```ts
-import { OAuth2Client } from "google-auth-library";
+import { NextFunction, Request, Response } from "express";
+import { Profile } from "passport-google-oauth20";
 
-const oauth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID!,
-  process.env.GOOGLE_CLIENT_SECRET!,
-  process.env.GOOGLE_REDIRECT_URI!
+//? import servercn components
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+import { ApiError } from "../utils/api-error";
+
+//? login with google
+export const googleOAuth = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = req.user as Profile | undefined;
+    const user = data?._json;
+
+    if (!user || !data) {
+      return next(ApiError.unauthorized("Authenticated failed!"));
+    }
+
+    const userInfo = {
+      provider: data?.provider,
+      providerId: data.id,
+      name: data.displayName,
+      email: data?.emails && data?.emails[0]?.value,
+      isEmailVerified: data?.emails && data?.emails[0]?.verified,
+      avatar: data.profileUrl || (data.photos && data.photos[0].value)
+    };
+
+    const userInfo2 = {
+      provider: data?.provider,
+      providerId: user.sub,
+      name: user.name,
+      email: user.email,
+      isEmailVerified: user.email_verified,
+      avatar: user.picture
+    };
+
+    //? save the data into your databases
+
+    ApiResponse.ok(res, "Auth Successfull", {
+      userInfo,
+      userInfo2
+    });
+  }
 );
-
-// Same functions as MVC structure
 ```
 
-## Usage Examples
-
-### 1. Initiate OAuth Flow
-
-Create a route to start the Google OAuth flow:
+**3. Create a Google OAuth router in** <Code children="src/routes/google-oauth.routes.ts" /> **or** <Code children="src/routes/auth.routes.ts" /> 
 
 ```ts
 import { Router } from "express";
-import { getGoogleAuthUrl } from "../utils/google-oauth";
+import passport from "passport";
+
+import { googleOAuth } from "../controllers/google-oauth.controller";
 
 const router = Router();
 
-router.get("/auth/google", async (req, res) => {
-  const { authUrl, state } = getGoogleAuthUrl();
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile", "openid"],
+    prompt: "consent"
+  })
+);
 
-  // Store state in session/Redis for CSRF protection
-  req.session.oauthState = state;
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login", //? redirect route if authenticated is failed
+    session: false
+  }),
+  googleOAuth
+);
 
-  // Redirect user to Google
-  res.redirect(authUrl);
-});
+export default router;
 ```
 
-### 2. Handle OAuth Callback
-
-Handle the callback from Google:
+**4. Create a server in** <Code children="src/app.ts" />
 
 ```ts
-router.get("/auth/google/callback", async (req, res) => {
-  const { code, state } = req.query;
+import express, { Express, Request, Response } from "express";
 
-  // Verify state to prevent CSRF
-  if (state !== req.session.oauthState) {
-    return res.status(400).json({ error: "Invalid state parameter" });
-  }
+import { notFoundHandler } from "./middlewares/not-found-handler";
+import { errorHandler } from "./middlewares/error-handler";
 
-  try {
-    // Exchange code for tokens
-    const tokens = await getGoogleTokens(code as string);
+import AuthRoutes from "./routes/google-oauth.routes";
 
-    // Get user information
-    const userInfo = await getGoogleUserInfo(tokens.access_token!);
+import "./configs/passport";
 
-    // Create or update user in your database
-    // Generate your own JWT tokens
-    // Return tokens to client
+const app: Express = express();
 
-    res.json({ user: userInfo, tokens });
-  } catch (error) {
-    res.status(500).json({ error: "Authentication failed" });
-  }
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+// Routes
+app.use("/api/auth", AuthRoutes);
+
+// Not found handler (should be after routes)
+app.use(notFoundHandler);
+
+// Global error handler (should be last)
+app.use(errorHandler);
+
+export default app;
 ```
 
-### 3. Verify ID Token
+### 2. Feature Structure
 
-If using Google Sign-In with ID tokens:
+**1. Configure passport in** <Code children="src/shared/configs/passport.ts" />:
 
 ```ts
-import { verifyGoogleIdToken } from "../utils/google-oauth";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import env from "./env";
 
-router.post("/auth/google/verify", async (req, res) => {
-  const { idToken } = req.body;
+const clientId = env.GOOGLE_CLIENT_ID;
+const clientSecret = env.GOOGLE_CLIENT_SECRET;
+const redirectUri = env.GOOGLE_REDIRECT_URI;
 
-  try {
-    const payload = await verifyGoogleIdToken(idToken);
-    // payload contains user information
-    res.json({ user: payload });
-  } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
-  }
-});
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: clientId,
+      clientSecret,
+      callbackURL: redirectUri
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
+    }
+  )
+);
 ```
 
-### 4. Refresh Access Token
-
-Refresh an expired access token:
+**2. Create a Google OAuth controller in** <Code children="src/modules/oauth/google-oauth.controller.ts" /> **or** <Code children="src/modules/auth/auth.controller.ts" />
 
 ```ts
-import { refreshGoogleToken } from "../utils/google-oauth";
+import { NextFunction, Request, Response } from "express";
+import { Profile } from "passport-google-oauth20";
 
-router.post("/auth/google/refresh", async (req, res) => {
-  const { refreshToken } = req.body;
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { ApiError } from "../../shared/errors/api-error";
+import { ApiResponse } from "../../shared/utils/api-response";
 
-  try {
-    const credentials = await refreshGoogleToken(refreshToken);
-    res.json({ tokens: credentials });
-  } catch (error) {
-    res.status(401).json({ error: "Token refresh failed" });
-  }
-});
-```
+//? login with google
+export const googleOAuth = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = req.user as Profile | undefined;
+    const user = data?._json;
 
-## Integration with JWT Authentication
-
-Combine Google OAuth with your JWT authentication:
-
-```ts
-import { getGoogleTokens, getGoogleUserInfo } from "../utils/google-oauth";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
-
-router.get("/auth/google/callback", async (req, res) => {
-  const { code } = req.query;
-
-  try {
-    // Get Google tokens
-    const googleTokens = await getGoogleTokens(code as string);
-    const userInfo = await getGoogleUserInfo(googleTokens.access_token!);
-
-    // Find or create user in database
-    let user = await User.findOne({ email: userInfo.email });
-    if (!user) {
-      user = await User.create({
-        email: userInfo.email,
-        name: userInfo.name,
-        picture: userInfo.picture,
-        provider: "google",
-        providerId: userInfo.id
-      });
+    if (!user || !data) {
+      return next(ApiError.unauthorized("Authenticated failed!"));
     }
 
-    // Generate your own JWT tokens
-    const accessToken = generateAccessToken({ _id: user._id });
-    const refreshToken = generateRefreshToken(user._id);
+    const userInfo = {
+      provider: data?.provider,
+      providerId: data.id,
+      name: data.displayName,
+      email: data?.emails && data?.emails[0]?.value,
+      isEmailVerified: data?.emails && data?.emails[0]?.verified,
+      avatar: data.profileUrl || (data.photos && data.photos[0].value)
+    };
 
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name
-      }
+    const userInfo2 = {
+      provider: data?.provider,
+      providerId: user.sub,
+      name: user.name,
+      email: user.email,
+      isEmailVerified: user.email_verified,
+      avatar: user.picture
+    };
+
+    //? save the data into your databases
+
+    ApiResponse.ok(res, "Auth Successfull", {
+      userInfo,
+      userInfo2
     });
-  } catch (error) {
-    res.status(500).json({ error: "Authentication failed" });
   }
-});
+);
 ```
 
-## Available OAuth Scopes
-
-Common Google OAuth scopes you can request:
-
-- <Code children="https://www.googleapis.com/auth/userinfo.email" /> - User's
-  email address
-- <Code children="https://www.googleapis.com/auth/userinfo.profile" /> - User's
-  basic profile info
-- <Code children="https://www.googleapis.com/auth/user.birthday.read" /> -
-  User's birthday
-- <Code children="https://www.googleapis.com/auth/user.phonenumbers.read" /> -
-  User's phone numbers
-- <Code children="https://www.googleapis.com/auth/calendar.readonly" /> -
-  Read-only access to user's calendar
-
-## Security Best Practices
-
-1. **Always verify the state parameter** to prevent CSRF attacks
-2. **Store refresh tokens securely** in your database (encrypted)
-3. **Use HTTPS** in production for redirect URIs
-4. **Validate redirect URIs** match your configured ones
-5. **Set appropriate token expiration** times
-6. **Handle token refresh** automatically when access tokens expire
-
-## Error Handling
-
-The component throws errors that can be caught and handled:
+**3. Create a Google OAuth router in** <Code children="src/modules/oauth/google-oauth.routes.ts" /> **or** <Code children="src/modules/auth/auth.routes.ts" /> 
 
 ```ts
-try {
-  const tokens = await getGoogleTokens(code);
-} catch (error) {
-  if (error instanceof Error) {
-    // Handle specific Google OAuth errors
-    console.error("OAuth error:", error.message);
+import { Router } from "express";
+import passport from "passport";
+
+import { googleOAuth } from "./google-oauth.controller";
+
+const router = Router();
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile", "openid"],
+    prompt: "consent"
+  })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login", //? redirect route if authenticated is failed
+    session: false
+  }),
+  googleOAuth
+);
+
+export default router;
+```
+
+**4. Create a index route in** <Code children="src/routes/index.ts" /> 
+
+```ts
+import { Router } from "express";
+import OAuthRoutes from "../modules/oauth/google-oauth.routes";
+
+const router = Router();
+
+router.use("/auth", OAuthRoutes);
+
+export default router;
+
+```
+
+**5. Create a server in** <Code children="src/app.ts" />
+
+```ts
+import express, { Express } from "express";
+
+import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+import { errorHandler } from "./shared/middlewares/error-handler";
+
+import Routes from "./routes/index";
+
+import "./shared/configs/passport"
+
+const app: Express = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use("/api", Routes);
+
+// Not found handler (should be after routes)
+app.use(notFoundHandler);
+
+// Global error handler (should be last)
+app.use(errorHandler);
+
+export default app;
+```
+
+## Success Response
+
+```json
+{
+  "success": true,
+  "message": "Auth Successfull",
+  "statusCode": 200,
+  "data": {
+    "userInfo": {
+      "provider": "google",
+      "providerId": "1163181840105620881",
+      "name": "Akkal Dhami",
+      "email": "dhamiakkal21@gmail.com",
+      "isEmailVerified": true,
+      "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUYqyuQ4khZ_2DGd3G4iZPj8RXBtkTPv8avzN4L3ifb--QOXKomzOM6nOwG4Sau24uQmWCBfj6Id3DBdoyabVah8hPWFpZ9aIfyj6nBn4OTzSEYF0vxUXL-oPM4qszzCo7TXsJF2RySN45fuC8l-aZzzxl_qetw8-27Y9zZLh8MZytQXezVPRovI2VqZ1NJDQTfFBzF4VrK8XdkNC39pgO3exH65m1pM__I7zjB-wV5zN2AFrHfVT-ucllEQMGWoK4sXdRZXZBI3za8K-bqxVlaXFtqJyaBv13RKTuR32lfDMtqNp0q4tvH0FgTSV6bn1Yk80NIjxn8fsoPYHYAXgFDxY_wwuL9zhHRAl-niBC5acuSgSzN-JhOrSjYNAT3CxQ_UbtZ2X6Lw9NPalQDakHxahJTayJPzdvbU-fpDDpxIywz_-oBn_c44MrBbUX5ktY6-eioXigyZdeeRH4PTeXfAkhQBSnYD2cVDwACEjo0znVM5JJakmPsDInHBJGi3jQSJfQ52luqZGDXDF7CGmy7fU7-jZMmq1gRAPcxdhrS2m0srkuOwyopfxonXuJV59uYSEioRXe9nMjA-_wjkGy5jSxiCEaUnF10strkD51xGYvXzjUAYb4GH_iz4K0RjS8WJGfDHGG-wLfMB5qtIS2ZckYO38NT3FcEZ4v7hrFV78vXxdX9lotWX0S_IaVBv8siZVNQ2irvQHFcNDcfDVl4uCVIk9kkS4TBtBO9TosZI14IOnjFbMYua3z2ljQPLg_B1nT3CqC5UAOJ5GJG6Hl-M7dHXaJrKoOnJ5HeTbB84UbVOCB-4IXZoIpg6G1II73pCowX1eA8meWNLKHor6Eii-mOk3TTPSm_hgsArfTbv60uGGKyOzlTutY1Goi6yxN85iKkpzAJPUdkvPLbNbebm9XP8xIDKPae1U-okzm60l5lf-dmFlogBqiWKbDDgHeG0I-HRDGqSeTBv-C5sFSsczPmB5eVXHwV244nS0T-oFMy1OuzatYEM5-qo8YOy7tTSZv0swtMiA1MLhA128qV_ZB28LDC9BrB6v7ayH9C37vVzpCo8m0=s96-c"
+    },
+    "userInfo2": {
+      "provider": "google",
+      "providerId": "1163181840105620881",
+      "name": "Akkal Dhami",
+      "email": "dhamiakkal21@gmail.com",
+      "isEmailVerified": true,
+      "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUYqyuQ4khZ_2DGd3G4iZPj8RXBtkTPv8avzN4L3ifb--QOXKomzOM6nOwG4Sau24uQmWCBfj6Id3DBdoyabVah8hPWFpZ9aIfyj6nBn4OTzSEYF0vxUXL-oPM4qszzCo7TXsJF2RySN45fuC8l-aZzzxl_qetw8-27Y9zZLh8MZytQXezVPRovI2VqZ1NJDQTfFBzF4VrK8XdkNC39pgO3exH65m1pM__I7zjB-wV5zN2AFrHfVT-ucllEQMGWoK4sXdRZXZBI3za8K-bqxVlaXFtqJyaBv13RKTuR32lfDMtqNp0q4tvH0FgTSV6bn1Yk80NIjxn8fsoPYHYAXgFDxY_wwuL9zhHRAl-niBC5acuSgSzN-JhOrSjYNAT3CxQ_UbtZ2X6Lw9NPalQDakHxahJTayJPzdvbU-fpDDpxIywz_-oBn_c44MrBbUX5ktY6-eioXigyZdeeRH4PTeXfAkhQBSnYD2cVDwACEjo0znVM5JJakmPsDInHBJGi3jQSJfQ52luqZGDXDF7CGmy7fU7-jZMmq1gRAPcxdhrS2m0srkuOwyopfxonXuJV59uYSEioRXe9nMjA-_wjkGy5jSxiCEaUnF10strkD51xGYvXzjUAYb4GH_iz4K0RjS8WJGfDHGG-wLfMB5qtIS2ZckYO38NT3FcEZ4v7hrFV78vXxdX9lotWX0S_IaVBv8siZVNQ2irvQHFcNDcfDVl4uCVIk9kkS4TBtBO9TosZI14IOnjFbMYua3z2ljQPLg_B1nT3CqC5UAOJ5GJG6Hl-M7dHXaJrKoOnJ5HeTbB84UbVOCB-4IXZoIpg6G1II73pCowX1eA8meWNLKHor6Eii-mOk3TTPSm_hgsArfTbv60uGGKyOzlTutY1Goi6yxN85iKkpzAJPUdkvPLbNbebm9XP8xIDKPae1U-okzm60l5lf-dmFlogBqiWKbDDgHeG0I-HRDGqSeTBv-C5sFSsczPmB5eVXHwV244nS0T-oFMy1OuzatYEM5-qo8YOy7tTSZv0swtMiA1MLhA128qV_ZB28LDC9BrB6v7ayH9C37vVzpCo8m0=s96-c"
+    }
   }
 }
 ```
+This response is formated by <Code children="ApiResponse" /> component.
+
+
+
+## Limitations
+
+- **Stateless by Default**: This implementation is configured for stateless authentication (`session: false`). It is designed for REST APIs that use JWTs, not for traditional server-side rendered applications using cookies/sessions.
+- **No Automatic Persistence**: The component retrieves user profile data from Google but **does not** automatically save it to your database. You must implement the logic to find, create, or update the user in your database within the controller.
+- **Token Generation**: While it handles the Google OAuth flow, it does not generate your application's access or refresh tokens. You need to implement your own token generation logic (e.g., using `jsonwebtoken`) after a successful Google login.
 
 ## Common Issues
 
