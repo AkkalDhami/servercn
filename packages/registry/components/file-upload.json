@@ -19,14 +19,6 @@
       "multer",
       "cloudinary"
     ],
-    "dev": [
-      "@types/multer",
-      "@types/express",
-      "@types/express",
-      "nodemon",
-      "ts-node",
-      "tsx",
-      "typescript"
-    ]
+    "dev": ["@types/multer", "@types/express"]
   }
 }

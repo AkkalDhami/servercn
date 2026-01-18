@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "runtime": ["express"],
-    "dev": ["@types/node"]
+    "dev": ["@types/node", "@types/express"]
   }
 }

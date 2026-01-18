@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "runtime": ["express", "dotenv", "winston", "winston-daily-rotate-file"],
-    "dev": []
+    "dev": ["@types/express"]
   },
   "env": ["LOG_LEVEL", "NODE_ENV"]
 }

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "runtime": ["express", "mongoose"],
-    "dev": []
+    "dev": ["@types/express"]
   },
   "env": []
 }

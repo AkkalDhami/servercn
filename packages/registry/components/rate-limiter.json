@@ -11,8 +11,8 @@
     }
   },
   "dependencies": {
-    "runtime": ["express-rate-limit"],
-    "dev": [],
+    "runtime": ["express-rate-limit", "express"],
+    "dev": ["@types/express"],
     "peer": []
   }
 }
