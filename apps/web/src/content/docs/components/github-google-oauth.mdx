@@ -1,0 +1,1107 @@
+---
+title: GitHub & Google OAuth
+description: Secure GitHub & Google OAuth authentication integration using passport, passport-google-oauth20 and passport-github2 for Express applications.
+command: npx servercn add github-google-oauth
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                CORS_ORIGIN: string;
+
+                GOOGLE_CLIENT_ID: string;
+                GOOGLE_CLIENT_SECRET: string;
+                GOOGLE_REDIRECT_URI: string;
+
+                GITHUB_CLIENT_ID: string;
+                GITHUB_CLIENT_SECRET: string;
+                GITHUB_REDIRECT_URI: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+                GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+                GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+                GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+
+                GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+                GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+                GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!
+              };
+
+              export default env;
+
+          - type: file
+            name: passport.ts
+            content: |
+              import passport from "passport";
+              import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+              import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+              import env from "./env";
+
+              // Google Strategy
+              passport.use(
+                new GoogleStrategy(
+                  {
+                    clientID: env.GOOGLE_CLIENT_ID,
+                    clientSecret: env.GOOGLE_CLIENT_SECRET,
+                    callbackURL: env.GOOGLE_REDIRECT_URI
+                  },
+                  function (accessToken, refreshToken, profile, cb) {
+                    return cb(null, profile);
+                  }
+                )
+              );
+
+              // GitHub Strategy
+              passport.use(
+                new GitHubStrategy(
+                  {
+                    clientID: env.GITHUB_CLIENT_ID,
+                    clientSecret: env.GITHUB_CLIENT_SECRET,
+                    callbackURL: env.GITHUB_REDIRECT_URI
+                  },
+                  function (
+                    accessToken: string,
+                    refreshToken: string,
+                    profile: Profile,
+                    cb: (error: Error | null, user?: any) => void
+                  ) {
+                    return cb(null, profile);
+                  }
+                )
+              );
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: oauth.controller.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { Profile as GoogleProfile } from "passport-google-oauth20";
+              import { Profile as GitHubProfile } from "passport-github2";
+
+              //? import servercn components
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+              import { ApiError } from "../utils/api-error";
+
+              //? login with google
+              export const googleOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as GoogleProfile | undefined;
+
+                  if (!data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
+                  }
+
+                  const userInfo = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified: data?.emails && data?.emails[0]?.verified,
+                    avatar: data.profileUrl || (data.photos && data.photos[0].value)
+                  };
+
+                  //? save the data into your databases
+
+                  ApiResponse.ok(res, "Auth Successfull", {
+                    user: userInfo,
+                  });
+                }
+              );
+
+              //? login with github
+              export const githubOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as GitHubProfile | undefined;
+
+                  if (!data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
+                  }
+
+                  const user = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName || data.username,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified: true,
+                    avatar: data.photos && data.photos[0].value
+                  };
+
+                  //? save the data into your databases
+
+                  ApiResponse.ok(res, "Auth Successfull", {
+                    user
+                  });
+                }
+              );
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  err
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                };
+
+                res.status(statusCode).json(response);
+              };
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+              
+              export const notFoundHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+              };
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: oauth.routes.ts
+            content: |
+              import { Router } from "express";
+              import passport from "passport";
+
+              import { googleOAuth, githubOAuth } from "../controllers/oauth.controller";
+
+              const router = Router();
+
+              // Google Config
+              router.get(
+                "/google",
+                passport.authenticate("google", {
+                  scope: ["email", "profile", "openid"],
+                  prompt: "consent"
+                })
+              );
+
+              router.get(
+                "/google/callback",
+                passport.authenticate("google", {
+                  failureRedirect: "/login",
+                  session: false
+                }),
+                googleOAuth
+              );
+
+              // GitHub Config
+              router.get(
+                "/github",
+                passport.authenticate("github", { scope: ["user:email"] })
+              );
+
+              router.get(
+                "/github/callback",
+                passport.authenticate("github", {
+                  failureRedirect: "/login", 
+                  session: false
+                }),
+                githubOAuth
+              );
+
+              export default router;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                    return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+          - type: file
+            name: api-response.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors,
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors }),
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (
+                  req: Request,
+                  res: Response,
+                  next: NextFunction
+                ) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+              import pino from "pino";
+              import env from "../configs/env";
+              
+              export const logger = pino({
+                level: env.LOG_LEVEL,
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
+              });
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          
+          import { notFoundHandler } from "./middlewares/not-found-handler";
+          import { errorHandler } from "./middlewares/error-handler";
+          
+          import AuthRoutes from "./routes/oauth.routes";
+          
+          import "./configs/passport";
+          
+          const app: Express = express();
+          
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          
+          
+          // Routes
+          app.use("/api/auth", AuthRoutes);
+          
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+          
+          // Global error handler (should be last)
+          app.use(errorHandler);
+          
+          export default app;  
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GOOGLE_CLIENT_ID="your-google-client-id"
+      GOOGLE_CLIENT_SECRET="your-google-client-secret"
+      GOOGLE_REDIRECT_URI="your-google-redirect-uri"
+
+      GITHUB_CLIENT_ID="your-github-client-id"
+      GITHUB_CLIENT_SECRET="your-github-client-secret"
+      GITHUB_REDIRECT_URI="your-github-redirect-uri"
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+                  import "dotenv/config";
+
+                  interface Config {
+                    PORT: number;
+                    NODE_ENV: string;
+                    LOG_LEVEL: string;
+                    CORS_ORIGIN: string;
+
+                    GOOGLE_CLIENT_ID: string;
+                    GOOGLE_CLIENT_SECRET: string;
+                    GOOGLE_REDIRECT_URI: string;
+
+                    GITHUB_CLIENT_ID: string;
+                    GITHUB_CLIENT_SECRET: string;
+                    GITHUB_REDIRECT_URI: string;
+                  }
+
+                  const env: Config = {
+                    PORT: Number(process.env.PORT) || 3000,
+                    NODE_ENV: process.env.NODE_ENV || "development",
+                    LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                    CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+                    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+                    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+                    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI!,
+
+                    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+                    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+                    GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!
+                  };
+
+                  export default env;
+
+              - type: file
+                name: passport.ts
+                content: |
+                  import passport from "passport";
+                  import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+                  import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+                  import env from "./env";
+
+                  // Google Strategy
+                  passport.use(
+                    new GoogleStrategy(
+                      {
+                        clientID: env.GOOGLE_CLIENT_ID,
+                        clientSecret: env.GOOGLE_CLIENT_SECRET,
+                        callbackURL: env.GOOGLE_REDIRECT_URI
+                      },
+                      function (accessToken, refreshToken, profile, cb) {
+                        return cb(null, profile);
+                      }
+                    )
+                  );
+
+                  // GitHub Strategy
+                  passport.use(
+                    new GitHubStrategy(
+                      {
+                        clientID: env.GITHUB_CLIENT_ID,
+                        clientSecret: env.GITHUB_CLIENT_SECRET,
+                        callbackURL: env.GITHUB_REDIRECT_URI
+                      },
+                      function (
+                        accessToken: string,
+                        refreshToken: string,
+                        profile: Profile,
+                        cb: (error: Error | null, user?: any) => void
+                      ) {
+                        return cb(null, profile);
+                      }
+                    )
+                  );
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                    ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                    }
+
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      err
+                    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+              - type: file
+                name: not-found-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+                  
+                  export const notFoundHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                  };
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
+
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
+
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
+
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors,
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
+                    }
+
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors }),
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
+
+              - type: file
+                name: async-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+
+                  export type AsyncRouteHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => Promise<unknown>;
+
+                  export function AsyncHandler(fn: AsyncRouteHandler) {
+                    return function (
+                      req: Request,
+                      res: Response,
+                      next: NextFunction
+                    ) {
+                      Promise.resolve(fn(req, res, next)).catch(next);
+                    };
+                  }
+                  
+              - type: file
+                name: logger.ts
+                content: |
+                  import pino from "pino";
+                  import env from "../configs/env";
+                  
+                  export const logger = pino({
+                    level: env.LOG_LEVEL,
+                    transport:
+                      env.NODE_ENV !== "production"
+                        ? {
+                            target: "pino-pretty",
+                            options: {
+                              colorize: true,
+                              translateTime: "yyyy-mm-dd HH:MM:ss",
+                              ignore: "pid,hostname"
+                            }
+                          }
+                        : undefined
+                  });
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: oauth
+            children:
+              - type: file
+                name: oauth.controller.ts
+                content: |
+                  import { NextFunction, Request, Response } from "express";
+                  import { Profile as GithubProfile } from "passport-github2";
+
+                  import { Profile as GoogleProfile } from "passport-google-oauth20";
+
+                  import { AsyncHandler } from "../../shared/utils/async-handler";
+                  import { ApiError } from "../../shared/errors/api-error";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+
+                  //? login with github
+                  export const githubOAuth = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const data = req.user as GithubProfile | undefined;
+
+                      if (!data) {
+                        return next(ApiError.unauthorized("Authenticated failed!"));
+                      }
+
+                      // console.log(data);
+
+                      const user = {
+                        provider: data?.provider,
+                        providerId: data.id,
+                        name: data.displayName,
+                        email: data?.emails && data?.emails[0]?.value,
+                        isEmailVerified: true,
+                        avatar: data.photos && data.photos[0].value
+                      };
+
+                      //? save the data into your databases
+
+                      ApiResponse.ok(res, "Auth Successfull", {
+                        user
+                      });
+                    }
+                  );
+
+                  //? login with google
+                  export const googleOAuth = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const data = req.user as GoogleProfile | undefined;
+
+                      if (!data) {
+                        return next(ApiError.unauthorized("Authenticated failed!"));
+                      }
+
+                      const userInfo = {
+                        provider: data?.provider,
+                        providerId: data.id,
+                        name: data.displayName,
+                        email: data?.emails && data?.emails[0]?.value,
+                        isEmailVerified: data?.emails && data?.emails[0]?.verified,
+                        avatar: data.profileUrl || (data.photos && data.photos[0].value)
+                      };
+
+                      //? save the data into your databases
+
+                      ApiResponse.ok(res, "Auth Successfull", {
+                        user: userInfo
+                      });
+                    }
+                  );
+
+              - type: file
+                name: oauth.routes.ts
+                content: |
+                  import { Router } from "express";
+                  import passport from "passport";
+
+                  import { googleOAuth, githubOAuth } from "./oauth.controller";
+
+                  const router = Router();
+
+                  // Google Config
+                  router.get(
+                    "/google",
+                    passport.authenticate("google", {
+                      scope: ["email", "profile", "openid"],
+                      prompt: "consent"
+                    })
+                  );
+
+                  router.get(
+                    "/google/callback",
+                    passport.authenticate("google", {
+                      failureRedirect: "/login", 
+                      session: false
+                    }),
+                    googleOAuth
+                  );
+
+                  // GitHub Config
+                  router.get(
+                    "/github",
+                    passport.authenticate("github", { scope: ["user:email"] })
+                  );
+
+                  router.get(
+                    "/github/callback",
+                    passport.authenticate("github", {
+                      failureRedirect: "/login", 
+                      session: false
+                    }),
+                    githubOAuth
+                  );
+
+                  export default router;
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import OAuthRoutes from "../modules/oauth/oauth.routes";
+              
+              const router = Router();
+              
+              router.use("/auth", OAuthRoutes);
+              
+              export default router;
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express } from "express";
+ 
+          import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+          import { errorHandler } from "./shared/middlewares/error-handler";
+          
+          import Routes from "./routes/index";
+          
+          import "./shared/configs/passport";
+          
+          const app: Express = express();
+          
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          
+          // Routes
+          app.use("/api", Routes);
+          
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+          
+          // Global error handler (should be last)
+          app.use(errorHandler);
+          
+          export default app; 
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GOOGLE_CLIENT_ID="your-google-client-id"
+      GOOGLE_CLIENT_SECRET="your-google-client-secret"
+      GOOGLE_REDIRECT_URI="your-google-redirect-uri"
+
+      GITHUB_CLIENT_ID="your-github-client-id"
+      GITHUB_CLIENT_SECRET="your-github-client-secret"
+      GITHUB_REDIRECT_URI="your-github-redirect-uri"
+---
+
+# GitHub & Google OAuth (Passport)
+
+The **GitHub & Google OAuth** component provides a secure and standardized way to integrate both GitHub and Google authentication into your ServerCN Express applications using **passport**, **passport-google-oauth20**, and **passport-github2**.
+
+[Official Docs](https://www.passportjs.org/)
+
+## Features
+
+- **Unified OAuth 2.0 flow** - Handle both Google and GitHub logins in a single integration
+- **Secure by default** - CSRF protection
+- **Express integration** - Ready-to-use route handlers
+- **Type-safe** - Full TypeScript support
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies._
+
+### 1. Install ServerCN dependencies(Optional)
+
+- [**HTTP Status Codes**](/docs/components/http-status-codes) 
+- [**Api Response Handler**](/docs/components/api-response-handler)
+- [**Api Error Handler**](/docs/components/api-error-handler)
+- [**Global Error Handler**](/docs/components/global-error-handler)
+- [**Async Handler**](/docs/components/async-handler)
+- [**Logger**](/docs/components/logger)
+
+### 2. Install this component
+
+<PackageManagerTabs command="npx servercn add github-google-oauth" />
+
+## Prerequisites
+
+### Google Cloud Console Setup
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create/Select a project -> Enable **Google+ API**
+3. Create Credentials -> OAuth Client ID -> Web Application
+4. Authorized Redirect URI: `http://localhost:3000/api/auth/google/callback`
+5. Copy **Client ID** and **Client Secret**
+
+### GitHub OAuth Setup
+
+1. Go to [GitHub Settings > Developer settings](https://github.com/settings/profile)
+2. New OAuth App
+3. Authorization callback URL: `http://localhost:3000/api/auth/github/callback`
+4. Copy **Client ID** and **Client Secret**
+
+### Environment Variables
+
+Add to your <Code children=".env" />:
+
+```bash
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_REDIRECT_URI="your-google-redirect-uri"
+
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+GITHUB_REDIRECT_URI="your-github-redirect-uri"
+```
+
+## Basic Implementation
+
+### 1. MVC Structure
+
+(See `mvc_structure` blocks below for file details)
+
+### 2. Feature Structure
+
+(See `feature_structure` blocks below for file details)
+
+## Limitations & Common Issues
+
+- **Stateless**: Uses `session: false`.
+- **Manual Persistence**: You must implement the database saving logic.
+- **Redirect URI Mismatch**: Ensure strict matching with provider settings.
+
+
+## Related Components
+
+- [GitHub OAuth](/docs/components/github-oauth)
+- [Google OAuth](/docs/components/google-oauth)

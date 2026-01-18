@@ -1,0 +1,38 @@
+{
+  "title": "GitHub & Google OAuth",
+  "slug": "github-google-oauth",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/github-google-oauth/express/mvc",
+      "feature": "components/github-google-oauth/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [
+      "express",
+      "dotenv",
+      "pino",
+      "pino-pretty",
+      "passport",
+      "passport-github2",
+      "passport-google-oauth20"
+    ],
+    "dev": [
+      "@types/express",
+      "@types/passport-github2",
+      "@types/passport-google-oauth20",
+      "@types/passport"
+    ]
+  },
+  "env": [
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_REDIRECT_URI",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_REDIRECT_URI"
+  ]
+}
