@@ -1,0 +1,25 @@
+{
+  "title": "GitHub OAuth",
+  "slug": "github-oauth",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/github-oauth/express/mvc",
+      "feature": "components/github-oauth/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [
+      "express",
+      "dotenv",
+      "pino",
+      "pino-pretty",
+      "passport",
+      "passport-github2"
+    ],
+    "dev": ["@types/express", "@types/passport-github2", "@types/passport"]
+  },
+  "env": ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_REDIRECT_URI"]
+}

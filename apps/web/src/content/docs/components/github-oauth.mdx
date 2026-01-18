@@ -1,0 +1,1314 @@
+---
+title: GitHub OAuth
+description: Secure GitHub OAuth authentication integration using passport, passport-github2 for Express applications.
+command: npx servercn add github-oauth
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                CORS_ORIGIN: string;
+
+                GITHUB_CLIENT_ID: string;
+                GITHUB_CLIENT_SECRET: string;
+                GITHUB_REDIRECT_URI: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+                GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+                GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+                GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!
+              };
+
+              export default env;
+
+          - type: file
+            name: passport.ts
+            content: |
+              import passport from "passport";
+              import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+              import env from "./env";
+              
+              passport.use(
+                new GitHubStrategy(
+                  {
+                    clientID: env.GITHUB_CLIENT_ID,
+                    clientSecret: env.GITHUB_CLIENT_SECRET,
+                    callbackURL: env.GITHUB_REDIRECT_URI
+                  },
+                  function (
+                    accessToken: string,
+                    refreshToken: string,
+                    profile: Profile,
+                    cb: (error: Error | null, user?: any) => void
+                  ) {
+                    // console.log({ profile });
+                    return cb(null, profile);
+                  }
+                )
+              );
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504,
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: auth.controller.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { Profile } from "passport-github2";
+
+              //? import servercn components
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+              import { ApiError } from "../utils/api-error";
+
+              //? login with github
+              export const githubOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as Profile | undefined;
+                  const user = data?._json;
+
+                  if (!user || !data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
+                  }
+
+                  const userInfo = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName || data.username,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified: true, // Github emails returned are verified
+                    avatar: data.photos && data.photos[0].value
+                  };
+
+                  const userInfo2 = {
+                    provider: data?.provider,
+                    providerId: user.id,
+                    name: user.name || user.login,
+                    email: user.email,
+                    avatar: user.avatar_url
+                  };
+
+                  //? save the data into your databases
+
+                  ApiResponse.ok(res, "Auth Successfull", {
+                    userInfo,
+                    userInfo2
+                  });
+                }
+              );
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  err
+                 `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                };
+
+                res.status(statusCode).json(response);
+              };
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+              
+              export const notFoundHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+              };
+
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: auth.routes.ts
+            content: |
+              import { Router } from "express";
+              import passport from "passport";
+
+              import { githubOAuth } from "../controllers/auth.controller";
+
+              const router = Router();
+
+              router.get(
+                "/github",
+                passport.authenticate("github", {
+                  scope: ["user:email"],
+                  session: false
+                })
+              );
+
+              router.get(
+                "/github/callback",
+                passport.authenticate("github", {
+                  failureRedirect: "/loign", //? redirect route if authenticated is failed
+                  session: false
+                }),
+                githubOAuth
+              );
+
+              export default router;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+              public readonly statusCode: StatusCode;
+              public readonly isOperational: boolean;
+              public readonly errors?: unknown;
+
+              constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+              ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+              }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                    return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              ? Usage:
+              * throw new ApiError(404, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: api-response.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors,
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors }),
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode,
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (
+                  req: Request,
+                  res: Response,
+                  next: NextFunction
+                ) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+              import pino from "pino";
+              import env from "../configs/env";
+              
+              export const logger = pino({
+                level: env.LOG_LEVEL,
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
+              });
+
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GITHUB_CLIENT_ID="your-github-client-id"
+      GITHUB_CLIENT_SECRET="your-github-client-secret"
+      GITHUB_REDIRECT_URI="your-github-redirect-uri"
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+                  import "dotenv/config";
+
+                  interface Config {
+                    PORT: number;
+                    NODE_ENV: string;
+                    LOG_LEVEL: string;
+                    CORS_ORIGIN: string;
+
+                    GITHUB_CLIENT_ID: string;
+                    GITHUB_CLIENT_SECRET: string;
+                    GITHUB_REDIRECT_URI: string;
+                  }
+
+                  const env: Config = {
+                    PORT: Number(process.env.PORT) || 3000,
+                    NODE_ENV: process.env.NODE_ENV || "development",
+                    LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                    CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+                    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+                    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+                    GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!
+                  };
+
+                  export default env;
+
+              - type: file
+                name: passport.ts
+                content: |
+                    import passport from "passport";
+                    import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+                    import env from "./env";
+                    
+                    passport.use(
+                      new GitHubStrategy(
+                        {
+                          clientID: env.GITHUB_CLIENT_ID,
+                          clientSecret: env.GITHUB_CLIENT_SECRET,
+                          callbackURL: env.GITHUB_REDIRECT_URI
+                        },
+                        function (
+                          accessToken: string,
+                          refreshToken: string,
+                          profile: Profile,
+                          cb: (error: Error | null, user?: any) => void
+                        ) {
+                          // console.log({ profile });
+                          return cb(null, profile);
+                        }
+                      )
+                    );
+
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504,
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                    ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                    }
+
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+                  /*
+                    ? Usage:
+                    * throw new ApiError(404, "Not found");
+                    * throw ApiError.badRequest("Bad request");
+                  */
+
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      err
+                    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack }),
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+              - type: file
+                name: not-found-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+                  
+                  export const notFoundHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                  };
+
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
+
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
+
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
+
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors,
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
+                    }
+
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors }),
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode,
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
+
+              - type: file
+                name: async-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+
+                  export type AsyncRouteHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => Promise<unknown>;
+
+                  export function AsyncHandler(fn: AsyncRouteHandler) {
+                    return function (
+                      req: Request,
+                      res: Response,
+                      next: NextFunction
+                    ) {
+                      Promise.resolve(fn(req, res, next)).catch(next);
+                    };
+                  }
+
+              - type: file
+                name: logger.ts
+                content: |
+                  import pino from "pino";
+                  import env from "../configs/env";
+                  
+                  export const logger = pino({
+                    level: env.LOG_LEVEL,
+                    transport:
+                      env.NODE_ENV !== "production"
+                        ? {
+                            target: "pino-pretty",
+                            options: {
+                              colorize: true,
+                              translateTime: "yyyy-mm-dd HH:MM:ss",
+                              ignore: "pid,hostname"
+                            }
+                          }
+                        : undefined
+                  });
+
+
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: oauth
+            children:
+              - type: file
+                name: auth.controller.ts
+                content: |
+                  import { NextFunction, Request, Response } from "express";
+                  import { Profile } from "passport-github2";
+
+                  import { AsyncHandler } from "../../shared/utils/async-handler";
+                  import { ApiError } from "../../shared/errors/api-error";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+
+                  //? login with github
+                  export const githubOAuth = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const data = req.user as Profile | undefined;
+                      const user = data?._json;
+
+                      if (!user || !data) {
+                        return next(ApiError.unauthorized("Authenticated failed!"));
+                      }
+
+                      const userInfo = {
+                        provider: data?.provider,
+                        providerId: data.id,
+                        name: data.displayName || data.username,
+                        email: data?.emails && data?.emails[0]?.value,
+                        isEmailVerified: true, // Github emails returned are verified
+                        avatar: data.photos && data.photos[0].value
+                      };
+
+                      const userInfo2 = {
+                        provider: data?.provider,
+                        providerId: user.id,
+                        name: user.name || user.login,
+                        email: user.email,
+                        avatar: user.avatar_url
+                      };
+
+                      //? save the data into your databases
+
+                      ApiResponse.ok(res, "Auth Successfull", {
+                        userInfo,
+                        userInfo2
+                      });
+                    }
+                  );
+
+              - type: file
+                name: auth.routes.ts
+                content: |
+                  import { Router } from "express";
+                  import passport from "passport";
+
+                  import { githubOAuth } from "./auth.controller";
+
+                  const router = Router();
+
+                  router.get(
+                    "/github",
+                    passport.authenticate("github", {
+                      scope: ["user:email"],
+                      session: false
+                    })
+                  );
+
+                  router.get(
+                    "/github/callback",
+                    passport.authenticate("github", {
+                      failureRedirect: "/loign", //? redirect route if authenticated is failed
+                      session: false
+                    }),
+                    githubOAuth
+                  );
+
+                  export default router;
+
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import OAuthRoutes from "../modules/oauth/auth.routes";
+              
+              const router = Router();
+              
+              router.use("/auth", OAuthRoutes);
+              
+              export default router;
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express } from "express";
+ 
+          import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+          import { errorHandler } from "./shared/middlewares/error-handler";
+          
+          import Routes from "./routes/index";
+          
+          import "./shared/configs/passport";
+          
+          const app: Express = express();
+          
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          
+          // Routes
+          app.use("/api", Routes);
+          
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+          
+          // Global error handler (should be last)
+          app.use(errorHandler);
+          
+          export default app; 
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT="8000"
+      NODE_ENV="development"
+      LOG_LEVEL="info"
+
+      GITHUB_CLIENT_ID="your-github-client-id"
+      GITHUB_CLIENT_SECRET="your-github-client-secret"
+      GITHUB_REDIRECT_URI="your-github-redirect-uri"
+---
+
+# GitHub OAuth (Passport)
+
+The **GitHub OAuth** component provides a secure and standardized way to integrate GitHub authentication into your ServerCN Express applications using the official **passport, passport-github2**.
+
+It handles the complete OAuth 2.0 flow including authorization URL generation, token exchange, user information retrieval, and token refresh.
+
+[Official Docs](https://www.passportjs.org/)
+
+## Features
+
+- **Complete OAuth 2.0 flow** - Authorization, token exchange, and user info retrieval
+- **Secure by default** - CSRF protection with state parameter
+- **Token management** - Access token, refresh token, and ID token verification
+- **Express integration** - Ready-to-use route handlers
+- **Type-safe** - Full TypeScript support
+- **Flexible scopes** - Customizable OAuth scopes
+
+## Installation Guide
+
+This component requires additional ServerCN components.
+
+**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+
+### 1. Install ServerCN dependencies(Optional)
+
+- **HTTP Status Codes:** 
+
+<PackageManagerTabs command="npx servercn add http-status-codes" />
+
+Documentation:
+[HTTP Status Codes](/docs/components/http-status-codes)
+
+- **Api Response Handler:** 
+
+<PackageManagerTabs command="npx servercn add response-formatter" />
+
+Documentation:
+[Api Response Handler](/docs/components/response-formatter)
+
+- **Api Error Handler:** 
+
+<PackageManagerTabs command="npx servercn add error-handler" />
+
+Documentation:
+[Api Error Handler](/docs/components/error-handler)
+
+- **Global Error Handler:** 
+
+<PackageManagerTabs command="npx servercn add global-error-handler" />
+
+Documentation:
+[Global Error Handler](/docs/components/global-error-handler)
+
+- **Async Handler:** 
+
+<PackageManagerTabs command="npx servercn add async-handler" />
+
+Documentation:
+[Async Handler](/docs/components/async-handler)
+
+### 3. Install this component
+
+<PackageManagerTabs command="npx servercn add github-oauth" />
+
+## Prerequisites
+
+### GitHub OAuth Setup
+
+1. Go to your [GitHub Settings](https://github.com/settings/profile)
+2. Developer settings -> OAuth Apps -> New OAuth App
+3. Fill in the required information
+4. Set **Homepage URL** to `http://localhost:9000` (or your production URL)
+5. Set **Authorization callback URL** to `http://localhost:9000/api/auth/github/callback` (or your production URL)
+6. Register application
+7. Generate a **Client Secret**
+8. Copy the **Client ID** and **Client Secret**
+
+### Environment Variables
+
+Add the following to your <Code children=".env" /> file:
+
+```bash
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+GITHUB_REDIRECT_URI="your-github-redirectUri" 
+# replace all with your values
+```
+
+Ensure the following configuration are defined:
+
+**MVC:** <Code children="src/configs/env.ts" /> 
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
+
+```ts
+import "dotenv/config";
+
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+  LOG_LEVEL: string;
+  CORS_ORIGIN: string;
+
+  GITHUB_CLIENT_ID: string;
+  GITHUB_CLIENT_SECRET: string;
+  GITHUB_REDIRECT_URI: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 3000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
+  GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!
+};
+
+export default env;
+```
+
+## Basic Implementation
+
+### 1. MVC Structure
+
+**1. Configure passport in** <Code children="src/configs/passport.ts" />:
+
+```ts
+import passport from "passport";
+import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+import env from "./env";
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      callbackURL: env.GITHUB_REDIRECT_URI
+    },
+    function (
+      accessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      cb: (error: Error | null, user?: any) => void
+    ) {
+      // console.log({ profile });
+      return cb(null, profile);
+    }
+  )
+);
+```
+
+**2. Create a GitHub OAuth controller in** <Code children="src/controllers/github-oauth.controller.ts" /> **or** <Code children="src/controllers/auth.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { Profile } from "passport-github2";
+
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+import { ApiError } from "../utils/api-error";
+
+//? login with github
+export const githubOAuth = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = req.user as Profile | undefined;
+
+    if (!data) {
+      return next(ApiError.unauthorized("Authenticated failed!"));
+    }
+
+    // console.log(data);
+
+    const user = {
+      provider: data?.provider,
+      providerId: data.id,
+      name: data.displayName,
+      email: data?.emails && data?.emails[0]?.value,
+      isEmailVerified: true,
+      avatar: data.photos && data.photos[0].value
+    };
+
+    //? save the data into your databases
+
+    ApiResponse.ok(res, "Auth Successfull", {
+      user
+    });
+  }
+);
+```
+
+**3. Create a GitHub OAuth router in** <Code children="src/routes/github-oauth.routes.ts" /> **or** <Code children="src/routes/auth.routes.ts" /> 
+
+```ts
+import { Router } from "express";
+import passport from "passport";
+import { githubOAuth } from "../controllers/github-oauth.controller";
+
+const router = Router();
+
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+router.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "/login", //? redirect route if authenticated is failed,
+    session: false
+  }),
+  githubOAuth
+);
+
+export default router;
+```
+
+**4. Create a server in** <Code children="src/app.ts" />
+
+```ts
+import express, { Express, Request, Response } from "express";
+
+import { notFoundHandler } from "./middlewares/not-found-handler";
+import { errorHandler } from "./middlewares/error-handler";
+
+import AuthRoutes from "./routes/github-oauth.routes";
+
+import "./configs/passport";
+
+const app: Express = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+// Routes
+app.use("/api/auth", AuthRoutes);
+
+// Not found handler (should be after routes)
+app.use(notFoundHandler);
+
+// Global error handler (should be last)
+app.use(errorHandler);
+
+export default app;
+```
+
+### 2. Feature Structure
+
+**1. Configure passport in** <Code children="src/shared/configs/passport.ts" />:
+
+```ts
+import passport from "passport";
+import { Strategy as GitHubStrategy, Profile } from "passport-github2";
+import env from "./env";
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      callbackURL: env.GITHUB_REDIRECT_URI
+    },
+    function (
+      accessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      cb: (error: Error | null, user?: any) => void
+    ) {
+      // console.log({ profile });
+      return cb(null, profile);
+    }
+  )
+);
+```
+
+**2. Create a GitHub OAuth controller in** <Code children="src/modules/oauth/github-oauth.controller.ts" /> **or** <Code children="src/modules/auth/auth.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { Profile } from "passport-github2";
+
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { ApiError } from "../../shared/errors/api-error";
+import { ApiResponse } from "../../shared/utils/api-response";
+
+//? login with github
+export const githubOAuth = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = req.user as Profile | undefined;
+
+    if (!data) {
+      return next(ApiError.unauthorized("Authenticated failed!"));
+    }
+
+    // console.log(data);
+
+    const user = {
+      provider: data?.provider,
+      providerId: data.id,
+      name: data.displayName,
+      email: data?.emails && data?.emails[0]?.value,
+      isEmailVerified: true,
+      avatar: data.photos && data.photos[0].value
+    };
+
+    //? save the data into your databases
+
+    ApiResponse.ok(res, "Auth Successfull", {
+      user
+    });
+  }
+);
+```
+
+**3. Create a GitHub OAuth router in** <Code children="src/modules/oauth/github-oauth.routes.ts" /> **or** <Code children="src/modules/auth/auth.routes.ts" /> 
+
+```ts
+import { Router } from "express";
+import passport from "passport";
+import { githubOAuth } from "./github-oauth.controller";
+
+const router = Router();
+
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+router.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "/login", //? redirect route if authenticated is failed,
+    session: false
+  }),
+  githubOAuth
+);
+
+export default router;
+```
+
+**4. Create a index route in** <Code children="src/routes/index.ts" /> 
+
+```ts
+import { Router } from "express";
+import OAuthRoutes from "../modules/oauth/github-oauth.routes";
+
+const router = Router();
+
+router.use("/auth", OAuthRoutes);
+
+export default router;
+
+```
+
+**5. Create a server in** <Code children="src/app.ts" />
+
+```ts
+import express, { Express } from "express";
+
+import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+import { errorHandler } from "./shared/middlewares/error-handler";
+
+import Routes from "./routes/index";
+
+import "./shared/configs/passport";
+
+const app: Express = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use("/api", Routes);
+
+// Not found handler (should be after routes)
+app.use(notFoundHandler);
+
+// Global error handler (should be last)
+app.use(errorHandler);
+
+export default app;
+```
+
+## Success Response
+
+```json
+{
+  "success": true,
+  "message": "Auth Successfull",
+  "statusCode": 200,
+  "data": {
+    "user": {
+      "provider": "github",
+      "providerId": "170957638",
+      "name": "Akkal Dhami",
+      "email": "dhamiakkal21@gmail.com",
+      "isEmailVerified": true,
+      "avatar": "https://avatars.githubusercontent.com/u/170957638?v=4"
+    }
+  }
+}
+```
+This response is formated by <Code children="ApiResponse" /> component.
+
+## Limitations
+
+- **Stateless by Default**: This implementation is configured for stateless authentication (`session: false`). It is designed for REST APIs that use JWTs, not for traditional server-side rendered applications using cookies/sessions.
+- **No Automatic Persistence**: The component retrieves user profile data from GitHub but **does not** automatically save it to your database. You must implement the logic to find, create, or update the user in your database within the controller.
+- **Token Generation**: While it handles the GitHub OAuth flow, it does not generate your application's access or refresh tokens. You need to implement your own token generation logic (e.g., using `jsonwebtoken`) after a successful GitHub login.
+
+## Common Issues
+
+### "redirect_uri_mismatch"
+
+Ensure your redirect URI in <Code children=".env" /> exactly matches the one configured in GitHub Developer Settings.
+
+### "bad_verification_code"
+
+The code passed is incorrect or expired.
+
+- The authorization code has expired (codes expire after 10 minutes)
+- The code has already been used
