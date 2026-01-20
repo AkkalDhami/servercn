@@ -8,40 +8,50 @@ import { resolveTargetDir } from "../lib/architecture";
 import { installDependencies } from "../lib/install-deps";
 import { updateEnvExample } from "../lib/env";
 import { ensurePackageJson, ensureTsConfig } from "../lib/package";
-import { askFolderName, getDefaultFolderName } from "../lib/prompts";
+import { askFolderName } from "../lib/prompts";
 import { logger } from "../utils/cli-logger";
 import { assertInitialized } from "../lib/assert-initialized";
 import { getServerCNConfig } from "../lib/config";
 import type { AddOptions } from "../types";
+import { capitalize } from "../utils/capatalize";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   await assertInitialized();
 
   const config = await getServerCNConfig();
 
-  const component = await getRegistryComponent(componentName, "component");
+  const type = options.type ?? "component";
+
+  const component = await getRegistryComponent(componentName, type);
 
   if (!component.stacks.includes(config.stack.framework)) {
-    logger.error(`Component "${componentName}" does not support "${config.stack.framework}"`);
+    logger.error(
+      `${type === "schema" ? "Schema" : "Component"} "${componentName}" does not support "${config.stack.framework}"`
+    );
+
     process.exit(1);
   }
 
   const stack = config.stack.framework;
   const arch = config.stack.architecture;
 
-  const defaultFolder = getDefaultFolderName(component);
-  const folderName = await askFolderName(defaultFolder);
-  const targetDir = resolveTargetDir(folderName, arch);
+  const targetDir = resolveTargetDir(".");
+
+  if (!targetDir) {
+    logger.error("Failed to resolve target directory");
+    process.exit(1);
+  }
 
   let templateDir: string;
   let runtimeDeps: string[] | undefined;
   const devDeps = component.dependencies?.dev;
-
-  if (component.algorithms) {
-    const choices = Object.entries(component.algorithms).map(([key, value]: any) => ({
-      title: value.title,
-      value: key
-    }));
+  if (component.algorithms && type !== "schema") {
+    const choices = Object.entries(component.algorithms).map(
+      ([key, value]: any) => ({
+        title: value.title,
+        value: key
+      })
+    );
 
     const { algorithm } = await prompts({
       type: "select",
@@ -57,10 +67,13 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
     const algoConfig = component.algorithms[algorithm];
 
-    const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
+    const selectedTemplate =
+      algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
 
     if (!selectedTemplate) {
-      logger.error(`Architecture "${arch}" is not supported for "${component.name}"`);
+      logger.error(
+        `Architecture "${arch}" is not supported for "${component.title}"`
+      );
       process.exit(1);
     }
 
@@ -72,14 +85,62 @@ export async function add(componentName: string, options: AddOptions = {}) {
     const templateConfig = component.templates?.[stack];
 
     if (!templateConfig) {
-      logger.error(`Stack "${stack}" is not supported by "${component.name}"`);
+      logger.error(`Stack "${stack}" is not supported by "${component.title}"`);
       process.exit(1);
     }
 
-    const selectedTemplate = typeof templateConfig === "string" ? templateConfig : (templateConfig[arch] ?? templateConfig.base);
+    let selectedTemplate: string | undefined;
+
+    if (type === "schema") {
+      const database = config.database?.type;
+      const databaseOrm = config.database?.orm;
+      if (!database || !databaseOrm) {
+        logger.error(
+          "Database not configured in servercn.json. Please run init first."
+        );
+        process.exit(1);
+      }
+
+      const dbConfig = (templateConfig as any)[database];
+
+      if (!dbConfig || !dbConfig[databaseOrm]) {
+        logger.error(
+          `Database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
+        );
+        process.exit(1);
+      }
+      const dbArchOptions = dbConfig[databaseOrm];
+
+      const archConfig = dbArchOptions[arch] ?? dbArchOptions.base;
+
+      if (!archConfig) {
+        logger.error(
+          `Architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
+        );
+        process.exit(1);
+      }
+
+      const variant = options.variant || "advanced";
+      selectedTemplate =
+        typeof archConfig === "string" ? archConfig : archConfig[variant];
+
+      if (!selectedTemplate) {
+        logger.error(
+          `Variant "${variant}" is not supported for schema "${component.slug}"`
+        );
+        process.exit(1);
+      }
+    } else {
+      selectedTemplate =
+        typeof templateConfig === "string"
+          ? templateConfig
+          : templateConfig[arch];
+    }
 
     if (!selectedTemplate) {
-      logger.error(`Architecture "${arch}" is not supported by "${component.name}"`);
+      logger.error(
+        `Architecture "${arch}" is not supported by "${component.slug}"`
+      );
       process.exit(1);
     }
 
@@ -108,5 +169,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
     updateEnvExample(component.env, process.cwd());
   }
 
-  logger.success(`\n${component.title} added successfully\n`);
+  logger.success(
+    `\nSuccess! ${capitalize(component.type)} ${component.title} added successfully\n`
+  );
 }

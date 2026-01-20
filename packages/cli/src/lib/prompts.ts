@@ -11,6 +11,3 @@ export async function askFolderName(defaultName: string) {
 
   return folder || defaultName;
 }
-export function getDefaultFolderName(component: { category?: string; name: string }) {
-  return component.name;
-}

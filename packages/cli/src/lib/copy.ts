@@ -5,7 +5,13 @@ import type { CopyOptions } from "../types";
 
 export type ConflictStrategy = "skip" | "overwrite" | "error";
 
-export async function copyTemplate({ templateDir, targetDir, componentName, conflict = "skip", dryRun = false }: CopyOptions) {
+export async function copyTemplate({
+  templateDir,
+  targetDir,
+  componentName,
+  conflict = "skip",
+  dryRun = false
+}: CopyOptions) {
   if (!(await fs.pathExists(templateDir))) {
     logger.error(`Template not found: ${templateDir}`);
     process.exit(1);
@@ -21,8 +27,8 @@ export async function copyTemplate({ templateDir, targetDir, componentName, conf
     let rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
 
     let finalName = rawName;
-
     const destPath = path.join(targetDir, finalName);
+    const relativeDestPath = path.relative(process.cwd(), destPath);
 
     if (entry.isDirectory()) {
       await copyTemplate({
@@ -39,16 +45,18 @@ export async function copyTemplate({ templateDir, targetDir, componentName, conf
 
     if (exists) {
       if (conflict === "skip") {
-        logger.warn(`Skipped: ${destPath}`);
+        logger.warn(`Skipped: ${relativeDestPath}`);
         continue;
       }
       if (conflict === "error") {
-        throw new Error(`File already exists: ${destPath}`);
+        throw new Error(`File already exists: ${relativeDestPath}`);
       }
     }
 
     if (dryRun) {
-      logger.info(`[dry-run] ${exists ? "Overwrite" : "Create"}: ${destPath}`);
+      logger.info(
+        `[dry-run] ${exists ? "OVERWRITE" : "CREATE"}: ${relativeDestPath}`
+      );
       continue;
     }
 
@@ -65,6 +73,8 @@ export async function copyTemplate({ templateDir, targetDir, componentName, conf
       await fs.writeFile(destPath, content);
     }
 
-    logger.created(exists ? `Overwritten: ${destPath}` : `: ${destPath}`);
+    exists
+      ? logger.overwritten(relativeDestPath)
+      : logger.created(relativeDestPath);
   }
 }

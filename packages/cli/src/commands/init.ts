@@ -7,6 +7,7 @@ import { getRegistryComponent } from "../lib/registry";
 import { getTemplatesPath } from "../lib/paths";
 import { copyTemplate } from "../lib/copy";
 import { installDependencies } from "../lib/install-deps";
+import { getDatabaseConfig } from "../lib/config";
 
 export async function init(foundation?: string) {
   const cwd = process.cwd();
@@ -17,6 +18,21 @@ export async function init(foundation?: string) {
     logger.info("You can now run: servercn add <component>");
     process.exit(1);
   }
+
+  const tsConfig = {
+    compilerOptions: {
+      target: "ES2021",
+      module: "es2022",
+      moduleResolution: "bundler",
+      strict: true,
+      esModuleInterop: true,
+      skipLibCheck: true,
+      outDir: "dist",
+      rootDir: "src"
+    },
+    include: ["src/**/*"],
+    exclude: ["node_modules"]
+  };
 
   if (foundation) {
     const response = await prompts([
@@ -48,6 +64,7 @@ export async function init(foundation?: string) {
     }
 
     logger.info(`Initializing with foundation: ${foundation}`);
+
     try {
       const component = await getRegistryComponent(foundation, "foundation");
 
@@ -57,8 +74,7 @@ export async function init(foundation?: string) {
         project: {
           root: response.root,
           srcDir: "src",
-          type: "backend",
-          packageManager: "npm"
+          type: "backend"
         },
 
         stack: {
@@ -68,7 +84,7 @@ export async function init(foundation?: string) {
           architecture: response.architecture
         },
 
-        database: null,
+        database: getDatabaseConfig(foundation),
 
         overrides: {},
 
@@ -76,21 +92,6 @@ export async function init(foundation?: string) {
           createdAt: new Date().toISOString(),
           createdBy: "servercn@1.0.0"
         }
-      };
-
-      const tsConfig = {
-        compilerOptions: {
-          target: "ES2021",
-          module: "es2022",
-          moduleResolution: "bundler",
-          strict: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          outDir: "dist",
-          rootDir: "src"
-        },
-        include: ["src/**/*"],
-        exclude: ["node_modules"]
       };
 
       const prettierConfig = {
@@ -110,7 +111,21 @@ export async function init(foundation?: string) {
           "type-enum": [
             2,
             "always",
-            ["feat", "fix", "docs", "style", "refactor", "test", "chore", "ci", "perf", "build", "release", "workflow", "security"]
+            [
+              "feat",
+              "fix",
+              "docs",
+              "style",
+              "refactor",
+              "test",
+              "chore",
+              "ci",
+              "perf",
+              "build",
+              "release",
+              "workflow",
+              "security"
+            ]
           ],
 
           "subject-case": [2, "always", ["lower-case"]]
@@ -125,21 +140,33 @@ export async function init(foundation?: string) {
         spaces: 2
       });
 
-      await fs.writeFile(path.join(rootPath, ".prettierignore"), `build\ndist\n.env\nnode_modules`);
+      await fs.writeFile(
+        path.join(rootPath, ".prettierignore"),
+        `build\ndist\n.env\nnode_modules`
+      );
 
       await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
         spaces: 2
       });
 
-      await fs.writeFile(path.join(rootPath, "commitlint.config.ts"), `export default ${JSON.stringify(commitlintConfig, null, 2)}`);
+      await fs.writeFile(
+        path.join(rootPath, "commitlint.config.ts"),
+        `export default ${JSON.stringify(commitlintConfig, null, 2)}`
+      );
 
-      const templatePathRelative = component.templates?.express?.[response.architecture];
+      const templatePathRelative =
+        component.templates?.express?.[response.architecture];
 
       if (!templatePathRelative) {
-        throw new Error(`Template not found for ${foundation} (express/${response.architecture})`);
+        throw new Error(
+          `Template not found for ${foundation} (express/${response.architecture})`
+        );
       }
 
-      const templateDir = path.resolve(getTemplatesPath(), templatePathRelative);
+      const templateDir = path.resolve(
+        getTemplatesPath(),
+        templatePathRelative
+      );
 
       await copyTemplate({
         templateDir,
@@ -210,7 +237,20 @@ export async function init(foundation?: string) {
       type: "select",
       name: "databaseType",
       message: "Select database",
-      choices: [{ title: "MongoDB", value: "mongodb" }]
+      choices: [
+        {
+          title: "MongoDB",
+          value: "mongodb"
+        },
+        {
+          title: "PostgreSQL",
+          value: "postgresql"
+        },
+        {
+          title: "MySQL",
+          value: "mysql"
+        }
+      ]
     },
     {
       type: prev => (prev === "mongodb" ? "select" : null),
@@ -219,26 +259,14 @@ export async function init(foundation?: string) {
       choices: [{ title: "Mongoose", value: "mongoose" }]
     },
     {
-      type: (_prev, values) => (["postgresql", "mysql", "sqlite"].includes(values.databaseType) ? "select" : null),
+      type: (_prev, values) =>
+        ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
       name: "orm",
       message: "ORM / Query builder",
       choices: [
-        { title: "Prisma", value: "prisma" },
-        { title: "Drizzle", value: "drizzle" },
-        { title: "Sequelize", value: "sequelize" },
-        { title: "Knex", value: "knex" }
+        { title: "Drizzle", value: "drizzle" }
+        // { title: "Prisma", value: "prisma" }
       ]
-    },
-    {
-      type: "select",
-      name: "packageManager",
-      message: "Package manager",
-      choices: [
-        { title: "npm", value: "npm" },
-        { title: "pnpm", value: "pnpm" },
-        { title: "yarn", value: "yarn" }
-      ],
-      initial: 0
     }
   ]);
 
@@ -259,8 +287,7 @@ export async function init(foundation?: string) {
     project: {
       root: response.root,
       srcDir: response.srcDir,
-      type: "backend",
-      packageManager: response.packageManager
+      type: "backend"
     },
 
     stack: {
@@ -286,21 +313,6 @@ export async function init(foundation?: string) {
     }
   };
 
-  const tsConfig = {
-    compilerOptions: {
-      target: "ES2021",
-      module: "es2022",
-      moduleResolution: "bundler",
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true,
-      outDir: "dist",
-      rootDir: "src"
-    },
-    include: ["src/**/*"],
-    exclude: ["node_modules"]
-  };
-
   await fs.writeJson(path.join(rootPath, SERVERCN_CONFIG_FILE), config, {
     spaces: 2
   });
@@ -311,6 +323,8 @@ export async function init(foundation?: string) {
 
   logger.success("\nSuccess! ServerCN initialized successfully.");
 
-  logger.info("You may now add components by running:");
-  logger.info("- servercn add <component>\n");
+  logger.log("You may now add components by running:");
+  logger.muted(`1. cd ${response.root}`);
+  logger.muted("2. npx servercn add <component>");
+  logger.muted("Ex: npx servercn add jwt-utils file-upload");
 }

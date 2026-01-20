@@ -1,13 +1,24 @@
+import type {
+  ArchitectureList,
+  DatabaseList,
+  ItemTypeList,
+  PackageManagerList
+} from "../constants/app-constants";
 import { ConflictStrategy } from "../lib/copy";
 
+export type Architecture = (typeof ArchitectureList)[number];
+export type Database = (typeof DatabaseList)[number];
+export type ItemType = (typeof ItemTypeList)[number];
+export type PackageManager = (typeof PackageManagerList)[number];
+
 export interface AddOptions {
+  type?: ItemType;
   stack?: string;
   arch?: string;
   dryRun?: boolean;
   force?: ConflictStrategy;
+  variant?: string;
 }
-
-type Architecture = "mvc" | "feature" | "clean";
 
 export interface CopyOptions {
   templateDir: string;
@@ -25,18 +36,18 @@ export type ServerCNConfig = {
     root: string;
     srcDir: string;
     type: "backend";
-    packageManager: "npm" | "pnpm" | "yarn" | "bun";
+    packageManager: PackageManager;
   };
 
   stack: {
     runtime: "node";
     language: "typescript" | "javascript";
     framework: "express";
-    architecture: "mvc" | "feature" | "clean";
+    architecture: Architecture;
   };
 
   database: null | {
-    type: "mongodb" | "postgresql" | "mysql" | "sqlite";
+    type: Database;
     orm: string;
   };
 
@@ -46,18 +57,14 @@ export type ServerCNConfig = {
   };
 };
 
-export type PackageManager = "pnpm" | "yarn" | "npm" | "bun";
-
 export type InstallOptions = {
   runtime?: string[];
   dev?: string[];
   cwd: string;
 };
 
-export type ItemType = "component" | "blueprint" | "guide" | "model" | "foundation";
-
 export type StackConfig = {
   framework: "express";
-  database: "mongodb" | "postgres" | "mysql";
-  language: "ts" | "js";
+  database: Database;
+  language: "ts";
 };

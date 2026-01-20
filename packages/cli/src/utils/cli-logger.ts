@@ -1,12 +1,5 @@
 import { colors } from "./cli-colors";
 
-const icons = {
-  error: "✖",
-  warn: "⚠",
-  info: "ℹ",
-  success: "✔"
-};
-
 export const logger = {
   error(...args: unknown[]) {
     console.log(colors.error(`${args.join(" ")}`));
@@ -29,7 +22,15 @@ export const logger = {
   },
 
   created(...args: unknown[]) {
-    console.log(colors.created(`✔ Created ${args.join(" ")}`));
+    console.log(colors.created(`Created: ${args.join(" ")}`));
+  },
+
+  overwritten(...args: unknown[]) {
+    console.log(colors.overwritten(`Overwritten: ${args.join(" ")}`));
+  },
+
+  muted(...args: unknown[]) {
+    console.log(colors.muted(`${args.join(" ")}`));
   },
 
   break() {

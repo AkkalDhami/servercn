@@ -1,20 +1,29 @@
 import fs from "fs-extra";
 import path from "node:path";
 import { getRegistryPath } from "./paths";
+import type { RegistryType } from "../types/registry";
 
-export async function loadRegistryComponents() {
-  const registryDir = getRegistryPath("component");
+export async function loadRegistry(type: RegistryType) {
+  const registryDir = getRegistryPath(type);
   const files = await fs.readdir(registryDir);
 
   const components = [];
 
   for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-
-    const fullPath = path.join(registryDir, file);
-    const data = await fs.readJSON(fullPath);
-
-    components.push(data);
+    let nestedFiles: string[] = [];
+    if (!file.endsWith(".json")) {
+      nestedFiles = await fs.readdir(path.join(registryDir, file));
+      for (const nestedFile of nestedFiles) {
+        if (!nestedFile.endsWith(".json")) continue;
+        const fullPath = path.join(registryDir, file, nestedFile);
+        const data = await fs.readJSON(fullPath);
+        components.push(data);
+      }
+    } else {
+      const fullPath = path.join(registryDir, file);
+      const data = await fs.readJSON(fullPath);
+      components.push(data);
+    }
   }
 
   return components;

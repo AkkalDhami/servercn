@@ -3,7 +3,11 @@ import { detectPackageManager } from "./detect";
 import { logger } from "../utils/cli-logger";
 import type { InstallOptions } from "../types";
 
-export async function installDependencies({ runtime = [], dev = [], cwd }: InstallOptions) {
+export async function installDependencies({
+  runtime = [],
+  dev = [],
+  cwd
+}: InstallOptions) {
   if (!runtime.length && !dev.length) return;
 
   const pm = detectPackageManager();
@@ -25,7 +29,11 @@ export async function installDependencies({ runtime = [], dev = [], cwd }: Insta
   }
 }
 
-function getInstallArgs(pm: string, packages: string[], isDev: boolean): string[] {
+function getInstallArgs(
+  pm: string,
+  packages: string[],
+  isDev: boolean
+): string[] {
   switch (pm) {
     case "pnpm":
       return ["add", ...(isDev ? ["-D"] : []), ...packages];

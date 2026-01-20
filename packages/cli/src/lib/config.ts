@@ -15,3 +15,28 @@ export async function getServerCNConfig(): Promise<ServerCNConfig> {
 
   return fs.readJSON(configPath);
 }
+
+export function getDatabaseConfig(foundation: string) {
+  switch (foundation) {
+    case "express-server":
+    case "mongoose-starter":
+      return { type: "mongodb", orm: "mongoose" };
+    case "drizzle-mysql-starter":
+      return { type: "mysql", orm: "drizzle" };
+    case "drizzle-pg-starter":
+      return { type: "postgresql", orm: "drizzle" };
+    case "prisma-mongo-starter":
+      return { type: "mongodb", orm: "prisma" };
+    case "prisma-pg-starter":
+      return { type: "postgresql", orm: "prisma" };
+    default:
+      return null;
+  }
+}
+
+const packageManagers = {
+  pnpm: (c: string) => `pnpm dlx ${c.replace("npx ", "")}`,
+  npm: (c: string) => c,
+  yarn: (c: string) => `yarn ${c.replace("npx ", "")}`,
+  bun: (c: string) => `bunx --bun ${c.replace("npx ", "")}`
+};

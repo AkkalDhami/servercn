@@ -112,7 +112,7 @@ async function copyTemplate({
     }
     if (dryRun) {
       logger.info(
-        `[dry-run] ${exists ? "Overwrite" : "Create"}: ${relativeDestPath}`
+        `[dry-run] ${exists ? "OVERWRITE" : "CREATE"}: ${relativeDestPath}`
       );
       continue;
     }
