@@ -35,15 +35,7 @@ ServerCN allows you to quickly add the following components to your project:
 
 ## 🛠️ Usage
 
-### 1. Installation
-
-You can use the CLI directly via `npx` or install it globally to use it across multiple projects.
-
-```bash
-npm install servercn
-```
-
-### 2. Initialize a Project
+### 1. Initialize a Project
 
 Start a new project with a recommended, production-ready structure.
 
@@ -51,7 +43,7 @@ Start a new project with a recommended, production-ready structure.
 npx servercn init
 ```
 
-### 3. Add Components
+### 2. Add Components
 
 Add specific modules to your existing project. This allows for incremental adoption.
 
@@ -66,7 +58,7 @@ servercn add auth
 servercn add logger
 ```
 
-### 4. List Components
+### 3. List Components
 
 View all available components that you can add to your project.
 
