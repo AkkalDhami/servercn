@@ -1,0 +1,34 @@
+{
+  "title": "Stateless Authentication",
+  "slug": "stateless-auth",
+  "type": "blueprint",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mongodb": {
+        "mongoose": {
+          "mvc": "blueprints/stateless-auth/express/mongodb/mongoose/mvc",
+          "feature": "blueprints/stateless-auth/express/mongodb/mongoose/feature"
+        }
+      },
+      "mysql": {
+        "drizzle": {
+          "mvc": "blueprints/stateless-auth/express/mysql/drizzle/mvc",
+          "feature": "blueprints/stateless-auth/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "blueprints/stateless-auth/express/postgresql/drizzle/mvc",
+          "feature": "blueprints/stateless-auth/express/postgresql/drizzle/feature"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": ["@types/express"]
+  },
+  "env": []
+}
