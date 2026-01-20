@@ -10,8 +10,15 @@ export const authorizeRoles = (...allowedRoles: userRoles[]) => {
 
     // 2. Check if user has required role
     // Note: Ensure 'role' exists on req.user. You might strictly type this.
-    if (!req.user.role || !allowedRoles.includes(req?.user?.role as userRoles)) {
-      return next(ApiError.forbidden("Forbidden. You do not have permission to access this resource"));
+    if (
+      !req.user.role ||
+      !allowedRoles.includes(req?.user?.role as userRoles)
+    ) {
+      return next(
+        ApiError.forbidden(
+          "Forbidden. You do not have permission to access this resource"
+        )
+      );
     }
     next();
   };

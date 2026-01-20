@@ -17,6 +17,9 @@ app.use(httpLogger);
 
 logger.info("Server started");
 logger.warn({ userId: "123" }, "Suspicious activity detected");
-logger.error({ err: "Database connection failed" }, "Database connection failed");
+logger.error(
+  { err: "Database connection failed" },
+  "Database connection failed"
+);
 
 export default app;

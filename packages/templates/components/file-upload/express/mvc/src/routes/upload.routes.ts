@@ -1,7 +1,11 @@
 import { Router } from "express";
 
 import upload from "../middlewares/upload-file";
-import { deleteFile, uploadFile, uploadMultipleFile } from "../controllers/upload.controller";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "../controllers/upload.controller";
 
 const router = Router();
 

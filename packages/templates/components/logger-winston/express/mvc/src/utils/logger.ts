@@ -16,7 +16,12 @@ const transports: winston.transport[] = [];
 if (env.NODE_ENV !== "production") {
   transports.push(
     new winston.transports.Console({
-      format: combine(colorize(), timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), errors({ stack: true }), logFormat)
+      format: combine(
+        colorize(),
+        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        errors({ stack: true }),
+        logFormat
+      )
     })
   );
 }
@@ -52,7 +57,11 @@ if (env.NODE_ENV !== "development") {
 
 export const logger = winston.createLogger({
   level: env.LOG_LEVEL,
-  format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), errors({ stack: true }), logFormat),
+  format: combine(
+    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    errors({ stack: true }),
+    logFormat
+  ),
   transports,
   exitOnError: false
 });

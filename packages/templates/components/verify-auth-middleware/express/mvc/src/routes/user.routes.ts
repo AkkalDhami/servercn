@@ -5,8 +5,12 @@ import { ApiResponse } from "../utils/api-response";
 
 const router = Router();
 
-router.get("/profile", verifyAuthentication, (req: UserRequest, res: Response) => {
-  return ApiResponse.ok(res, "User profile", req.user);
-});
+router.get(
+  "/profile",
+  verifyAuthentication,
+  (req: UserRequest, res: Response) => {
+    return ApiResponse.ok(res, "User profile", req.user);
+  }
+);
 
 export default router;

@@ -1,5 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
+} from "../utils/jwt";
 import { UserRequest } from "../types/user";
 import { ApiError } from "../utils/api-error";
 import { logger } from "../utils/logger";
@@ -17,7 +22,11 @@ export const COOKIE_OPTIONS = {
   path: "/"
 };
 
-export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
+export async function verifyAuthentication(
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -32,7 +41,6 @@ export async function verifyAuthentication(req: UserRequest, res: Response, next
   } catch (err) {
     // Access token expired or invalid
     logger.warn("Access token verification failed");
-    return next(ApiError.badRequest("Invalid or expired access token"));
   }
 
   // Step 2: Refresh token required if access token fails

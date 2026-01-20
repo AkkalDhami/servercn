@@ -12,7 +12,10 @@ export interface CloudinaryUploadResult {
   size: number;
 }
 
-export const uploadToCloudinary = (buffer: Buffer, options: UploadOptions): Promise<CloudinaryUploadResult> => {
+export const uploadToCloudinary = (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<CloudinaryUploadResult> => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -35,7 +38,9 @@ export const uploadToCloudinary = (buffer: Buffer, options: UploadOptions): Prom
   });
 };
 
-export const deleteFileFromCloudinary = (publicIds: string[]): Promise<DeleteApiResponse> => {
+export const deleteFileFromCloudinary = (
+  publicIds: string[]
+): Promise<DeleteApiResponse> => {
   return new Promise((resolve, reject) => {
     cloudinary.api.delete_resources(publicIds, (error, result) => {
       if (error || !result) {

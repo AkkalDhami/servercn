@@ -22,7 +22,12 @@ export const authRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
   handler: (req, res, next, options) => {
-    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, "Too many attempts, please try again later"));
+    next(
+      new ApiError(
+        STATUS_CODES.TOO_MANY_REQUESTS,
+        "Too many attempts, please try again later"
+      )
+    );
   }
 });
 

@@ -6,8 +6,13 @@ import { authorizeRoles } from "../middlewares/authorize-role";
 
 const router = Router();
 
-router.get("/profile", verifyAuthentication, authorizeRoles("user", "admin"), (req: UserRequest, res: Response) => {
-  return ApiResponse.ok(res, "User profile", req.user);
-});
+router.get(
+  "/profile",
+  verifyAuthentication,
+  authorizeRoles("user", "admin"),
+  (req: UserRequest, res: Response) => {
+    return ApiResponse.ok(res, "User profile", req.user);
+  }
+);
 
 export default router;

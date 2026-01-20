@@ -14,7 +14,10 @@ export const validateRequest = (schema: ZodObject<any>) => {
         return next(error);
       }
 
-      throw ApiError.badRequest("Invalid request data", z.flattenError(error).fieldErrors || z.flattenError(error));
+      throw ApiError.badRequest(
+        "Invalid request data",
+        z.flattenError(error).fieldErrors || z.flattenError(error)
+      );
     }
   };
 };

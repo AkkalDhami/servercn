@@ -16,7 +16,13 @@ export class ApiResponse<T = unknown> {
   public readonly data?: T | null;
   public readonly errors?: unknown;
 
-  constructor({ success, message, statusCode, data = null, errors }: ApiResponseParams<T>) {
+  constructor({
+    success,
+    message,
+    statusCode,
+    data = null,
+    errors
+  }: ApiResponseParams<T>) {
     this.success = success;
     this.message = message;
     this.statusCode = statusCode;
@@ -34,7 +40,12 @@ export class ApiResponse<T = unknown> {
     });
   }
 
-  static Success<T>(res: Response, message: string, data?: T, statusCode: StatusCode = 200): Response {
+  static Success<T>(
+    res: Response,
+    message: string,
+    data?: T,
+    statusCode: StatusCode = 200
+  ): Response {
     return new ApiResponse<T>({
       success: true,
       message,

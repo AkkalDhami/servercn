@@ -13,7 +13,8 @@ export const rateLimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: {
     success: false,
-    message: "Too many requests from this IP, please try again after 15 minutes",
+    message:
+      "Too many requests from this IP, please try again after 15 minutes",
     status: 429
   },
   handler: (req, res, next, options) => {
@@ -28,7 +29,11 @@ export const authRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 5, // Limit each IP to 5 failed attempts per hour
   handler: (req, res, next, options) => {
-    next(ApiError.tooManyRequests("Too many login attempts, please try again after an hour"));
+    next(
+      ApiError.tooManyRequests(
+        "Too many login attempts, please try again after an hour"
+      )
+    );
   }
 });
 

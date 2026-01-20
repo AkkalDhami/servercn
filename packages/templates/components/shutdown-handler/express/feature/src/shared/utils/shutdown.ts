@@ -24,7 +24,9 @@ export const configureGracefulShutdown = (server: Server) => {
 
       // Force shutdown after 10 seconds if graceful shutdown fails
       setTimeout(() => {
-        console.error("Could not close connections in time, forcefully shutting down");
+        console.error(
+          "Could not close connections in time, forcefully shutting down"
+        );
         process.exit(1);
       }, 10000);
     });
