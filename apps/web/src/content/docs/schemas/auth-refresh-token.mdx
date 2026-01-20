@@ -15,6 +15,8 @@ mvc_structure:
             content: |
               import mongoose, { Document, Model, Schema } from "mongoose";
 
+              export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
               export interface IRefreshToken extends Document {
                 _id: mongoose.Types.ObjectId;
                 userId: mongoose.Types.ObjectId;
@@ -41,8 +43,7 @@ mvc_structure:
                   },
                   expiresAt: {
                     type: Date,
-                    required: [true, "Expiration time is required"],
-                    index: { expires: 0 } // TTL index
+                    required: [true, "Expiration time is required"]
                   },
                   isRevoked: {
                     type: Boolean,
@@ -64,6 +65,11 @@ mvc_structure:
               refreshTokenSchema.index({ userId: 1 });
               refreshTokenSchema.index({ tokenHash: 1 });
               refreshTokenSchema.index({ isRevoked: 1 });
+              refreshTokenSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 }
+              ); // ttl index
+
 
               const RefreshToken: Model<IRefreshToken> =
                 mongoose.models.RefreshToken ||
@@ -85,6 +91,7 @@ feature_structure:
                 name: refresh-token.model.ts
                 content: |
                   import mongoose, { Document, Model, Schema } from "mongoose";
+                  export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
                   export interface IRefreshToken extends Document {
                     _id: mongoose.Types.ObjectId;
@@ -112,8 +119,7 @@ feature_structure:
                       },
                       expiresAt: {
                         type: Date,
-                        required: [true, "Expiration time is required"],
-                        index: { expires: 0 } // TTL index
+                        required: [true, "Expiration time is required"]
                       },
                       isRevoked: {
                         type: Boolean,
@@ -135,6 +141,11 @@ feature_structure:
                   refreshTokenSchema.index({ userId: 1 });
                   refreshTokenSchema.index({ tokenHash: 1 });
                   refreshTokenSchema.index({ isRevoked: 1 });
+                  refreshTokenSchema.index(
+                    { createdAt: 1 },
+                    { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 }
+                  ); // ttl index
+
 
                   const RefreshToken: Model<IRefreshToken> =
                     mongoose.models.RefreshToken ||
@@ -163,6 +174,7 @@ To add the Auth Refresh Token schema to your project, run the following command:
 
 ```ts
 import mongoose, { Document, Model, Schema } from "mongoose";
+export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export interface IRefreshToken extends Document {
   _id: mongoose.Types.ObjectId;
@@ -190,8 +202,7 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
     },
     expiresAt: {
       type: Date,
-      required: [true, "Expiration time is required"],
-      index: { expires: 0 } // TTL index
+      required: [true, "Expiration time is required"]
     },
     isRevoked: {
       type: Boolean,
@@ -213,6 +224,11 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
 refreshTokenSchema.index({ userId: 1 });
 refreshTokenSchema.index({ tokenHash: 1 });
 refreshTokenSchema.index({ isRevoked: 1 });
+refreshTokenSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 }
+); // ttl index
+
 
 const RefreshToken: Model<IRefreshToken> =
   mongoose.models.RefreshToken ||
@@ -249,7 +265,7 @@ export const refreshTokens = mysqlTable(
   "refresh_tokens",
   {
     id: serial("id").primaryKey(),
-    userId: integer("user_id")
+    userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: varchar("token_hash", { length: 255 }).notNull(),

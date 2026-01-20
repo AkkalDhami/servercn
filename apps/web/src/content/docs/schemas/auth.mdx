@@ -221,6 +221,7 @@ feature_structure:
                     userId: mongoose.Types.ObjectId;
                     email: string;
                     otpHashCode: string;
+                    contextToken: string;
                     nextResendAllowedAt: Date;
                     type: OTPTypes;
                     expiresAt: Date;

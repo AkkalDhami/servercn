@@ -40,6 +40,7 @@ mvc_structure:
                 _id: mongoose.Types.ObjectId;
                 email: string;
                 otpHashCode: string;
+                contextToken: string;
                 nextResendAllowedAt: Date;
                 type: OTPTypes;
                 expiresAt: Date;
@@ -76,8 +77,7 @@ mvc_structure:
                   },
                   expiresAt: {
                     type: Date,
-                    required: [true, "Expiration time is required"],
-                    index: { expires: 0 } // TTL index - MongoDB auto-deletes expired docs
+                    required: [true, "Expiration time is required"]
                   },
                   isUsed: {
                     type: Boolean,
@@ -104,6 +104,10 @@ mvc_structure:
               otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
               otpSchema.index({ expiresAt: 1 }); // TTL index for auto-cleanup
               otpSchema.index({ isUsed: 1 }); // Filter used vs unused OTPs
+              otpSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: OTP_EXPIRES_IN / 1000 }
+              ); // ttl index
 
               const Otp: Model<IOtp> = mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
 
@@ -130,6 +134,7 @@ feature_structure:
                     _id: mongoose.Types.ObjectId;
                     email: string;
                     otpHashCode: string;
+                    contextToken: string;
                     nextResendAllowedAt: Date;
                     type: OTPTypes;
                     expiresAt: Date;
@@ -166,8 +171,7 @@ feature_structure:
                       },
                       expiresAt: {
                         type: Date,
-                        required: [true, "Expiration time is required"],
-                        index: { expires: 0 } // TTL index - MongoDB auto-deletes expired docs
+                        required: [true, "Expiration time is required"]
                       },
                       isUsed: {
                         type: Boolean,
@@ -194,6 +198,10 @@ feature_structure:
                   otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
                   otpSchema.index({ expiresAt: 1 }); // TTL index for auto-cleanup
                   otpSchema.index({ isUsed: 1 }); // Filter used vs unused OTPs
+                  otpSchema.index(
+                    { createdAt: 1 },
+                    { expireAfterSeconds: OTP_EXPIRES_IN / 1000 }
+                  ); // ttl index
 
                   const Otp: Model<IOtp> = mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
 
@@ -267,6 +275,7 @@ export interface IOtp extends Document {
   _id: mongoose.Types.ObjectId;
   email: string;
   otpHashCode: string;
+  contextToken: string;
   nextResendAllowedAt: Date;
   type: OTPType;
   expiresAt: Date;
@@ -292,6 +301,10 @@ const otpSchema = new Schema<IOtp>(
       required: [true, "OTP hash code is required"],
       select: false // Never return OTP hash code in queries by default
     },
+    contextToken: {
+      type: String,
+      required: [true, "Context token is required"]
+    },
     nextResendAllowedAt: {
       type: Date,
       required: [true, "Next resend allowed at is required"]
@@ -303,8 +316,7 @@ const otpSchema = new Schema<IOtp>(
     },
     expiresAt: {
       type: Date,
-      required: [true, "Expiration time is required"],
-      index: { expires: 0 } // TTL index - MongoDB auto-deletes expired docs
+      required: [true, "Expiration time is required"]
     },
     isUsed: {
       type: Boolean,
@@ -331,6 +343,10 @@ const otpSchema = new Schema<IOtp>(
 otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
 otpSchema.index({ expiresAt: 1 }); // TTL index for auto-cleanup
 otpSchema.index({ isUsed: 1 }); // Filter used vs unused OTPs
+otpSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: OTP_EXPIRES_IN / 1000 }
+); // ttl index
 
 const Otp: Model<IOtp> =
   mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);

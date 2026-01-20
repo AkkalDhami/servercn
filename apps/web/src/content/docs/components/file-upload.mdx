@@ -538,7 +538,7 @@ mvc_structure:
           app.use(errorHandler);
 
           app.listen(PORT, () => {
-            logger.info(<Code children="Server is running on http://localhost:${PORT}" />);
+            logger.info(`Server is running on http://localhost:${PORT}`);
           });
 
   - type: file
@@ -1100,7 +1100,7 @@ feature_structure:
           app.use(errorHandler);
 
           app.listen(PORT, () => {
-            logger.info(<Code children="Server is running on http://localhost:${PORT}" />);
+            logger.info(`Server is running on http://localhost:${PORT}`);
           });
 
   - type: file

@@ -1,0 +1,244 @@
+---
+title: REST API Basics
+description: A complete guide to REST API principles and theory with Node.js and Express examples.
+---
+
+# REST API Basics
+
+**REST** (Representational State Transfer) is an architectural style for designing networked applications. It relies on a stateless, client-server, cacheable communications protocol — and in virtually all cases, the HTTP protocol is used.
+
+REST is not a protocol or a standard but a **set of architectural constraints**. API developers can implement REST in a variety of ways.
+
+## Core Principles
+
+For an API to be considered RESTful, it typically conforms to the following constraints:
+
+### 1. Client-Server Architecture
+The client (frontend) and server (backend) act independently. The client should know how to fetch data, and the server should know how to serve it. This separation allows for portability and scalability.
+
+### 2. Statelessness 
+The server does not store any state about the client session on the server side. Each request from the client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server.
+
+### 3. Cacheable
+Clients can cache responses. Responses must define themselves as cacheable or not to prevent clients from reusing stale or inappropriate data in response to further requests.
+
+### 4. Resource-Based URLs (Nouns, Not Verbs)
+URLs should represent resources, not actions. Use nouns instead of verbs. 
+
+- **Bad**: <Code children={"/api/getUsers"} /> , <Code children={"/api/create_user"} />  ❌
+- **Good**: <Code children={"/api/users"} /> , <Code children={"/api/users/:id"} />  ✅
+
+<Note text={"REST APIs use nouns in URLs and actions are defined by HTTP methods."} />
+
+### 5. Proper Use of HTTP Methods
+
+Always use HTTP methods semantically to improve clarity and consistency. Each HTTP method has a clear meaning:
+
+```
+| Code | Meaning      |
+| ---- | ------------ |
+| 200  | OK           |
+| 201  | Created      |
+| 400  | Bad Request  |
+| 401  | Unauthorized |
+| 403  | Forbidden    |
+| 404  | Not Found    |
+| 500  | Server Error |
+```
+
+<Note text={"Status codes help clients understand the result without parsing the response body."} />
+
+
+### 6. Consistent Response Structure
+
+Responses should follow a consistent format. Consistency makes APIs easier to consume and debug.
+
+**Example:**
+```json
+{
+  "success": true,
+  "message": "Fetched successfully",
+  "data": {...},
+  "statusCode": 200
+}
+```
+
+### 7. Versioning
+
+Always version your API to handle breaking changes gracefully.
+
+```
+/api/v1/users
+/api/v2/users
+```
+
+### 8. Code on Demand (Optional)
+Servers can temporarily extend or customize the functionality of a client by the transfer of executable code (e.g., scripts).
+
+### 9. Filtering, Sorting, and Pagination (Optional)
+Prevent large data dumps by implementing query parameters.
+
+**Express Implementation Example:**
+```typescript
+app.get('/api/users', (req, res) => {
+  const { page = 1, limit = 10, role } = req.query;
+  
+  const options = {
+    page: parseInt(page),
+    limit: parseInt(limit),
+    filter: role ? { role } : {}
+  };
+  
+  const result = db.users.find(options);
+  res.json(result);
+});
+```
+
+---
+
+## HTTP Methods
+
+In a REST API, endpoints (URLs) represent resources, and HTTP verbs (methods) represent the actions performed on those resources.
+
+Here is how you implement them in **Node.js with Express**:
+
+### GET
+**Retrieve** a representation of a resource. This should not modify the server state.
+
+```typescript
+// GET /api/users - Get all users
+app.get('/api/users', (req, res) => {
+  // Assume db is your database instance
+  const users = db.users.findAll();
+  res.status(200).json(users);
+});
+
+// GET /api/users/:id - Get a specific user
+app.get('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const user = db.users.findById(id);
+  
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  res.status(200).json(user);
+});
+```
+
+### POST
+**Create** a new resource. The payload is sent in the request body.
+
+```typescript
+// POST /api/users - Create a new user
+app.post('/api/users', (req, res) => {
+  const { name, email } = req.body;
+  
+  if (!name || !email) {
+     return res.status(400).json({ error: 'Name and email are required' });
+  }
+  
+  const newUser = db.users.create({ name, email });
+  
+  // 201 Created is the standard status code for creation
+  res.status(201).json(newUser);
+});
+```
+
+### PUT
+**Update** or **Replace** a resource entirely. If the resource doesn't exist, it can be created (depending on implementation).
+
+```typescript
+// PUT /api/users/:id - Replace user data
+app.put('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const newData = req.body;
+  
+  // This typically replaces the entire object
+  const updatedUser = db.users.update(id, newData);
+  
+  res.status(200).json(updatedUser);
+});
+```
+
+### PATCH
+**Partially Update** a resource. Only the fields sent in the body are updated.
+
+```typescript
+// PATCH /api/users/:id - Update specific fields
+app.patch('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  
+  const updatedUser = db.users.patch(id, updates);
+  
+  res.status(200).json(updatedUser);
+});
+```
+
+### DELETE
+**Remove** a resource.
+
+```typescript
+// DELETE /api/users/:id - Delete a user
+app.delete('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  
+  db.users.delete(id);
+  
+  // 204 No Content is often used when there is no response body meant to be sent
+  res.status(204).send();
+});
+```
+
+---
+
+## HTTP Status Codes
+
+Using the correct status code is crucial for a REST API to communicate clearly with the client.
+```
+| Code | Status | Description |
+| :--- | :--- | :--- |
+| **200** | OK | Request succeeded. |
+| **201** | Created | Resource successfully created (usually after POST). |
+| **204** | No Content | Action succeeded but no content returned (usually after DELETE). |
+| **400** | Bad Request | Client sent invalid data (e.g., missing fields). |
+| **401** | Unauthorized | Authentication failed or missing (e.g., invalid token). |
+| **403** | Forbidden | Authenticated but not authorized to perform action. |
+| **404** | Not Found | Resource does not exist. |
+| **500** | Internal Server Error | Something went wrong on the server side. |
+```
+
+
+```ts
+export const STATUS_CODES = {
+  // 2xx Success
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
+ 
+  // 3xx Redirection
+  MOVED_PERMANENTLY: 301,
+  FOUND: 302,
+  NOT_MODIFIED: 304,
+ 
+  // 4xx Client Errors
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
+ 
+  // 5xx Server Errors
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_IMPLEMENTED: 501,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+  GATEWAY_TIMEOUT: 504
+} as const;
+```
+
+For more info visit [HTTP Status Codes Docs](/docs/components/http-status-codes)

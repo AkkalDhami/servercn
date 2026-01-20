@@ -29,7 +29,7 @@ export const siteConfig = {
   ],
 
   description:
-    "Official ServerCN documentation. Guides, components, and best practices for building scalable Node.js backends.",
+    "ServerCN is a component registry for building production-ready Node.js backends by composition, inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus on business logic, not boilerplate.",
   applicationName: "ServerCN",
   authors: [{ name: "akkaldhami" }],
   generator: "Next.js",

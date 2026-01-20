@@ -133,12 +133,12 @@
       "docs": "/docs/components/health-check"
     },
     {
-      "slug": "rest-api",
-      "title": "Basic REST API",
-      "description": "A production-ready REST API foundation for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
+      "slug": "rest-api-basic",
+      "title": "REST API Basic",
+      "description": "A production-ready REST API docs for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
       "type": "blueprint",
-      "status": "experimental",
-      "docs": "/docs/blueprints/rest-api"
+      "status": "stable",
+      "docs": "/docs/blueprints/rest-api-basic"
     },
     {
       "slug": "google-oauth",
@@ -157,12 +157,20 @@
       "docs": "/docs/components/shutdown-handler"
     },
     {
-      "slug": "session-auth",
-      "title": "Session Authentication",
-      "description": "The Session Authentication component provides a standardized way to handle session authentication in ServerCN using express-session.",
+      "slug": "stateful-auth",
+      "title": "Stateful Authentication",
+      "description": "The Stateful Authentication component provides a standardized way to handle stateful authentication in ServerCN using express-session.",
       "type": "blueprint",
       "status": "experimental",
-      "docs": "/docs/blueprints/session-auth"
+      "docs": "/docs/blueprints/stateful-auth"
+    },
+    {
+      "slug": "stateless-auth",
+      "title": "Stateless Authentication",
+      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",
+      "type": "blueprint",
+      "status": "experimental",
+      "docs": "/docs/blueprints/stateless-auth"
     },
     {
       "slug": "rbac",
@@ -260,22 +268,6 @@
       "type": "foundation",
       "status": "stable",
       "docs": "/docs/foundations/drizzle-pg-starter"
-    },
-    {
-      "slug": "prisma-mongo-starter",
-      "title": "Prisma MongoDB Starter",
-      "description": "A production-ready MongoDB foundation using Prisma ORM for type-safe database interactions.",
-      "type": "foundation",
-      "status": "experimental",
-      "docs": "/docs/foundations/prisma-mongo-starter"
-    },
-    {
-      "slug": "prisma-pg-starter",
-      "title": "Prisma PostgreSQL Starter",
-      "description": "A production-ready PostgreSQL foundation using Prisma ORM for type-safe database interactions.",
-      "type": "foundation",
-      "status": "experimental",
-      "docs": "/docs/foundations/prisma-pg-starter"
     },
 
     {
