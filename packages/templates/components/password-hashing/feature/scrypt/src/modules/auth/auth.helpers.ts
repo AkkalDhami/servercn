@@ -19,7 +19,10 @@ const DEFAULTS = {
   p: 1
 };
 
-export async function hashPasswordScrypt(password: string, options = DEFAULTS): Promise<string> {
+export async function hashPasswordScrypt(
+  password: string,
+  options = DEFAULTS
+): Promise<string> {
   const salt = crypto.randomBytes(options.saltLength);
 
   const derivedKey = await scryptAsync(password, salt, options.keyLength, {
@@ -28,10 +31,20 @@ export async function hashPasswordScrypt(password: string, options = DEFAULTS): 
     p: options.p
   });
 
-  return ["scrypt", options.N, options.r, options.p, salt.toString("hex"), derivedKey.toString("hex")].join("$");
+  return [
+    "scrypt",
+    options.N,
+    options.r,
+    options.p,
+    salt.toString("hex"),
+    derivedKey.toString("hex")
+  ].join("$");
 }
 
-export async function verifyPasswordScrypt(password: string, storedHash: string): Promise<boolean> {
+export async function verifyPasswordScrypt(
+  password: string,
+  storedHash: string
+): Promise<boolean> {
   const [algo, N, r, p, saltHex, hashHex] = storedHash.split("$");
 
   if (algo !== "scrypt") {
