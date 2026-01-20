@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import env from "../configs/env";
 
-import { ApiError } from "../utils/api-error";
+import { ApiError } from "../errors/api-error";
 import { logger } from "../utils/logger";
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   let statusCode = 500;
   let message = "Internal server error";
 
@@ -13,7 +18,10 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     message = err.message;
   }
 
-  logger.error(err, `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`);
+  logger.error(
+    err,
+    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+  );
 
   const response = {
     success: false,

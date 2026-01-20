@@ -1,0 +1,42 @@
+{
+  "title": "Mongoose Starter",
+  "slug": "mongoose-starter",
+  "type": "foundation",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "foundations/mongoose-starter/mvc",
+      "feature": "foundations/mongoose-starter/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [
+      "express",
+      "cors",
+      "helmet",
+      "cookie-parser",
+      "mongoose",
+      "pino-pretty",
+      "pino"
+    ],
+    "dev": [
+      "typescript",
+      "ts-node",
+      "tsx",
+      "dotenv",
+      "nodemon",
+      "@types/node",
+      "@types/express",
+      "morgan",
+      "@types/cors",
+      "@types/helmet",
+      "@types/morgan",
+      "@types/cookie-parser",
+      "prettier",
+      "@commitlint/cli",
+      "@commitlint/config-conventional"
+    ]
+  },
+  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]
+}

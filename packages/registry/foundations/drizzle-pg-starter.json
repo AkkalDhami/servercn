@@ -11,20 +11,31 @@
     }
   },
   "dependencies": {
-    "runtime": ["express", "dotenv", "cors", "helmet", "cookie-parser", "drizzle-orm", "pg", "pino-pretty", "pino"],
+    "runtime": [
+      "express",
+      "cors",
+      "helmet",
+      "cookie-parser",
+      "drizzle-orm",
+      "pg",
+      "pino-pretty",
+      "pino"
+    ],
     "dev": [
       "typescript",
-      "ts-node-dev",
+      "tsx",
+      "dotenv",
+      "nodemon",
+      "ts-node",
       "@types/node",
       "@types/express",
-      "@types/node",
+      "@types/pg",
       "morgan",
       "@types/cors",
       "@types/helmet",
       "@types/morgan",
       "@types/cookie-parser",
       "drizzle-kit",
-      "@types/pg",
       "prettier",
       "@commitlint/cli",
       "@commitlint/config-conventional"

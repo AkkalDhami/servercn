@@ -1,0 +1,40 @@
+{
+  "title": "Express Server",
+  "slug": "express-server",
+  "type": "foundation",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "foundations/express-server/mvc",
+      "feature": "foundations/express-server/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [
+      "express",
+      "cors",
+      "helmet",
+      "cookie-parser",
+      "pino-pretty",
+      "pino"
+    ],
+    "dev": [
+      "@types/express",
+      "typescript",
+      "dotenv",
+      "ts-node",
+      "tsx",
+      "nodemon",
+      "morgan",
+      "@types/cors",
+      "@types/helmet",
+      "@types/morgan",
+      "@types/cookie-parser",
+      "prettier",
+      "@commitlint/cli",
+      "@commitlint/config-conventional"
+    ]
+  },
+  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN"]
+}

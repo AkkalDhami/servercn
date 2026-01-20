@@ -11,13 +11,24 @@
     }
   },
   "dependencies": {
-    "runtime": ["express", "dotenv", "cors", "helmet", "cookie-parser", "drizzle-orm", "mysql2", "pino-pretty", "pino"],
+    "runtime": [
+      "express",
+      "cors",
+      "helmet",
+      "cookie-parser",
+      "drizzle-orm",
+      "mysql2",
+      "pino-pretty",
+      "pino"
+    ],
     "dev": [
       "typescript",
-      "ts-node-dev",
+      "dotenv",
+      "ts-node",
+      "tsx",
+      "nodemon",
       "@types/node",
       "@types/express",
-      "@types/node",
       "morgan",
       "@types/cors",
       "@types/helmet",
