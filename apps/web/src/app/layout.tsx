@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.applicationName,
   authors: siteConfig.authors,
+  creator: siteConfig.creator,
   generator: siteConfig.generator,
   keywords: siteConfig.keywords,
   metadataBase: siteConfig.metadataBase,
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     title: siteConfig.title,
     description: siteConfig.description,
-    creator: siteConfig.author
+    creator: siteConfig.creator
   }
 };
 

@@ -65,7 +65,7 @@ export default function Footer() {
             ))}
           </div>
 
-          <div className="relative mt-10">
+          <div className="relative mt-10 mask-b-from-5%">
             <TextHoverEffect text="SERVERCN" />
           </div>
 

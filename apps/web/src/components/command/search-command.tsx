@@ -26,7 +26,8 @@ import {
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
-
+import { FaGithub } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 export default function SearchCommand({
   className,
   size
@@ -84,6 +85,17 @@ export default function SearchCommand({
         <CommandInput placeholder="Search documentation..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Links">
+            <CommandItem asChild className="bg-accent mb-0.5">
+              <Link
+                href="https://github.com/akkaldhami"
+                target="_blank"
+                onClick={() => setOpen(!open)}>
+                <FaGithub className="text-muted-secondary size-2.5" />
+                Github @akkaldhami
+              </Link>
+            </CommandItem>
+          </CommandGroup>
           {guideItems.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.guide.toUpperCase()}>
               {guideItems.map(item => (
@@ -154,17 +166,20 @@ export default function SearchCommand({
                   <div className="mt-2 flex flex-col space-y-1">
                     {item.meta &&
                       item.meta?.models.length > 0 &&
-                      item.meta?.models.map(i => (
-                        <CommandItem asChild key={i.slug}>
-                          <Link
-                            href={i.slug as Route}
-                            onClick={() => setOpen(!open)}
-                            className="cursor-pointer pl-4 capitalize">
-                            <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
-                            {i.label} Schema
-                          </Link>
-                        </CommandItem>
-                      ))}
+                      item.meta?.models.map(i => {
+                        const modelPath = `/docs/schemas/${i.slug}`;
+                        return (
+                          <CommandItem asChild key={i.slug}>
+                            <Link
+                              href={modelPath as Route}
+                              onClick={() => setOpen(!open)}
+                              className="cursor-pointer pl-4 capitalize">
+                              <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
+                              {i.label} Schema
+                            </Link>
+                          </CommandItem>
+                        );
+                      })}
                   </div>
                 </div>
               ))}
