@@ -1,0 +1,18 @@
+{
+  "slug": "swagger-docs",
+  "title": "Swagger Docs",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["feature", "mvc"],
+  "templates": {
+    "express": {
+      "mvc": "components/swagger-docs/express/mvc",
+      "feature": "components/swagger-docs/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["express", "swagger-ui-express", "swagger-autogen"],
+    "dev": ["@types/express", "@types/swagger-ui-express"],
+    "peer": []
+  }
+}
