@@ -26,6 +26,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.6",
+    "@types/nodemailer": "^7.0.5",
     "@types/passport": "^1.0.17",
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
@@ -55,11 +56,13 @@
     "mongoose": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
+    "nodemailer": "^7.0.12",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pino": "^10.1.0",
     "servercn": "^1.0.0",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   }
