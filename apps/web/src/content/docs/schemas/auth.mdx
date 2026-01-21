@@ -486,36 +486,6 @@ You can also install schemas individually:
 
 <PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
 
-## Schema Relationships
-
-```
-┌─────────────────┐
-│  User Schema    │
-│  - id           │
-│  - email        │
-│  - password     │
-│  - role         │
-└────────┬────────┘
-         │
-         │ references
-         │
-    ┌────┴──────────────────────────┐
-    │              │                │
-┌───▼──────────┐   │          ┌─────▼─────────────────┐
-│ OTP Schema   │   │          │ Refresh Token Schema  │
-│ - userId     │   │          │ - userId              │
-│ - otpHash    │   │          │ - tokenHash           │
-│ - type       │   │          │ - expiresAt           │
-│ - expiresAt  │   │          │ - isRevoked           │
-└──────────────┘   │          └───────────────────────┘
-            ┌──────▼──────────┐
-            │ Session Schema  │
-            │ - userId        │
-            │ - tokenHash     │
-            │ - expiresAt     │
-            │ - isActive      │
-            └─────────────────┘
-```
 
 ## Schemas Breakdown
 

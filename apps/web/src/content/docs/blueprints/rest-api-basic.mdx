@@ -242,3 +242,136 @@ export const STATUS_CODES = {
 ```
 
 For more info visit [HTTP Status Codes Docs](/docs/components/http-status-codes)
+
+---
+
+## Security Best Practices
+
+Securing a REST API is critical for production environments. Below are practical measures you can implement in Node.js.
+
+### 1. Use HTTPS
+Always serve your API over HTTPS. SSL/TLS encrypts data in transit, preventing man-in-the-middle attacks.
+
+### 2. Set Security Headers
+Use **Helmet** to set various HTTP headers that help secure your app.
+
+```bash
+npm install helmet
+```
+
+```typescript
+import helmet from 'helmet';
+
+app.use(helmet());
+```
+
+### 3. Rate Limiting
+Prevent brute-force attacks and abuse by limiting the number of requests from the same IP.
+
+```bash
+npm install express-rate-limit
+```
+
+```typescript
+import rateLimit from 'express-rate-limit';
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+// Apply to all requests
+app.use(limiter);
+```
+
+### 4. Configure CORS
+Cross-Origin Resource Sharing (CORS) controls which domains can access your API.
+
+```bash
+npm install cors
+```
+
+```typescript
+import cors from 'cors';
+
+const corsOptions = {
+  origin: 'https://your-frontend-domain.com', // Restrict to trusted domains
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+```
+
+### 5. Input Validation
+Never trust client input. Validate request bodies, params, and query strings. **Zod** is a great library for this.
+
+```bash
+npm install zod
+```
+
+```typescript
+import { z } from 'zod';
+
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8)
+});
+
+app.post('/api/users', (req, res) => {
+  const result = userSchema.safeParse(req.body);
+  
+  if (!result.success) {
+    return res.status(400).json({ 
+      error: 'Invalid input', 
+      details: result.error.issues 
+    });
+  }
+  
+  // Proceed with creating user...
+});
+```
+
+### 6. Authentication & Authorization
+Ensure only authenticated users can access protected resources.
+
+```typescript
+// Simple middleware example using JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
+app.get('/api/protected', authenticateToken, (req, res) => {
+    // ...
+});
+```
+
+### 7. Secure Error Handling
+Do not leak stack traces or sensitive database errors to the client in production.
+
+```typescript
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log internally
+
+  const statusCode = err.statusCode || 500;
+  const message = process.env.NODE_ENV === 'production' 
+    ? 'Internal Server Error' 
+    : err.message;
+
+  res.status(statusCode).json({
+    success: false,
+    message
+  });
+});
+```

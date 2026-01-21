@@ -221,3 +221,53 @@ res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json(...);
 ```
 
 The **HTTP Status Codes** component solves this by providing a clear, standardized, and type-safe way to reference status codes everywhere in your application.
+
+## Status Code Reference
+
+### 2xx Success
+These codes indicate that the client's request was successfully received, understood, and accepted.
+```
+| Status Code | Constant     | Description                                                              | Recommended Usage                                                                                                          |
+| ----------- | ------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| 200         | OK           | The request was successful and the response contains the requested data. | Use for successful `GET` requests and `PUT/PATCH/DELETE` requests that return a response body.                             |
+| 201         | CREATED      | A new resource was successfully created.                                 | Use after a successful `POST` request that creates a resource. Include the new resource or its identifier in the response. |
+| 202         | ACCEPTED     | The request has been accepted for asynchronous processing.               | Use when the request is queued or handled by a background job and processing is not yet complete.                          |
+| 204         | NO_CONTENT   | The request was successful but there is no response body.                | Use for successful `DELETE` operations or updates where no data needs to be returned.                                      |
+```
+### 3xx Redirection
+These codes indicate that the client must take additional action to complete the request.
+
+```
+| Status Code | Constant            | Description                                               | Recommended Usage                                                                            |
+|-------------|---------------------| --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 301         | MOVED_PERMANENTLY   | The resource has been permanently moved to a new URL.     | Use when an endpoint has been permanently replaced. Clients should update stored URLs.       |
+| 302         | FOUND               | The resource is temporarily available at a different URL. | Use for temporary redirects such as authentication or OAuth flows.                           |
+| 304         | NOT_MODIFIED        | The resource has not changed since the last request.      | Use for caching mechanisms with `ETag` or `Last-Modified` headers to reduce bandwidth usage. |
+```
+
+### 4xx Client Errors
+These codes indicate that the request contains bad syntax or cannot be fulfilled.
+
+```
+| Status Code | Constant               | Description                                                         | Recommended Usage                                                                   |
+| ----------- | ---------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 400         | BAD_REQUEST            | The request is malformed or contains invalid parameters.            | Use for generic validation errors or malformed request payloads.                    |
+| 401         | UNAUTHORIZED           | Authentication is required or the provided credentials are invalid. | Use when access tokens are missing, expired, or invalid.                            |
+| 403         | FORBIDDEN              | The client is authenticated but lacks sufficient permissions.       | Use for authorization failures (e.g., RBAC or ownership checks).                    |
+| 404         | NOT_FOUND              | The requested resource does not exist.                              | Use when a resource ID, endpoint, or entity cannot be found.                        |
+| 409         | CONFLICT               | The request conflicts with the current state of the resource.       | Use for duplicate resources (e.g., email already exists) or state conflicts.        |
+| 422         | UNPROCESSABLE_ENTITY   | The request is valid but fails domain-specific validation rules.    | Use for semantic validation errors (e.g., weak password, invalid state transition). |
+| 429         | TOO_MANY_REQUESTS      | Too many requests have been sent in a given time window.            | Use when rate limits are exceeded. Include retry headers when possible.             |
+```
+### 5xx Server Errors
+These codes indicate the server failed to fulfill an apparently valid request.
+
+```
+| Status Code | Constant                | Description                                                | Recommended Usage                                                |
+| ----------- | ----------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| 500         | INTERNAL_SERVER_ERROR   | An unexpected server error occurred.                       | Use as a fallback for unhandled exceptions or unknown failures.  |
+| 501         | NOT_IMPLEMENTED         | The requested functionality is not supported.              | Use for unimplemented endpoints or feature placeholders.         |
+| 502         | BAD_GATEWAY             | An invalid response was received from an upstream service. | Use when a dependent service returns an invalid response.        |
+| 503         | SERVICE_UNAVAILABLE     | The service is temporarily unavailable.                    | Use during maintenance windows or when the system is overloaded. |
+| 504         | GATEWAY_TIMEOUT         | An upstream service failed to respond in time.             | Use when timeouts occur while waiting for dependent services.    |
+```

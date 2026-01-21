@@ -213,6 +213,14 @@
       "docs": "/docs/components/github-oauth"
     },
     {
+      "slug": "swagger-docs",
+      "title": "Swagger API Documentation",
+      "description": "Automated OpenAPI documentation and interactive UI for Express APIs using Swagger.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/swagger-docs"
+    },
+    {
       "slug": "security-header",
       "title": "Security Headers",
       "description": "The Security Headers component provides a standardized way to handle security headers in ServerCN.",

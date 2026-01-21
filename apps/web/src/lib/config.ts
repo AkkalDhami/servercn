@@ -28,6 +28,8 @@ export const siteConfig = {
     }
   ],
 
+  creator: "Akkal Dhami",
+
   description:
     "ServerCN is a component registry for building production-ready Node.js backends by composition, inspired by shadcn/ui. ServerCN standardizes backend patterns so you can focus on business logic, not boilerplate.",
   applicationName: "ServerCN",
