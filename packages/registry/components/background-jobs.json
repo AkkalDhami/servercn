@@ -1,0 +1,17 @@
+{
+  "title": "Background Jobs (Cron)",
+  "slug": "background-jobs",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/background-jobs/express/mvc",
+      "feature": "components/background-jobs/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": ["node-cron"],
+    "dev": []
+  }
+}
