@@ -1,0 +1,35 @@
+{
+  "title": "Session",
+  "slug": "auth-session",
+  "type": "schema",
+  "domain": "auth",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/auth/session/express/mysql/drizzle/mvc",
+          "feature": "schemas/auth/session/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/auth/session/express/postgresql/drizzle/mvc",
+          "feature": "schemas/auth/session/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/auth/session/express/mongodb/mongoose/mvc",
+          "feature": "schemas/auth/session/express/mongodb/mongoose/feature"
+        }
+      }
+    },
+    "dependencies": {
+      "runtime": ["express"],
+      "dev": []
+    }
+  }
+}
