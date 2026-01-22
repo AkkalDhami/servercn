@@ -2,137 +2,758 @@
 title: Express Server | Foundation
 description: The Express Server Foundation is the core starting block provided by servercn.
 command: npx servercn init express-server
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+              import { z } from "zod";
+
+              const envSchema = z.object({
+                PORT: z.string().default("5000"),
+                NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+                CORS_ORIGIN: z.string().default("*"),
+                LOG_LEVEL: z.enum(["info", "debug", "warn", "error"]).default("info"),
+              });
+
+              const env = envSchema.parse(process.env);
+
+              export default env;
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                OK: 200,
+                CREATED: 201,
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                INTERNAL_SERVER_ERROR: 500,
+              } as const;
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: health.controller.ts
+            content: |
+              import { Request, Response } from "express";
+              import { ApiResponse } from "../utils/api-response";
+              import { asyncHandler } from "../utils/async-handler";
+
+              export const getHealth = asyncHandler(async (req: Request, res: Response) => {
+                return res.status(200).json(
+                  new ApiResponse(200, {
+                    uptime: process.uptime(),
+                    message: "Server is healthy",
+                    timestamp: Date.now()
+                  }, "Health check successful")
+                );
+              });
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+              import env from "../configs/env";
+
+              export const errorHandler = (
+                err: any,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let error = err;
+
+                if (!(error instanceof ApiError)) {
+                  const statusCode = error.statusCode || 500;
+                  const message = error.message || "Something went wrong";
+                  error = new ApiError(statusCode, message, error?.errors || [], err.stack);
+                }
+
+                const response = {
+                  success: false,
+                  message: error.message,
+                  statusCode: error.statusCode,
+                  errors: error.errors,
+                  ...(env.NODE_ENV === "development" ? { stack: error.stack } : {}),
+                };
+
+                return res.status(error.statusCode).json(response);
+              };
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+
+              export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+                next(new ApiError(404, `Not Found - ${req.originalUrl}`));
+              };
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: health.routes.ts
+            content: |
+              import { Router } from "express";
+              import { getHealth } from "../controllers/health.controller";
+
+              const router = Router();
+
+              router.get("/", getHealth);
+
+              export default router;
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              export class ApiError extends Error {
+                statusCode: number;
+                errors: any[];
+                success: boolean;
+
+                constructor(
+                  statusCode: number,
+                  message: string = "Something went wrong",
+                  errors: any[] = [],
+                  stack: string = ""
+                ) {
+                  super(message);
+                  this.statusCode = statusCode;
+                  this.data = null;
+                  this.message = message;
+                  this.success = false;
+                  this.errors = errors;
+
+                  if (stack) {
+                    this.stack = stack;
+                  } else {
+                    Error.captureStackTrace(this, this.constructor);
+                  }
+                }
+              }
+          - type: file
+            name: api-response.ts
+            content: |
+              export class ApiResponse<T> {
+                statusCode: number;
+                data: T;
+                message: string;
+                success: boolean;
+
+                constructor(statusCode: number, data: T, message: string = "Success") {
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.message = message;
+                  this.success = statusCode < 400;
+                }
+              }
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export const asyncHandler = (fn: Function) => {
+                return (req: Request, res: Response, next: NextFunction) => {
+                  Promise.resolve(fn(req, res, next)).catch((err) => next(err));
+                };
+              };
+          - type: file
+            name: logger.ts
+            content: |
+              import winston from "winston";
+              import env from "../configs/env";
+
+              const logger = winston.createLogger({
+                level: env.LOG_LEVEL,
+                format: winston.format.combine(
+                  winston.format.timestamp(),
+                  winston.format.json()
+                ),
+                transports: [
+                  new winston.transports.Console({
+                    format: winston.format.combine(
+                      winston.format.colorize(),
+                      winston.format.simple()
+                    ),
+                  }),
+                ],
+              });
+
+              export default logger;
+          - type: file
+            name: shutdown.ts
+            content: |
+              import { Server } from "http";
+              import logger from "./logger";
+
+              export const gracefulShutdown = (server: Server) => {
+                const signals = ["SIGINT", "SIGTERM"];
+
+                signals.forEach((signal) => {
+                  process.on(signal, () => {
+                    logger.info(`${signal} received. Shutting down gracefully...`);
+                    server.close(() => {
+                      logger.info("Server closed.");
+                      process.exit(0);
+                    });
+                  });
+                });
+              };
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          import cors from "cors";
+          import helmet from "helmet";
+          import cookieParser from "cookie-parser";
+          import morgan from "morgan";
+          import { notFoundHandler } from "./middlewares/not-found-handler";
+          import { errorHandler } from "./middlewares/error-handler";
+          import healthRoutes from "./routes/health.routes";
+          import env from "./configs/env";
+
+          const app: Express = express();
+
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          app.use(
+            cors({
+              origin: env.CORS_ORIGIN,
+              credentials: true
+            })
+          );
+          app.use(helmet());
+          app.use(cookieParser());
+          app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+          // Routes
+          app.get("/", (req: Request, res: Response) => {
+            res.redirect("/api/v1/health");
+          });
+
+          app.use("/api/v1/health", healthRoutes);
+
+          // Plugins
+          //? servercn add resource [name] -> will be registered here
+
+          // Not found handler
+          app.use(notFoundHandler);
+
+          // Global error handler
+          app.use(errorHandler);
+
+          export default app;
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import env from "./configs/env";
+          import logger from "./utils/logger";
+          import { gracefulShutdown } from "./utils/shutdown";
+
+          const server = app.listen(env.PORT, () => {
+            logger.info(`Server is running on http://localhost:${env.PORT}`);
+          });
+
+          gracefulShutdown(server);
+  - type: file
+    name: .env.example
+    content: |
+      PORT=5000
+      NODE_ENV=development
+      CORS_ORIGIN=http://localhost:3000
+      LOG_LEVEL=info
+  - type: file
+    name: package.json
+    content: |
+      {
+        "name": "express-server",
+        "version": "1.0.0",
+        "main": "dist/server.js",
+        "scripts": {
+          "dev": "nodemon src/server.ts",
+          "build": "tsc",
+          "start": "node dist/server.js"
+        },
+        "dependencies": {
+          "cookie-parser": "^1.4.6",
+          "cors": "^2.8.5",
+          "dotenv": "^16.3.1",
+          "express": "^4.18.2",
+          "helmet": "^7.0.0",
+          "morgan": "^1.10.0",
+          "winston": "^3.10.0",
+          "zod": "^3.22.2"
+        },
+        "devDependencies": {
+          "@types/cookie-parser": "^1.4.3",
+          "@types/cors": "^2.8.13",
+          "@types/express": "^4.17.17",
+          "@types/morgan": "^1.9.4",
+          "@types/node": "^20.5.1",
+          "nodemon": "^3.0.1",
+          "ts-node": "^10.9.1",
+          "typescript": "^5.1.6"
+        }
+      }
+      - type: file
+        name: tsconfig.json
+        content: |
+          {
+            "compilerOptions": {
+              "target": "ESNext",
+              "module": "CommonJS",
+              "outDir": "./dist",
+              "rootDir": "./src",
+              "strict": true,
+              "esModuleInterop": true,
+              "skipLibCheck": true,
+              "forceConsistentCasingInFileNames": true,
+              "moduleResolution": "node"
+            },
+            "include": ["src/**/*"],
+            "exclude": ["node_modules"]
+          }
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+              import { z } from "zod";
+
+              const envSchema = z.object({
+                PORT: z.string().default("5000"),
+                NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+                CORS_ORIGIN: z.string().default("*"),
+                LOG_LEVEL: z.enum(["info", "debug", "warn", "error"]).default("info"),
+              });
+
+              const env = envSchema.parse(process.env);
+
+              export default env;
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: health
+            children:
+              - type: file
+                name: health.controller.ts
+                content: |
+                  import { Request, Response } from "express";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+                  import { asyncHandler } from "../../shared/utils/async-handler";
+
+                  export const getHealth = asyncHandler(async (req: Request, res: Response) => {
+                    return res.status(200).json(
+                      new ApiResponse(200, {
+                        uptime: process.uptime(),
+                        message: "Server is healthy",
+                        timestamp: Date.now()
+                      }, "Health check successful")
+                    );
+                  });
+              - type: file
+                name: health.routes.ts
+                content: |
+                  import { Router } from "express";
+                  import { getHealth } from "./health.controller";
+
+                  const router = Router();
+
+                  router.get("/", getHealth);
+
+                  export default router;
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import healthRoutes from "../modules/health/health.routes";
+
+              const router = Router();
+
+              router.use("/health", healthRoutes);
+
+              export default router;
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    OK: 200,
+                    CREATED: 201,
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    INTERNAL_SERVER_ERROR: 500,
+                  } as const;
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  export class ApiError extends Error {
+                    statusCode: number;
+                    errors: any[];
+                    success: boolean;
+
+                    constructor(
+                      statusCode: number,
+                      message: string = "Something went wrong",
+                      errors: any[] = [],
+                      stack: string = ""
+                    ) {
+                      super(message);
+                      this.statusCode = statusCode;
+                      this.message = message;
+                      this.success = false;
+                      this.errors = errors;
+
+                      if (stack) {
+                        this.stack = stack;
+                      } else {
+                        Error.captureStackTrace(this, this.constructor);
+                      }
+                    }
+                  }
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+                  import env from "../../configs/env";
+
+                  export const errorHandler = (
+                    err: any,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let error = err;
+
+                    if (!(error instanceof ApiError)) {
+                      const statusCode = error.statusCode || 500;
+                      const message = error.message || "Something went wrong";
+                      error = new ApiError(statusCode, message, error?.errors || [], err.stack);
+                    }
+
+                    const response = {
+                      success: false,
+                      message: error.message,
+                      statusCode: error.statusCode,
+                      errors: error.errors,
+                      ...(env.NODE_ENV === "development" ? { stack: error.stack } : {}),
+                    };
+
+                    return res.status(error.statusCode).json(response);
+                  };
+              - type: file
+                name: not-found-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+
+                  export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+                    next(new ApiError(404, `Not Found - ${req.originalUrl}`));
+                  };
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+                  export class ApiResponse<T> {
+                    statusCode: number;
+                    data: T;
+                    message: string;
+                    success: boolean;
+
+                    constructor(statusCode: number, data: T, message: string = "Success") {
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.message = message;
+                      this.success = statusCode < 400;
+                    }
+                  }
+              - type: file
+                name: async-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+
+                  export const asyncHandler = (fn: Function) => {
+                    return (req: Request, res: Response, next: NextFunction) => {
+                      Promise.resolve(fn(req, res, next)).catch((err) => next(err));
+                    };
+                  };
+              - type: file
+                name: logger.ts
+                content: |
+                  import winston from "winston";
+                  import env from "../configs/env";
+
+                  const logger = winston.createLogger({
+                    level: env.LOG_LEVEL,
+                    format: winston.format.combine(
+                      winston.format.timestamp(),
+                      winston.format.json()
+                    ),
+                    transports: [
+                      new winston.transports.Console({
+                        format: winston.format.combine(
+                          winston.format.colorize(),
+                          winston.format.simple()
+                        ),
+                      }),
+                    ],
+                  });
+
+                  export default logger;
+              - type: file
+                name: shutdown.ts
+                content: |
+                  import { Server } from "http";
+                  import logger from "./logger";
+
+                  export const gracefulShutdown = (server: Server) => {
+                    const signals = ["SIGINT", "SIGTERM"];
+
+                    signals.forEach((signal) => {
+                      process.on(signal, () => {
+                        logger.info(`${signal} received. Shutting down gracefully...`);
+                        server.close(() => {
+                          logger.info("Server closed.");
+                          process.exit(0);
+                        });
+                      });
+                    });
+                  };
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          import cors from "cors";
+          import helmet from "helmet";
+          import cookieParser from "cookie-parser";
+          import morgan from "morgan";
+          import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+          import { errorHandler } from "./shared/middlewares/error-handler";
+          import router from "./routes";
+          import env from "./configs/env";
+
+          const app: Express = express();
+
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          app.use(
+            cors({
+              origin: env.CORS_ORIGIN,
+              credentials: true
+            })
+          );
+          app.use(helmet());
+          app.use(cookieParser());
+          app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+          // Routes
+          app.get("/", (req: Request, res: Response) => {
+            res.redirect("/api/v1/health");
+          });
+
+          app.use("/api/v1", router);
+
+          // Not found handler
+          app.use(notFoundHandler);
+
+          // Global error handler
+          app.use(errorHandler);
+
+          export default app;
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import env from "./configs/env";
+          import logger from "./shared/utils/logger";
+          import { gracefulShutdown } from "./shared/utils/shutdown";
+
+          const server = app.listen(env.PORT, () => {
+            logger.info(`Server is running on http://localhost:${env.PORT}`);
+          });
+
+          gracefulShutdown(server);
+  - type: file
+    name: .env.example
+    content: |
+      PORT=5000
+      NODE_ENV=development
+      CORS_ORIGIN=http://localhost:3000
+      LOG_LEVEL=info
+  - type: file
+    name: package.json
+    content: |
+      {
+        "name": "express-server-feature",
+        "version": "1.0.0",
+        "main": "dist/server.js",
+        "scripts": {
+          "dev": "nodemon src/server.ts",
+          "build": "tsc",
+          "start": "node dist/server.js"
+        },
+        "dependencies": {
+          "cookie-parser": "^1.4.6",
+          "cors": "^2.8.5",
+          "dotenv": "^16.3.1",
+          "express": "^4.18.2",
+          "helmet": "^7.0.0",
+          "morgan": "^1.10.0",
+          "winston": "^3.10.0",
+          "zod": "^3.22.2"
+        },
+        "devDependencies": {
+          "@types/cookie-parser": "^1.4.3",
+          "@types/cors": "^2.8.13",
+          "@types/express": "^4.17.17",
+          "@types/morgan": "^1.9.4",
+          "@types/node": "^20.5.1",
+          "nodemon": "^3.0.1",
+          "ts-node": "^10.9.1",
+          "typescript": "^5.1.6"
+        }
+      }
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ESNext",
+          "module": "CommonJS",
+          "outDir": "./dist",
+          "rootDir": "./src",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "forceConsistentCasingInFileNames": true,
+          "moduleResolution": "node"
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules"]
+      }
 ---
 
 # Express Server Foundation
 
-The **Express Server Foundation** is the core starting block provided by **servercn**. When you run:
+The **Express Server Foundation** is the core starting block provided by **servercn**. It provides a robust, production‑ready Express.js setup with sensible defaults, allowing you to focus on building features rather than boilerplate.
 
-## Installation Guide
-
-<PackageManagerTabs command="npx servercn init express-server" />
-
-you get a **production‑ready Express.js server** with a clean, scalable foundation and sensible defaults. This foundation eliminates repetitive setup and lets you focus immediately on business logic.
-
-This is not a framework. It is a **well‑structured boilerplate** you fully own.
-
-## Example Server
-
-```ts
-import express, { Express, Request, Response } from "express";
-import "dotenv/config";
-import cors from "cors";
-import helmet from "helmet";
-import cookieParser from "cookie-parser";
-import morgan from "morgan";
-import { notFoundHandler } from "./middlewares/not-found-handler";
-import { errorHandler } from "./middlewares/error-handler";
-import healthRoutes from "./routes/health.routes";
-import env from "./configs/env";
-
-const app: Express = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: env.CORS_ORIGIN,
-    credentials: true
-  })
-);
-app.use(helmet());
-app.use(cookieParser());
-app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
-
-// Routes
-
-app.get("/", (req: Request, res: Response) => {
-  res.redirect("/api/v1/health");
-});
-
-app.use("/api/v1/health", healthRoutes);
-
-// Not found handler (should be after routes)
-app.use(notFoundHandler);
-
-// Global error handler (should be last)
-app.use(errorHandler);
-
-export default app;
-```
-
-[Official Docs](https://expressjs.com/)
+This foundation is not a framework; it's a well-structured boilerplate that you fully own and can extend as your project grows.
 
 ## What This Foundation Solves
 
-Most Express projects repeat the same setup:
-
-- Environment configuration
-- CORS and cookie handling
-- Standard API response format
-- Centralized error handling
+Most Express projects require the same initial setup:
+- Environment variable configuration & validation
+- CORS and security headers
+- Standardized API response and error formats
 - TypeScript configuration
-- Development tooling
+- Development tooling (hot reload, structured logging)
 
-The Express Server Foundation standardizes these concerns using **battle‑tested patterns**.
+The Express Server Foundation standardizes these concerns using battle-tested patterns.
 
-## What You Get Out of the Box
+## Architecture Patterns
 
-After initialization, your project includes:
+ServerCN provides two primary architectural patterns to choose from when initializing your server. You can select the one that best fits your project's scale and complexity.
 
-### Core Setup
+### 1. MVC Architecture (Standard)
 
-- Express.js server
-- TypeScript configured
-- Nodemon for development
+The **MVC (Model-View-Controller)** pattern is the default and is perfect for small to medium-sized applications. It separates concerns by technical role (controllers, routes, middlewares).
 
-### Configuration
+```
+src/
+├── configs/
+├── constants/
+├── controllers/
+├── middlewares/
+├── routes/
+├── utils/
+├── app.ts
+└── server.ts
+```
 
-- Environment variable loader
-- Strict environment validation
-- Centralized config access
+### 2. Feature Architecture (Scalable)
 
-### Middleware
+For larger applications, the **Feature Architecture** (also known as domain-driven or modular) is recommended. This structure co-locates all files related to a specific feature (e.g., `user`, `auth`) into a single module folder.
 
-- CORS (preconfigured)
-- Cookie Parser
-- JSON & URL‑encoded body parsing
-- Request logging
+```
+src/
+├── configs/
+├── modules/
+│   ├── auth/
+│   ├── users/
+│   └── health/
+├── routes/
+├── shared/
+│   ├── constants/
+│   ├── errors/
+│   ├── middlewares/
+│   └── utils/
+├── app.ts
+└── server.ts
+```
 
-### Response Handling
+## Core Features
 
-- Standard API response formatter
-- Consistent success and error payloads
+Regardless of the architecture you choose, you get these features out of the box:
 
-### Error Handling
+### Standard Response Format
+All API responses follow a predictable structure, making frontend integration seamless:
 
-- Custom API error class
-- Centralized error handler middleware
-- Safe production error responses
-
-### Developer Experience
-
-- Hot reload with nodemon
-- Typed request/response helpers
-- Clean project structure
-
-## Standard Response Format
-
-All API responses follow a predictable structure:
-
-### Success Response
-
+**Success Response:**
 ```json
 {
   "success": true,
   "message": "Request successful",
   "statusCode": 200,
-  "data": {}
+  "data": { ... }
 }
 ```
 
-### Error Response
-
+**Error Response:**
 ```json
 {
   "success": false,
@@ -142,93 +763,25 @@ All API responses follow a predictable structure:
 }
 ```
 
-This makes frontend integration consistent and predictable.
+### Fast-Fail Environment Validation
+Environment variables are validated at startup using **Zod**. If a required variable (like `PORT` or `DATABASE_URL`) is missing, the server will log a clear error and exit immediately, preventing runtime crashes.
 
-## Environment Configuration
-
-Environment variables are loaded and validated at startup.
-
-```bash
-PORT='5000'
-NODE_ENV='development'
-LOG_LEVEL='info'
-CORS_ORIGIN='http://localhost:3000'
-```
-
-If a required variable is missing, the server fails fast instead of crashing later.
-
-## Error Handling Strategy
-
-The foundation includes a centralized error pipeline:
-
-1. Route throws or forwards an error
-2. Custom <Code children='ApiError' /> normalizes it
-3. Error handler formats the response
-4. Stack traces are hidden in production
-
-This ensures **safe error exposure** in production.
-
-## CORS & Cookies
-
-CORS is preconfigured with:
-
-- Credential support
-- Environment‑based origin control
-
-Cookies are handled using <Code children="cookie-parser" /> with TypeScript support.
-
-## Development Workflow
-
-### Start development server
-
-<PackageManagerTabs command="npm run dev" />
-
-### Build for production
-
-<PackageManagerTabs command="npm run build" />
-
-### Start production server
-
-<PackageManagerTabs command="npm start" />
-
-## Why This Is a Foundation (Not a Template)
-
-This setup intentionally excludes:
-
-- Authentication
-- Database configuration
-- Business logic
-
-Those are added using **servercn components and blocks**.
-
-The foundation gives you:
-
-- A clean starting point
-- Proven defaults
-- Freedom to evolve
+### Graceful Shutdown
+The foundation includes logic to handle `SIGINT` and `SIGTERM` signals, ensuring that active requests are completed and database connections are closed properly before the process exits.
 
 ## Extending the Foundation
 
-Once initialized, you can add:
+The Express Server Foundation is cumulative. Once initialized, you can easily add:
+- **Database Starters**: Mongoose, Drizzle (MySQL/PostgreSQL)
+- **Auth Components**: JWT Utilities, OAuth, RBAC
+- **Utility Components**: Logger, File Upload, Email Service
 
-- JWT Authentication block
-- Request validation (Zod)
-- Logging and monitoring
-- Database adapters
-
-Each addition builds on top of this foundation without rewriting core setup.
-
-## When to Use Express Server Foundation
-
-Use this foundation when:
-
-- Starting a new Express API
-- Building a production REST backend
-- You want full control over your server
-- You want consistent structure across projects
+Each component you add with `servercn add` will automatically align with your chosen architecture.
 
 ## Summary
 
-The **Express Server Foundation** is the recommended starting point for any Express‑based backend using servercn.
+Use the **Express Server Foundation** when:
+- Starting a new production-ready Express API.
+- You want a clean, typed foundation without the weight of a full framework.
+- You need a consistent structure that scales with your team.
 
-It removes setup friction while keeping your architecture explicit, understandable, and production‑ready.

@@ -27,9 +27,9 @@ The fastest way to get started with ServerCN:
 
 <PackageManagerTabs command="npx servercn add error-handler" />
 
-## ServerCN Starter Foundations
+## ServerCN Foundations (Recommended)
 
-You can directly start your project with servercn foundations. Initializing with foundations will set up the project with the foundation's configuration and dependencies.
+<Note text="You can directly start your project with servercn foundations. Initializing with foundations will set up the project with the foundation's configuration and dependencies." />
 
 ### 1. Express Server
 
@@ -125,6 +125,31 @@ This file stores your project configuration and is used by ServerCN to generate 
   }
 }
 ```
+
+## Databases
+
+ServerCN provides first-class support for popular databases through well-integrated ORMs and ODMs. This ensures your project follows best practices for data modeling and type safety.
+
+### MongoDB with Mongoose
+
+ServerCN supports **MongoDB** using the **Mongoose ODM**. When you choose this option, the CLI will:
+- Set up a robust database connection utility.
+- Scaffold Mongoose schemas and models following your chosen architecture (MVC or Feature).
+- Handle common Mongoose patterns for authentication and role-based access control.
+
+### MySQL with Drizzle
+
+For **MySQL**, ServerCN uses **Drizzle ORM**. This setup provides:
+- Fully type-safe schemas using Drizzle's TypeScript-first approach.
+- Migration scripts and configuration for `drizzle-kit`.
+- Efficient relational data modeling with Drizzle's declarative syntax.
+
+### PostgreSQL with Drizzle
+
+ServerCN also supports **PostgreSQL** via **Drizzle ORM**, offering:
+- Advanced PostgreSQL features mapping directly to Drizzle schemas.
+- Type-safe queries and relations.
+- Seamless integration with PostgreSQL-specific data types.
 
 
 ## Adding Components
