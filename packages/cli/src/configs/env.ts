@@ -13,7 +13,7 @@ const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error(
     "❌ Invalid environment variables:",
-    parsed.error.flatten().fieldErrors
+    z.treeifyError(parsed.error)
   );
   process.exit(1);
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { add } from "./commands/add";
-import { init } from "./commands/init";
-import { list } from "./commands/list";
-import type { RegistryType } from "./types/registry";
+import { add } from "@/src/commands/add";
+import { init } from "@/src/commands/init";
+import { list } from "@/src/commands/list";
+import type { RegistryType } from "@/src/types/registry";
 
 const program = new Command();
 
@@ -39,6 +39,9 @@ async function main() {
 
       if (components[0] === "schema") {
         type = "schema";
+        items = components.slice(1);
+      } else if (components[0] === "blueprint") {
+        type = "blueprint";
         items = components.slice(1);
       }
 

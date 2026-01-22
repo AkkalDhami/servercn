@@ -274,7 +274,7 @@ var parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error(
     "\u274C Invalid environment variables:",
-    parsed.error.flatten().fieldErrors
+    z.treeifyError(parsed.error)
   );
   process.exit(1);
 }
@@ -540,7 +540,6 @@ async function init(foundation) {
         singleQuote: false,
         semi: true,
         tabWidth: 2,
-        printWidth: 150,
         trailingComma: "none",
         bracketSameLine: false,
         arrowParens: "avoid",
@@ -614,9 +613,14 @@ node_modules`
       });
       logger.success(`
 Success! ServerCN initialized with ${foundation}.`);
-      logger.info("You may now run:");
-      logger.log(`1. cd ${response2.root}`);
-      logger.log(`2. npm run dev`);
+      logger.info("Configure environment variables in .env file.");
+      logger.log("Run the following commands:");
+      if (response2.root === ".") {
+        logger.muted(`1. npm run dev`);
+      } else {
+        logger.muted(`1. cd ${response2.root}`);
+        logger.muted(`2. npm run dev`);
+      }
       return;
     } catch (error) {
       logger.error(`Failed to initialize foundation: ${error}`);
@@ -841,6 +845,9 @@ async function main() {
     let items = components;
     if (components[0] === "schema") {
       type = "schema";
+      items = components.slice(1);
+    } else if (components[0] === "blueprint") {
+      type = "blueprint";
       items = components.slice(1);
     }
     for (const item of items) {

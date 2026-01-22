@@ -98,7 +98,6 @@ export async function init(foundation?: string) {
         singleQuote: false,
         semi: true,
         tabWidth: 2,
-        printWidth: 150,
         trailingComma: "none",
         bracketSameLine: false,
         arrowParens: "avoid",
@@ -182,9 +181,16 @@ export async function init(foundation?: string) {
       });
 
       logger.success(`\nSuccess! ServerCN initialized with ${foundation}.`);
-      logger.info("You may now run:");
-      logger.log(`1. cd ${response.root}`);
-      logger.log(`2. npm run dev`);
+      logger.info("Configure environment variables in .env file.");
+      logger.log("Run the following commands:");
+
+      if (response.root === ".") {
+        logger.muted(`1. npm run dev`);
+      } else {
+        logger.muted(`1. cd ${response.root}`);
+        logger.muted(`2. npm run dev`);
+      }
+
       return;
     } catch (error) {
       logger.error(`Failed to initialize foundation: ${error}`);
