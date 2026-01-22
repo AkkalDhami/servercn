@@ -1,22 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import { ApiResponse } from "../utils/api-response";
-import { AsyncHandler } from "../utils/async-handler";
-
-import { ApiError } from "../utils/api-error";
-import { AuthService } from "../services/auth.service";
-import { OtpService } from "../services/otp.service";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { DeleteAccountType } from "./auth.validator";
+import { ApiError } from "../../shared/errors/api-error";
+import { OtpService } from "../otp/otp.service";
 import {
   clearAuthCookies,
   setAuthCookies,
   setCookies
-} from "../helpers/cookie.helper";
-import { UserRequest } from "../types/user";
+} from "../../shared/helpers/cookie.helper";
+import { RESET_PASSWORD_TOKEN_EXPIRY } from "./auth.constants";
+import { ApiResponse } from "../../shared/utils/api-response";
+import { AuthService } from "./auth.service";
+import { UserRequest } from "../../@types/global";
 import {
   deleteFileFromCloudinary,
   uploadToCloudinary
-} from "../services/cloudinary.service";
-import { RESET_PASSWORD_TOKEN_EXPIRY } from "../constants/auth";
-import { DeleteAccountType, VerifyOtpType } from "../validators/auth";
+} from "../upload/cloudinary.service";
+import { VerifyOtpType } from "../otp/otp.validator";
 
 //? VERIFY OTP
 export const verifyOtp = AsyncHandler(
@@ -322,7 +322,9 @@ export const deleteAccount = AsyncHandler(
 
     await AuthService.deleteOrDeactiveAccount(next, userId, type);
 
-    clearAuthCookies(res);
+    if (type === "hard") {
+      clearAuthCookies(res);
+    }
 
     return ApiResponse.Success(
       res,
