@@ -1,0 +1,54 @@
+{
+  "title": "User",
+  "slug": "auth-user",
+  "type": "schema",
+  "domain": "auth",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "variants": ["minimal", "advanced"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": {
+            "minimal": "schemas/auth/user/express/mysql/drizzle/mvc/minimal",
+            "advanced": "schemas/auth/user/express/mysql/drizzle/mvc/advanced"
+          },
+          "feature": {
+            "minimal": "schemas/auth/user/express/mysql/drizzle/feature/minimal",
+            "advanced": "schemas/auth/user/express/mysql/drizzle/feature/advanced"
+          }
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": {
+            "minimal": "schemas/auth/user/express/postgresql/drizzle/mvc/minimal",
+            "advanced": "schemas/auth/user/express/postgresql/drizzle/mvc/advanced"
+          },
+          "feature": {
+            "minimal": "schemas/auth/user/express/postgresql/drizzle/feature/minimal",
+            "advanced": "schemas/auth/user/express/postgresql/drizzle/feature/advanced"
+          }
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": {
+            "minimal": "schemas/auth/user/express/mongodb/mongoose/mvc/minimal",
+            "advanced": "schemas/auth/user/express/mongodb/mongoose/mvc/advanced"
+          },
+          "feature": {
+            "minimal": "schemas/auth/user/express/mongodb/mongoose/feature/minimal",
+            "advanced": "schemas/auth/user/express/mongodb/mongoose/feature/advanced"
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "runtime": ["express"],
+      "dev": []
+    }
+  }
+}
