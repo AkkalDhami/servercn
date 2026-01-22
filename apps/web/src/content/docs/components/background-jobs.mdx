@@ -1,0 +1,266 @@
+---
+title: Background Jobs (Cron)
+description: Schedule and manage recurring tasks and background jobs in your Express application using node-cron.
+command: npx servercn add background-jobs
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: jobs
+        children:
+          - type: file
+            name: example.job.ts
+            content: |
+              import cron from "node-cron";
+
+              /**
+               * Example background job that runs every minute
+               * Format: minute hour day-of-month month day-of-week
+               */
+              export const exampleJob = cron.schedule("* * * * *", () => {
+                console.log("Background job running every minute...");
+                // Add your task logic here (e.g., database cleanup, sending reports)
+              });
+          - type: file
+            name: index.ts
+            content: |
+              import { exampleJob } from "./example.job";
+
+              /**
+               * Initialize and start all background jobs
+               */
+              export const initJobs = () => {
+                exampleJob.start();
+                console.log("Background jobs initialized.");
+              };
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: jobs
+            children:
+              - type: file
+                name: example.job.ts
+                content: |
+                  import cron from "node-cron";
+
+                  /**
+                   * Example background job that runs every minute
+                   */
+                  export const exampleJob = cron.schedule("* * * * *", () => {
+                    console.log("Background job running every minute...");
+                  });
+              - type: file
+                name: index.ts
+                content: |
+                  import { exampleJob } from "./example.job";
+
+                  export const initJobs = () => {
+                    exampleJob.start();
+                    console.log("Background jobs initialized.");
+                  };
+---
+
+# Background Jobs (Cron)
+
+The **Background Jobs** component provides a standardized way to schedule and manage recurring tasks in your ServerCN application using <Code children="node-cron" />.
+
+Background jobs are essential for tasks like:
+- Generating and sending daily reports.
+- Cleaning up temporary files or expired sessions.
+- Synchronizing data with third-party APIs.
+- Sending scheduled notifications or emails.
+
+[NPM Docs](https://www.npmjs.com/package/node-cron)
+
+## Installation Guide
+
+Install the component using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add background-jobs" />
+
+This will install <Code children="node-cron" /> and its types, and create the basic jobs structure in your project.
+
+## Project Structure
+
+Depending on your architecture, the jobs are organized as follows:
+
+- **MVC**: <Code children="src/jobs/" />
+- **Feature**: <Code children="src/shared/jobs/" />
+
+## Implementation
+
+### 1. Define a Job
+
+Create individual job files for different tasks to keep your code modular and readable.
+
+**File:** <Code children="src/jobs/example.job.ts" />
+
+```ts
+import cron from "node-cron";
+
+/**
+ * Tasks can be scheduled using standard cron syntax:
+ * # ┌────────────── second (optional)
+ * # │ ┌──────────── minute
+ * # │ │ ┌────────── hour
+ * # │ │ │ ┌──────── day of month
+ * # │ │ │ │ ┌────── month
+ * # │ │ │ │ │ ┌──── day of week
+ * # │ │ │ │ │ │
+ * # │ │ │ │ │ │
+ * # * * * * * *
+ */
+
+export const dailyCleanupJob = cron.schedule("0 0 * * *", () => {
+  console.log("Running daily cleanup at midnight...");
+  // Implement cleanup logic here
+}, {
+  scheduled: false, // Don't start automatically
+  timezone: "UTC"
+});
+```
+
+### 2. Initialize Jobs
+
+Export a central initialization function to start all your jobs at once.
+
+**File:** <Code children="src/jobs/index.ts" />
+
+```ts
+import { dailyCleanupJob } from "./daily-cleanup.job";
+import { reportGenerationJob } from "./report-generation.job";
+
+export const initJobs = () => {
+  dailyCleanupJob.start();
+  reportGenerationJob.start();
+  
+  console.log("✅ All background jobs started successfully.");
+};
+```
+
+### 3. Usage in Server
+
+Import and call the <Code children="initJobs" /> function in your main entry file (usually <Code children="server.ts" />).
+
+```ts
+import app from "./app";
+import { initJobs } from "./jobs";
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  
+  // Start background jobs after server starts
+  initJobs();
+});
+```
+
+## Cron Syntax Refresher
+
+| Schedule | Syntax |
+| :--- | :--- |
+| Every minute | `* * * * *` |
+| Every hour | `0 * * * *` |
+| Every day at midnight | `0 0 * * *` |
+| Every Sunday at noon | `0 12 * * 0` |
+| Every 1st of the month | `0 0 1 * *` |
+
+## Real-World Examples
+
+Here are some common scenarios where background jobs are used in production-grade Express applications.
+
+### 1. Daily Database Cleanup
+Remove unverified users who haven't verified their email within 24 hours.
+
+```ts
+import cron from "node-cron";
+import { users } from "../models/user.model"; // Or schema
+
+export const cleanupUnverifiedUsers = cron.schedule("0 0 * * *", async () => {
+  try {
+    console.log("🧹 Starting unverified user cleanup...");
+    
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    
+    // Example deletion logic
+    const result = await users.deleteMany({
+      isEmailVerified: false,
+      createdAt: { $lt: oneDayAgo }
+    });
+
+    console.log(`✅ Cleanup finished. Removed ${result.deletedCount} users.`);
+  } catch (error) {
+    console.error("❌ Cleanup job failed:", error);
+  }
+});
+```
+
+### 2. System Health Heartbeat
+Send a heartbeat or log system performance metrics every 15 minutes.
+
+```ts
+import cron from "node-cron";
+import os from "os";
+
+export const systemMonitorJob = cron.schedule("*/15 * * * *", () => {
+  const freeMem = os.freemem() / 1024 / 1024;
+  const totalMem = os.totalmem() / 1024 / 1024;
+  const usage = ((totalMem - freeMem) / totalMem) * 100;
+
+  console.log(`📊 System Health: ${usage.toFixed(2)}% memory usage`);
+  
+  if (usage > 90) {
+    // Trigger alert or notification
+    console.warn("⚠️ High memory usage detected!");
+  }
+});
+```
+
+### 3. Syncing Exchange Rates
+Fetch and cache currency exchange rates from an external API every hour.
+
+```ts
+import cron from "node-cron";
+import axios from "axios";
+
+export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
+  try {
+    console.log("💱 Syncing exchange rates...");
+    const { data } = await axios.get("https://api.exchangerate.host/latest");
+    
+    // Logic to store rates in Redis or Database
+    // await cache.set("exchange_rates", JSON.stringify(data.rates));
+    
+    console.log("✅ Exchange rates updated successfully.");
+  } catch (error) {
+    console.error("❌ Exchange rate sync failed:", error);
+  }
+});
+```
+
+## Best Practices
+
+### 1. Error Handling
+Always wrap your job logic in `try-catch` blocks to prevent an error in one job from crashing your entire Node.js process.
+
+### 2. Logging
+Use a proper logger (like Winston or Pino) inside your jobs to track execution history and troubleshoot failures.
+
+### 3. Resource Management
+If a job performs heavy database operations, ensure it doesn't block the main event loop. Consider offloading very large tasks to a separate worker process or a dedicated queue system (like BullMQ) if needed.
+
+### 4. Idempotency
+Ensure your jobs are idempotent—running the same job twice (due to a restart or overlap) should not cause data corruption or duplicate side effects.
+
+## Summary
+
+The **Background Jobs** component using <Code children="node-cron" /> is a powerful and lightweight solution for adding scheduled tasks to your ServerCN application without the complexity of a full-blown message queue.

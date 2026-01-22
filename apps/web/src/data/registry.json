@@ -22,8 +22,8 @@
 
     {
       "slug": "jwt-utils",
-      "title": "JWT Utils Function",
-      "description": "JWT Utils Function for JSON Web Token authentication with access & refresh token support for Express",
+      "title": "JWT Utilities",
+      "description": "JWT Utilities for JSON Web Token authentication with access & refresh token support for Express",
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/jwt-utils"
@@ -118,8 +118,8 @@
     },
     {
       "slug": "request-validator",
-      "title": "Request Validator(Zod)",
-      "description": "The Request Validator(Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
+      "title": "Request Validator (Zod)",
+      "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/request-validator"
@@ -238,11 +238,19 @@
     },
     {
       "slug": "generate-otp-token",
-      "title": "Generate OTP/Token Utils",
+      "title": "Token & OTP Utilities",
       "description": "Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.",
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/generate-otp-token"
+    },
+    {
+      "slug": "background-jobs",
+      "title": "Background Jobs (Cron)",
+      "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and background jobs in ServerCN using node-cron.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/background-jobs"
     },
 
     {
@@ -277,31 +285,35 @@
       "status": "stable",
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
+    {
+      "slug": "env-config",
+      "title": "Env Configuration",
+      "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/env-config"
+    },
 
     {
       "slug": "auth",
       "title": "Auth Domain",
-      "description": "Blog domain schemas including posts, categories, tags, and comments.",
+      "description": "Authentication domain schemas including User, OTP, and Session models with support for multiple databases.",
       "type": "schema",
       "status": "stable",
       "docs": "/docs/schemas/auth",
       "meta": {
-        "models": [
+        "databases": [
           {
-            "label": "user",
-            "slug": "auth-user"
+            "label": "MongoDB (Mongoose)",
+            "slug": "auth-mongodb"
           },
           {
-            "label": "otp",
-            "slug": "auth-otp"
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "auth-postgresql"
           },
           {
-            "label": "session",
-            "slug": "auth-session"
-          },
-          {
-            "label": "refresh token",
-            "slug": "auth-refresh-token"
+            "label": "MySQL (Drizzle)",
+            "slug": "auth-mysql"
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
@@ -317,22 +329,18 @@
       "status": "stable",
       "docs": "/docs/schemas/blog-post",
       "meta": {
-        "models": [
+        "databases": [
           {
-            "label": "post",
-            "slug": "blog-post"
+            "label": "MongoDB (Mongoose)",
+            "slug": "blog-mongodb"
           },
           {
-            "label": "category",
-            "slug": "blog-category"
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "blog-postgresql"
           },
           {
-            "label": "tag",
-            "slug": "blog-tag"
-          },
-          {
-            "label": "comment",
-            "slug": "blog-comment"
+            "label": "MySQL (Drizzle)",
+            "slug": "blog-mysql"
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
