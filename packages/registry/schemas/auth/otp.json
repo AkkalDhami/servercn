@@ -1,0 +1,35 @@
+{
+  "title": "OTP",
+  "slug": "auth-otp",
+  "type": "schema",
+  "domain": "auth",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/auth/otp/express/mysql/drizzle/mvc",
+          "feature": "schemas/auth/otp/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/auth/otp/express/postgresql/drizzle/mvc",
+          "feature": "schemas/auth/otp/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/auth/otp/express/mongodb/mongoose/mvc",
+          "feature": "schemas/auth/otp/express/mongodb/mongoose/feature"
+        }
+      }
+    },
+    "dependencies": {
+      "runtime": ["express"],
+      "dev": []
+    }
+  }
+}
