@@ -14,18 +14,23 @@ mvc_structure:
             name: env.ts
             content: |
               import "dotenv/config";
-              import { z } from "zod";
 
-              const envSchema = z.object({
-                PORT: z.string().default("5000"),
-                NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-                CORS_ORIGIN: z.string().default("*"),
-                LOG_LEVEL: z.enum(["info", "debug", "warn", "error"]).default("info"),
-              });
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                CORS_ORIGIN: string;
+              }
 
-              const env = envSchema.parse(process.env);
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*"
+              };
 
               export default env;
+      
       - type: folder
         name: constants
         children:
@@ -33,14 +38,36 @@ mvc_structure:
             name: status-codes.ts
             content: |
               export const STATUS_CODES = {
+                // 2xx Success
                 OK: 200,
                 CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
                 BAD_REQUEST: 400,
                 UNAUTHORIZED: 401,
                 FORBIDDEN: 403,
                 NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
                 INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504
               } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+      
       - type: folder
         name: controllers
         children:
@@ -49,17 +76,52 @@ mvc_structure:
             content: |
               import { Request, Response } from "express";
               import { ApiResponse } from "../utils/api-response";
-              import { asyncHandler } from "../utils/async-handler";
+              import { AsyncHandler } from "../utils/async-handler";
 
-              export const getHealth = asyncHandler(async (req: Request, res: Response) => {
-                return res.status(200).json(
-                  new ApiResponse(200, {
+              /**
+              * Basic health check endpoint
+              * GET /api/health
+              */
+              export const healthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  return ApiResponse.Success(res, "Service is healthy", {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime()
+                  });
+                }
+              );
+
+              /**
+              * Detailed health check with system information
+              * GET /api/health/detailed
+              */
+              export const detailedHealthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  const healthData = {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
                     uptime: process.uptime(),
-                    message: "Server is healthy",
-                    timestamp: Date.now()
-                  }, "Health check successful")
-                );
-              });
+                    environment: process.env.NODE_ENV || "development",
+                    version: process.env.npm_package_version || "1.0.0",
+                    memory: {
+                      used:
+                        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /
+                        100,
+                      total:
+                        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /
+                        100,
+                      unit: "MB"
+                    },
+                    cpu: {
+                      usage: process.cpuUsage()
+                    }
+                  };
+
+                  return ApiResponse.Success(res, "Service is healthy", healthData);
+                }
+              );
+      
       - type: folder
         name: middlewares
         children:
@@ -67,33 +129,39 @@ mvc_structure:
             name: error-handler.ts
             content: |
               import { Request, Response, NextFunction } from "express";
-              import { ApiError } from "../utils/api-error";
               import env from "../configs/env";
 
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
               export const errorHandler = (
-                err: any,
+                err: Error,
                 req: Request,
                 res: Response,
                 next: NextFunction
               ) => {
-                let error = err;
+                let statusCode = 500;
+                let message = "Internal server error";
 
-                if (!(error instanceof ApiError)) {
-                  const statusCode = error.statusCode || 500;
-                  const message = error.message || "Something went wrong";
-                  error = new ApiError(statusCode, message, error?.errors || [], err.stack);
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
                 }
+
+                logger.error(
+                  err,
+                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
 
                 const response = {
                   success: false,
-                  message: error.message,
-                  statusCode: error.statusCode,
-                  errors: error.errors,
-                  ...(env.NODE_ENV === "development" ? { stack: error.stack } : {}),
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack })
                 };
 
-                return res.status(error.statusCode).json(response);
+                res.status(statusCode).json(response);
               };
+          
           - type: file
             name: not-found-handler.ts
             content: |
@@ -103,6 +171,7 @@ mvc_structure:
               export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
                 next(new ApiError(404, `Not Found - ${req.originalUrl}`));
               };
+      
       - type: folder
         name: routes
         children:
@@ -110,112 +179,246 @@ mvc_structure:
             name: health.routes.ts
             content: |
               import { Router } from "express";
-              import { getHealth } from "../controllers/health.controller";
+              import {
+                healthCheck,
+                detailedHealthCheck
+              } from "../controllers/health.controller";
 
               const router = Router();
 
-              router.get("/", getHealth);
+              router.get("/", healthCheck);
+              router.get("/detailed", detailedHealthCheck);
 
               export default router;
+      
       - type: folder
         name: utils
         children:
           - type: file
             name: api-error.ts
             content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
               export class ApiError extends Error {
-                statusCode: number;
-                errors: any[];
-                success: boolean;
+                public readonly statusCode: StatusCode;
+                public readonly isOperational: boolean;
+                public readonly errors?: unknown;
 
                 constructor(
-                  statusCode: number,
-                  message: string = "Something went wrong",
-                  errors: any[] = [],
-                  stack: string = ""
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
                 ) {
                   super(message);
+                  this.name = "ApiError";
                   this.statusCode = statusCode;
-                  this.data = null;
-                  this.message = message;
-                  this.success = false;
                   this.errors = errors;
+                  this.isOperational = isOperational;
 
-                  if (stack) {
-                    this.stack = stack;
-                  } else {
-                    Error.captureStackTrace(this, this.constructor);
-                  }
+                  Error.captureStackTrace(this, this.constructor);
+                }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static validation(message = "Validation failed", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static notImplemented(message = "Not Implemented") {
+                  return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                }
+
+                static badGateway(message = "Bad Gateway") {
+                  return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                }
+
+                static serviceUnavailable(message = "Service Unavailable") {
+                  return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                }
+
+                static tooManyRequests(message = "Too Many Requests") {
+                  return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
                 }
               }
+
+              /*
+              * Usage:
+              * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+        
           - type: file
             name: api-response.ts
             content: |
-              export class ApiResponse<T> {
-                statusCode: number;
-                data: T;
-                message: string;
-                success: boolean;
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
 
-                constructor(statusCode: number, data: T, message: string = "Success") {
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
                   this.statusCode = statusCode;
                   this.data = data;
-                  this.message = message;
-                  this.success = statusCode < 400;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors })
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
                 }
               }
+
+              /*
+              * Usage:
+              * ApiResponse.ok(res, "OK", data);
+              * ApiResponse.created(res, "Created", data);
+              */
+
+         
           - type: file
             name: async-handler.ts
             content: |
               import { Request, Response, NextFunction } from "express";
 
-              export const asyncHandler = (fn: Function) => {
-                return (req: Request, res: Response, next: NextFunction) => {
-                  Promise.resolve(fn(req, res, next)).catch((err) => next(err));
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (req: Request, res: Response, next: NextFunction) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
                 };
-              };
+              }
+         
           - type: file
             name: logger.ts
             content: |
-              import winston from "winston";
+              import pino from "pino";
               import env from "../configs/env";
 
-              const logger = winston.createLogger({
+              export const logger = pino({
                 level: env.LOG_LEVEL,
-                format: winston.format.combine(
-                  winston.format.timestamp(),
-                  winston.format.json()
-                ),
-                transports: [
-                  new winston.transports.Console({
-                    format: winston.format.combine(
-                      winston.format.colorize(),
-                      winston.format.simple()
-                    ),
-                  }),
-                ],
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
               });
-
-              export default logger;
+          
           - type: file
             name: shutdown.ts
             content: |
               import { Server } from "http";
-              import logger from "./logger";
+              import { logger } from "./logger";
 
-              export const gracefulShutdown = (server: Server) => {
-                const signals = ["SIGINT", "SIGTERM"];
+              export const configureGracefulShutdown = (server: Server) => {
+                const signals = ["SIGTERM", "SIGINT"];
 
-                signals.forEach((signal) => {
+                signals.forEach(signal => {
                   process.on(signal, () => {
-                    logger.info(`${signal} received. Shutting down gracefully...`);
-                    server.close(() => {
-                      logger.info("Server closed.");
+                    logger.info(`\n${signal} signal received. Shutting down gracefully...`);
+
+                    server.close(err => {
+                      if (err) {
+                        logger.error(err, "Error during server close");
+                        process.exit(1);
+                      }
+
+                      logger.info("HTTP server closed.");
                       process.exit(0);
                     });
+
+                    // Force shutdown after 10 seconds
+                    setTimeout(() => {
+                      logger.error(
+                        "Could not close connections in time, forcefully shutting down"
+                      );
+                      process.exit(1);
+                    }, 10000);
                   });
                 });
               };
+
+      
       - type: file
         name: app.ts
         content: |
@@ -244,22 +447,21 @@ mvc_structure:
           app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
 
           // Routes
+
           app.get("/", (req: Request, res: Response) => {
-            res.redirect("/api/v1/health");
+            res.redirect("/api/health");
           });
 
-          app.use("/api/v1/health", healthRoutes);
+          app.use("/api/health", healthRoutes);
 
-          // Plugins
-          //? servercn add resource [name] -> will be registered here
-
-          // Not found handler
+          // Not found handler (should be after routes)
           app.use(notFoundHandler);
 
-          // Global error handler
+          // Global error handler (should be last)
           app.use(errorHandler);
 
           export default app;
+
       - type: file
         name: server.ts
         content: |
@@ -273,13 +475,14 @@ mvc_structure:
           });
 
           gracefulShutdown(server);
+  
   - type: file
     name: .env.example
     content: |
-      PORT=5000
-      NODE_ENV=development
-      CORS_ORIGIN=http://localhost:3000
-      LOG_LEVEL=info
+      PORT='5000'
+      NODE_ENV='development'
+      CORS_ORIGIN='http://localhost:3000'
+      LOG_LEVEL='info'
   - type: file
     name: package.json
     content: |
@@ -331,6 +534,25 @@ mvc_structure:
             "include": ["src/**/*"],
             "exclude": ["node_modules"]
           }
+
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules"]
+      }
+      
 
 feature_structure:
   - type: folder
@@ -628,7 +850,7 @@ feature_structure:
   - type: file
     name: package.json
     content: |
-      {
+      
         "name": "express-server-feature",
         "version": "1.0.0",
         "main": "dist/server.js",
@@ -657,25 +879,8 @@ feature_structure:
           "ts-node": "^10.9.1",
           "typescript": "^5.1.6"
         }
-      }
-  - type: file
-    name: tsconfig.json
-    content: |
-      {
-        "compilerOptions": {
-          "target": "ESNext",
-          "module": "CommonJS",
-          "outDir": "./dist",
-          "rootDir": "./src",
-          "strict": true,
-          "esModuleInterop": true,
-          "skipLibCheck": true,
-          "forceConsistentCasingInFileNames": true,
-          "moduleResolution": "node"
-        },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules"]
-      }
+      
+  
 ---
 
 # Express Server Foundation
