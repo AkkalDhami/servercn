@@ -1,0 +1,35 @@
+{
+  "title": "Auth",
+  "slug": "auth",
+  "type": "schema",
+  "domain": "auth",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/auth/index/express/mysql/drizzle/mvc",
+          "feature": "schemas/auth/index/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/auth/index/express/postgresql/drizzle/mvc",
+          "feature": "schemas/auth/index/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/auth/index/express/mongodb/mongoose/mvc",
+          "feature": "schemas/auth/index/express/mongodb/mongoose/feature"
+        }
+      }
+    },
+    "dependencies": {
+      "runtime": ["express"],
+      "dev": []
+    }
+  }
+}

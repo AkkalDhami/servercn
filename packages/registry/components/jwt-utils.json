@@ -1,5 +1,5 @@
 {
-  "title": "JWT Utils Function",
+  "title": "JWT Utilities",
   "slug": "jwt-utils",
   "type": "component",
   "stacks": ["express"],
