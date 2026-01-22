@@ -61,7 +61,7 @@ export default function HeroSection() {
               <span className="text-accent-foreground font-medium">
                 Node.js backends
               </span>{" "}
-              by composition, inspired by shadcn/ui. ServerCN standardizes
+              by composition. Inspired by shadcn/ui, ServerCN standardizes
               backend patterns so you can focus on business logic, not
               boilerplate.
             </motion.div>
@@ -70,21 +70,19 @@ export default function HeroSection() {
               <Button
                 key={1}
                 asChild
-                size="lg"
                 variant="default"
                 className={cn(
                   "hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none",
                   "h-10 px-1 sm:h-12 sm:px-6"
                 )}>
                 <Link href="/docs" className="flex items-center gap-2">
-                  <span>Start Building</span>
+                  <span>Get Started</span>
                   <ChevronRight className="size-4" />
                 </Link>
               </Button>
               <Button
                 key={2}
                 asChild
-                size="lg"
                 variant="outline"
                 className={cn(
                   "hover:bg-card-hover hover:shadow-tertiary h-9 gap-2 border-2 px-1 text-base shadow-none",
@@ -106,6 +104,16 @@ export default function HeroSection() {
               transition={{ duration: 0.5 }}
               className="mt-10 flex items-center justify-center">
               <InitCopyButton />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-8 flex items-center justify-center">
+              <span className="text-muted-secondary">
+                The shadcn/ui philosophy for Node.js backends
+              </span>
             </motion.div>
           </div>
         </div>

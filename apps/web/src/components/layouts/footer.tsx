@@ -6,7 +6,7 @@ import { getTypeItems } from "@/lib/source";
 import Link from "next/link";
 import { Route } from "next";
 import { TextHoverEffect } from "../ui/text-hover-effect";
-
+import { GiBowieKnife } from "react-icons/gi";
 type FooterLink = {
   title: string;
   href: string;
@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
 
           <div className="relative mt-10 mask-b-from-5%">
-            <TextHoverEffect text="SERVERCN" />
+            <TextHoverEffect text="SERVERCN" automatic={true} />
           </div>
 
           <div className="text-muted-foreground relative flex flex-col items-center justify-between gap-2 border-t py-4 text-sm md:flex-row">
@@ -74,8 +74,8 @@ export default function Footer() {
             <p>
               &copy; {new Date().getFullYear()} ServerCN | All rights reserved.
             </p>
-            <div>
-              Built with 🗡️{" "}
+            <div className="flex items-center gap-2">
+              Built with <Weapon /> by
               <Link
                 className="hover:text-foreground underline"
                 href="https://github.com/akkaldhami"
@@ -198,5 +198,14 @@ function AnimatedContainer({
       {...props}>
       {children}
     </motion.div>
+  );
+}
+
+function Weapon() {
+  return (
+    <div className="relative flex items-center gap-2">
+      <GiBowieKnife className="absolute size-4" />
+      <GiBowieKnife className="size-4 rotate-80 transform" />
+    </div>
   );
 }

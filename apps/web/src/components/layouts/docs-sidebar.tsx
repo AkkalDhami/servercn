@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Route } from "next";
+import { IRegistryItems } from "@/@types/registry";
 
 import { cn } from "@/lib/utils";
 import { getTypeItems } from "@/lib/source";
@@ -45,7 +46,7 @@ export default function DocsSidebar({
             </h3>
 
             <ul className="mb-3 space-y-3.5 border-l border-zinc-200 dark:border-zinc-800">
-              {section.items.map(item => {
+              {(section.items as IRegistryItems[]).map(item => {
                 const isActive =
                   pathname === item.url || pathname.startsWith(`${item.url}/`);
 
@@ -73,37 +74,42 @@ export default function DocsSidebar({
                       )}
                     </Link>
 
-                    {/* Schema models */}
-                    {isSchema && item.meta?.models && (
-                      <ul className="mt-2 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
-                        {item.meta.models
-                          .sort((a, b) => a.label.localeCompare(b.label))
-                          .map(model => {
-                            const modelPath = `/docs/schemas/${model.slug}`;
-                            const modelActive =
-                              pathname === modelPath ||
-                              pathname.startsWith(`${modelPath}/`);
-                            return (
-                              <li key={model.slug}>
-                                <Link
-                                  onClick={onLinkClickAction}
-                                  href={modelPath as Route}
-                                  className={cn(
-                                    "relative block text-sm capitalize transition-colors",
-                                    modelActive
-                                      ? "text-accent-foreground font-medium"
-                                      : "text-muted-secondary hover:text-primary"
-                                  )}>
-                                  {modelActive && (
-                                    <span className="bg-primary absolute top-0 -left-[17px] h-full w-px" />
-                                  )}
-                                  <span> {model.label} Schema</span>
-                                </Link>
-                              </li>
-                            );
-                          })}
-                      </ul>
-                    )}
+                    {/* Schema databases or models */}
+                    {isSchema &&
+                      (item.meta?.databases || item.meta?.models) && (
+                        <ul className="mt-2 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
+                          {(item.meta!.databases || item.meta!.models!)
+                            .sort((a, b) => a.label.localeCompare(b.label))
+                            .map((subItem: { label: string; slug: string }) => {
+                              const subPath = `/docs/schemas/${subItem.slug}`;
+                              const subActive =
+                                pathname === subPath ||
+                                pathname.startsWith(`${subPath}/`);
+                              return (
+                                <li key={subItem.slug}>
+                                  <Link
+                                    onClick={onLinkClickAction}
+                                    href={subPath as Route}
+                                    className={cn(
+                                      "relative block text-sm capitalize transition-colors",
+                                      subActive
+                                        ? "text-accent-foreground font-medium"
+                                        : "text-muted-secondary hover:text-primary"
+                                    )}>
+                                    {subActive && (
+                                      <span className="bg-primary absolute top-0 -left-[17px] h-full w-px" />
+                                    )}
+                                    <span>
+                                      {" "}
+                                      {subItem.label}{" "}
+                                      {item.meta?.models ? "Schema" : ""}
+                                    </span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                        </ul>
+                      )}
                   </li>
                 );
               })}

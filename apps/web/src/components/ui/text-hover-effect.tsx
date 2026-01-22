@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 
 export const TextHoverEffect = ({
   text,
-  duration
+  duration,
+  automatic
 }: {
   text: string;
   duration?: number;
@@ -16,7 +17,7 @@ export const TextHoverEffect = ({
   const [maskPosition, setMaskPosition] = useState({ cx: "50%", cy: "50%" });
 
   useEffect(() => {
-    if (svgRef.current && cursor.x !== null && cursor.y !== null) {
+    if (svgRef.current && cursor.x !== null && cursor.y !== null && hovered) {
       const svgRect = svgRef.current.getBoundingClientRect();
       const cxPercentage = ((cursor.x - svgRect.left) / svgRect.width) * 100;
       const cyPercentage = ((cursor.y - svgRect.top) / svgRect.height) * 100;
@@ -25,7 +26,22 @@ export const TextHoverEffect = ({
         cy: `${cyPercentage}%`
       });
     }
-  }, [cursor]);
+  }, [cursor, hovered]);
+
+  useEffect(() => {
+    if (!automatic || hovered) return;
+    let frame: number;
+    const startTime = Date.now();
+    const animate = () => {
+      const time = (Date.now() - startTime) / 1000;
+      const x = 50 + Math.cos(time * 0.5) * 40;
+      const y = 50 + Math.sin(time * 0.5) * 40;
+      setMaskPosition({ cx: `${x}%`, cy: `${y}%` });
+      frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [automatic, hovered]);
 
   return (
     <svg
@@ -45,12 +61,13 @@ export const TextHoverEffect = ({
           cx="50%"
           cy="50%"
           r="25%">
-          {hovered && (
+          {(hovered || automatic) && (
             <>
-              <stop offset="0%" stopColor="#e5e7eb" /> {/* near-black */}
-              <stop offset="30%" stopColor="#374151" /> {/* dark gray */}
-              <stop offset="60%" stopColor="#6b7280" /> {/* neutral gray */}
-              <stop offset="100%" stopColor="#e5e7eb" /> {/* off-white */}
+              <stop offset="0%" stopColor="#ec4899" />
+              <stop offset="25%" stopColor="#6366f1" />
+              <stop offset="50%" stopColor="#a855f7" />
+              <stop offset="75%" stopColor="#ffa500" />
+              <stop offset="100%" stopColor="#0ea5e9" />
             </>
           )}
         </linearGradient>
@@ -69,6 +86,10 @@ export const TextHoverEffect = ({
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="black" />
         </motion.radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
         <mask id="textMask">
           <rect
             x="0"
@@ -86,7 +107,7 @@ export const TextHoverEffect = ({
         dominantBaseline="middle"
         strokeWidth="0.3"
         className="fill-transparent stroke-neutral-200 font-[helvetica] text-4xl font-bold tracking-wider dark:stroke-neutral-700"
-        style={{ opacity: hovered ? 0.7 : 0 }}>
+        style={{ opacity: hovered || automatic ? 0.7 : 0 }}>
         {text}
       </text>
       <motion.text
@@ -115,6 +136,7 @@ export const TextHoverEffect = ({
         stroke="url(#textGradient)"
         strokeWidth="0.3"
         mask="url(#textMask)"
+        filter="url(#glow)"
         className="fill-transparent font-[helvetica] text-4xl font-bold tracking-wider">
         {text}
       </text>

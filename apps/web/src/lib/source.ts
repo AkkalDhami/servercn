@@ -14,15 +14,14 @@ export const findNeighbour = (
   let parentItem: IRegistryItems | undefined;
   let nestedModels: { label: string; slug: string }[] = [];
 
-  for (const item of registry.items) {
+  for (const item of registry.items as unknown as IRegistryItems[]) {
+    const models = item.meta?.models || item.meta?.databases;
     if (
-      item.meta?.models &&
-      item.meta.models.some(
-        (model: { label: string; slug: string }) => model.slug === slug
-      )
+      models &&
+      models.some((m: { label: string; slug: string }) => m.slug === slug)
     ) {
       parentItem = item;
-      nestedModels = item.meta.models;
+      nestedModels = models;
       break;
     }
   }
@@ -83,7 +82,7 @@ export const findNeighbour = (
   };
 };
 
-export function getTypeItems(type: ItemType) {
+export function getTypeItems(type: ItemType): IRegistryItems[] {
   const items = registry.items
     .sort((a, b) => a.title.localeCompare(b.title))
     .filter(item => item.type == type)
@@ -92,8 +91,8 @@ export function getTypeItems(type: ItemType) {
       url: item.docs,
       status: item.status,
       slug: item.slug,
-      meta: item.meta,
+      meta: item.meta as IRegistryItems["meta"],
       type: item.type
     }));
-  return items.length > 0 ? items : [];
+  return items.length > 0 ? (items as IRegistryItems[]) : [];
 }

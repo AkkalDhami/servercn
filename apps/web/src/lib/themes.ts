@@ -47,7 +47,7 @@ export const CODE_THEMES: ITheme[] = [
     value: "vitesse-black"
   },
   {
-    label: "Vesper",
+    label: "Vesper(Default)",
     value: "vesper",
     isFavorite: true
   },

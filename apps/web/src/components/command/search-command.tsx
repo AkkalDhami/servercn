@@ -86,12 +86,12 @@ export default function SearchCommand({
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Links">
-            <CommandItem asChild className="bg-accent mb-0.5">
+            <CommandItem asChild forceMount className="mb-0.5">
               <Link
                 href="https://github.com/akkaldhami"
                 target="_blank"
                 onClick={() => setOpen(!open)}>
-                <FaGithub className="text-muted-secondary size-2.5" />
+                <FaGithub className="text-muted-secondary size-2.5 cursor-pointer" />
                 Github @akkaldhami
               </Link>
             </CommandItem>
@@ -165,17 +165,17 @@ export default function SearchCommand({
                   </h3>
                   <div className="mt-2 flex flex-col space-y-1">
                     {item.meta &&
-                      item.meta?.models.length > 0 &&
-                      item.meta?.models.map(i => {
-                        const modelPath = `/docs/schemas/${i.slug}`;
+                      (item.meta.databases || item.meta.models) &&
+                      (item.meta.databases || item.meta.models!).map(i => {
+                        const path = `/docs/schemas/${i.slug}`;
                         return (
-                          <CommandItem asChild key={i.slug}>
+                          <CommandItem asChild key={path}>
                             <Link
-                              href={modelPath as Route}
+                              href={path as Route}
                               onClick={() => setOpen(!open)}
                               className="cursor-pointer pl-4 capitalize">
                               <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
-                              {i.label} Schema
+                              {i.label} {item.meta?.models ? "Schema" : ""}
                             </Link>
                           </CommandItem>
                         );

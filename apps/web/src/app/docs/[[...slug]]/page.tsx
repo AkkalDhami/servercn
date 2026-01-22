@@ -29,7 +29,9 @@ const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
 export async function generateStaticParams() {
   const registryParams = registry.items.map(({ meta, docs }) => {
     const nestedSlugs =
-      meta && meta.models.length > 0 ? meta.models.map(({ slug }) => slug) : [];
+      meta && (meta.databases || [])
+        ? (meta.databases || []).map(({ slug }) => slug)
+        : [];
     const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
     return [...slugArray, ...nestedSlugs];
   });

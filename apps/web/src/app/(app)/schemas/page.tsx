@@ -66,12 +66,12 @@ export default function SchemaPage() {
                 {component.description}
               </p>
 
-              {component.meta?.models && (
+              {component.meta?.databases && (
                 <ul className="mt-2 space-y-3 pl-1">
-                  {component.meta.models.map((model, index) => {
-                    const modelPath = `/docs/schemas/${model.slug}`;
+                  {component.meta.databases.map((database, index) => {
+                    const modelPath = `/docs/schemas/${database.slug}`;
                     return (
-                      <li key={model.slug}>
+                      <li key={database.slug}>
                         <Link
                           href={modelPath as Route}
                           className={cn(
@@ -79,7 +79,7 @@ export default function SchemaPage() {
                             "text-muted-secondary hover:text-primary",
                             "font-medium"
                           )}>
-                          {index + 1}. {model.label} Schema
+                          {index + 1}. {database.label}
                         </Link>
                       </li>
                     );

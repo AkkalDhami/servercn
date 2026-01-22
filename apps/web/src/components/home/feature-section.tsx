@@ -49,7 +49,7 @@ const features: IFeature[] = [
     icon: Layers,
     title: "Architecture-Aware",
     description:
-      "Components adapt naturally to MVC, feature-based, or clean architecture without forcing a framework.",
+      "Components adapt naturally to MVC, feature-based without forcing a framework.",
     className: ""
   },
   {
