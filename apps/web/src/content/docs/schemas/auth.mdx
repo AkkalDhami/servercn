@@ -430,14 +430,13 @@ The **Auth Domain** provides a complete set of production-ready schemas for buil
 
 This domain includes three core schemas that work together to handle user authentication, verification, and session management.
 
-## Overview
+## Database Variants
 
-The Auth Domain consists of three interconnected schemas:
+The Auth Domain is available for multiple databases:
 
-1. **[User Schema](/docs/schemas/auth-user)** - Core user identity and authentication
-2. **[OTP Schema](/docs/schemas/auth-otp)** - One-time password verification for email, password resets, and 2FA
-3. **[Session Schema](/docs/schemas/auth-session)** - Session management for authenticated users
-4. **[Refresh Token Schema](/docs/schemas/auth-refresh-token)** - Long-lived tokens for JWT renewal flows
+1. **[MongoDB (Mongoose)](/docs/schemas/auth-mongodb)** - Using Mongoose models and TTL indexes.
+2. **[PostgreSQL (Drizzle)](/docs/schemas/auth-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
+3. **[MySQL (Drizzle)](/docs/schemas/auth-mysql)** - Type-safe Drizzle schemas for MySQL.
 
 Together, these schemas provide everything you need to build:
 
@@ -503,7 +502,7 @@ The **User Schema** is the foundation of your authentication system. It stores u
 - Soft delete functionality
 - Avatar/profile management
 
-**[View Full Documentation](/docs/schemas/auth-user)**
+**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
 **Quick Example:**
 
@@ -533,7 +532,7 @@ The **OTP Schema** handles one-time password verification for various authentica
 - Resend cooldown protection
 - User and email references
 
-**[View Full Documentation](/docs/schemas/auth-otp)**
+**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
 **Quick Example:**
 
@@ -570,7 +569,7 @@ The **Session Schema** manages user sessions for authenticated users, supporting
 - Session revocation
 - Multi-device support
 
-**[View Full Documentation](/docs/schemas/auth-session)**
+**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
 **Quick Example:**
 
@@ -605,7 +604,7 @@ The **Refresh Token Schema** manages long-lived tokens used to renew access toke
 - Family revocation
 - Auto-expiration
 
-**[View Full Documentation](/docs/schemas/auth-refresh-token)**
+**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
 **Quick Example:**
 
@@ -961,9 +960,8 @@ export async function loginUser(email: string, password: string, req: Request) {
 
 ## Learn More
 
-- [User Schema Documentation](/docs/schemas/auth-user)
-- [OTP Schema Documentation](/docs/schemas/auth-otp)
-- [Session Schema Documentation](/docs/schemas/auth-session)
-- [Refresh Token Schema Documentation](/docs/schemas/auth-refresh-token)
+- [MongoDB (Mongoose) Schemas](/docs/schemas/auth-mongodb)
+- [PostgreSQL (Drizzle) Schemas](/docs/schemas/auth-postgresql)
+- [MySQL (Drizzle) Schemas](/docs/schemas/auth-mysql)
 - [Password Hashing Component](/docs/components/password-hashing)
 - [Generate OTP/Token Component](/docs/components/generate-otp-token)

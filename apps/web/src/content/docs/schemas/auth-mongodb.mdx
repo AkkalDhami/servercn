@@ -1,0 +1,1191 @@
+---
+title: Auth | MongoDB (Mongoose) | Schema
+description: Complete authentication system schemas for MongoDB using Mongoose, including User, OTP, Session, and Refresh Token models.
+command: npx servercn add schema auth
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: user.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IAvatar {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IAvatar;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date | null;
+                reActivateAvailableAt?: Date | null;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null
+                  },
+                  provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                  },
+                  providerId: {
+                    type: String,
+                    default: null
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                  },
+                  avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                  },
+                  lastLoginAt: {
+                    type: Date
+                  },
+                  failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                  },
+                  lockUntil: {
+                    type: Date
+                  },
+                  isDeleted: {
+                    type: Boolean,
+                    default: false
+                  },
+                  deletedAt: {
+                    type: Date,
+                    default: null
+                  },
+                  reActivateAvailableAt: {
+                    type: Date,
+                    default: null
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              userSchema.index({ email: 1 });
+              userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+              userSchema.index({ role: 1 });
+              userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+              const User: Model<IUser> =
+                mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+              export default User;
+          - type: file
+            name: otp.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export const OTP_MAX_ATTEMPTS = 5;
+              export const OTP_TYPES = [
+                "signin",
+                "email-verification",
+                "password-reset",
+                "password-change"
+              ] as const;
+              export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+              export const OTP_CODE_LENGTH = 6 as const;
+              export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+              export type OTPType = (typeof OTP_TYPES)[number];
+
+              //? otp interface
+              export interface IOtp extends Document {
+                _id: mongoose.Types.ObjectId;
+                email: string;
+                otpHashCode: string;
+                nextResendAllowedAt: Date;
+                type: OTPType;
+                expiresAt: Date;
+                isUsed: boolean;
+                usedAt?: Date;
+                attempts: number;
+                maxAttempts: number;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              //? otp schema
+              const otpSchema = new Schema<IOtp>(
+                {
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    lowercase: true,
+                    trim: true
+                  },
+                  otpHashCode: {
+                    type: String,
+                    required: [true, "OTP hash code is required"],
+                    select: false // Never return OTP hash code in queries by default
+                  },
+                  nextResendAllowedAt: {
+                    type: Date,
+                    required: [true, "Next resend allowed at is required"]
+                  },
+                  type: {
+                    type: String,
+                    enum: OTP_TYPES,
+                    required: [true, "OTP type is required"]
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: [true, "Expiration time is required"]
+                  },
+                  isUsed: {
+                    type: Boolean,
+                    default: false
+                  },
+                  usedAt: {
+                    type: Date
+                  },
+                  attempts: {
+                    type: Number,
+                    default: 0
+                  },
+                  maxAttempts: {
+                    type: Number,
+                    default: OTP_MAX_ATTEMPTS // Prevent brute force attacks
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
+              otpSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: OTP_EXPIRES_IN / 1000 } // 5 minutes
+              ); // ttl index
+
+              const Otp: Model<IOtp> =
+                mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
+
+              export default Otp;
+          - type: file
+            name: session.model.ts
+            content: |
+              import mongoose, { Document, Schema, Model } from "mongoose";
+
+              export interface ISession extends Document {
+                _id: mongoose.Types.ObjectId;
+                userId: mongoose.Types.ObjectId;
+                tokenHash: string;
+                ip?: string;
+                userAgent?: string;
+                isActive: boolean;
+                lastUsedAt: Date;
+                expiresAt: Date;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const SESSION_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              const sessionSchema: Schema<ISession> = new Schema(
+                {
+                  userId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                    required: true,
+                    index: true
+                  },
+                  tokenHash: {
+                    type: String,
+                    required: true,
+                    unique: true,
+                    index: true
+                  },
+                  ip: { type: String },
+                  userAgent: { type: String },
+                  isActive: {
+                    type: Boolean,
+                    default: true,
+                    index: true
+                  },
+                  lastUsedAt: {
+                    type: Date,
+                    default: Date.now
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: true
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Supporting indexes
+              sessionSchema.index({ userId: 1, isActive: 1 });
+              sessionSchema.index({ userId: 1, lastUsedAt: -1 });
+              sessionSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: SESSION_EXPIRES_IN / 1000 } // 7 days
+              ); // ttl index
+
+              const Session: Model<ISession> =
+                mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+
+              export default Session;
+          - type: file
+            name: refresh-token.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              export interface IRefreshToken extends Document {
+                _id: mongoose.Types.ObjectId;
+                userId: mongoose.Types.ObjectId;
+                tokenHash: string;
+                expiresAt: Date;
+                isRevoked: boolean;
+                revokedAt?: Date;
+                replacedByTokenHash?: string;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const refreshTokenSchema = new Schema<IRefreshToken>(
+                {
+                  userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: [true, "User ID is required"]
+                  },
+                  tokenHash: {
+                    type: String,
+                    required: [true, "Token hash is required"],
+                    select: false // Secure by default
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: [true, "Expiration time is required"]
+                  },
+                  isRevoked: {
+                    type: Boolean,
+                    default: false
+                  },
+                  revokedAt: {
+                    type: Date
+                  },
+                  replacedByTokenHash: {
+                    type: String,
+                    select: false
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              refreshTokenSchema.index({ userId: 1 });
+              refreshTokenSchema.index({ tokenHash: 1 });
+              refreshTokenSchema.index({ isRevoked: 1 });
+              refreshTokenSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 } // 7 days
+              ); 
+
+              const RefreshToken: Model<IRefreshToken> =
+                mongoose.models.RefreshToken ||
+                mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+              export default RefreshToken;
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: auth.ts
+            content: |
+              export const OTP_MAX_ATTEMPTS = 5;
+
+              export const OTP_TYPES = [
+                "signin",
+                "email-verification",
+                "password-reset",
+                "password-change"
+              ] as const;
+
+              export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+
+              export const LOGIN_MAX_ATTEMPTS = 5 as const;
+
+              export const OTP_CODE_LENGTH = 6 as const;
+
+              export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+              export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+              export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
+
+              export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+              export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: user.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password?: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
+                    lastLoginAt?: Date;
+                    failedLoginAttempts: number;
+                    lockUntil?: Date;
+                    avatar?: IAvatar;
+
+                    provider: "local" | "google" | "github";
+                    providerId?: string;
+
+                    isDeleted: boolean;
+                    deletedAt?: Date | null;
+                    reActivateAvailableAt?: Date | null;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null
+                      },
+                      provider: {
+                        type: String,
+                        enum: ["local", "google", "github"],
+                        default: "local"
+                      },
+                      providerId: {
+                        type: String,
+                        default: null
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user"
+                      },
+                      avatar: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false
+                      },
+                      lastLoginAt: {
+                        type: Date
+                      },
+                      failedLoginAttempts: {
+                        type: Number,
+                        required: true,
+                        default: 0
+                      },
+                      lockUntil: {
+                        type: Date
+                      },
+                      isDeleted: {
+                        type: Boolean,
+                        default: false
+                      },
+                      deletedAt: {
+                        type: Date,
+                        default: null
+                      },
+                      reActivateAvailableAt: {
+                        type: Date,
+                        default: null
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  // Performance Indexes
+                  userSchema.index({ email: 1 });
+                  userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+                  userSchema.index({ role: 1 });
+                  userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+                  const User: Model<IUser> =
+                    mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                  export default User;
+              - type: file
+                name: otp.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export const OTP_MAX_ATTEMPTS = 5;
+                  export const OTP_TYPES = [
+                    "signin",
+                    "email-verification",
+                    "password-reset",
+                    "password-change"
+                  ] as const;
+                  export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+                  export const OTP_CODE_LENGTH = 6 as const;
+                  export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+                  export type OTPType = (typeof OTP_TYPES)[number];
+
+                  //? otp interface
+                  export interface IOtp extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    email: string;
+                    otpHashCode: string;
+                    nextResendAllowedAt: Date;
+                    type: OTPType;
+                    expiresAt: Date;
+                    isUsed: boolean;
+                    usedAt?: Date;
+                    attempts: number;
+                    maxAttempts: number;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  //? otp schema
+                  const otpSchema = new Schema<IOtp>(
+                    {
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        lowercase: true,
+                        trim: true
+                      },
+                      otpHashCode: {
+                        type: String,
+                        required: [true, "OTP hash code is required"],
+                        select: false // Never return OTP hash code in queries by default
+                      },
+                      nextResendAllowedAt: {
+                        type: Date,
+                        required: [true, "Next resend allowed at is required"]
+                      },
+                      type: {
+                        type: String,
+                        enum: OTP_TYPES,
+                        required: [true, "OTP type is required"]
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: [true, "Expiration time is required"]
+                      },
+                      isUsed: {
+                        type: Boolean,
+                        default: false
+                      },
+                      usedAt: {
+                        type: Date
+                      },
+                      attempts: {
+                        type: Number,
+                        default: 0
+                      },
+                      maxAttempts: {
+                        type: Number,
+                        default: OTP_MAX_ATTEMPTS // Prevent brute force attacks
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  // Performance Indexes
+                  otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
+                  otpSchema.index(
+                    { createdAt: 1 },
+                    { expireAfterSeconds: OTP_EXPIRES_IN / 1000 } // 5 minutes
+                  ); // ttl index
+
+                  const Otp: Model<IOtp> =
+                    mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
+
+                  export default Otp;
+              - type: file
+                name: session.model.ts
+                content: |
+                  import mongoose, { Document, Schema, Model } from "mongoose";
+
+                  export interface ISession extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    userId: mongoose.Types.ObjectId;
+                    tokenHash: string;
+                    ip?: string;
+                    userAgent?: string;
+                    isActive: boolean;
+                    lastUsedAt: Date;
+                    expiresAt: Date;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const SESSION_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+                  const sessionSchema: Schema<ISession> = new Schema(
+                    {
+                      userId: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: "User",
+                        required: true,
+                        index: true
+                      },
+                      tokenHash: {
+                        type: String,
+                        required: true,
+                        unique: true,
+                        index: true
+                      },
+                      ip: { type: String },
+                      userAgent: { type: String },
+                      isActive: {
+                        type: Boolean,
+                        default: true,
+                        index: true
+                      },
+                      lastUsedAt: {
+                        type: Date,
+                        default: Date.now
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: true
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  // Supporting indexes
+                  sessionSchema.index({ userId: 1, isActive: 1 });
+                  sessionSchema.index({ userId: 1, lastUsedAt: -1 });
+                  sessionSchema.index(
+                    { createdAt: 1 },
+                    { expireAfterSeconds: SESSION_EXPIRES_IN / 1000 } // 7 days
+                  ); // ttl index
+
+                  const Session: Model<ISession> =
+                    mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+
+                  export default Session;
+              - type: file
+                name: refresh-token.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+                  export interface IRefreshToken extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    userId: mongoose.Types.ObjectId;
+                    tokenHash: string;
+                    expiresAt: Date;
+                    isRevoked: boolean;
+                    revokedAt?: Date;
+                    replacedByTokenHash?: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const refreshTokenSchema = new Schema<IRefreshToken>(
+                    {
+                      userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "User ID is required"]
+                      },
+                      tokenHash: {
+                        type: String,
+                        required: [true, "Token hash is required"],
+                        select: false // Secure by default
+                      },
+                      expiresAt: {
+                        type: Date,
+                        required: [true, "Expiration time is required"]
+                      },
+                      isRevoked: {
+                        type: Boolean,
+                        default: false
+                      },
+                      revokedAt: {
+                        type: Date
+                      },
+                      replacedByTokenHash: {
+                        type: String,
+                        select: false
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  refreshTokenSchema.index({ userId: 1 });
+                  refreshTokenSchema.index({ tokenHash: 1 });
+                  refreshTokenSchema.index({ isRevoked: 1 });
+                  refreshTokenSchema.index(
+                    { createdAt: 1 },
+                    { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 } // 7 days
+                  ); 
+
+                  const RefreshToken: Model<IRefreshToken> =
+                    mongoose.models.RefreshToken ||
+                    mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+                  export default RefreshToken;
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: auth.ts
+                content: |
+                  export const OTP_MAX_ATTEMPTS = 5;
+
+                  export const OTP_TYPES = [
+                    "signin",
+                    "email-verification",
+                    "password-reset",
+                    "password-change"
+                  ] as const;
+
+                  export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+
+                  export const LOGIN_MAX_ATTEMPTS = 5 as const;
+
+                  export const OTP_CODE_LENGTH = 6 as const;
+
+                  export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+                  export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+                  export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
+
+                  export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+                  export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+                  export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+---
+
+# Auth Domain (MongoDB)
+
+This page documents the authentication schemas for projects using <Code children="MongoDB" /> with <Code children="Mongoose" />. 
+
+The Auth Domain provides a set of production-ready models that handle user identity, verification, and session management.
+
+## Installation Guide
+
+To add these schemas to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema auth" />
+
+During initialize the servercn in your project, select <Code children="MongoDB" /> when prompted for the database.
+
+## 1. User Schema
+
+The **User Schema** is the core component for storing user identity, credentials, and profile information.
+
+**MVC Path:** <Code children="src/models/user.model.ts"/>  
+**Feature Path:** <Code children="src/modules/auth/user.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IAvatar {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IAvatar;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null
+    },
+    reActivateAvailableAt: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ email: 1 });
+userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+## 2. OTP Schema
+
+The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
+
+**MVC Path:** <Code children="src/models/otp.model.ts"/>  
+**Feature Path:** <Code children="src/modules/auth/otp.model.ts"/> or <Code children="src/modules/otp/otp.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export const OTP_MAX_ATTEMPTS = 5;
+export const OTP_TYPES = [
+  "signin",
+  "email-verification",
+  "password-reset",
+  "password-change"
+] as const;
+export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+export const OTP_CODE_LENGTH = 6 as const;
+export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+export type OTPType = (typeof OTP_TYPES)[number];
+
+//? otp interface
+export interface IOtp extends Document {
+  _id: mongoose.Types.ObjectId;
+  email: string;
+  otpHashCode: string;
+  nextResendAllowedAt: Date;
+  type: OTPType;
+  expiresAt: Date;
+  isUsed: boolean;
+  usedAt?: Date;
+  attempts: number;
+  maxAttempts: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+//? otp schema
+const otpSchema = new Schema<IOtp>(
+  {
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      lowercase: true,
+      trim: true
+    },
+    otpHashCode: {
+      type: String,
+      required: [true, "OTP hash code is required"],
+      select: false // Never return OTP hash code in queries by default
+    },
+    nextResendAllowedAt: {
+      type: Date,
+      required: [true, "Next resend allowed at is required"]
+    },
+    type: {
+      type: String,
+      enum: OTP_TYPES,
+      required: [true, "OTP type is required"]
+    },
+    expiresAt: {
+      type: Date,
+      required: [true, "Expiration time is required"]
+    },
+    isUsed: {
+      type: Boolean,
+      default: false
+    },
+    usedAt: {
+      type: Date
+    },
+    attempts: {
+      type: Number,
+      default: 0
+    },
+    maxAttempts: {
+      type: Number,
+      default: OTP_MAX_ATTEMPTS // Prevent brute force attacks
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
+otpSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: OTP_EXPIRES_IN / 1000 } // 5 minutes
+); // ttl index
+
+const Otp: Model<IOtp> =
+  mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
+
+export default Otp;
+```
+
+## 3. Session Schema
+
+The **Session Schema** manages stateful user sessions, tracking devices and IPs.
+
+**MVC Path:** <Code children="src/models/session.model.ts"/>  
+**Feature Path:** <Code children="src/modules/auth/session.model.ts"/> 
+
+```ts
+import mongoose, { Document, Schema, Model } from "mongoose";
+
+export interface ISession extends Document {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  tokenHash: string;
+  ip?: string;
+  userAgent?: string;
+  isActive: boolean;
+  lastUsedAt: Date;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const SESSION_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const sessionSchema: Schema<ISession> = new Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    tokenHash: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    },
+    ip: { type: String },
+    userAgent: { type: String },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true
+    },
+    lastUsedAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: {
+      type: Date,
+      required: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Supporting indexes
+sessionSchema.index({ userId: 1, isActive: 1 });
+sessionSchema.index({ userId: 1, lastUsedAt: -1 });
+sessionSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: SESSION_EXPIRES_IN / 1000 } // 7 days
+); // ttl index
+
+const Session: Model<ISession> =
+  mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
+
+export default Session;
+```
+
+---
+
+## 4. Refresh Token Schema
+
+The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
+
+**MVC Path:** `src/models/refresh-token.model.ts`  
+**Feature Path:** `src/modules/auth/refresh-token.model.ts`
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export interface IRefreshToken extends Document {
+  _id: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  tokenHash: string;
+  expiresAt: Date;
+  isRevoked: boolean;
+  revokedAt?: Date;
+  replacedByTokenHash?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const refreshTokenSchema = new Schema<IRefreshToken>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required"]
+    },
+    tokenHash: {
+      type: String,
+      required: [true, "Token hash is required"],
+      select: false // Secure by default
+    },
+    expiresAt: {
+      type: Date,
+      required: [true, "Expiration time is required"]
+    },
+    isRevoked: {
+      type: Boolean,
+      default: false
+    },
+    revokedAt: {
+      type: Date
+    },
+    replacedByTokenHash: {
+      type: String,
+      select: false
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+refreshTokenSchema.index({ userId: 1 });
+refreshTokenSchema.index({ tokenHash: 1 });
+refreshTokenSchema.index({ isRevoked: 1 });
+refreshTokenSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 } // 7 days
+); 
+
+const RefreshToken: Model<IRefreshToken> =
+  mongoose.models.RefreshToken ||
+  mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+export default RefreshToken;
+```
+
+## 5. Auth Constants
+
+The **Auth Constants** file centralizes all authentication-related configuration values, such as OTP expiry times, maximum login attempts, and token durations.
+
+**MVC Path:** <Code children="src/constants/auth.ts"/>  
+**Feature Path:** <Code children="src/shared/constants/auth.ts"/>
+
+```ts
+export const OTP_MAX_ATTEMPTS = 5;
+
+export const OTP_TYPES = [
+  "signin",
+  "email-verification",
+  "password-reset",
+  "password-change"
+] as const;
+
+export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+
+export const LOGIN_MAX_ATTEMPTS = 5 as const;
+
+export const OTP_CODE_LENGTH = 6 as const;
+
+export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
+
+export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+```
