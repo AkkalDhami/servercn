@@ -111,7 +111,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="mt-8 flex items-center justify-center">
-              <span className="text-muted-secondary">
+              <span className="text-muted-secondary font-mono">
                 The shadcn/ui philosophy for Node.js backends
               </span>
             </motion.div>
