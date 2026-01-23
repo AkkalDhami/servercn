@@ -457,13 +457,11 @@ To install all auth-related schemas at once, run:
 
 This will install:
 
-- User schema (`auth/user`)
-- OTP schema (`auth/otp`)
-- User schema (`auth/user`)
-- OTP schema (`auth/otp`)
-- Session schema (`auth/session`)
-- Refresh Token schema (`auth/refresh-token`)
-- Auth constants (OTP types, max attempts, etc.)
+- <Code children="User" /> schema (auth/user)
+- <Code children="OTP" /> schema (auth/otp)
+- <Code children="Session" /> schema (auth/session)
+- <Code children="Refresh Token" /> schema (auth/refresh-token)
+- <Code children="Auth Constants" /> (OTP types, max attempts, etc.)
 
 ### Install Individual Schemas
 
@@ -631,7 +629,7 @@ All auth schemas support multiple databases:
 - **MySQL** - via Drizzle ORM
 - **PostgreSQL** - via Drizzle ORM
 
-The CLI automatically detects your database configuration from `servercn.json` and generates the appropriate schema.
+The CLI automatically detects your database configuration from <Code children="servercn.config.json" /> and generates the appropriate schema.
 
 ## File Structure
 
@@ -663,118 +661,6 @@ src/
     │   └── auth.ts            # Auth constants
     └── helpers/
         └── token.helpers.ts   # Token utilities
-```
-
-## Common Authentication Flows
-
-### Email Verification Flow
-
-```ts
-// 1. User signs up
-const user = await User.create({ email, password: hashedPassword });
-
-// 2. Generate OTP
-const { code, hashCode, expiresAt } = generateOTP(6, 15);
-
-// 3. Store OTP
-await Otp.create({
-  userId: user._id,
-  email: user.email,
-  otpHashCode: hashCode,
-  type: "email-verification",
-  expiresAt
-});
-
-// 4. Send email
-await sendEmail(user.email, `Verification code: ${code}`);
-
-// 5. User submits OTP
-const otpRecord = await Otp.findOne({
-  userId,
-  type: "email-verification"
-}).select("+otpHashCode");
-
-const isValid = verifyOTP(userProvidedCode, otpRecord.otpHashCode);
-
-if (isValid) {
-  user.isEmailVerified = true;
-  await user.save();
-
-  otpRecord.isUsed = true;
-  await otpRecord.save();
-}
-```
-
-### Password Reset Flow
-
-```ts
-// 1. User requests password reset
-const user = await User.findOne({ email });
-
-// 2. Generate OTP
-const { code, hashCode, expiresAt } = generateOTP(6, 10);
-
-// 3. Store OTP
-await Otp.create({
-  userId: user._id,
-  email: user.email,
-  otpHashCode: hashCode,
-  type: "password-reset",
-  expiresAt
-});
-
-// 4. Send email
-await sendEmail(user.email, `Reset code: ${code}`);
-
-// 5. User submits OTP and new password
-const otpRecord = await Otp.findOne({ userId, type: "password-reset" }).select(
-  "+otpHashCode"
-);
-
-const isValid = verifyOTP(userProvidedCode, otpRecord.otpHashCode);
-
-if (isValid) {
-  user.password = await hashPassword(newPassword);
-  await user.save();
-
-  // Invalidate all sessions
-  await Session.updateMany({ userId }, { isActive: false });
-
-  otpRecord.isUsed = true;
-  await otpRecord.save();
-}
-```
-
-### Session-Based Login Flow
-
-```ts
-// 1. User logs in
-const user = await User.findOne({ email }).select("+password");
-const isValidPassword = await verifyPassword(password, user.password);
-
-if (!isValidPassword) {
-  throw new Error("Invalid credentials");
-}
-
-// 2. Create session
-const token = generateSecureToken(32);
-const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-await Session.create({
-  userId: user._id,
-  tokenHash: hashedToken,
-  userAgent: req.headers["user-agent"],
-  ipAddress: req.ip,
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-});
-
-// 3. Return token
-res.cookie("session_token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "strict",
-  maxAge: 7 * 24 * 60 * 60 * 1000
-});
 ```
 
 ## Security Best Practices
@@ -820,134 +706,6 @@ These components work well with the Auth Domain schemas:
 - **[Email Service](/docs/components/email-service)** - Send verification emails
 - **[Rate Limiter](/docs/components/rate-limiter)** - Protect auth endpoints
 - **[RBAC](/docs/components/rbac)** - Role-based access control
-
-## Examples
-
-### Complete Registration Flow
-
-```ts
-import User from "@/models/user";
-import Otp from "@/models/otp";
-import { hashPassword } from "@/helpers/auth.helpers";
-import { generateOTP } from "@/helpers/token.helpers";
-import { sendEmail } from "@/services/email.service";
-
-export async function registerUser(
-  name: string,
-  email: string,
-  password: string
-) {
-  // 1. Check if user exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new Error("Email already registered");
-  }
-
-  // 2. Hash password
-  const hashedPassword = await hashPassword(password);
-
-  // 3. Create user
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    role: "user",
-    isEmailVerified: false
-  });
-
-  // 4. Generate OTP
-  const { code, hashCode, expiresAt } = generateOTP(6, 15);
-
-  // 5. Store OTP
-  await Otp.create({
-    userId: user._id,
-    email: user.email,
-    otpHashCode: hashCode,
-    type: "email-verification",
-    expiresAt,
-    nextResendAllowedAt: new Date(Date.now() + 60 * 1000)
-  });
-
-  // 6. Send verification email
-  await sendEmail({
-    to: email,
-    subject: "Verify Your Email",
-    text: `Your verification code is: ${code}. Valid for 15 minutes.`
-  });
-
-  return {
-    userId: user._id,
-    message: "Registration successful. Please check your email."
-  };
-}
-```
-
-### Complete Login Flow
-
-```ts
-import User from "@/models/user";
-import Session from "@/models/session";
-import { verifyPassword } from "@/helpers/auth.helpers";
-import { generateSecureToken } from "@/helpers/token.helpers";
-import crypto from "node:crypto";
-
-export async function loginUser(email: string, password: string, req: Request) {
-  // 1. Find user
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) {
-    throw new Error("Invalid credentials");
-  }
-
-  // 2. Check if account is locked
-  if (user.lockUntil && user.lockUntil > new Date()) {
-    throw new Error("Account is locked. Please try again later.");
-  }
-
-  // 3. Verify password
-  const isValidPassword = await verifyPassword(password, user.password);
-
-  if (!isValidPassword) {
-    // Increment failed attempts
-    user.failedLoginAttempts += 1;
-
-    // Lock account after 5 failed attempts
-    if (user.failedLoginAttempts >= 5) {
-      user.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-    }
-
-    await user.save();
-    throw new Error("Invalid credentials");
-  }
-
-  // 4. Check email verification
-  if (!user.isEmailVerified) {
-    throw new Error("Please verify your email first");
-  }
-
-  // 5. Reset failed attempts
-  user.failedLoginAttempts = 0;
-  user.lockUntil = undefined;
-  user.lastLoginAt = new Date();
-  await user.save();
-
-  // 6. Create session
-  const token = generateSecureToken(32);
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-  await Session.create({
-    userId: user._id,
-    tokenHash: hashedToken,
-    userAgent: req.headers["user-agent"],
-    ipAddress: req.ip,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  });
-
-  return {
-    token,
-    user: { id: user._id, name: user.name, email: user.email, role: user.role }
-  };
-}
-```
 
 ## Next Steps
 
