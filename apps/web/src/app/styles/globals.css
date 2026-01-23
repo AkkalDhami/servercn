@@ -230,20 +230,19 @@ html {
 body {
   font-family: var(--font-sans);
 }
-/* Hide scrollbar by default */
-.sidebar,
-.code-wrapper {
+.sidebar {
   scrollbar-width: none;
 }
 
-.sidebar::-webkit-scrollbar,
-.code-wrapper::-webkit-scrollbar {
+.sidebar::-webkit-scrollbar {
   width: 0;
 }
 
-/* Show thin scrollbar on hover */
-.sidebar:hover,
-.code-wrapper:hover {
+.code-wrapper {
+  scrollbar-width: thin;
+}
+
+.sidebar:hover {
   scrollbar-width: thin;
 }
 
@@ -257,9 +256,6 @@ body {
   code[data-theme*=" "],
   code[data-theme*=" "] span {
     color: var(--shiki-dark);
-    background-color: var(--shiki-dark-bg);
-  }
-  .code-theme {
     background-color: var(--shiki-dark-bg);
   }
 }

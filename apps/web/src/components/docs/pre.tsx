@@ -29,7 +29,7 @@ export function Pre({
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="bg-editor absolute right-5 bottom-6 z-20 flex items-center justify-center rounded-md py-1 transition-all"
+        className="bg-editor absolute right-5 bottom-6 z-20 flex items-center justify-center rounded-md py-2 transition-all"
       />
       <pre
         ref={ref}
