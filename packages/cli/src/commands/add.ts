@@ -8,7 +8,6 @@ import { resolveTargetDir } from "../lib/architecture";
 import { installDependencies } from "../lib/install-deps";
 import { updateEnvExample } from "../lib/env";
 import { ensurePackageJson, ensureTsConfig } from "../lib/package";
-import { askFolderName } from "../lib/prompts";
 import { logger } from "../utils/cli-logger";
 import { assertInitialized } from "../lib/assert-initialized";
 import { getServerCNConfig } from "../lib/config";
@@ -96,13 +95,12 @@ export async function add(componentName: string, options: AddOptions = {}) {
       const databaseOrm = config.database?.orm;
       if (!database || !databaseOrm) {
         logger.error(
-          "Database not configured in servercn.json. Please run init first."
+          "Database not configured in servercn.config.json. Please run init first."
         );
         process.exit(1);
       }
 
       const dbConfig = (templateConfig as any)[database];
-
       if (!dbConfig || !dbConfig[databaseOrm]) {
         logger.error(
           `Database "${database}-${databaseOrm}" is not supported by "${component.slug}"`

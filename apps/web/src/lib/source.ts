@@ -38,11 +38,12 @@ export const findNeighbour = (
       label: string;
       slug: string;
     }): IRegistryItems => {
+      const typePath = parentItem!.type === "schema" ? "schemas" : "blueprints";
       return {
         slug: model.slug,
         title: model.label.charAt(0).toUpperCase() + model.label.slice(1),
         type: parentItem!.type,
-        docs: `/docs/schemas/${model.slug}`,
+        docs: `/docs/${typePath}/${model.slug}`,
         description: "",
         status: parentItem!.status
       } as IRegistryItems;

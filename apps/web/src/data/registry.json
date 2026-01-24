@@ -157,22 +157,6 @@
       "docs": "/docs/components/shutdown-handler"
     },
     {
-      "slug": "stateful-auth",
-      "title": "Stateful Authentication",
-      "description": "The Stateful Authentication component provides a standardized way to handle stateful authentication in ServerCN using express-session.",
-      "type": "blueprint",
-      "status": "experimental",
-      "docs": "/docs/blueprints/stateful-auth"
-    },
-    {
-      "slug": "stateless-auth",
-      "title": "Stateless Authentication",
-      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",
-      "type": "blueprint",
-      "status": "experimental",
-      "docs": "/docs/blueprints/stateless-auth"
-    },
-    {
       "slug": "rbac",
       "title": "Role Based Access Control",
       "description": "The Role Based Access Control component provides a standardized way to handle role based access control in ServerCN.",
@@ -211,6 +195,14 @@
       "type": "component",
       "status": "stable",
       "docs": "/docs/components/github-oauth"
+    },
+    {
+      "slug": "env-config",
+      "title": "Env Configuration",
+      "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/env-config"
     },
     {
       "slug": "swagger-docs",
@@ -285,13 +277,30 @@
       "status": "stable",
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
+
     {
-      "slug": "env-config",
-      "title": "Env Configuration",
-      "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
-      "type": "component",
-      "status": "stable",
-      "docs": "/docs/components/env-config"
+      "slug": "stateless-auth",
+      "title": "Stateless Authentication",
+      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",
+      "type": "blueprint",
+      "status": "experimental",
+      "docs": "/docs/blueprints/stateless-auth",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "stateless-auth-mongodb"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "stateless-auth-postgresql"
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "stateless-auth-mysql"
+          }
+        ]
+      }
     },
 
     {
@@ -314,33 +323,6 @@
           {
             "label": "MySQL (Drizzle)",
             "slug": "auth-mysql"
-          }
-        ],
-        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "useCases": ["cms", "content-platform"],
-        "relations": true
-      }
-    },
-    {
-      "slug": "blog",
-      "title": "Blog Domain",
-      "description": "Blog domain schemas including posts, categories, tags, and comments.",
-      "type": "schema",
-      "status": "stable",
-      "docs": "/docs/schemas/blog-post",
-      "meta": {
-        "databases": [
-          {
-            "label": "MongoDB (Mongoose)",
-            "slug": "blog-mongodb"
-          },
-          {
-            "label": "PostgreSQL (Drizzle)",
-            "slug": "blog-postgresql"
-          },
-          {
-            "label": "MySQL (Drizzle)",
-            "slug": "blog-mysql"
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],

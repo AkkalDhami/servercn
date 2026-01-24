@@ -5,7 +5,7 @@ import { Command } from "commander";
 
 // src/commands/add.ts
 import path10 from "path";
-import prompts2 from "prompts";
+import prompts from "prompts";
 
 // src/lib/paths.ts
 import path from "path";
@@ -251,9 +251,6 @@ function ensureTsConfig(dir) {
   fs5.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
 }
 
-// src/lib/prompts.ts
-import prompts from "prompts";
-
 // src/lib/assert-initialized.ts
 import fs6 from "fs-extra";
 import path8 from "path";
@@ -366,7 +363,7 @@ async function add(componentName, options = {}) {
         value: key
       })
     );
-    const { algorithm } = await prompts2({
+    const { algorithm } = await prompts({
       type: "select",
       name: "algorithm",
       message: "Select implementation",
@@ -399,7 +396,7 @@ async function add(componentName, options = {}) {
       const databaseOrm = config.database?.orm;
       if (!database || !databaseOrm) {
         logger.error(
-          "Database not configured in servercn.json. Please run init first."
+          "Database not configured in servercn.config.json. Please run init first."
         );
         process.exit(1);
       }
@@ -465,7 +462,7 @@ Success! ${capitalize(component.type)} ${component.title} added successfully
 // src/commands/init.ts
 import fs8 from "fs-extra";
 import path11 from "path";
-import prompts3 from "prompts";
+import prompts2 from "prompts";
 async function init(foundation) {
   const cwd = process.cwd();
   const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
@@ -489,7 +486,7 @@ async function init(foundation) {
     exclude: ["node_modules"]
   };
   if (foundation) {
-    const response2 = await prompts3([
+    const response2 = await prompts2([
       {
         type: "text",
         name: "root",
@@ -627,7 +624,7 @@ Success! ServerCN initialized with ${foundation}.`);
       process.exit(1);
     }
   }
-  const response = await prompts3([
+  const response = await prompts2([
     {
       type: "text",
       name: "root",
@@ -742,8 +739,12 @@ Success! ServerCN initialized with ${foundation}.`);
   });
   logger.success("\nSuccess! ServerCN initialized successfully.");
   logger.log("You may now add components by running:");
-  logger.muted(`1. cd ${response.root}`);
-  logger.muted("2. npx servercn add <component>");
+  if (response.root === ".") {
+    logger.muted("1. npx servercn add <component>");
+  } else {
+    logger.muted(`1. cd ${response.root}`);
+    logger.muted("2. npx servercn add <component>");
+  }
   logger.muted("Ex: npx servercn add jwt-utils file-upload");
 }
 
@@ -845,7 +846,13 @@ async function main() {
     let items = components;
     if (components[0] === "schema") {
       type = "schema";
-      items = components.slice(1);
+      console.log({ components });
+      console.log(components.slice(1)[0]);
+      if (components.slice(1)[0].includes("auth/")) {
+        items = components.slice(1);
+      } else {
+        items = [`${components.slice(1)}/index`];
+      }
     } else if (components[0] === "blueprint") {
       type = "blueprint";
       items = components.slice(1);

@@ -330,7 +330,11 @@ export async function init(foundation?: string) {
   logger.success("\nSuccess! ServerCN initialized successfully.");
 
   logger.log("You may now add components by running:");
-  logger.muted(`1. cd ${response.root}`);
-  logger.muted("2. npx servercn add <component>");
+  if (response.root === ".") {
+    logger.muted("1. npx servercn add <component>");
+  } else {
+    logger.muted(`1. cd ${response.root}`);
+    logger.muted("2. npx servercn add <component>");
+  }
   logger.muted("Ex: npx servercn add jwt-utils file-upload");
 }

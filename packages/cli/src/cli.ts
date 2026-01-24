@@ -33,13 +33,19 @@ async function main() {
     .option("--arch <arch>", "Architecture (mvc | feature)", "mvc")
     .option("--variant <variant>", "Variant (advanced | minimal)", "advanced")
     .option("-f, --force", "Overwrite existing files")
-    .action(async (components, options) => {
+    .action(async (components: string[], options) => {
       let type: RegistryType = "component";
       let items = components;
 
       if (components[0] === "schema") {
         type = "schema";
-        items = components.slice(1);
+        console.log({ components });
+        console.log(components.slice(1)[0]);
+        if (components.slice(1)[0].includes("auth/")) {
+          items = components.slice(1);
+        } else {
+          items = [`${components.slice(1)}/index`];
+        }
       } else if (components[0] === "blueprint") {
         type = "blueprint";
         items = components.slice(1);
