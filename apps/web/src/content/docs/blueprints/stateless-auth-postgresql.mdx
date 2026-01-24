@@ -1,0 +1,158 @@
+---
+title: Stateless Auth | PostgreSQL (Drizzle)
+description: Production-ready stateless authentication implementation using Express, PostgreSQL, and Drizzle ORM.
+---
+
+# Stateless Auth (PostgreSQL)
+
+This blueprint provides a complete stateless authentication system for **Express** applications using **PostgreSQL** and **Drizzle ORM**. It features JWT-based access and refresh tokens, token rotation, and secure cookie management.
+
+## Installation
+
+<PackageManagerTabs command="npx servercn add stateless-auth" />
+
+During installation, select **PostgreSQL (Drizzle)** as your database.
+
+## Features
+
+This blueprint comes packed with production-ready features organized into a clean, modular structure:
+
+- **JWT Stateless Auth**: Secure authentication using Access and Refresh tokens with automatic rotation.
+- **Token Reuse Detection**: Advanced security layer that detects and revokes compromised tokens.
+- **OAuth 2.0 Support**: Fully configured Google and GitHub social authentication.
+- **OTP System**: Integrated email-based One-Time Password service for sign-in and resets.
+- **Profile Management**: Built-in support for profile updates and Cloudinary-powered avatar uploads.
+- **Security Suite**: Comprehensive protection with Helmet headers, CORS, and multi-level rate limiting.
+- **Validated Architecture**: Model-View-Controller (MVC) or Feature-based patterns with full Zod validation.
+- **Error Management**: Standardized API response wrappers and centralized global error handling.
+- **Health Monitoring**: Dedicated endpoints for heartbeat and system status checks.
+
+## Project Structure
+
+The blueprint implements a highly organized directory structure designed for scalability and maintainability:
+
+```text
+src/
+├── configs/          # Database, social auth, and environment setup
+├── constants/        # Shared application constants and status codes
+├── controllers/      # Route logic and request handling
+├── drizzle/          # Drizzle ORM schema and database configuration
+├── helpers/           # Utility functions for cookies, tokens, etc.
+├── middlewares/      # Auth verification, rate limiting, and security
+├── routes/           # API route definitions and versioning
+├── services/         # Core business logic and 3rd-party integrations
+├── types/            # TypeScript interface and type declarations
+├── utils/            # Shared utilities (logger, error classes)
+└── validators/       # Zod schemas for request validation
+```
+
+---
+
+## Architecture Support
+
+This blueprint supports both **MVC** and **Feature-based** architectures.
+
+### MVC Structure
+
+```text
+src/
+├── controllers/
+│   └── auth.controller.ts
+├── drizzle/
+│   ├── schema/
+│   │   ├── user.schema.ts
+│   │   └── refresh-token.schema.ts
+│   └── index.ts
+├── services/
+│   └── auth.service.ts
+├── middlewares/
+│   └── verify-auth.ts
+└── utils/
+    └── jwt.ts
+```
+
+---
+
+## Core Implementation (Drizzle ORM)
+
+### 1. Authentication Middleware
+
+The `verify-auth.ts` middleware handles token verification and automatic rotation using refresh tokens stored in PostgreSQL.
+
+```typescript
+// src/middlewares/verify-auth.ts
+import { db } from "../configs/db";
+import { users, refreshTokens } from "../drizzle";
+import { eq } from "drizzle-orm";
+
+export async function verifyAuthentication(
+  req: any,
+  res: Response,
+  next: NextFunction
+) {
+  const accessToken = req.cookies?.accessToken;
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (accessToken) {
+    try {
+      const decoded = verifyAccessToken(accessToken);
+      req.user = decoded;
+      return next();
+    } catch {
+      /* proceed to refresh */
+    }
+  }
+
+  if (!refreshToken) return next(ApiError.unauthorized());
+
+  try {
+    const decodedRefresh = verifyRefreshToken(refreshToken);
+    const [storedToken] = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.tokenHash, generateHashedToken(refreshToken)));
+
+    if (!storedToken || storedToken.isRevoked) {
+      return next(ApiError.unauthorized("Invalid Refresh Token"));
+    }
+
+    // Rotate Tokens...
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, storedToken.userId));
+    // Generate and set new tokens in cookies
+    next();
+  } catch (err) {
+    next(ApiError.unauthorized());
+  }
+}
+```
+
+### 2. Drizzle Schemas (Postgres)
+
+Defining the relational structure for users and refresh tokens using PostgreSQL core functions.
+
+```typescript
+// src/drizzle/schema/refresh-token.schema.ts
+import { pgTable, varchar, timestamp, boolean } from "drizzle-orm/pg-core";
+import { users } from "./user.schema";
+
+export const refreshTokens = pgTable("refresh_tokens", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  userId: varchar("user_id", { length: 255 }).references(() => users.id),
+  tokenHash: varchar("token_hash", { length: 255 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  isRevoked: boolean("is_revoked").default(false),
+  createdAt: timestamp("created_at").defaultNow()
+});
+```
+
+---
+
+## Security Features
+
+- **PostgreSQL Native Features**: Leverages strong consistency and complex query capabilities.
+- **Token Rotation**: Every refresh cycle invalidates the previous token.
+- **Type Safety**: Full TypeScript support with Drizzle ORM.
+- **Secure Cookies**: HTTP-only and Secure flags for production environments.

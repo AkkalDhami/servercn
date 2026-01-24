@@ -1,0 +1,167 @@
+---
+title: Stateless Authentication
+description: A comprehensive guide to implementing stateless authentication using JWT, Refresh Tokens, and rotation strategies with Express and multiple databases.
+command: npx servercn add stateless-auth
+---
+
+# Stateless Authentication
+
+**Stateless Authentication** is a method where the server does not store user session data. Instead, all the necessary information to authenticate a user is stored in a self-contained token (usually a **JSON Web Token or JWT**) sent with each request.
+
+This blueprint provides a production-ready implementation of stateless authentication using **Access Tokens**, **Refresh Tokens**, and **Token Rotation** strategies to ensure high security and scalability.
+
+## Why Stateless Authentication?
+
+- **Scalability**: Since the server doesn't store session state, it's easier to scale horizontally across multiple servers.
+- **Mobile Friendly**: Works seamlessly with mobile apps and cross-domain requests.
+- **Performance**: Reduces database lookups for session validation on every request (though refresh tokens still require a lookup for rotation/revocation).
+- **Decoupling**: The authentication server can be separate from the application server.
+
+## Installation Guide
+
+You can add the stateless authentication blueprint to your project using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add stateless-auth" />
+
+During installation, you will be prompted to choose:
+
+1.  **Database**: MongoDB (Mongoose), MySQL (Drizzle), or PostgreSQL (Drizzle).
+2.  **Architecture**: MVC (Model-View-Controller) or Feature-based.
+
+## Key Features
+
+- **JWT-Based**: Uses <Code children="jsonwebtoken" /> for secure token signing and verification.
+- **Dual Token Strategy**:
+  - **Access Token**: Short-lived (e.g., 15m) for authorizing requests.
+  - **Refresh Token**: Long-lived (e.g., 7d) stored in the database for issuing new access tokens.
+- **Token Rotation**: Every time a refresh token is used, it is revoked and a new one is issued.
+- **Reuse Detection**: Detects if an old refresh token is used, potentially indicating a theft, and revokes all tokens for that user.
+- **HTTP-Only Cookies**: Tokens are stored in secure, HTTP-only cookies to prevent XSS attacks.
+- **Comprehensive Auth Flow**: Includes Signup, Email Verification, Login, Logout, Forgot Password, Reset Password, Change Password, Delete and Deactivate Account, Reactivate Account and Profile Management.
+
+## How It Works
+
+The authentication flow follows these steps:
+
+1.  **Login**: User provides credentials. The server validates them and generates an **Access Token** and a **Refresh Token**.
+2.  **Storage**: Both tokens are sent to the client via **HTTP-only cookies**. The Refresh Token is also hashed and stored in the database.
+3.  **Authentication**: For protected routes, the `verifyAuthentication` middleware checks the Access Token.
+4.  **Token Refresh**: If the Access Token is expired, the middleware automatically uses the Refresh Token to:
+    - Verify the Refresh Token.
+    - Check if it exists in the database and is not revoked.
+    - Generate a brand new Access Token and Refresh Token (**Rotation**).
+    - Revoke the old Refresh Token in the database.
+    - Update the cookies.
+5.  **Revocation**: When a user logs out, the Refresh Token is deleted/revoked from the database, and cookies are cleared.
+
+## Database Implementation
+
+This blueprint supports three primary database setups:
+
+### 1. MongoDB with Mongoose
+
+Uses Mongoose schemas to define `User` and `RefreshToken` models. It leverages Mongoose's built-in validation and middleware hooks.
+
+### 2. MySQL with Drizzle
+
+Uses Drizzle ORM for type-safe SQL queries. It handles the relational structure between users and tokens efficiently.
+
+### 3. PostgreSQL with Drizzle
+
+Similar to the MySQL implementation but optimized for PostgreSQL features.
+
+## Security Highlights
+
+### Token Rotation & Reuse Detection
+
+This is one of the most critical security features. If a malicious actor steals a refresh token and uses it, the legitimate user's next attempt to refresh will use the same (now old) token. The server detects this "reuse", revokes **all** active refresh tokens for that user, and forces a re-login.
+
+### Secure Cookies
+
+By using `httpOnly: true` and `secure: true` (in production), we ensure that tokens cannot be accessed via client-side JavaScript, mitigating XSS risks.
+
+```typescript
+res.cookie("accessToken", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  maxAge: 15 * 60 * 1000 // 15 minutes
+});
+```
+
+---
+
+## Usage Example
+
+### Protecting a Route
+
+Simply apply the `verifyAuthentication` middleware to any route you want to protect.
+
+```typescript
+import { Router } from "express";
+import { verifyAuthentication } from "./middlewares/verify-auth";
+import { getProfile } from "./controllers/user.controller";
+
+const router = Router();
+
+// This route requires a valid Access Token (or a valid Refresh Token for auto-rotation)
+router.get("/me", verifyAuthentication, getProfile);
+
+export default router;
+```
+
+### Accessing User Data
+
+Once authenticated, the user information is available on `req.user`.
+
+```typescript
+export const getProfile = (req: Request, res: Response) => {
+  const user = req.user;
+  res.json({ success: true, data: user });
+};
+```
+
+---
+
+## Environment Variables
+
+Make sure to set the following environment variables in your `.env` file:
+
+```bash
+PORT='9000'
+NODE_ENV='development'
+LOG_LEVEL='info'
+CORS_ORIGIN=''
+
+# CRYPTO
+CRYPTO_SECRET=
+
+# DB
+DATABASE_URL=
+
+# JWT
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+
+# SMTP
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+EMAIL_FROM=
+
+# CLOUDINARY
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# GITHUB
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URI=
+
+#  GOOGLE
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+```

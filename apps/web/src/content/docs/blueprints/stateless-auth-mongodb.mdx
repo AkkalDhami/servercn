@@ -1,0 +1,3045 @@
+---
+title: Stateless Auth | MongoDB (Mongoose)
+description: Production-ready stateless authentication implementation using Express, MongoDB, and Mongoose.
+command: npx servercn add stateless-auth
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: cloudinary.ts
+            content: |
+              import { v2 as cloudinary } from "cloudinary";
+              import env from "./env";
+
+              cloudinary.config({
+                cloud_name: env.CLOUDINARY_CLOUD_NAME,
+                api_key: env.CLOUDINARY_API_KEY,
+                api_secret: env.CLOUDINARY_API_SECRET
+              });
+
+              export default cloudinary;
+
+          - type: file
+            name: db.ts
+            content: |
+              import mongoose from "mongoose";
+              import env from "./env";
+              import { logger } from "../utils/logger";
+
+              export const connectDB = async (): Promise<void> => {
+                try {
+                  const conn = await mongoose.connect(env.DATABASE_URL as string);
+                  logger.info(`MongoDB Connected: ${conn.connection.host}`);
+                } catch (error) {
+                  logger.error(error, "MongoDB Connection Failed");
+                  process.exit(1);
+                }
+              };
+
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+              import { z } from "zod";
+
+              export const envSchema = z.object({
+                NODE_ENV: z
+                  .enum(["development", "test", "production"])
+                  .default("development"),
+
+                PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+                DATABASE_URL: z.url(),
+
+                CORS_ORIGIN: z.string(),
+
+                LOG_LEVEL: z
+                  .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+                  .default("info"),
+
+                JWT_ACCESS_SECRET: z.string().min(32),
+                JWT_REFRESH_SECRET: z.string().min(32),
+
+                CRYPTO_SECRET: z.string().min(32),
+
+                SMTP_HOST: z.string(),
+                SMTP_PORT: z
+                  .string()
+                  .regex(/^\d+$/, "SMTP_PORT must be a number")
+                  .transform(Number),
+                SMTP_USER: z.string(),
+                SMTP_PASS: z.string(),
+                EMAIL_FROM: z.email(),
+
+                CLOUDINARY_CLOUD_NAME: z.string(),
+                CLOUDINARY_API_KEY: z.string(),
+                CLOUDINARY_API_SECRET: z.string(),
+
+                GOOGLE_CLIENT_ID: z.string(),
+                GOOGLE_CLIENT_SECRET: z.string(),
+                GOOGLE_REDIRECT_URI: z.url(),
+
+                GITHUB_CLIENT_ID: z.string(),
+                GITHUB_CLIENT_SECRET: z.string(),
+                GITHUB_REDIRECT_URI: z.url()
+              });
+
+              export type Env = z.infer<typeof envSchema>;
+
+              const result = envSchema.safeParse(process.env);
+
+              if (!result.success) {
+                console.error("❌ Invalid environment configuration");
+                console.error(z.treeifyError(result.error));
+                process.exit(1);
+              }
+
+              export const env: Readonly<Env> = Object.freeze(result.data);
+
+              export default env;
+
+          - type: file
+            name: nodemailer.ts
+            content: |
+              import nodemailer from "nodemailer";
+              import "dotenv/config";
+              import env from "./env";
+
+              let transporter: nodemailer.Transporter | null = null;
+
+              export function getTransporter() {
+                if (transporter) return transporter;
+                const host = env.SMTP_HOST;
+                const port = Number(env.SMTP_PORT || 465);
+                const user = env.SMTP_USER;
+                const pass = env.SMTP_PASS;
+                const from = env.EMAIL_FROM;
+                if (!host || !user || !pass || !from) {
+                  throw new Error("SMTP/EMAIL env not configured");
+                }
+
+                transporter = nodemailer.createTransport({
+                  host,
+                  port,
+                  secure: port === 465,
+                  auth: { user, pass }
+                });
+                return transporter;
+              }
+
+          - type: file
+            name: passport.ts
+            content: |
+              import passport from "passport";
+              import {
+                Strategy as GitHubStrategy,
+                Profile as GithubProfile
+              } from "passport-github2";
+
+              import {
+                Strategy as GoogleStrategy,
+                Profile as GoogleProfile
+              } from "passport-google-oauth20";
+
+              import env from "./env";
+
+              passport.use(
+                new GitHubStrategy(
+                  {
+                    clientID: env.GITHUB_CLIENT_ID,
+                    clientSecret: env.GITHUB_CLIENT_SECRET,
+                    callbackURL: env.GITHUB_REDIRECT_URI
+                  },
+                  function (
+                    accessToken: string,
+                    refreshToken: string,
+                    profile: GithubProfile,
+                    cb: (error: Error | null, user?: any) => void
+                  ) {
+                    // console.log({ profile });
+                    return cb(null, profile);
+                  }
+                )
+              );
+
+              passport.use(
+                new GoogleStrategy(
+                  {
+                    clientID: env.GOOGLE_CLIENT_ID,
+                    clientSecret: env.GOOGLE_CLIENT_SECRET,
+                    callbackURL: env.GOOGLE_REDIRECT_URI
+                  },
+                  function (accessToken, refreshToken, profile: GoogleProfile, cb) {
+                    return cb(null, profile);
+                  }
+                )
+              );
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: auth.ts
+            content: |
+              export const OTP_MAX_ATTEMPTS = 5;
+
+              export const OTP_TYPES = [
+                "signin",
+                "email-verification",
+                "password-reset",
+                "password-change"
+              ] as const;
+
+              export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+
+              export const LOGIN_MAX_ATTEMPTS = 5 as const;
+
+              export const OTP_CODE_LENGTH = 6 as const;
+
+              export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+              export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+              export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
+
+              export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+              export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: auth.controller.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+
+              import { ApiError } from "../utils/api-error";
+              import { AuthService } from "../services/auth.service";
+              import { OtpService } from "../services/otp.service";
+              import {
+                clearAuthCookies,
+                setAuthCookies,
+                setCookies
+              } from "../helpers/cookie.helper";
+              import { UserRequest } from "../types/user";
+              import {
+                deleteFileFromCloudinary,
+                uploadToCloudinary
+              } from "../services/cloudinary.service";
+              import { RESET_PASSWORD_TOKEN_EXPIRY } from "../constants/auth";
+              import { DeleteAccountType, VerifyOtpType } from "../validators/auth";
+
+              //? VERIFY OTP
+              export const verifyOtp = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const { email, otpCode, otpType }: VerifyOtpType = req.body;
+                  if (!email || !otpCode || !otpType) {
+                    return next(
+                      ApiError.badRequest("Email, OTP code and OTP type are required")
+                    );
+                  }
+
+                  const otp = await OtpService.verifyOtp(
+                    next,
+                    { email, otpCode, otpType },
+                    {
+                      setAuthCookie: (accessToken: string, refreshToken: string) => {
+                        setAuthCookies(res, accessToken, refreshToken);
+                      }
+                    },
+                    {
+                      setCookie: (token: string) => {
+                        setCookies(res, [
+                          {
+                            cookie: "hashedResetPasswordToken",
+                            value: token,
+                            maxAge: RESET_PASSWORD_TOKEN_EXPIRY
+                          }
+                        ]);
+                      }
+                    }
+                  );
+
+                  if (!otp) {
+                    return next(ApiError.server("Failed to verify OTP!"));
+                  }
+                  return ApiResponse.ok(res, otp.message || "OTP verified successfully!");
+                }
+              );
+
+              //? SIGNUP USER
+              export const signupUser = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const { name, email, password, role } = req.body;
+                  if (!name || !email || !password) {
+                    return next(ApiError.badRequest("Name, email and password are required"));
+                  }
+
+                  const user = await AuthService.registerUser(next, {
+                    name,
+                    email,
+                    password,
+                    role
+                  });
+
+                  if (!user) {
+                    return next(ApiError.server("Failed to register user!"));
+                  }
+
+                  return ApiResponse.created(res, "User registered successfully", {
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                  });
+                }
+              );
+
+              //? SIGNIN USER
+              export const signinUser = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const { email, password } = req.body;
+                  if (!email || !password) {
+                    return next(ApiError.badRequest("Email and password are required"));
+                  }
+
+                  const result = await AuthService.loginAndSendOtp(next, { email, password });
+
+                  if (!result) {
+                    return next(ApiError.server("Failed to login!"));
+                  }
+
+                  return ApiResponse.ok(res, result.message || "Otp sent successfully!");
+                }
+              );
+
+              //? GET USER PROFILE
+              export const getUserProfile = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const userId = req.user?._id;
+                  if (!userId) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  const user = await AuthService.getUserProfile(userId.toString());
+                  if (!user) {
+                    return next(ApiError.notFound("User not found"));
+                  }
+
+                  if (user.isDeleted) {
+                    return next(ApiError.notFound("This account has been deactivated."));
+                  }
+
+                  return ApiResponse.ok(res, "User profile fetched successfully", {
+                    user: {
+                      name: user.name,
+                      email: user.email,
+                      role: user.role,
+                      avatar: user.avatar,
+                      isEmailVerified: user.isEmailVerified,
+                      lastLoginAt: user.lastLoginAt
+                    }
+                  });
+                }
+              );
+
+              //? UPDATE PROFILE
+              export const updateProfile = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const data = req.body;
+                  const { name } = data;
+
+                  if (!req.user?._id) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  const user = await AuthService.getUserProfile(req.user?._id.toString());
+
+                  if (!user) {
+                    return next(ApiError.notFound("User not found"));
+                  }
+
+                  if (req?.file && user?.avatar?.public_id) {
+                    await deleteFileFromCloudinary([user.avatar.public_id]);
+                  }
+
+                  if (req?.file && user?.avatar) {
+                    const file = await uploadToCloudinary(req.file.buffer, {
+                      folder: "uploads/files",
+                      resource_type: "auto"
+                    });
+                    user.avatar = {
+                      public_id: req.file
+                        ? file.public_id
+                        : (user?.avatar?.public_id as string),
+                      url: req.file ? file.url : (user.avatar.url as string),
+                      size: req.file ? file.size : (user.avatar.size as number)
+                    };
+                  }
+
+                  if (name) {
+                    user.name = name;
+                  }
+
+                  await user.save();
+
+                  return ApiResponse.Success(res, "Profile updated successfully!", user);
+                }
+              );
+
+              //? REFRESH TOKENS
+              export const refreshToken = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const accessToken = req.cookies?.accessToken;
+                  const refreshToken = req.cookies?.refreshToken;
+
+                  const token = await AuthService.refreshTokens(
+                    next,
+                    accessToken,
+                    refreshToken
+                  );
+
+                  if (!token) {
+                    return next(ApiError.server("Failed to refresh tokens!"));
+                  }
+
+                  const newAccessToken = token.accessToken;
+                  const newRefreshToken = token.refreshToken;
+                  setAuthCookies(res, newAccessToken, newRefreshToken);
+
+                  return ApiResponse.Success(res, "Tokens refreshed successfully!");
+                }
+              );
+
+              //? LOGOUT
+              export const logoutUser = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const userId = req.user?._id;
+                  if (!userId) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  await AuthService.logoutUser(userId.toString());
+
+                  clearAuthCookies(res);
+
+                  return ApiResponse.Success(res, "Logged out successfully!");
+                }
+              );
+
+              //? FORGOT PASSWORD
+              export const forgotPassword = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const { email } = req.body;
+                  if (!email) {
+                    return next(ApiError.badRequest("Email is required!"));
+                  }
+
+                  const result = await AuthService.forgotPassword(next, email);
+
+                  if (!result) {
+                    return next(ApiError.server("Failed to send otp!"));
+                  }
+
+                  return ApiResponse.ok(res, result.message || "Otp sent successfully!");
+                }
+              );
+
+              //? RESET PASSWORD
+              export const resetPassword = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const { newPassword, email } = req.body;
+                  if (!email || !newPassword) {
+                    return next(ApiError.badRequest("Newpassword and email are required!"));
+                  }
+
+                  const hashedResetPasswordToken = req.cookies?.hashedResetPasswordToken;
+
+                  if (!hashedResetPasswordToken) {
+                    return next(
+                      ApiError.badRequest("Reset password token not found or expired")
+                    );
+                  }
+
+                  const result = await AuthService.resetPassword(next, email, newPassword);
+
+                  if (!result) {
+                    return next(ApiError.server("Failed to reset password!"));
+                  }
+
+                  res.clearCookie("hashedResetPasswordToken");
+                  return ApiResponse.ok(
+                    res,
+                    result.message || "Password reset successfully!"
+                  );
+                }
+              );
+
+              //? CHANGE PASSWORD
+              export const changePassword = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const userId = req?.user?._id;
+
+                  if (!userId) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  const { oldPassword, newPassword } = req.body;
+
+                  if (!oldPassword || !newPassword) {
+                    return next(
+                      ApiError.badRequest("Old password and new password are required")
+                    );
+                  }
+
+                  const result = await AuthService.changePassword(next, {
+                    userId: userId.toString(),
+                    oldPassword,
+                    newPassword
+                  });
+
+                  if (!result) {
+                    return next(ApiError.server("Failed to change password!"));
+                  }
+
+                  clearAuthCookies(res);
+
+                  return ApiResponse.ok(
+                    res,
+                    result.message || "Password changed successfully!"
+                  );
+                }
+              );
+
+              //? DELETE/DEACTIVATE ACCOUNT
+              export const deleteAccount = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const { userId, type }: DeleteAccountType = req.body;
+
+                  if (!userId || !type) {
+                    return next(ApiError.badRequest("User id and type are required!"));
+                  }
+
+                  const reqUserId = req?.user?._id;
+
+                  if (!reqUserId) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  if (userId !== reqUserId) {
+                    return next(
+                      ApiError.unauthorized("you are not authorized to perform this action")
+                    );
+                  }
+
+                  await AuthService.deleteOrDeactiveAccount(next, userId, type);
+
+                  if (type === "hard") {
+                    clearAuthCookies(res);
+                  }
+
+                  return ApiResponse.Success(
+                    res,
+                    `Account ${type === "soft" ? "deactivated" : "deleted"} successfully!`
+                  );
+                }
+              );
+
+              //? REACTIVATE ACCOUNT
+              export const reactivateAccount = AsyncHandler(
+                async (req: UserRequest, res: Response, next: NextFunction) => {
+                  const userId = req?.user?._id;
+
+                  if (!userId) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  await AuthService.reactivateAccount(next, userId);
+
+                  return ApiResponse.Success(res, "Account reactivated successfully!");
+                }
+              );
+
+          - type: file
+            name: health.controller.ts
+            content: |
+              import { Request, Response } from "express";
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+
+              /**
+              * Basic health check endpoint
+              * GET /api/health
+              */
+              export const healthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  return ApiResponse.Success(res, "Service is healthy", {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime()
+                  });
+                }
+              );
+
+              /**
+              * Detailed health check with system information
+              * GET /api/health/detailed
+              */
+              export const detailedHealthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  const healthData = {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime(),
+                    environment: process.env.NODE_ENV || "development",
+                    version: process.env.npm_package_version || "1.0.0",
+                    memory: {
+                      used:
+                        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /
+                        100,
+                      total:
+                        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /
+                        100,
+                      unit: "MB"
+                    },
+                    cpu: {
+                      usage: process.cpuUsage()
+                    }
+                  };
+
+                  return ApiResponse.Success(res, "Service is healthy", healthData);
+                }
+              );
+
+          - type: file
+            name: oauth.controller.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { Profile as GithubProfile } from "passport-github2";
+              import { Profile as GoogleProfile } from "passport-google-oauth20";
+
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+              import { ApiError } from "../utils/api-error";
+              import { OAuthService } from "../services/oauth.service";
+              import { setAuthCookies } from "../helpers/cookie.helper";
+
+              //? LOGIN WITH GITHUB
+              export const githubOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as GithubProfile | undefined;
+
+                  if (!data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
+                  }
+
+                  const user = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified: true,
+                    avatar: data.photos && data.photos[0].value
+                  };
+
+                  const existingUser = await OAuthService.handleOAuthLogin(user, {
+                    setAuthCookie: (accessToken: string, refreshToken: string) => {
+                      setAuthCookies(res, accessToken, refreshToken);
+                    }
+                  });
+
+                  //? save the data into your databases
+
+                  ApiResponse.ok(res, "Signin Successfull", {
+                    user: {
+                      _id: existingUser._id.toString(),
+                      name: existingUser.name,
+                      email: existingUser.email,
+                      role: existingUser.role,
+                      avatar: existingUser.avatar,
+                      isEmailVerified: existingUser.isEmailVerified,
+                      lastLoginAt: existingUser.lastLoginAt,
+                      provider: existingUser.provider
+                    }
+                  });
+                }
+              );
+
+              //? LOGIN WITH GOOGLE
+              export const googleOAuth = AsyncHandler(
+                async (req: Request, res: Response, next: NextFunction) => {
+                  const data = req.user as GoogleProfile | undefined;
+
+                  if (!data) {
+                    return next(ApiError.unauthorized("Authenticated failed!"));
+                  }
+
+                  const userInfo = {
+                    provider: data?.provider,
+                    providerId: data.id,
+                    name: data.displayName,
+                    email: data?.emails && data?.emails[0]?.value,
+                    isEmailVerified:
+                      (data?.emails && data?.emails[0]?.verified === true) || true,
+                    avatar: data.profileUrl || (data.photos && data.photos[0].value)
+                  };
+
+                  const existingUser = await OAuthService.handleOAuthLogin(userInfo, {
+                    setAuthCookie: (accessToken: string, refreshToken: string) => {
+                      setAuthCookies(res, accessToken, refreshToken);
+                    }
+                  });
+
+                  ApiResponse.ok(res, "Signin Successfull", {
+                    user: {
+                      _id: existingUser._id.toString(),
+                      name: existingUser.name,
+                      email: existingUser.email,
+                      role: existingUser.role,
+                      avatar: existingUser.avatar,
+                      isEmailVerified: existingUser.isEmailVerified,
+                      lastLoginAt: existingUser.lastLoginAt,
+                      provider: existingUser.provider
+                    }
+                  });
+                }
+              );
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  err,
+                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack })
+                };
+
+                res.status(statusCode).json(response);
+              };
+
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+
+              export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+                next(new ApiError(404, `Not Found - ${req.originalUrl}`));
+              };
+
+          - type: file
+            name: rate-limiter.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import { rateLimit } from "express-rate-limit";
+              import { STATUS_CODES } from "../constants/status-codes";
+              import { ApiError } from "../utils/api-error";
+
+              export const rateLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000, // 15 minutes
+                max: 100, // Limit each IP to 100 requests per window
+                standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+                legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                message: {
+                  success: false,
+                  message:
+                    "Too many requests from this IP, please try again after 15 minutes",
+                  status: 429
+                },
+                handler: (req: Request, res: Response, next: NextFunction, options: any) => {
+                  next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
+                }
+              });
+
+              /**
+              * Stricter rate limiter for sensitive routes (e.g., auth, login)
+              */
+              export const authRateLimiter = rateLimit({
+                windowMs: 60 * 60 * 1000, // 1 hour
+                max: 5, // Limit each IP to 5 failed attempts per hour
+                handler: (req, res, next, options) => {
+                  next(
+                    ApiError.tooManyRequests(
+                      "Too many login attempts, please try again after an hour"
+                    )
+                  );
+                }
+              });
+
+              /**
+              * Rate limiter for login route
+              */
+              export const signinRateLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000,
+                max: 5,
+                message: {
+                  success: false,
+                  message: "Too many login attempts, please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              /**
+              * Rate limiter for registration route
+              */
+              export const signupRateLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000,
+                max: 5,
+                message: {
+                  success: false,
+                  message: "Too many registration attempts, please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              export const otpRequestLimiter = rateLimit({
+                windowMs: 10 * 60 * 1000,
+                max: 6,
+                message: {
+                  success: false,
+                  message: "Too many OTP requests. Please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              export const otpVerificationLimiter = rateLimit({
+                windowMs: 10 * 60 * 1000,
+                max: 6,
+                message: {
+                  success: false,
+                  message: "Too many OTP verification attempts. Please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              export const resetPasswordLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000,
+                max: 6,
+                message: {
+                  success: false,
+                  message: "Too many password reset attempts, please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              export const deleteAccountLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000,
+                max: 5,
+                message: {
+                  success: false,
+                  message: "Too many account deletion attempts, please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+              export const changePasswordLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000,
+                max: 5,
+                message: {
+                  success: false,
+                  message: "Too many password change attempts, please try again later.",
+                  statusCode: 429
+                },
+                standardHeaders: true,
+                legacyHeaders: false
+              });
+
+          - type: file
+            name: security-header.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import cors from "cors";
+              import { Express } from "express";
+              import helmet from "helmet";
+              import env from "../configs/env";
+
+              export const configureSecurityHeaders = (app: Express) => {
+                // Use Helmet to set various security-related HTTP headers
+                app.use(helmet());
+
+                // Configure CORS
+                app.use(
+                  cors({
+                    origin: env.CORS_ORIGIN || "*",
+                    credentials: true,
+                    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+                    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+                  })
+                );
+
+                // Additional custom security headers
+                app.use((req: Request, res: Response, next: NextFunction) => {
+                  res.setHeader("X-Content-Type-Options", "nosniff");
+                  res.setHeader("X-Frame-Options", "DENY");
+                  res.setHeader("X-XSS-Protection", "1; mode=block");
+                  next();
+                });
+              };
+
+          - type: file
+            name: upload-file.ts
+            content: |
+              import multer from "multer";
+
+              export const ALLOWED_FILE_TYPES = [
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "video/mp4",
+                "video/mpeg",
+                "video/quicktime",
+                "application/pdf"
+              ];
+
+              export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+              const storage = multer.memoryStorage();
+
+              const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+                console.log({ file });
+                if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+                  return cb(null, false);
+                }
+                cb(null, true);
+              };
+
+              const upload = multer({
+                storage,
+                limits: { fileSize: MAX_FILE_SIZE },
+                fileFilter
+              });
+
+              export default upload;
+
+          - type: file
+            name: user-account-restriction.ts
+            content: |
+              import { NextFunction, Response } from "express";
+              import { UserRequest } from "../types/user";
+              import User from "../models/user.model";
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export async function checkUserAccountRestriction(
+                req: UserRequest,
+                _res: Response,
+                next: NextFunction
+              ): Promise<void> {
+                try {
+                  if (!req.user?._id) {
+                    return next(ApiError.unauthorized("Unauthorized"));
+                  }
+
+                  const user = await User.findById(req.user._id);
+
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized, please login."));
+                  }
+
+                  if (user.isDeleted || user.deletedAt) {
+                    return next(ApiError.forbidden("Your account has been deactivated."));
+                  }
+
+                  if (user.lockUntil && user.lockUntil.getTime() > Date.now()) {
+                    const minutesLeft = Math.ceil(
+                      (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
+                    );
+
+                    return next(
+                      ApiError.forbidden(
+                        `Your account has been locked. Please try again after ${minutesLeft} minutes.`
+                      )
+                    );
+                  }
+
+                  if (!user.isEmailVerified) {
+                    return next(
+                      ApiError.forbidden("Email not verified. Please verify your email.")
+                    );
+                  }
+
+                  return next();
+                } catch (err: any) {
+                  logger.error(err?.message || err);
+                  return next(ApiError.server("Something went wrong"));
+                }
+              }
+
+          - type: file
+            name: validate-id.ts
+            content: |
+              import { isValidObjectId } from "mongoose";
+              import { ApiError } from "../utils/api-error";
+              import { NextFunction, Request, Response } from "express";
+
+              export const validateObjectId = (paramName: string = "id") => {
+                return (req: Request, res: Response, next: NextFunction) => {
+                  const value =
+                    req?.params[paramName] || req?.body[paramName] || req?.query[paramName];
+                  if (!value) {
+                    throw ApiError.badRequest(`${paramName} is required`);
+                  }
+
+                  if (!isValidObjectId(value)) {
+                    throw ApiError.badRequest(`Invalid ${paramName}`);
+                  }
+
+                  next();
+                };
+              };
+
+          - type: file
+            name: validate-request.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import z, { ZodError, type ZodObject } from "zod";
+
+              import { ApiError } from "../utils/api-error";
+
+              export const validateRequest = (schema: ZodObject<any>) => {
+                return (req: Request, res: Response, next: NextFunction) => {
+                  try {
+                    schema.parse(req.body);
+
+                    next();
+                  } catch (error) {
+                    if (!(error instanceof ZodError)) {
+                      return next(error);
+                    }
+
+                    return next(
+                      ApiError.badRequest(
+                        "Invalid request data",
+                        z.flattenError(error).fieldErrors || z.flattenError(error)
+                      )
+                    );
+                  }
+                };
+              };
+
+          - type: file
+            name: verify-auth.ts
+            content: |
+              import { NextFunction, Request, Response } from "express";
+              import {
+                generateAccessToken,
+                generateRefreshToken,
+                verifyAccessToken,
+                verifyRefreshToken
+              } from "../utils/jwt";
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+              import User from "../models/user.model";
+              import { UserRequest } from "../types/user";
+              import { setAuthCookies } from "../helpers/cookie.helper";
+              import RefreshToken from "../models/refresh-token.model";
+              import { generateHashedToken } from "../helpers/token.helpers";
+
+              const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+
+              export async function verifyAuthentication(
+                req: UserRequest,
+                res: Response,
+                next: NextFunction
+              ): Promise<void> {
+                const accessToken = req.cookies?.accessToken;
+                const refreshToken = req.cookies?.refreshToken;
+
+                //? 1. Try access token
+                if (accessToken) {
+                  try {
+                    const decoded = verifyAccessToken(accessToken);
+                    req.user = decoded;
+                    return next();
+                  } catch {
+                    logger.warn("Access token expired or invalid, attempting refresh");
+                  }
+                }
+
+                //? 2. Refresh token required
+                if (!refreshToken) {
+                  return next(ApiError.unauthorized("Unauthorized, please login."));
+                }
+
+                try {
+                  const decodedRefresh = verifyRefreshToken(refreshToken);
+                  if (!decodedRefresh?.userId) {
+                    return next(ApiError.unauthorized("Invalid refresh token."));
+                  }
+
+                  const refreshTokenHash = generateHashedToken(refreshToken);
+
+                  const storedToken = await RefreshToken.findOne({
+                    userId: decodedRefresh.userId,
+                    tokenHash: refreshTokenHash
+                  });
+
+                  //? Reuse detection
+                  if (!storedToken) {
+                    await RefreshToken.updateMany(
+                      { userId: decodedRefresh.userId },
+                      { isRevoked: true, revokedAt: new Date() }
+                    );
+                    return next(
+                      ApiError.unauthorized("Token reuse detected. Please login again.")
+                    );
+                  }
+
+                  if (storedToken.isRevoked) {
+                    return next(ApiError.unauthorized("Refresh token revoked."));
+                  }
+
+                  if (storedToken.expiresAt < new Date()) {
+                    return next(ApiError.unauthorized("Refresh token expired."));
+                  }
+
+                  const user = await User.findById(storedToken.userId);
+                  if (!user) {
+                    return next(ApiError.unauthorized("User not found."));
+                  }
+
+                  //? 3. Rotate tokens
+                  const newAccessToken = generateAccessToken({
+                    _id: user._id.toString(),
+                    role: user.role
+                  });
+
+                  const newRefreshToken = generateRefreshToken(user._id.toString());
+                  const newRefreshTokenHash = generateHashedToken(newRefreshToken);
+
+                  storedToken.isRevoked = true;
+                  storedToken.revokedAt = new Date();
+                  storedToken.replacedByTokenHash = newRefreshTokenHash;
+                  await storedToken.save();
+
+                  await RefreshToken.create({
+                    userId: user._id,
+                    tokenHash: newRefreshTokenHash,
+                    expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
+                  });
+
+                  setAuthCookies(res, newAccessToken, newRefreshToken);
+
+                  req.user = {
+                    _id: user._id.toString(),
+                    role: user.role
+                  };
+
+                  return next();
+                } catch (err) {
+                  logger.warn("Refresh token verification failed");
+                  return next(ApiError.unauthorized("Unauthorized, please login."));
+                }
+              }
+
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: otp.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+              import { OTPType } from "../types/user";
+              import { OTP_EXPIRES_IN, OTP_MAX_ATTEMPTS, OTP_TYPES } from "../constants/auth";
+
+              //? otp interface
+              export interface IOtp extends Document {
+                _id: mongoose.Types.ObjectId;
+                email: string;
+                otpHashCode: string;
+                nextResendAllowedAt: Date;
+                type: OTPType;
+                expiresAt: Date;
+                isUsed: boolean;
+                usedAt?: Date;
+                attempts: number;
+                maxAttempts: number;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              //? otp schema
+              const otpSchema = new Schema<IOtp>(
+                {
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    lowercase: true,
+                    trim: true
+                  },
+                  otpHashCode: {
+                    type: String,
+                    required: [true, "OTP hash code is required"],
+                    select: false // Never return OTP hash code in queries by default
+                  },
+                  nextResendAllowedAt: {
+                    type: Date,
+                    required: [true, "Next resend allowed at is required"]
+                  },
+                  type: {
+                    type: String,
+                    enum: OTP_TYPES,
+                    required: [true, "OTP type is required"]
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: [true, "Expiration time is required"]
+                  },
+                  isUsed: {
+                    type: Boolean,
+                    default: false
+                  },
+                  usedAt: {
+                    type: Date
+                  },
+                  attempts: {
+                    type: Number,
+                    default: 0
+                  },
+                  maxAttempts: {
+                    type: Number,
+                    default: OTP_MAX_ATTEMPTS // Prevent brute force attacks
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
+
+              otpSchema.index(
+                { createdAt: 1 },
+                { expireAfterSeconds: OTP_EXPIRES_IN / 1000 } // 5 minutes
+              ); // ttl index
+
+              const Otp: Model<IOtp> =
+                mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
+
+              export default Otp;
+
+          - type: file
+            name: refresh-token.model.ts
+            content: |
+              import { index } from "drizzle-orm/mysql-core";
+              import mongoose, { Document, Model, Schema } from "mongoose";
+              import { REFRESH_TOKEN_EXPIRY } from "../constants/auth";
+
+              export interface IRefreshToken extends Document {
+                _id: mongoose.Types.ObjectId;
+                userId: mongoose.Types.ObjectId;
+                tokenHash: string;
+                expiresAt: Date;
+                isRevoked: boolean;
+                revokedAt?: Date;
+                replacedByTokenHash?: string;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const refreshTokenSchema = new Schema<IRefreshToken>(
+                {
+                  userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: [true, "User ID is required"]
+                  },
+                  tokenHash: {
+                    type: String,
+                    required: [true, "Token hash is required"],
+                    select: false // Secure by default
+                  },
+                  expiresAt: {
+                    type: Date,
+                    required: [true, "Expiration time is required"]
+                  },
+                  isRevoked: {
+                    type: Boolean,
+                    default: false
+                  },
+                  revokedAt: {
+                    type: Date
+                  },
+                  replacedByTokenHash: {
+                    type: String,
+                    select: false
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              refreshTokenSchema.index({ userId: 1 });
+              refreshTokenSchema.index({ tokenHash: 1 });
+              refreshTokenSchema.index({ isRevoked: 1 });
+
+              //? TTL index to auto-delete expired tokens
+              refreshTokenSchema.index(
+                {
+                  createdAt: 1
+                },
+                {
+                  expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000,
+                  partialFilterExpression: { isRevoked: true }
+                }
+              );
+
+              const RefreshToken: Model<IRefreshToken> =
+                mongoose.models.RefreshToken ||
+                mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
+
+              export default RefreshToken;
+
+          - type: file
+            name: user.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IAvatar {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IAvatar;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date | null;
+                reActivateAvailableAt?: Date | null;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null
+                  },
+                  provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                  },
+                  providerId: {
+                    type: String,
+                    default: null
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                  },
+                  avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                  },
+                  lastLoginAt: {
+                    type: Date
+                  },
+                  failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                  },
+                  lockUntil: {
+                    type: Date
+                  },
+                  isDeleted: {
+                    type: Boolean,
+                    default: false
+                  },
+                  deletedAt: {
+                    type: Date,
+                    default: null
+                  },
+                  reActivateAvailableAt: {
+                    type: Date,
+                    default: null
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              userSchema.index({ email: 1 });
+              userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+              userSchema.index({ role: 1 });
+              userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+              const User: Model<IUser> =
+                mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+              export default User;
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: auth.routes.ts
+            content: |
+              import { Router } from "express";
+              import { validateRequest } from "../middlewares/validate-request";
+              import {
+                ChangePasswordSchema,
+                DeleteAccountSchema,
+                RequestOtpSchema,
+                ResetPasswordSchema,
+                SigninSchema,
+                SignupSchema,
+                UpdateProfileSchema,
+                VerifyOtpSchema
+              } from "../validators/auth";
+              import {
+                changePassword,
+                deleteAccount,
+                forgotPassword,
+                getUserProfile,
+                logoutUser,
+                reactivateAccount,
+                refreshToken,
+                resetPassword,
+                signinUser,
+                signupUser,
+                updateProfile,
+                verifyOtp
+              } from "../controllers/auth.controller";
+              import { verifyAuthentication } from "../middlewares/verify-auth";
+              import { checkUserAccountRestriction } from "../middlewares/user-account-restriction";
+              import {
+                changePasswordLimiter,
+                deleteAccountLimiter,
+                otpRequestLimiter,
+                otpVerificationLimiter,
+                resetPasswordLimiter,
+                signinRateLimiter,
+                signupRateLimiter
+              } from "../middlewares/rate-limiter";
+              import upload from "../middlewares/upload-file";
+
+              const router = Router();
+
+              router.post(
+                "/verify-otp",
+                validateRequest(VerifyOtpSchema),
+                otpVerificationLimiter,
+                verifyOtp
+              );
+
+              router.post(
+                "/signup",
+                validateRequest(SignupSchema),
+                signupRateLimiter,
+                signupUser
+              );
+
+              router.post(
+                "/signin",
+                validateRequest(SigninSchema),
+                signinRateLimiter,
+                signinUser
+              );
+
+              router.get("/profile", verifyAuthentication, getUserProfile);
+
+              router.patch(
+                "/profile",
+                upload.single("avatar"),
+                validateRequest(UpdateProfileSchema),
+                verifyAuthentication,
+                checkUserAccountRestriction,
+                updateProfile
+              );
+
+              router.post("/refresh-token", checkUserAccountRestriction, refreshToken);
+
+              router.post(
+                "/logout",
+                verifyAuthentication,
+                checkUserAccountRestriction,
+                logoutUser
+              );
+
+              router.post(
+                "/forgot-password",
+                validateRequest(RequestOtpSchema.pick({ email: true })),
+                otpRequestLimiter,
+                forgotPassword
+              );
+
+              router.post(
+                "/reset-password",
+                validateRequest(ResetPasswordSchema),
+                resetPasswordLimiter,
+                resetPassword
+              );
+
+              router.post(
+                "/change-password",
+                verifyAuthentication,
+                validateRequest(ChangePasswordSchema),
+                checkUserAccountRestriction,
+                changePasswordLimiter,
+                changePassword
+              );
+
+              router.delete(
+                "/delete-account",
+                verifyAuthentication,
+                validateRequest(DeleteAccountSchema),
+                checkUserAccountRestriction,
+                deleteAccountLimiter,
+                deleteAccount
+              );
+
+              router.put("/reactivate-account", verifyAuthentication, reactivateAccount);
+
+              export default router;
+
+          - type: file
+            name: oauth.routes.ts
+            content: |
+              import { Router } from "express";
+              import passport from "passport";
+              import { githubOAuth, googleOAuth } from "../controllers/oauth.controller";
+
+              const router = Router();
+
+              router.get(
+                "/github",
+                passport.authenticate("github", { scope: ["user:email"] })
+              );
+
+              router.get(
+                "/github/callback",
+                passport.authenticate("github", {
+                  failureRedirect: "/login", //? redirect route if authenticated is failed,
+                  session: false
+                }),
+                githubOAuth
+              );
+
+              router.get(
+                "/google",
+                passport.authenticate("google", {
+                  scope: ["email", "profile", "openid"],
+                  prompt: "consent"
+                })
+              );
+
+              router.get(
+                "/google/callback",
+                passport.authenticate("google", {
+                  failureRedirect: "/login", //? redirect route if authenticated is failed
+                  session: false
+                }),
+                googleOAuth
+              );
+
+              export default router;
+
+          - type: file
+            name: health.routes.ts
+            content: |
+              import { Router } from "express";
+              import {
+                healthCheck,
+                detailedHealthCheck
+              } from "../controllers/health.controller";
+
+              const router = Router();
+
+              router.get("/", healthCheck);
+              router.get("/detailed", detailedHealthCheck);
+
+              export default router;
+
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import healthRoutes from "./health.routes";
+              import authRoutes from "./auth.routes";
+              import oauthRoutes from "./oauth.routes";
+
+              const router = Router();
+
+              router.use("/v1/health", healthRoutes);
+              router.use("/v1/auth", authRoutes);
+              router.use("/auth", oauthRoutes); //* Here versioning is not given because, in google and github callback routes, we are not using versioning. process.env.GOOGLE_REDIRECT_URI
+
+              export default router;
+
+      - type: folder
+        name: services
+        children:
+          - type: file
+            name: auth.service.ts
+            content: |
+              import { NextFunction } from "express";
+              import User from "../models/user.model";
+              import { ApiError } from "../utils/api-error";
+              import { hashPassword, verifyPassword } from "../helpers/auth.helpers";
+              import { SignupUserType } from "../validators/auth";
+              import {
+                LOGIN_MAX_ATTEMPTS,
+                REACTIVATION_AVAILABLE_AT,
+                REFRESH_TOKEN_EXPIRY
+              } from "../constants/auth";
+              import {
+                generateAccessToken,
+                generateRefreshToken,
+                verifyAccessToken,
+                verifyRefreshToken
+              } from "../utils/jwt";
+              import RefreshToken from "../models/refresh-token.model";
+              import { generateHashedToken } from "../helpers/token.helpers";
+              import { IUser } from "../types/user";
+              import mongoose from "mongoose";
+              import { OtpService } from "./otp.service";
+              import { deleteFileFromCloudinary } from "./cloudinary.service";
+
+              export type Context = {
+                setAuthCookie?: (accessToken: string, refreshToken: string) => void;
+              };
+
+              export class AuthService {
+                static async registerUser(
+                  next: NextFunction,
+                  user: Omit<SignupUserType, "confirmPassword">
+                ) {
+                  const { name, email, password, role } = user;
+                  const existingUser = await User.findOne({ email }).select("+password");
+
+                  if (existingUser) {
+                    return next(ApiError.conflict("User with this email already exists"));
+                  }
+
+                  const hashedPassword = await hashPassword(password);
+
+                  const newUser = await User.create({
+                    name,
+                    email,
+                    password: hashedPassword,
+                    role
+                  });
+
+                  return newUser;
+                }
+
+                static async loginAndSendOtp(
+                  next: NextFunction,
+                  { email, password }: { email: string; password: string }
+                ) {
+                  const session = await mongoose.startSession();
+
+                  try {
+                    session.startTransaction();
+
+                    const user = await User.findOne({ email })
+                      .session(session)
+                      .select("+password");
+                    if (!user) {
+                      await session.abortTransaction();
+                      return next(ApiError.unauthorized("Invalid credentials"));
+                    }
+
+                    const isPasswordValid = await verifyPassword(
+                      password,
+                      user.password || ""
+                    );
+                    if (!isPasswordValid) {
+                      await session.abortTransaction();
+                      return next(ApiError.unauthorized("Invalid credentials"));
+                    }
+
+                    const otp = await OtpService.sendOtp(next, {
+                      email,
+                      otpType: "signin",
+                      subject: "Signin"
+                    });
+
+                    if (!otp) {
+                      await session.abortTransaction();
+                      return next(ApiError.server("Failed to generate OTP"));
+                    }
+
+                    await session.commitTransaction();
+                    session.endSession();
+
+                    return {
+                      message: otp.message
+                    };
+                  } catch (err) {
+                    await session.abortTransaction();
+                    session.endSession();
+                    return next(ApiError.server("Signin failed"));
+                  }
+                }
+
+                static async handleToken(
+                  user: Pick<IUser, "isEmailVerified" | "_id" | "role">,
+                  context: Context
+                ) {
+                  if (!user.isEmailVerified) {
+                    await User.updateOne(
+                      { _id: user._id },
+                      { $set: { isEmailVerified: true } }
+                    );
+                  }
+
+                  const accessToken = generateAccessToken({
+                    _id: user._id,
+                    role: user.role
+                  });
+
+                  const refreshToken = generateRefreshToken(user._id);
+
+                  const hashedRefreshToken = generateHashedToken(refreshToken);
+
+                  await RefreshToken.create({
+                    userId: user._id,
+                    tokenHash: hashedRefreshToken,
+                    expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
+                  });
+
+                  context.setAuthCookie && context.setAuthCookie(accessToken, refreshToken);
+
+                  await User.updateOne(
+                    { _id: user._id },
+                    {
+                      $set: { lastLogin: new Date(), failedLoginAttempts: 0 },
+                      $unset: { lockUntil: 1 }
+                    }
+                  );
+                  return { message: "OTP verified and user signed in successfully" };
+                }
+
+                static async getUserProfile(userId: string) {
+                  const user = await User.findById(userId);
+                  return user;
+                }
+
+                static async refreshTokens(
+                  next: NextFunction,
+                  accessToken: string | null,
+                  refreshToken: string
+                ) {
+                  if (!refreshToken) {
+                    return next(ApiError.unauthorized("Unauthorized, please login."));
+                  }
+
+                  const decodedRefresh = verifyRefreshToken(refreshToken);
+                  if (!decodedRefresh?.userId) {
+                    return next(ApiError.unauthorized("Invalid refresh token."));
+                  }
+
+                  const refreshTokenHash = generateHashedToken(refreshToken);
+
+                  const storedToken = await RefreshToken.findOne({
+                    userId: decodedRefresh.userId,
+                    tokenHash: refreshTokenHash
+                  });
+
+                  // Reuse detection
+                  if (!storedToken) {
+                    await RefreshToken.updateMany(
+                      { userId: decodedRefresh.userId },
+                      { isRevoked: true, revokedAt: new Date() }
+                    );
+                    return next(
+                      ApiError.unauthorized("Token reuse detected. Please login again.")
+                    );
+                  }
+
+                  if (storedToken.isRevoked) {
+                    return next(ApiError.unauthorized("Refresh token revoked."));
+                  }
+
+                  if (storedToken.expiresAt < new Date()) {
+                    return next(ApiError.unauthorized("Refresh token expired."));
+                  }
+
+                  if (accessToken) {
+                    const decodedAccess = verifyAccessToken(accessToken);
+                    if (decodedAccess._id !== decodedRefresh.userId) {
+                      return next(ApiError.unauthorized("Token mismatch."));
+                    }
+                  }
+
+                  const user = await User.findById(decodedRefresh.userId);
+                  if (!user) {
+                    return next(ApiError.unauthorized("User not found."));
+                  }
+
+                  const newAccessToken = generateAccessToken({
+                    _id: user._id.toString(),
+                    role: user.role
+                  });
+
+                  const newRefreshToken = generateRefreshToken(user._id.toString());
+                  const newRefreshTokenHash = generateHashedToken(newRefreshToken);
+
+                  //? Rotate token
+                  storedToken.isRevoked = true;
+                  storedToken.revokedAt = new Date();
+                  storedToken.replacedByTokenHash = newRefreshTokenHash;
+                  await storedToken.save();
+
+                  await RefreshToken.create({
+                    userId: user._id,
+                    tokenHash: newRefreshTokenHash,
+                    expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
+                  });
+
+                  return {
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken
+                  };
+                }
+
+                static async logoutUser(userId: string) {
+                  return await RefreshToken.updateMany(
+                    { userId },
+                    { isRevoked: true, revokedAt: new Date() }
+                  );
+                }
+
+                static async forgotPassword(next: NextFunction, email: string) {
+                  const user = await User.findOne({ email });
+
+                  if (!user) {
+                    return next(
+                      ApiError.badRequest("If this email is registered, check your inbox.")
+                    );
+                  }
+
+                  const result = await OtpService.sendOtp(next, {
+                    email,
+                    otpType: "password-reset",
+                    subject: "Password Reset"
+                  });
+
+                  if (!result) {
+                    return next(ApiError.server("Failed to send otp!"));
+                  }
+
+                  return result;
+                }
+
+                static async resetPassword(
+                  next: NextFunction,
+                  email: string,
+                  newPassword: string
+                ) {
+                  const user = await User.findOne({ email }).select("+password");
+
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  if (user.lockUntil && new Date(user.lockUntil) > new Date()) {
+                    return next(
+                      ApiError.forbidden(
+                        `Your account has been locked. Please try again after ${Math.ceil(
+                          (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
+                        )} minutes.`
+                      )
+                    );
+                  }
+
+                  if (user.failedLoginAttempts >= LOGIN_MAX_ATTEMPTS && user.lockUntil) {
+                    return next(
+                      ApiError.forbidden(
+                        `You have exceeded the maximum number of login attempts. Please try again after ${Math.ceil(
+                          (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
+                        )} minutes.`
+                      )
+                    );
+                  }
+
+                  if (!user.isEmailVerified) {
+                    return next(ApiError.unauthorized("Please verify your email first."));
+                  }
+
+                  const oldPassword = user.password;
+
+                  const isOldPassword = await verifyPassword(
+                    newPassword,
+                    oldPassword as string
+                  );
+
+                  if (isOldPassword) {
+                    return next(ApiError.badRequest("New password should be different!"));
+                  }
+
+                  const hashedPassword = await hashPassword(newPassword);
+                  await User.updateOne(
+                    { email },
+                    {
+                      $set: {
+                        password: hashedPassword,
+                        isEmailVerified: true
+                      }
+                    }
+                  );
+                  return { message: "Password reset successfully!" };
+                }
+
+                static async changePassword(
+                  next: NextFunction,
+                  {
+                    newPassword,
+                    oldPassword,
+                    userId
+                  }: { userId: string; newPassword: string; oldPassword: string }
+                ) {
+                  const user = await User.findById(userId).select("+password");
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  if (!user.isEmailVerified) {
+                    return next(ApiError.unauthorized("Please verify your email first."));
+                  }
+
+                  const isOldPassword = await verifyPassword(
+                    oldPassword,
+                    user.password || ""
+                  );
+
+                  if (!isOldPassword) {
+                    return next(ApiError.unauthorized("Invalid credentials"));
+                  }
+
+                  if (newPassword === oldPassword) {
+                    return next(ApiError.badRequest("New password should be different!"));
+                  }
+
+                  const hashedPassword = await hashPassword(newPassword);
+                  await User.updateOne(
+                    { _id: userId },
+                    {
+                      $set: {
+                        password: hashedPassword
+                      }
+                    }
+                  );
+                  return { message: "Password changed successfully. Please login again!" };
+                }
+
+                static async deleteOrDeactiveAccount(
+                  next: NextFunction,
+                  userId: string,
+                  type: "soft" | "hard"
+                ) {
+                  const user = await User.findById(userId);
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  if (type === "soft") {
+                    user.isDeleted = true;
+                    user.deletedAt = new Date();
+                    user.reActivateAvailableAt = new Date(
+                      Date.now() + REACTIVATION_AVAILABLE_AT
+                    );
+                    await user.save();
+                  } else if (type === "hard") {
+                    if (user?.avatar?.public_id) {
+                      await deleteFileFromCloudinary([user.avatar.public_id]);
+                    }
+                    await User.findOneAndDelete({ _id: userId });
+                    await user.save();
+                  }
+                }
+
+                static async reactivateAccount(next: NextFunction, userId: string) {
+                  const user = await User.findById(userId);
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized access"));
+                  }
+
+                  if (user.lockUntil && new Date(user.lockUntil) > new Date()) {
+                    return next(
+                      ApiError.badRequest(
+                        `Your account has been locked. Please try again after ${Math.ceil(
+                          (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
+                        )} minutes.`
+                      )
+                    );
+                  }
+
+                  if (!user?.isDeleted || !user?.deletedAt) {
+                    return next(ApiError.badRequest("Your account is already active!"));
+                  }
+
+                  if (
+                    user?.reActivateAvailableAt &&
+                    new Date(user?.reActivateAvailableAt) > new Date()
+                  ) {
+                    return next(
+                      ApiError.forbidden(
+                        `Your account has been locked. Please try again after ${Math.ceil(
+                          (user.reActivateAvailableAt.getTime() - Date.now()) / (1000 * 60)
+                        )} minutes.`
+                      )
+                    );
+                  }
+
+                  await User.findOneAndUpdate(
+                    { _id: userId },
+                    {
+                      $set: {
+                        isDeleted: false,
+                        deletedAt: null,
+                        reActivateAvailableAt: null
+                      }
+                    },
+                    { new: true }
+                  );
+
+                  await user.save();
+                }
+              }
+
+          - type: file
+            name: cloudinary.service.ts
+            content: |
+              import { DeleteApiResponse } from "cloudinary";
+              import cloudinary from "../configs/cloudinary";
+
+              export interface UploadOptions {
+                folder: string;
+                resource_type?: "image" | "video" | "raw" | "auto";
+              }
+
+              export interface CloudinaryUploadResult {
+                url: string;
+                public_id: string;
+                size: number;
+              }
+
+              export const uploadToCloudinary = (
+                buffer: Buffer,
+                options: UploadOptions
+              ): Promise<CloudinaryUploadResult> => {
+                return new Promise((resolve, reject) => {
+                  const stream = cloudinary.uploader.upload_stream(
+                    {
+                      folder: options.folder || "uploads",
+                      resource_type: options.resource_type || "auto"
+                    },
+                    (error, result) => {
+                      if (error || !result) {
+                        return reject(error);
+                      }
+                      resolve({
+                        url: result.secure_url,
+                        public_id: result.public_id,
+                        size: result.bytes
+                      });
+                    }
+                  );
+
+                  stream.end(buffer);
+                });
+              };
+
+              export const deleteFileFromCloudinary = (
+                publicIds: string[]
+              ): Promise<DeleteApiResponse> => {
+                return new Promise((resolve, reject) => {
+                  cloudinary.api.delete_resources(publicIds, (error, result) => {
+                    if (error || !result) {
+                      return reject(error);
+                    }
+                    resolve(result);
+                  });
+                });
+              };
+
+          - type: file
+            name: oauth.service.ts
+            content: |
+              import { AuthService, Context } from "./auth.service";
+              import User, { IUser } from "../models/user.model";
+
+              type OAuthProfile = {
+                provider: string;
+                providerId: string;
+                name: string;
+                email: string | undefined;
+                isEmailVerified: boolean;
+                avatar: string | undefined;
+              };
+
+              export class OAuthService {
+                static async handleOAuthLogin(user: OAuthProfile, context: Context) {
+                  const existingUser = await User.findOne({ email: user.email });
+
+                  if (existingUser) {
+                    return existingUser;
+                  }
+
+                  const newUser = await User.create({
+                    name: user.name,
+                    email: user.email,
+                    isEmailVerified: user.isEmailVerified,
+
+                    provider: user.provider,
+                    providerId: user.providerId,
+
+                    avatar: {
+                      url: user.avatar
+                    }
+                  });
+
+                  await AuthService.handleToken(
+                    {
+                      _id: newUser._id.toString(),
+                      role: newUser.role,
+                      isEmailVerified: newUser.isEmailVerified
+                    },
+                    context
+                  );
+
+                  return newUser;
+                }
+              }
+
+          - type: file
+            name: otp.service.ts
+            content: |
+              import { NextFunction } from "express";
+              import User from "../models/user.model";
+              import { IUser, OTPType } from "../types/user";
+              import { ApiError } from "../utils/api-error";
+              import Otp from "../models/otp.model";
+              import {
+                NEXT_OTP_DELAY,
+                OTP_CODE_LENGTH,
+                OTP_EXPIRES_IN,
+                OTP_MAX_ATTEMPTS,
+                RESET_PASSWORD_TOKEN_EXPIRY
+              } from "../constants/auth";
+              import { logger } from "../utils/logger";
+              import { generateHashedToken, generateOTP } from "../helpers/token.helpers";
+              import { AuthService } from "./auth.service";
+              import { sendEmail } from "../utils/send-mail";
+
+              type VerifyOtpPayload = {
+                email: string;
+                otpCode: string;
+                otpType: OTPType;
+              };
+
+              type VerifyOtpContext = {
+                setAuthCookie?: (accessToken: string, refreshToken: string) => void;
+              };
+
+              type ResetPassowrdContext = {
+                setCookie?: (token: string) => void;
+              };
+
+              type SendOtpPayload = {
+                email: string;
+                otpType: OTPType;
+                subject: string;
+              };
+
+              export class OtpService {
+                static async sendOtp(next: NextFunction, payload: SendOtpPayload) {
+                  const { email, otpType, subject } = payload;
+
+                  const user = await User.findOne({ email });
+                  if (!user) {
+                    return next(ApiError.badRequest("Invalid request"));
+                  }
+
+                  if (user.lockUntil && user.lockUntil > new Date()) {
+                    return next(ApiError.badRequest("Account locked"));
+                  }
+
+                  const existingOtp = await Otp.findOne({ email, type: otpType });
+
+                  if (existingOtp && existingOtp.nextResendAllowedAt > new Date()) {
+                    const remainingSec = Math.ceil(
+                      (existingOtp.nextResendAllowedAt.getTime() - Date.now()) / 1000
+                    );
+                    return next(
+                      ApiError.badRequest(
+                        `Please wait ${remainingSec} seconds before requesting another OTP`
+                      )
+                    );
+                  }
+
+                  const otp = generateOTP(OTP_CODE_LENGTH, OTP_EXPIRES_IN);
+                  logger.info(
+                    `Sending OTP to ${email} with type ${otpType} and code ${otp.code}`
+                  );
+                  const nextResendAllowedAt = new Date(Date.now() + NEXT_OTP_DELAY);
+
+                  let html = `<p>Your OTP for ${otpType}: ${otp.code}</p>`;
+                  await sendEmail({
+                    email,
+                    subject: subject,
+                    html
+                  });
+
+                  await Otp.create({
+                    email: payload.email,
+                    type: payload.otpType,
+                    otpHashCode: otp.hashCode,
+                    attempts: 0,
+                    isUsed: false,
+                    expiresAt: otp.expiresAt,
+                    nextResendAllowedAt
+                  });
+
+                  return { message: `OTP sent to ${email} successfully` };
+                }
+
+                static async verifyOtp(
+                  next: NextFunction,
+                  payload: VerifyOtpPayload,
+                  context: VerifyOtpContext,
+                  resetPasswordContext: ResetPassowrdContext
+                ): Promise<any> {
+                  const { email, otpCode, otpType } = payload;
+
+                  const user = await User.findOne({ email });
+                  if (!user) {
+                    return next(ApiError.unauthorized("Unauthorized, Please login first."));
+                  }
+
+                  if (user.lockUntil && user.lockUntil > new Date()) {
+                    const minutes = Math.ceil(
+                      (user.lockUntil.getTime() - Date.now()) / 60000
+                    );
+                    return next(
+                      ApiError.badRequest(
+                        `Your account has been locked. Try again in ${minutes} minutes.`
+                      )
+                    );
+                  }
+
+                  const otp = await Otp.findOne({
+                    email,
+                    type: otpType,
+                    isUsed: false,
+                    expiresAt: { $gt: new Date() }
+                  })
+                    .sort({ createdAt: -1 })
+                    .select("+otpHashCode");
+
+                  if (!otp) {
+                    return next(ApiError.badRequest("Invalid or expired OTP"));
+                  }
+
+                  if (otp.attempts >= (otp.maxAttempts || OTP_MAX_ATTEMPTS)) {
+                    return next(ApiError.badRequest("Maximum OTP attempts reached"));
+                  }
+
+                  const hashedOtp = generateHashedToken(String(otpCode));
+
+                  if (otp.otpHashCode !== hashedOtp) {
+                    await Otp.updateOne({ _id: otp._id }, { $inc: { attempts: 1 } });
+                    return next(ApiError.badRequest("Invalid OTP code"));
+                  }
+
+                  otp.isUsed = true;
+                  await otp.save();
+
+                  if (otp.type === "signin") {
+                    return await AuthService.handleToken(
+                      {
+                        _id: user._id.toString(),
+                        role: user.role,
+                        isEmailVerified: user.isEmailVerified
+                      },
+                      context
+                    );
+                  }
+
+                  if (otp.type === "password-reset") {
+                    return this.handlePasswordReset(
+                      {
+                        _id: user._id.toString()
+                      },
+                      resetPasswordContext
+                    );
+                  }
+
+                  await Otp.deleteOne({ _id: otp._id });
+                  await Otp.deleteMany({
+                    expiresAt: { $lt: new Date() },
+                    isUsed: true
+                  });
+                  return { message: "OTP verified successfully" };
+                }
+
+                private static handlePasswordReset(
+                  user: Pick<IUser, "_id">,
+                  context: ResetPassowrdContext
+                ) {
+                  const hashedResetPasswordToken = generateHashedToken(user._id.toString());
+                  const resetPasswordExpiry = new Date(
+                    Date.now() + RESET_PASSWORD_TOKEN_EXPIRY
+                  );
+
+                  context.setCookie && context.setCookie(hashedResetPasswordToken);
+
+                  return {
+                    hashedResetPasswordToken,
+                    resetPasswordExpiry
+                  };
+                }
+              }
+
+      - type: folder
+        name: types
+        children:
+          - type: file
+            name: user.d.ts
+            content: |
+              import { Request } from "express";
+              import { OTP_TYPES } from "../constants/auth";
+
+              export type OTPType = (typeof OTP_TYPES)[number];
+
+              export interface UserRequest extends Request {
+                user?: {
+                  _id?: string | undefined;
+                  role?: "user" | "admin" | undefined;
+                };
+              }
+
+              export interface IUser {
+                _id: string;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: {
+                  url: string;
+                  publicId: string;
+                  size: number;
+                };
+                provider: "local" | "google" | "github";
+                providerId?: string;
+                isDeleted: boolean;
+                deletedAt?: Date;
+                reActivateAvailableAt?: Date;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+                public readonly statusCode: StatusCode;
+                public readonly isOperational: boolean;
+                public readonly errors?: unknown;
+
+                constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+                ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+                }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static validation(message = "Validation failed", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static notImplemented(message = "Not Implemented") {
+                  return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                }
+
+                static badGateway(message = "Bad Gateway") {
+                  return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                }
+
+                static serviceUnavailable(message = "Service Unavailable") {
+                  return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                }
+
+                static tooManyRequests(message = "Too Many Requests") {
+                  return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              * Usage:
+              * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: api-response.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors })
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+              /*
+              * Usage:
+              * ApiResponse.ok(res, "OK", data);
+              * ApiResponse.created(res, "Created", data);
+              */
+
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (req: Request, res: Response, next: NextFunction) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+          - type: file
+            name: jwt.ts
+            content: |
+              import jwt from "jsonwebtoken";
+              import env from "../configs/env";
+
+              const JWT_ACCESS_TOKEN_EXPIRY = "15m";
+              const JWT_REFRESH_TOKEN_EXPIRY = "7d";
+
+              export function generateAccessToken(user: {
+                _id: string;
+                role: "user" | "admin";
+              }) {
+                return jwt.sign({ _id: user._id, role: user.role }, env.JWT_ACCESS_SECRET!, {
+                  expiresIn: JWT_ACCESS_TOKEN_EXPIRY
+                });
+              }
+
+              export function generateRefreshToken(userId: string) {
+                return jwt.sign({ userId }, env.JWT_REFRESH_SECRET!, {
+                  expiresIn: JWT_REFRESH_TOKEN_EXPIRY
+                });
+              }
+
+              export function verifyAccessToken(token: string) {
+                return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {
+                  _id: string;
+                };
+              }
+
+              export function verifyRefreshToken(token: string) {
+                return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {
+                  userId: string;
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+              import pino from "pino";
+              import env from "../configs/env";
+
+              export const logger = pino({
+                level: env.LOG_LEVEL,
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
+              });
+
+          - type: file
+            name: send-mail.ts
+            content: |
+              import env from "../configs/env";
+              import { getTransporter } from "../configs/nodemailer";
+              import { ApiError } from "./api-error";
+
+              type sendMail = {
+                from?: string;
+                subject: string;
+                html: string;
+                email: string;
+              };
+
+              export async function sendEmail({ from, email, subject, html }: sendMail) {
+                const transporter = getTransporter();
+                return transporter
+                  .sendMail({
+                    from: from || `<${env.EMAIL_FROM}>`,
+                    to: email,
+                    subject,
+                    html
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    throw ApiError.badRequest("Failed to send email");
+                  });
+              }
+
+          - type: file
+            name: shutdown.ts
+            content: |
+              import { Server } from "http";
+              import { logger } from "./logger";
+
+              export const configureGracefulShutdown = (server: Server) => {
+                const signals = ["SIGTERM", "SIGINT"];
+
+                signals.forEach(signal => {
+                  process.on(signal, () => {
+                    logger.info(`\n${signal} signal received. Shutting down gracefully...`);
+
+                    server.close(err => {
+                      if (err) {
+                        logger.error(err, "Error during server close");
+                        process.exit(1);
+                      }
+
+                      logger.info("HTTP server closed.");
+                      process.exit(0);
+                    });
+
+                    // Force shutdown after 10 seconds
+                    setTimeout(() => {
+                      logger.error(
+                        "Could not close connections in time, forcefully shutting down"
+                      );
+                      process.exit(1);
+                    }, 10000);
+                  });
+                });
+              };
+
+      - type: folder
+        name: validators
+        children:
+          - type: file
+            name: auth.ts
+            content: |
+              import * as z from "zod";
+              import { OTP_TYPES } from "../constants/auth";
+
+              export const nameSchema = z
+                .string({ error: "Name must be a string" })
+                .trim()
+                .min(3, {
+                  message: "Name must be at least 3 characters long"
+                })
+                .max(50, {
+                  message: "Name must be at most 50 characters long"
+                });
+
+              export const passwordSchema = z
+                .string({ error: "Password must be a string" })
+                .trim()
+                .min(6, {
+                  message: "Password must be at least 6 characters long"
+                })
+                .max(80, {
+                  message: "Password must be at most 80 characters long"
+                });
+
+              export const emailSchema = z
+                .email({ message: "Please enter a valid email address." })
+                .max(100, { message: "Email must be no more than 100 characters." });
+
+              export const roleSchema = z
+                .enum(["user", "admin"], {
+                  error: "Role must be either applicant, recruiter, or admin"
+                })
+                .default("user");
+
+              export const SigninSchema = z.object({
+                email: emailSchema,
+                password: z.string({ error: "Password must be a string" }).trim().min(1, {
+                  message: "Password is required"
+                })
+              });
+
+              export const SignupSchema = z
+                .object({
+                  name: nameSchema,
+                  email: emailSchema,
+                  password: passwordSchema,
+                  confirmPassword: passwordSchema,
+                  role: roleSchema
+                })
+                .refine(
+                  data => {
+                    return data.password === data.confirmPassword;
+                  },
+                  {
+                    message: "Passwords do not match",
+                    path: ["confirmPassword"]
+                  }
+                );
+
+              export const RequestOtpSchema = z.object({
+                email: emailSchema,
+                otpType: z.enum(OTP_TYPES, { error: "Invalid otp type" })
+              });
+
+              export const VerifyOtpSchema = z.object({
+                otpCode: z.string().min(6, "Please enter a valid OTP"),
+                email: emailSchema,
+                otpType: z.enum(OTP_TYPES, { error: "Invalid otp type" })
+              });
+
+              export const ResetPasswordSchema = z.object({
+                email: emailSchema,
+                newPassword: passwordSchema
+              });
+
+              export const ChangePasswordSchema = z.object({
+                oldPassword: z.string({ error: "Password must be a string" }).min(1, {
+                  message: "Old password is required"
+                }),
+                newPassword: passwordSchema
+              });
+
+              export const UpdateProfileSchema = z.object({
+                name: nameSchema.optional(),
+                avatar: z.string().optional()
+              });
+
+              export const GoogleSigninSchema = z.object({
+                name: nameSchema,
+                email: emailSchema,
+                provider: z.enum(["google", "github"]).default("google"),
+                providerId: z.string({ error: "Provider id must be a string" }).min(1, {
+                  message: "Provider id is required"
+                }),
+                avatar: z.string().optional(),
+                isEmailVerified: z.boolean().default(false)
+              });
+
+              export const DeleteAccountSchema = z.object({
+                userId: z.string({ error: "User id must be a string" }).min(1, {
+                  message: "User id is required"
+                }),
+                type: z
+                  .enum(["soft", "hard"], { error: "Type must be either soft or hard" })
+                  .default("soft")
+              });
+
+              export type SignupUserType = z.infer<typeof SignupSchema>;
+              export type SigninUserType = z.infer<typeof SigninSchema>;
+              export type RequestOtpType = z.infer<typeof RequestOtpSchema>;
+              export type VerifyOtpType = z.infer<typeof VerifyOtpSchema>;
+              export type ResetPasswordType = z.infer<typeof ResetPasswordSchema>;
+              export type ChangePasswordType = z.infer<typeof ChangePasswordSchema>;
+              export type UpdateProfileType = z.infer<typeof UpdateProfileSchema>;
+              export type GoogleSigninType = z.infer<typeof GoogleSigninSchema>;
+              export type DeleteAccountType = z.infer<typeof DeleteAccountSchema>;
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          import cookieParser from "cookie-parser";
+          import morgan from "morgan";
+          import { notFoundHandler } from "./middlewares/not-found-handler";
+          import { errorHandler } from "./middlewares/error-handler";
+          import env from "./configs/env";
+          import { configureSecurityHeaders } from "./middlewares/security-header";
+
+          import Routes from "./routes/index";
+
+          import "./configs/passport";
+
+          const app: Express = express();
+
+          //? Apply security headers before other middlewares and routes
+          configureSecurityHeaders(app);
+
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          app.use(cookieParser());
+          app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+          //? Routes
+          app.get("/", (req: Request, res: Response) => {
+            res.redirect("/api/v1/health");
+          });
+
+          app.use("/api", Routes);
+
+          //? Not-found-handler (should be after routes)
+          app.use(notFoundHandler);
+
+          //? Global error handler (should be last)
+          app.use(errorHandler);
+
+          export default app;
+
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import env from "./configs/env";
+          import logger from "./utils/logger";
+          import { gracefulShutdown } from "./utils/shutdown";
+          import { connectDB } from "./configs/db";
+
+          connectDB();
+          const server = app.listen(env.PORT, () => {
+            logger.info(`Server is running on http://localhost:${env.PORT}`);
+          });
+
+          gracefulShutdown(server);
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT='9000'
+      NODE_ENV='development'
+      LOG_LEVEL='info'
+      CORS_ORIGIN=''
+
+      # CRYPTO
+      CRYPTO_SECRET=
+
+      # DB 
+      DATABASE_URL=
+
+      # JWT
+      JWT_ACCESS_SECRET=
+      JWT_REFRESH_SECRET=
+
+      # SMTP
+      SMTP_HOST=
+      SMTP_PORT=
+      SMTP_USER=
+      SMTP_PASS=
+      EMAIL_FROM=
+
+      # CLOUDINARY
+      CLOUDINARY_CLOUD_NAME=
+      CLOUDINARY_API_KEY=
+      CLOUDINARY_API_SECRET=
+
+      # GITHUB
+      GITHUB_CLIENT_ID=
+      GITHUB_CLIENT_SECRET=
+      GITHUB_REDIRECT_URI=
+
+      # GOOGLE
+      GOOGLE_CLIENT_ID=
+      GOOGLE_CLIENT_SECRET=
+      GOOGLE_REDIRECT_URI=
+
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules"]
+      }
+---
+
+# Stateless Auth (MongoDB)
+
+This blueprint provides a complete stateless authentication system for **Express** applications using **MongoDB** and **Mongoose**. It features JWT-based access and refresh tokens, token rotation, and secure cookie management.
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn add stateless-auth" />
+
+During installation, select <Code children="MongoDB (Mongoose)" /> as your database.
+
+## Features
+
+This blueprint comes packed with production-ready features organized into a clean, modular structure:
+
+- **JWT Stateless Auth**: Secure authentication using Access and Refresh tokens with automatic rotation.
+- **Token Reuse Detection**: Advanced security layer that detects and revokes compromised tokens.
+- **OAuth 2.0 Support**: Fully configured Google and GitHub social authentication.
+- **OTP System**: Integrated email-based One-Time Password service for sign-in and resets.
+- **Profile Management**: Built-in support for profile updates and Cloudinary-powered avatar uploads.
+- **Security Suite**: Comprehensive protection with Helmet headers, CORS, and multi-level rate limiting.
+- **Validated Architecture**: Model-View-Controller (MVC) or Feature-based patterns with full Zod validation.
+- **Error Management**: Standardized API response wrappers and centralized global error handling.
+- **Health Monitoring**: Dedicated endpoints for heartbeat and system status checks.
+
+## Project Structure
+
+The blueprint implements a highly organized directory structure designed for scalability and maintainability:
+
+```text
+src/
+├── configs/          # Database, social auth, and environment setup
+├── constants/        # Shared application constants and status codes
+├── controllers/      # Route logic and request handling
+├── helpers/          # Utility functions for cookies, tokens, etc.
+├── middlewares/      # Auth verification, rate limiting, and security
+├── models/           # Mongoose schemas for User, OTP, and Tokens
+├── routes/           # API route definitions and versioning
+├── services/         # Core business logic and 3rd-party integrations
+├── types/            # TypeScript interface and type declarations
+├── utils/            # Shared utilities (logger, error classes)
+├── validators/       # Zod schemas for request validation
+├── app.ts            # Express application setup
+└── server.ts         # Server entry point and database connection
+```
+
+## Architecture Support
+
+This blueprint supports both **MVC** and **Feature-based** architectures.
+
+- <Code children="MVC" /> : Model, Controllers, Services..
+- <Code children="Feature-based" />, Modules, Shared..
+
+## Security Features
+
+- **Token Rotation**: New refresh token issued on every refresh.
+- **Reuse Detection**: Old refresh tokens are invalidated if reused.
+- **Secure Storage**: tokens stored in `httpOnly` cookies.
+- **Hashed Tokens**: Refresh tokens are hashed before storage.
