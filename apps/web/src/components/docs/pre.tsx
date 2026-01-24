@@ -35,7 +35,7 @@ export function Pre({
         ref={ref}
         {...props}
         className={cn(
-          "bg-editor mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed",
+          "bg-editor thin-scrollbar mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed",
           className
         )}>
         {children}

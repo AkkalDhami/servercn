@@ -205,7 +205,7 @@ function Weapon() {
   return (
     <div className="relative flex items-center gap-2">
       <GiBowieKnife className="absolute size-4" />
-      <GiBowieKnife className="size-4 rotate-80 transform" />
+      <GiBowieKnife className="size-4 rotate-90 transform" />
     </div>
   );
 }

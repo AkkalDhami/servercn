@@ -31,7 +31,7 @@ export default function BackendStructureViewer({
           <FileViewer content={activeFile?.content} />
         </div>
         <Separator orientation="vertical" className="bg-neutral-500/20" />
-        <div className="code-wrapper w-72 overflow-auto p-4">
+        <div className="code-wrapper thin-scrollbar w-72 overflow-auto p-4">
           <FileTree
             data={structure}
             activeFile={activeFile?.name}
@@ -48,7 +48,7 @@ export default function BackendStructureViewer({
         "bg-editor flex h-130 w-full max-w-[800px] overflow-auto rounded-xl border",
         className
       )}>
-      <div className="code-wrapper w-72 overflow-auto p-4">
+      <div className="code-wrapper thin-scrollbar w-72 overflow-auto p-4">
         <FileTree
           data={structure}
           activeFile={activeFile?.name}

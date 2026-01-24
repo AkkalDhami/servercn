@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { AnimatedSpan, Terminal, TypingAnimation } from "../ui/terminal";
 
 const files = [
@@ -16,9 +17,13 @@ const files = [
   "src/utils/logger.ts"
 ];
 
-export default function InstallComponentCommands() {
+export default function InstallComponentCommands({
+  className
+}: {
+  className?: string;
+}) {
   return (
-    <div className="h-full">
+    <div className={cn("h-full", className)}>
       <Terminal className="mx-auto h-full min-h-140 min-w-xl text-sm sm:text-lg">
         <TypingAnimation className="text-sm sm:text-lg">
           &gt; npx servercn add google-oauth

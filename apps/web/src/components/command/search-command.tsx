@@ -27,7 +27,6 @@ import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
 import { FaGithub } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 export default function SearchCommand({
   className,
   size
@@ -158,30 +157,16 @@ export default function SearchCommand({
           )}
           {schemas.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.schema.toUpperCase()}>
-              {schemas.map((item, i) => (
-                <div key={item.slug} className="">
-                  <h3 className="text-muted-foreground mt-2 pl-4 text-base">
-                    {i + 1}. {item.title}
-                  </h3>
-                  <div className="mt-2 flex flex-col space-y-1">
-                    {item.meta &&
-                      (item.meta.databases || item.meta.models) &&
-                      (item.meta.databases || item.meta.models!).map(i => {
-                        const path = `/docs/schemas/${i.slug}`;
-                        return (
-                          <CommandItem asChild key={path}>
-                            <Link
-                              href={path as Route}
-                              onClick={() => setOpen(!open)}
-                              className="cursor-pointer pl-4 capitalize">
-                              <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
-                              {i.label} {item.meta?.models ? "Schema" : ""}
-                            </Link>
-                          </CommandItem>
-                        );
-                      })}
-                  </div>
-                </div>
+              {schemas.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link
+                    href={item.url as Route}
+                    onClick={() => setOpen(!open)}
+                    className="cursor-pointer pl-4 capitalize">
+                    <CircleChevronRight className="text-muted-secondary mb-1 size-2.5" />{" "}
+                    {item.title}
+                  </Link>
+                </CommandItem>
               ))}
             </CommandGroup>
           )}

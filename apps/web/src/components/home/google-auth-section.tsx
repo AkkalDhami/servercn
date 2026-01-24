@@ -20,13 +20,13 @@ export default function GoogleOAuthSection() {
         </SubHeading>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-8 md:items-start md:justify-between">
-        <InstallComponentCommands />
+      <div className="grid gap-18 md:grid-cols-1 lg:grid-cols-5">
+        <InstallComponentCommands className="col-span-2" />
 
         <BackendStructureViewer
           sidebar="left"
           structure={mvcData as FileNode[]}
-          className="h-140"
+          className="col-span-3 h-140"
         />
       </div>
     </section>

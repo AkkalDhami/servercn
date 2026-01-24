@@ -41,7 +41,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="font-inter mx-auto max-w-3xl text-center text-5xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
+              className="font-inter mx-auto max-w-3xl text-center text-4xl leading-tight font-bold tracking-tight md:text-6xl lg:text-7xl">
               Build backends faster with ServerCN
             </motion.h1>
 
@@ -55,9 +55,6 @@ export default function HeroSection() {
                 component registry
               </span>{" "}
               for building{" "}
-              <span className="text-accent-foreground font-medium">
-                production-ready
-              </span>{" "}
               <span className="text-accent-foreground font-medium">
                 Node.js backends
               </span>{" "}

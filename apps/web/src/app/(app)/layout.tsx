@@ -8,7 +8,7 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <div className="mx-auto max-w-360 p-4">
+      <div className="mx-auto max-w-360 p-3 sm:p-4">
         {children}
         <Footer />
       </div>

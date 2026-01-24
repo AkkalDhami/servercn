@@ -57,7 +57,7 @@ function TreeNode({
 
   if (node.type === "folder") {
     return (
-      <div className="pl-2">
+      <div className="pl-1">
         <button
           onClick={() => setOpen(!open)}
           className="text-muted-foreground hover:text-accent-foreground flex w-full cursor-pointer items-center gap-1 py-1">
@@ -67,7 +67,7 @@ function TreeNode({
         </button>
 
         {open && (
-          <div className="pl-4">
+          <div className="pl-3">
             {node?.children?.map(child => (
               <TreeNode
                 key={child.name}

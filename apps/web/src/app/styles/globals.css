@@ -238,7 +238,7 @@ body {
   width: 0;
 }
 
-.code-wrapper {
+.thin-scrollbar {
   scrollbar-width: thin;
 }
 

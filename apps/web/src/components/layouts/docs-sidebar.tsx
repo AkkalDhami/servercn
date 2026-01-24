@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Route } from "next";
+import { motion } from "motion/react";
 import { IRegistryItems } from "@/@types/registry";
 
 import { cn } from "@/lib/utils";
@@ -50,7 +51,8 @@ export default function DocsSidebar({
                 const isActive =
                   pathname === item.url || pathname.startsWith(`${item.url}/`);
 
-                const isSchema = item.type === "schema";
+                const isNested =
+                  item.type === "schema" || item.type === "blueprint";
 
                 return (
                   <li key={item.slug}>
@@ -64,7 +66,17 @@ export default function DocsSidebar({
                           : "text-muted-primary hover:text-primary"
                       )}>
                       {isActive && (
-                        <span className="bg-primary absolute top-0 left-0 h-full w-px" />
+                        <motion.span
+                          layoutId="sidebar-indicator"
+                          className="bg-primary absolute top-0 left-0 h-full w-px"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                        />
                       )}
 
                       <span>{item.title}</span>
@@ -74,14 +86,18 @@ export default function DocsSidebar({
                       )}
                     </Link>
 
-                    {/* Schema databases or models */}
-                    {isSchema &&
+                    {/* Schema or Blueprint databases or models */}
+                    {isNested &&
                       (item.meta?.databases || item.meta?.models) && (
-                        <ul className="mt-2 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
+                        <ul className="mt-2 ml-4 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
                           {(item.meta!.databases || item.meta!.models!)
                             .sort((a, b) => a.label.localeCompare(b.label))
                             .map((subItem: { label: string; slug: string }) => {
-                              const subPath = `/docs/schemas/${subItem.slug}`;
+                              const typePath =
+                                item.type === "schema"
+                                  ? "schemas"
+                                  : "blueprints";
+                              const subPath = `/docs/${typePath}/${subItem.slug}`;
                               const subActive =
                                 pathname === subPath ||
                                 pathname.startsWith(`${subPath}/`);
@@ -97,7 +113,17 @@ export default function DocsSidebar({
                                         : "text-muted-secondary hover:text-primary"
                                     )}>
                                     {subActive && (
-                                      <span className="bg-primary absolute top-0 -left-[17px] h-full w-px" />
+                                      <motion.span
+                                        layoutId="nested-sidebar-indicator"
+                                        className="bg-primary absolute top-0 -left-[17px] h-full w-px"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{
+                                          type: "spring",
+                                          stiffness: 300,
+                                          damping: 30
+                                        }}
+                                      />
                                     )}
                                     <span>
                                       {" "}
