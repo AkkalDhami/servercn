@@ -195,7 +195,7 @@ mvc_structure:
             content: |
               import { Request, Response, NextFunction } from "express";
               import { ApiError } from "../utils/api-error";
-              
+
               export const notFoundHandler = (
                 req: Request,
                 res: Response,
@@ -389,7 +389,7 @@ mvc_structure:
             content: |
               import pino from "pino";
               import env from "../configs/env";
-              
+
               export const logger = pino({
                 level: env.LOG_LEVEL,
                 transport:
@@ -409,30 +409,30 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { Express, Request, Response } from "express";
-          
+
           import { notFoundHandler } from "./middlewares/not-found-handler";
           import { errorHandler } from "./middlewares/error-handler";
-          
+
           import AuthRoutes from "./routes/auth.routes";
-          
+
           import "./configs/passport";
-          
+
           const app: Express = express();
-          
+
           app.use(express.json());
           app.use(express.urlencoded({ extended: true }));
-          
-          
+
+
           // Routes
           app.use("/api/auth", AuthRoutes);
-          
+
           // Not found handler (should be after routes)
           app.use(notFoundHandler);
-          
+
           // Global error handler (should be last)
           app.use(errorHandler);
-          
-          export default app;  
+
+          export default app;
 
   - type: file
     name: .env.example
@@ -604,7 +604,6 @@ feature_structure:
                     * throw ApiError.badRequest("Bad request");
                   */
 
-
           - type: folder
             name: middlewares
             children:
@@ -650,7 +649,7 @@ feature_structure:
                 content: |
                   import { Request, Response, NextFunction } from "express";
                   import { ApiError } from "../errors/api-error";
-                  
+
                   export const notFoundHandler = (
                     req: Request,
                     res: Response,
@@ -756,7 +755,7 @@ feature_structure:
                 content: |
                   import pino from "pino";
                   import env from "../configs/env";
-                  
+
                   export const logger = pino({
                     level: env.LOG_LEVEL,
                     transport:
@@ -862,44 +861,44 @@ feature_structure:
             content: |
               import { Router } from "express";
               import OAuthRoutes from "../modules/oauth/auth.routes";
-              
+
               const router = Router();
-              
+
               router.use("/auth", OAuthRoutes);
-              
+
               export default router;
- 
+
       - type: file
         name: app.ts
         content: |
           import express, { Express } from "express";
- 
+
           import { notFoundHandler } from "./shared/middlewares/not-found-handler";
           import { errorHandler } from "./shared/middlewares/error-handler";
-          
+
           import Routes from "./routes/index";
-          
+
           import "./shared/configs/passport";
-          
+
           const app: Express = express();
-          
+
           app.use(express.json());
           app.use(express.urlencoded({ extended: true }));
-          
+
           // Routes
           app.use("/api", Routes);
-          
+
           // Not found handler (should be after routes)
           app.use(notFoundHandler);
-          
+
           // Global error handler (should be last)
           app.use(errorHandler);
-          
+
           export default app;
 
   - type: file
     name: .env.example
-    content: |      
+    content: |
       PORT="8000"
       NODE_ENV="development"
       LOG_LEVEL="info"
@@ -934,35 +933,35 @@ This component requires additional ServerCN components.
 
 ### 1. Install ServerCN dependencies(Optional)
 
-- **HTTP Status Codes:** 
+- **HTTP Status Codes:**
 
 <PackageManagerTabs command="npx servercn add http-status-codes" />
 
 Documentation:
 [HTTP Status Codes](/docs/components/http-status-codes)
 
-- **Api Response Handler:** 
+- **Api Response Handler:**
 
 <PackageManagerTabs command="npx servercn add response-formatter" />
 
 Documentation:
 [Api Response Handler](/docs/components/response-formatter)
 
-- **Api Error Handler:** 
+- **Api Error Handler:**
 
 <PackageManagerTabs command="npx servercn add error-handler" />
 
 Documentation:
 [Api Error Handler](/docs/components/error-handler)
 
-- **Global Error Handler:** 
+- **Global Error Handler:**
 
 <PackageManagerTabs command="npx servercn add global-error-handler" />
 
 Documentation:
 [Global Error Handler](/docs/components/global-error-handler)
 
-- **Async Handler:** 
+- **Async Handler:**
 
 <PackageManagerTabs command="npx servercn add async-handler" />
 
@@ -997,13 +996,13 @@ Add the following to your <Code children=".env" /> file:
 ```bash
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GOOGLE_REDIRECT_URI="http://localhost:9000/api/auth/google/callback" 
+GOOGLE_REDIRECT_URI="http://localhost:9000/api/auth/google/callback"
 # replace all with your values
 ```
 
 Ensure the following configuration are defined:
 
-**MVC:** <Code children="src/configs/env.ts" /> 
+**MVC:** <Code children="src/configs/env.ts" />
 
 **Feature:** <Code children="src/shared/configs/env.ts" />
 
@@ -1113,7 +1112,7 @@ export const googleOAuth = AsyncHandler(
 );
 ```
 
-**3. Create a Google OAuth router in** <Code children="src/routes/google-oauth.routes.ts" /> **or** <Code children="src/routes/auth.routes.ts" /> 
+**3. Create a Google OAuth router in** <Code children="src/routes/google-oauth.routes.ts" /> **or** <Code children="src/routes/auth.routes.ts" />
 
 ```ts
 import { Router } from "express";
@@ -1159,7 +1158,6 @@ const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // Routes
 app.use("/api/auth", AuthRoutes);
@@ -1248,7 +1246,7 @@ export const googleOAuth = AsyncHandler(
 );
 ```
 
-**3. Create a Google OAuth router in** <Code children="src/modules/oauth/google-oauth.routes.ts" /> **or** <Code children="src/modules/auth/auth.routes.ts" /> 
+**3. Create a Google OAuth router in** <Code children="src/modules/oauth/google-oauth.routes.ts" /> **or** <Code children="src/modules/auth/auth.routes.ts" />
 
 ```ts
 import { Router } from "express";
@@ -1278,7 +1276,7 @@ router.get(
 export default router;
 ```
 
-**4. Create a index route in** <Code children="src/routes/index.ts" /> 
+**4. Create a index route in** <Code children="src/routes/index.ts" />
 
 ```ts
 import { Router } from "express";
@@ -1289,7 +1287,6 @@ const router = Router();
 router.use("/auth", OAuthRoutes);
 
 export default router;
-
 ```
 
 **5. Create a server in** <Code children="src/app.ts" />
@@ -1302,7 +1299,7 @@ import { errorHandler } from "./shared/middlewares/error-handler";
 
 import Routes from "./routes/index";
 
-import "./shared/configs/passport"
+import "./shared/configs/passport";
 
 const app: Express = express();
 
@@ -1348,9 +1345,8 @@ export default app;
   }
 }
 ```
+
 This response is formated by <Code children="ApiResponse" /> component.
-
-
 
 ## Limitations
 

@@ -3,7 +3,6 @@ title: Auth Domain Schemas
 description: Complete authentication system schemas including User, OTP, and Session models for building secure authentication workflows.
 command: npx servercn add schema auth
 
-
 mvc_structure:
   - type: folder
     name: src
@@ -15,16 +14,134 @@ mvc_structure:
             name: schemas
             children:
               - type: file
-                name: session.schema.ts
+                name: otp.schema.ts
                 content: |
-                  import { mysqlTable, serial, varchar, timestamp, boolean, index, int } from "drizzle-orm/mysql-core";
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    mysqlEnum,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+
+                  const OTP_MAX_ATTEMPTS = 5;
+
+                  const OTP_TYPES = [
+                    "signin",
+                    "email-verification",
+                    "password-reset",
+                    "password-change"
+                  ] as const;
+
+                  export const otps = mysqlTable(
+                    "otps",
+                    {
+                      id: serial("id").primaryKey(),
+                      email: varchar("email", { length: 255 }).notNull(),
+                      otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
+                      nextResendAllowedAt: timestamp("next_resend_allowed_at", {
+                        mode: "date"
+                      }).notNull(),
+                      type: mysqlEnum("type", OTP_TYPES).notNull(),
+                      expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+                      isUsed: boolean("is_used").default(false).notNull(),
+                      usedAt: timestamp("used_at", { mode: "date" }),
+                      attempts: int("attempts").default(0).notNull(),
+                      maxAttempts: int("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("email_type_idx").on(table.email, table.type),
+                      index("expires_at_idx").on(table.expiresAt),
+                      index("is_used_idx").on(table.isUsed)
+                    ]
+                  );
+
+                  export type Otp = typeof otps.$inferSelect;
+                  export type NewOtp = typeof otps.$inferInsert;
+
+              - type: file
+                name: refresh-token.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    index,
+                    bigint,
+                    text
+                  } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
 
-                  const timestamps = {
+                  export const refreshTokens = mysqlTable(
+                    "refresh_tokens",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: bigint("user_id", { mode: "number", unsigned: true })
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: text("token_hash").notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      isRevoked: boolean("is_revoked").default(false).notNull(),
+                      revokedAt: timestamp("revoked_at"),
+                      replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("token_hash_idx").on(table.tokenHash),
+                      index("is_revoked_idx").on(table.isRevoked),
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
+                  );
+
+                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
+
+                  //? Refresh Token type
+                  export type RefreshToken = typeof refreshTokens.$inferSelect;
+                  export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
                     createdAt: timestamp("created_at").defaultNow().notNull(),
                     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
                   };
+
+              - type: file
+                name: session.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    timestamp,
+                    boolean,
+                    index,
+                    int
+                  } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
 
                   export const sessions = mysqlTable(
                     "sessions",
@@ -35,7 +152,7 @@ mvc_structure:
                         .notNull(),
                       tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
                       ip: varchar("ip", { length: 45 }),
-                      userAgent: varchar("user_agent", { length: 512 }),
+                      userAgent: varchar("user_agent", { length: 255 }),
                       isActive: boolean("is_active").default(true).notNull(),
                       lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
                       expiresAt: timestamp("expires_at").notNull(),
@@ -50,6 +167,7 @@ mvc_structure:
                     ]
                   );
 
+                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
                   export const sessionsRelations = relations(sessions, ({ one }) => ({
                     user: one(users, {
                       fields: [sessions.userId],
@@ -59,369 +177,365 @@ mvc_structure:
 
                   export type Session = typeof sessions.$inferSelect;
                   export type NewSession = typeof sessions.$inferInsert;
+
               - type: file
                 name: user.schema.ts
                 content: |
-                  import { mysqlTable, serial, varchar, boolean, timestamp, uniqueIndex, mysqlEnum } from "drizzle-orm/mysql-core";
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
                   import { relations } from "drizzle-orm";
-                  import { sessions } from "./session.schema";
+                  import { refreshTokens } from "./refresh-token.schema";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
 
                   export const users = mysqlTable(
                     "users",
                     {
                       id: serial("id").primaryKey(),
-                      name: varchar("name", { length: 50 }).notNull(),
+                      name: varchar("name", { length: 100 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
-                      password: varchar("password", { length: 255 }).notNull(),
+                      password: varchar("password", { length: 255 }),
                       role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-                      isVerified: boolean("is_verified").default(false).notNull(),
-                      createdAt: timestamp("created_at").defaultNow().notNull(),
-                      updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
                     },
-                    table => [uniqueIndex("idx_email").on(table.email)]
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
                   );
 
+                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
                   export const usersRelations = relations(users, ({ many }) => ({
-                    sessions: many(sessions)
+                    refreshTokens: many(refreshTokens)
                   }));
 
+                  //? User type
                   export type User = typeof users.$inferSelect;
                   export type NewUser = typeof users.$inferInsert;
+
+      - type: file
+        name: index.ts
+        content: |
+          export * from "./user.schema";
+          export * from "./refresh-token.schema";
+          export * from "./otp.schema";
+          export * from "./session.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
 
 feature_structure:
   - type: folder
     name: src
     children:
       - type: folder
-        name: modules
+        name: drizzle
         children:
           - type: folder
-            name: auth
+            name: schemas
             children:
               - type: file
-                name: user.model.ts
+                name: otp.schema.ts
                 content: |
-                  import mongoose, { Document, Model, Schema } from "mongoose";
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    mysqlEnum,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
 
-                  export interface IAvatar {
-                    public_id: string;
-                    url: string;
-                    size: number;
-                  }
+                  const OTP_MAX_ATTEMPTS = 5;
 
-                  export interface IUser extends Document {
-                    _id: mongoose.Types.ObjectId;
-                    name: string;
-                    email: string;
-                    password?: string;
-                    role: "user" | "admin";
-                    isEmailVerified: boolean;
-                    lastLoginAt?: Date;
-                    failedLoginAttempts: number;
-                    lockUntil?: Date;
-                    avatar?: IAvatar;
-
-                    provider: "local" | "google" | "github";
-                    providerId?: string;
-
-                    isDeleted: boolean;
-                    deletedAt?: Date;
-                    reActivateAvailableAt?: Date;
-
-                    createdAt: Date;
-                    updatedAt: Date;
-                  }
-
-                  const userSchema = new Schema<IUser>(
-                    {
-                      name: {
-                        type: String,
-                        required: [true, "Name is required"],
-                        trim: true
-                      },
-                      email: {
-                        type: String,
-                        required: [true, "Email is required"],
-                        unique: true,
-                        lowercase: true,
-                        trim: true
-                      },
-                      password: {
-                        type: String,
-                        select: false,
-                        default: null
-                      },
-                      provider: {
-                        type: String,
-                        enum: ["local", "google", "github"],
-                        default: "local"
-                      },
-                      providerId: {
-                        type: String,
-                        default: null
-                      },
-                      role: {
-                        type: String,
-                        enum: ["user", "admin"],
-                        default: "user"
-                      },
-                      avatar: {
-                        public_id: String,
-                        url: String,
-                        size: Number
-                      },
-                      isEmailVerified: {
-                        type: Boolean,
-                        default: false
-                      },
-                      lastLoginAt: {
-                        type: Date
-                      },
-                      failedLoginAttempts: {
-                        type: Number,
-                        required: true,
-                        default: 0
-                      },
-                      lockUntil: {
-                        type: Date
-                      },
-                      isDeleted: {
-                        type: Boolean,
-                        default: false
-                      },
-                      deletedAt: {
-                        type: Date
-                      },
-                      reActivateAvailableAt: {
-                        type: Date
-                      }
-                    },
-                    {
-                      timestamps: true
-                    }
-                  );
-
-                  userSchema.index({ email: 1 });
-                  userSchema.index({ provider: 1, providerId: 1 });
-                  userSchema.index({ role: 1 });
-                  userSchema.index({ isDeleted: 1 });
-
-                  const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
-
-                  export default User;
-
-              - type: file
-                name: otp.model.ts
-                content: |
-                  import mongoose, { Document, Model, Schema } from "mongoose";
-                  import { OTPTypes, OTP_MAX_ATTEMPTS, OTP_TYPES } from "../../shared/constants/auth";
-
-                  export interface IOtp extends Document {
-                    _id: mongoose.Types.ObjectId;
-                    userId: mongoose.Types.ObjectId;
-                    email: string;
-                    otpHashCode: string;
-                    contextToken: string;
-                    nextResendAllowedAt: Date;
-                    type: OTPTypes;
-                    expiresAt: Date;
-                    isUsed: boolean;
-                    usedAt?: Date;
-                    attempts: number;
-                    maxAttempts: number;
-                    createdAt: Date;
-                    updatedAt: Date;
-                  }
-
-                  const otpSchema = new Schema<IOtp>(
-                    {
-                      userId: {
-                        type: Schema.Types.ObjectId,
-                        ref: "User",
-                        required: [true, "User ID is required"]
-                      },
-                      email: {
-                        type: String,
-                        required: [true, "Email is required"],
-                        lowercase: true,
-                        trim: true
-                      },
-                      otpHashCode: {
-                        type: String,
-                        required: [true, "OTP hash code is required"],
-                        select: false
-                      },
-                      nextResendAllowedAt: {
-                        type: Date,
-                        required: [true, "Next resend allowed at is required"],
-                      },
-                      type: {
-                        type: String,
-                        enum: OTP_TYPES,
-                        required: [true, "OTP type is required"]
-                      },
-                      expiresAt: {
-                        type: Date,
-                        required: [true, "Expiration time is required"],
-                        index: { expires: 0 }
-                      },
-                      isUsed: {
-                        type: Boolean,
-                        default: false
-                      },
-                      usedAt: {
-                        type: Date
-                      },
-                      attempts: {
-                        type: Number,
-                        default: 0
-                      },
-                      maxAttempts: {
-                        type: Number,
-                        default: OTP_MAX_ATTEMPTS
-                      }
-                    },
-                    {
-                      timestamps: true
-                    }
-                  );
-
-                  otpSchema.index({ userId: 1, type: 1 });
-                  otpSchema.index({ email: 1, type: 1 });
-                  otpSchema.index({ expiresAt: 1 });
-                  otpSchema.index({ isUsed: 1 });
-
-                  const Otp: Model<IOtp> = mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);
-
-                  export default Otp;
-
-              - type: file
-                name: session.model.ts
-                content: |
-                  import mongoose, { Document, Model, Schema } from "mongoose";
-
-                  export interface ISession extends Document {
-                    _id: mongoose.Types.ObjectId;
-                    userId: mongoose.Types.ObjectId;
-                    tokenHash: string;
-                    userAgent?: string;
-                    ipAddress?: string;
-                    expiresAt: Date;
-                    isActive: boolean;
-                    createdAt: Date;
-                    updatedAt: Date;
-                  }
-
-                  const sessionSchema = new Schema<ISession>(
-                    {
-                      userId: {
-                        type: Schema.Types.ObjectId,
-                        ref: "User",
-                        required: [true, "User ID is required"]
-                      },
-                      tokenHash: {
-                        type: String,
-                        required: [true, "Token hash is required"],
-                        select: false
-                      },
-                      userAgent: {
-                        type: String
-                      },
-                      ipAddress: {
-                        type: String
-                      },
-                      expiresAt: {
-                        type: Date,
-                        required: [true, "Expiration time is required"],
-                        index: { expires: 0 }
-                      },
-                      isActive: {
-                        type: Boolean,
-                        default: true
-                      }
-                    },
-                    {
-                      timestamps: true
-                    }
-                  );
-
-                  sessionSchema.index({ userId: 1 });
-                  sessionSchema.index({ tokenHash: 1 });
-                  sessionSchema.index({ expiresAt: 1 });
-                  sessionSchema.index({ isActive: 1 });
-
-                  const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>("Session", sessionSchema);
-
-                  export default Session;
-
-      - type: folder
-        name: shared
-        children:
-          - type: folder
-            name: constants
-            children:
-              - type: file
-                name: auth.ts
-                content: |
-                  export const OTP_MAX_ATTEMPTS = 5;
-                  export const OTP_CODE_LENGTH = 6 as const;
-                  export const OTP_EXPIRES_IN = 5 * 60 * 1000 as const; // 5 minutes
-
-                  export const OTP_TYPES = [
+                  const OTP_TYPES = [
                     "signin",
                     "email-verification",
                     "password-reset",
-                    "password-change",
+                    "password-change"
                   ] as const;
 
-                  export type OTPTypes = typeof OTP_TYPES[number];
+                  export const otps = mysqlTable(
+                    "otps",
+                    {
+                      id: serial("id").primaryKey(),
+                      email: varchar("email", { length: 255 }).notNull(),
+                      otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
+                      nextResendAllowedAt: timestamp("next_resend_allowed_at", {
+                        mode: "date"
+                      }).notNull(),
+                      type: mysqlEnum("type", OTP_TYPES).notNull(),
+                      expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+                      isUsed: boolean("is_used").default(false).notNull(),
+                      usedAt: timestamp("used_at", { mode: "date" }),
+                      attempts: int("attempts").default(0).notNull(),
+                      maxAttempts: int("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("email_type_idx").on(table.email, table.type),
+                      index("expires_at_idx").on(table.expiresAt),
+                      index("is_used_idx").on(table.isUsed)
+                    ]
+                  );
 
-          - type: folder
-            name: helpers
-            children:
+                  export type Otp = typeof otps.$inferSelect;
+                  export type NewOtp = typeof otps.$inferInsert;
+
               - type: file
-                name: token.helpers.ts
+                name: refresh-token.schema.ts
                 content: |
-                  import crypto from "node:crypto";
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    index,
+                    bigint,
+                    text
+                  } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
 
-                  export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
-                    const code = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, "0");
-                    const hashCode = crypto.createHash("sha256").update(String(code)).digest("hex");
-                    const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
-                    return { code, hashCode, expiresAt };
+                  export const refreshTokens = mysqlTable(
+                    "refresh_tokens",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: bigint("user_id", { mode: "number", unsigned: true })
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: text("token_hash").notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      isRevoked: boolean("is_revoked").default(false).notNull(),
+                      revokedAt: timestamp("revoked_at"),
+                      replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("token_hash_idx").on(table.tokenHash),
+                      index("is_revoked_idx").on(table.isRevoked),
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
+                  );
+
+                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
+
+                  //? Refresh Token type
+                  export type RefreshToken = typeof refreshTokens.$inferSelect;
+                  export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+              - type: file
+                name: session.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    timestamp,
+                    boolean,
+                    index,
+                    int
+                  } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
+
+                  export const sessions = mysqlTable(
+                    "sessions",
+                    {
+                      id: serial("id").primaryKey(),
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
+                      ip: varchar("ip", { length: 45 }),
+                      userAgent: varchar("user_agent", { length: 255 }),
+                      isActive: boolean("is_active").default(true).notNull(),
+                      lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+                      expiresAt: timestamp("expires_at").notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("userId_idx").on(table.userId),
+                      index("tokenHash_idx").on(table.tokenHash),
+                      index("isActive_idx").on(table.isActive),
+                      index("userId_isActive_idx").on(table.userId, table.isActive),
+                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                    ]
+                  );
+
+                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+                  export const sessionsRelations = relations(sessions, ({ one }) => ({
+                    user: one(users, {
+                      fields: [sessions.userId],
+                      references: [users.id]
+                    })
+                  }));
+
+                  export type Session = typeof sessions.$inferSelect;
+                  export type NewSession = typeof sessions.$inferInsert;
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { refreshTokens } from "./refresh-token.schema";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
                   }
 
-                  export function verifyOTP(code: string, hashCode: string): boolean {
-                    const validCode = crypto.createHash("sha256").update(String(code)).digest("hex");
-                    return validCode === hashCode;
-                  }
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
 
-                  export function hashOTP(otp: string): string {
-                    return crypto.createHash("sha256").update(String(otp)).digest("hex");
-                  }
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
 
-                  export function generateSecureToken(length: number = 32): string {
-                    return crypto.randomBytes(length).toString("hex");
-                  }
+                      avatar: json("avatar").$type<IAvatar>(),
 
-                  export function generateHashedToken(token: string): string {
-                    return crypto.createHash("sha256").update(String(token)).digest("hex");
-                  }
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
 
-                  export function generateTokenAndHashedToken(id: string) {
-                    const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
-                    const token = crypto.createHmac("sha256", cryptoSecret).update(String(id)).digest("hex");
-                    const hashedToken = crypto.createHash("sha256").update(String(token)).digest("hex");
-                    return { token, hashedToken };
-                  }
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-                  export function verifyHashedToken(token: string, hashedToken: string): boolean {
-                    return crypto.createHash("sha256").update(String(token)).digest("hex") === hashedToken;
-                  }
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
 
-                  export function generateUUID(): string {
-                    return crypto.randomUUID();
-                  }
+                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    refreshTokens: many(refreshTokens)
+                  }));
+
+                  //? User type
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+      - type: file
+        name: index.ts
+        content: |
+          export * from "./user.schema";
+          export * from "./refresh-token.schema";
+          export * from "./otp.schema";
+          export * from "./session.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
 ---
 
 # Auth Domain Schemas
@@ -482,7 +596,6 @@ You can also install schemas individually:
 **Refresh Token Schema:**
 
 <PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
-
 
 ## Schemas Breakdown
 
@@ -631,38 +744,6 @@ All auth schemas support multiple databases:
 
 The CLI automatically detects your database configuration from <Code children="servercn.config.json" /> and generates the appropriate schema.
 
-## File Structure
-
-### MVC Architecture
-
-```
-src/
-├── constants/
-│   └── auth.ts                 # OTP types, max attempts, etc.
-├── models/
-│   ├── user.model.ts          # User schema
-│   ├── otp.model.ts           # OTP schema
-│   └── session.model.ts       # Session schema
-└── helpers/
-    └── token.helpers.ts       # OTP/token generation utilities
-```
-
-### Feature Architecture
-
-```
-src/
-├── modules/
-│   └── auth/
-│       ├── user.model.ts      # User schema
-│       ├── otp.model.ts       # OTP schema
-│       └── session.model.ts   # Session schema
-└── shared/
-    ├── constants/
-    │   └── auth.ts            # Auth constants
-    └── helpers/
-        └── token.helpers.ts   # Token utilities
-```
-
 ## Security Best Practices
 
 ### Password Security
@@ -706,15 +787,6 @@ These components work well with the Auth Domain schemas:
 - **[Email Service](/docs/components/email-service)** - Send verification emails
 - **[Rate Limiter](/docs/components/rate-limiter)** - Protect auth endpoints
 - **[RBAC](/docs/components/rbac)** - Role-based access control
-
-## Next Steps
-
-1. **Install the schemas**: Run `npx servercn add schema auth`
-2. **Install helper components**: Add password hashing and token generation utilities
-3. **Set up email service**: Configure email delivery for OTPs
-4. **Implement auth routes**: Create registration, login, and verification endpoints
-5. **Add middleware**: Protect routes with authentication middleware
-6. **Test thoroughly**: Ensure all flows work correctly
 
 ## Learn More
 

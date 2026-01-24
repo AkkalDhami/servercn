@@ -211,7 +211,6 @@ mvc_structure:
                     })
               });
 
-
       - type: file
         name: app.ts
         content: |
@@ -612,7 +611,8 @@ export const errorHandler = (
 
   logger.error(
     err,
-    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`);
+    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+  );
 
   const response = {
     success: false,

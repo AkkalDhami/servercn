@@ -2,10 +2,10 @@
 title: Env Configuration
 description: Setup type-safe environment variables with Zod and Dotenv.
 command: npx servercn add env
-mvc_structure: 
+mvc_structure:
   - type: folder
     name: src
-    children: 
+    children:
       - type: folder
         name: configs
         children:
@@ -133,89 +133,89 @@ mvc_structure:
       GITHUB_CLIENT_SECRET=
       GITHUB_REDIRECT_URI=
 
-feature_structure: 
+feature_structure:
   - type: folder
     name: src
-    children: 
+    children:
       - type: folder
         name: shared
-        children: 
-        - type: folder
-          name: configs
-          children:
-            - type: file
-              name: env.ts
-              content: |
-                import "dotenv/config";
-                import { z } from "zod";
+        children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+                  import "dotenv/config";
+                  import { z } from "zod";
 
-                /**
-                * Environment variable schema
-                * - All validation happens at startup
-                * - Fails fast on misconfiguration
-                */
-                export const envSchema = z.object({
-                  NODE_ENV: z
-                    .enum(["development", "test", "production"])
-                    .default("development"),
+                  /**
+                  * Environment variable schema
+                  * - All validation happens at startup
+                  * - Fails fast on misconfiguration
+                  */
+                  export const envSchema = z.object({
+                    NODE_ENV: z
+                      .enum(["development", "test", "production"])
+                      .default("development"),
 
-                  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+                    PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
 
-                  DATABASE_URL: z.url(),
+                    DATABASE_URL: z.url(),
 
-                  CORS_ORIGIN: z.string(),
+                    CORS_ORIGIN: z.string(),
 
-                  LOG_LEVEL: z
-                    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-                    .default("info"),
+                    LOG_LEVEL: z
+                      .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+                      .default("info"),
 
-                  JWT_ACCESS_SECRET: z.string().min(32),
-                  JWT_REFRESH_SECRET: z.string().min(32),
+                    JWT_ACCESS_SECRET: z.string().min(32),
+                    JWT_REFRESH_SECRET: z.string().min(32),
 
-                  CRYPTO_SECRET: z.string().min(32),
+                    CRYPTO_SECRET: z.string().min(32),
 
-                  SMTP_HOST: z.string(),
-                  SMTP_PORT: z
-                    .string()
-                    .regex(/^\d+$/, "SMTP_PORT must be a number")
-                    .transform(Number),
-                  SMTP_USER: z.string(),
-                  SMTP_PASS: z.string(),
-                  EMAIL_FROM: z.email(),
+                    SMTP_HOST: z.string(),
+                    SMTP_PORT: z
+                      .string()
+                      .regex(/^\d+$/, "SMTP_PORT must be a number")
+                      .transform(Number),
+                    SMTP_USER: z.string(),
+                    SMTP_PASS: z.string(),
+                    EMAIL_FROM: z.email(),
 
-                  CLOUDINARY_CLOUD_NAME: z.string(),
-                  CLOUDINARY_API_KEY: z.string(),
-                  CLOUDINARY_API_SECRET: z.string(),
+                    CLOUDINARY_CLOUD_NAME: z.string(),
+                    CLOUDINARY_API_KEY: z.string(),
+                    CLOUDINARY_API_SECRET: z.string(),
 
-                  GOOGLE_CLIENT_ID: z.string(),
-                  GOOGLE_CLIENT_SECRET: z.string(),
-                  GOOGLE_REDIRECT_URI: z.url(),
+                    GOOGLE_CLIENT_ID: z.string(),
+                    GOOGLE_CLIENT_SECRET: z.string(),
+                    GOOGLE_REDIRECT_URI: z.url(),
 
-                  GITHUB_CLIENT_ID: z.string(),
-                  GITHUB_CLIENT_SECRET: z.string(),
-                  GITHUB_REDIRECT_URI: z.url()
-                });
+                    GITHUB_CLIENT_ID: z.string(),
+                    GITHUB_CLIENT_SECRET: z.string(),
+                    GITHUB_REDIRECT_URI: z.url()
+                  });
 
-                export type Env = z.infer<typeof envSchema>;
+                  export type Env = z.infer<typeof envSchema>;
 
-                /**
-                * Parse and validate environment variables once.
-                * This module must be imported before app bootstrap.
-                */
-                const result = envSchema.safeParse(process.env);
+                  /**
+                  * Parse and validate environment variables once.
+                  * This module must be imported before app bootstrap.
+                  */
+                  const result = envSchema.safeParse(process.env);
 
-                if (!result.success) {
-                  console.error("❌ Invalid environment configuration");
-                  console.error(z.treeifyError(result.error));
-                  process.exit(1);
-                }
+                  if (!result.success) {
+                    console.error("❌ Invalid environment configuration");
+                    console.error(z.treeifyError(result.error));
+                    process.exit(1);
+                  }
 
-                /**
-                * Validated, immutable environment object
-                */
-                export const env: Readonly<Env> = Object.freeze(result.data);
+                  /**
+                  * Validated, immutable environment object
+                  */
+                  export const env: Readonly<Env> = Object.freeze(result.data);
 
-                export default env;
+                  export default env;
 
   - type: file
     name: .env.example
@@ -266,7 +266,6 @@ feature_structure:
       GITHUB_CLIENT_ID=
       GITHUB_CLIENT_SECRET=
       GITHUB_REDIRECT_URI=
-
 ---
 
 # Env Configuration
@@ -281,7 +280,6 @@ To ensure your application has all the required environment variables with the c
 - **Fail Fast**: The application will not start if any required environment variable is missing or invalid.
 - **Centralized Access**: Access all environment variables through a single, validated `env` object.
 - **Default Values**: Easily provide default values for optional environment variables.
-
 
 ## Installation Guide
 
@@ -380,6 +378,7 @@ console.log(env.NODE_ENV); // Typed as "development" | "test" | "production"
 ## Why Zod?
 
 Using Zod for environment validation provides several benefits:
+
 1. **Validation**: It ensures that environment variables like `PORT` are actually strings/numbers as expected.
 2. **Transformation**: You can transform strings into other types (e.g., parsing a string to a boolean or number).
 3. **Error Reporting**: If an environment variable is missing or wrong, Zod provides detailed error messages.

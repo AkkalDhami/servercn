@@ -14,21 +14,27 @@ REST is not a protocol or a standard but a **set of architectural constraints**.
 For an API to be considered RESTful, it typically conforms to the following constraints:
 
 ### 1. Client-Server Architecture
+
 The client (frontend) and server (backend) act independently. The client should know how to fetch data, and the server should know how to serve it. This separation allows for portability and scalability.
 
-### 2. Statelessness 
+### 2. Statelessness
+
 The server does not store any state about the client session on the server side. Each request from the client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server.
 
 ### 3. Cacheable
+
 Clients can cache responses. Responses must define themselves as cacheable or not to prevent clients from reusing stale or inappropriate data in response to further requests.
 
 ### 4. Resource-Based URLs (Nouns, Not Verbs)
-URLs should represent resources, not actions. Use nouns instead of verbs. 
 
-- **Bad**: <Code children={"/api/getUsers"} /> , <Code children={"/api/create_user"} />  ❌
-- **Good**: <Code children={"/api/users"} /> , <Code children={"/api/users/:id"} />  ✅
+URLs should represent resources, not actions. Use nouns instead of verbs.
 
-<Note text={"REST APIs use nouns in URLs and actions are defined by HTTP methods."} />
+- **Bad**: <Code children={"/api/getUsers"} /> , <Code children={"/api/create_user"} /> ❌
+- **Good**: <Code children={"/api/users"} /> , <Code children={"/api/users/:id"} /> ✅
+
+<Note
+  text={"REST APIs use nouns in URLs and actions are defined by HTTP methods."}
+/>
 
 ### 5. Proper Use of HTTP Methods
 
@@ -46,14 +52,18 @@ Always use HTTP methods semantically to improve clarity and consistency. Each HT
 | 500  | Server Error |
 ```
 
-<Note text={"Status codes help clients understand the result without parsing the response body."} />
-
+<Note
+  text={
+    "Status codes help clients understand the result without parsing the response body."
+  }
+/>
 
 ### 6. Consistent Response Structure
 
 Responses should follow a consistent format. Consistency makes APIs easier to consume and debug.
 
 **Example:**
+
 ```json
 {
   "success": true,
@@ -73,27 +83,29 @@ Always version your API to handle breaking changes gracefully.
 ```
 
 ### 8. Code on Demand (Optional)
+
 Servers can temporarily extend or customize the functionality of a client by the transfer of executable code (e.g., scripts).
 
 ### 9. Filtering, Sorting, and Pagination (Optional)
+
 Prevent large data dumps by implementing query parameters.
 
 **Express Implementation Example:**
+
 ```typescript
-app.get('/api/users', (req, res) => {
+app.get("/api/users", (req, res) => {
   const { page = 1, limit = 10, role } = req.query;
-  
+
   const options = {
     page: parseInt(page),
     limit: parseInt(limit),
     filter: role ? { role } : {}
   };
-  
+
   const result = db.users.find(options);
   res.json(result);
 });
 ```
-
 
 ## HTTP Methods
 
@@ -102,98 +114,103 @@ In a REST API, endpoints (URLs) represent resources, and HTTP verbs (methods) re
 Here is how you implement them in **Node.js with Express**:
 
 ### GET
+
 **Retrieve** a representation of a resource. This should not modify the server state.
 
 ```typescript
 // GET /api/users - Get all users
-app.get('/api/users', (req, res) => {
+app.get("/api/users", (req, res) => {
   // Assume db is your database instance
   const users = db.users.findAll();
   res.status(200).json(users);
 });
 
 // GET /api/users/:id - Get a specific user
-app.get('/api/users/:id', (req, res) => {
+app.get("/api/users/:id", (req, res) => {
   const { id } = req.params;
   const user = db.users.findById(id);
-  
+
   if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: "User not found" });
   }
-  
+
   res.status(200).json(user);
 });
 ```
 
 ### POST
+
 **Create** a new resource. The payload is sent in the request body.
 
 ```typescript
 // POST /api/users - Create a new user
-app.post('/api/users', (req, res) => {
+app.post("/api/users", (req, res) => {
   const { name, email } = req.body;
-  
+
   if (!name || !email) {
-     return res.status(400).json({ error: 'Name and email are required' });
+    return res.status(400).json({ error: "Name and email are required" });
   }
-  
+
   const newUser = db.users.create({ name, email });
-  
+
   // 201 Created is the standard status code for creation
   res.status(201).json(newUser);
 });
 ```
 
 ### PUT
+
 **Update** or **Replace** a resource entirely. If the resource doesn't exist, it can be created (depending on implementation).
 
 ```typescript
 // PUT /api/users/:id - Replace user data
-app.put('/api/users/:id', (req, res) => {
+app.put("/api/users/:id", (req, res) => {
   const { id } = req.params;
   const newData = req.body;
-  
+
   // This typically replaces the entire object
   const updatedUser = db.users.update(id, newData);
-  
+
   res.status(200).json(updatedUser);
 });
 ```
 
 ### PATCH
+
 **Partially Update** a resource. Only the fields sent in the body are updated.
 
 ```typescript
 // PATCH /api/users/:id - Update specific fields
-app.patch('/api/users/:id', (req, res) => {
+app.patch("/api/users/:id", (req, res) => {
   const { id } = req.params;
   const updates = req.body;
-  
+
   const updatedUser = db.users.patch(id, updates);
-  
+
   res.status(200).json(updatedUser);
 });
 ```
 
 ### DELETE
+
 **Remove** a resource.
 
 ```typescript
 // DELETE /api/users/:id - Delete a user
-app.delete('/api/users/:id', (req, res) => {
+app.delete("/api/users/:id", (req, res) => {
   const { id } = req.params;
-  
+
   db.users.delete(id);
-  
+
   // 204 No Content is often used when there is no response body meant to be sent
   res.status(204).send();
 });
 ```
 
-
 ## HTTP Status Codes
 
 Using the correct status code is crucial for a REST API to communicate clearly with the client.
+
 ```
 | Code | Status | Description |
 | :--- | :--- | :--- |
@@ -207,7 +224,6 @@ Using the correct status code is crucial for a REST API to communicate clearly w
 | **500** | Internal Server Error | Something went wrong on the server side. |
 ```
 
-
 ```ts
 export const STATUS_CODES = {
   // 2xx Success
@@ -215,12 +231,12 @@ export const STATUS_CODES = {
   CREATED: 201,
   ACCEPTED: 202,
   NO_CONTENT: 204,
- 
+
   // 3xx Redirection
   MOVED_PERMANENTLY: 301,
   FOUND: 302,
   NOT_MODIFIED: 304,
- 
+
   // 4xx Client Errors
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
@@ -229,7 +245,7 @@ export const STATUS_CODES = {
   CONFLICT: 409,
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
- 
+
   // 5xx Server Errors
   INTERNAL_SERVER_ERROR: 500,
   NOT_IMPLEMENTED: 501,
@@ -248,9 +264,11 @@ For more info visit [HTTP Status Codes Docs](/docs/components/http-status-codes)
 Securing a REST API is critical for production environments. Below are practical measures you can implement in Node.js.
 
 ### 1. Use HTTPS
+
 Always serve your API over HTTPS. SSL/TLS encrypts data in transit, preventing man-in-the-middle attacks.
 
 ### 2. Set Security Headers
+
 Use **Helmet** to set various HTTP headers that help secure your app.
 
 ```bash
@@ -258,12 +276,13 @@ npm install helmet
 ```
 
 ```typescript
-import helmet from 'helmet';
+import helmet from "helmet";
 
 app.use(helmet());
 ```
 
 ### 3. Rate Limiting
+
 Prevent brute-force attacks and abuse by limiting the number of requests from the same IP.
 
 ```bash
@@ -271,12 +290,12 @@ npm install express-rate-limit
 ```
 
 ```typescript
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  message: "Too many requests from this IP, please try again later."
 });
 
 // Apply to all requests
@@ -284,6 +303,7 @@ app.use(limiter);
 ```
 
 ### 4. Configure CORS
+
 Cross-Origin Resource Sharing (CORS) controls which domains can access your API.
 
 ```bash
@@ -291,18 +311,19 @@ npm install cors
 ```
 
 ```typescript
-import cors from 'cors';
+import cors from "cors";
 
 const corsOptions = {
-  origin: 'https://your-frontend-domain.com', // Restrict to trusted domains
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: "https://your-frontend-domain.com", // Restrict to trusted domains
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 };
 
 app.use(cors(corsOptions));
 ```
 
 ### 5. Input Validation
+
 Never trust client input. Validate request bodies, params, and query strings. **Zod** is a great library for this.
 
 ```bash
@@ -310,35 +331,36 @@ npm install zod
 ```
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 const userSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8)
 });
 
-app.post('/api/users', (req, res) => {
+app.post("/api/users", (req, res) => {
   const result = userSchema.safeParse(req.body);
-  
+
   if (!result.success) {
-    return res.status(400).json({ 
-      error: 'Invalid input', 
-      details: result.error.issues 
+    return res.status(400).json({
+      error: "Invalid input",
+      details: result.error.issues
     });
   }
-  
+
   // Proceed with creating user...
 });
 ```
 
 ### 6. Authentication & Authorization
+
 Ensure only authenticated users can access protected resources.
 
 ```typescript
 // Simple middleware example using JWT
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
   if (!token) return res.sendStatus(401);
 
@@ -349,12 +371,13 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-app.get('/api/protected', authenticateToken, (req, res) => {
-    // ...
+app.get("/api/protected", authenticateToken, (req, res) => {
+  // ...
 });
 ```
 
 ### 7. Secure Error Handling
+
 Do not leak stack traces or sensitive database errors to the client in production.
 
 ```typescript
@@ -363,9 +386,10 @@ app.use((err, req, res, next) => {
   console.error(err.stack); // Log internally
 
   const statusCode = err.statusCode || 500;
-  const message = process.env.NODE_ENV === 'production' 
-    ? 'Internal Server Error' 
-    : err.message;
+  const message =
+    process.env.NODE_ENV === "production"
+      ? "Internal Server Error"
+      : err.message;
 
   res.status(statusCode).json({
     success: false,

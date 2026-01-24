@@ -28,7 +28,7 @@ mvc_structure:
                     index,
                     mysqlEnum,
                   } from "drizzle-orm/mysql-core";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
 
@@ -150,7 +150,7 @@ mvc_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
                    
                   export const sessions = mysqlTable(
                     "sessions",
@@ -201,7 +201,7 @@ mvc_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
 
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
@@ -290,7 +290,7 @@ feature_structure:
                     index,
                     mysqlEnum,
                   } from "drizzle-orm/mysql-core";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
 
@@ -412,7 +412,7 @@ feature_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
                    
                   export const sessions = mysqlTable(
                     "sessions",
@@ -463,7 +463,7 @@ feature_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./schema.helper";
+                  import { timestamps } from "./otp.schema";
 
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
@@ -558,9 +558,9 @@ import {
   json,
   uniqueIndex,
   index,
-  mysqlEnum,
+  mysqlEnum
 } from "drizzle-orm/mysql-core";
-import { timestamps } from "./schema.helper";
+import { timestamps } from "./otp.schema";
 import { relations } from "drizzle-orm";
 import { refreshTokens } from "./refresh-token.schema";
 
@@ -595,24 +595,28 @@ export const users = mysqlTable(
     deletedAt: timestamp("deleted_at"),
     reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-    ...timestamps,
+    ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("email_idx").on(table.email),
     index("role_idx").on(table.role),
-    index("is_deleted_idx").on(table.isDeleted),
-  ],
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
 );
 
 //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
 export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens),
+  refreshTokens: many(refreshTokens)
 }));
 
 //? User type
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 ```
+
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/user" />
 
 ## 2. OTP Schema
 
@@ -631,23 +635,23 @@ import {
   mysqlEnum,
   index
 } from "drizzle-orm/mysql-core";
- 
+
 const OTP_MAX_ATTEMPTS = 5;
- 
+
 const OTP_TYPES = [
   "signin",
   "email-verification",
   "password-reset",
   "password-change"
 ] as const;
- 
+
 type OTPType = (typeof OTP_TYPES)[number];
- 
+
 export const timestamps = {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
 };
- 
+
 export const otps = mysqlTable(
   "otps",
   {
@@ -671,12 +675,14 @@ export const otps = mysqlTable(
     index("is_used_idx").on(table.isUsed)
   ]
 );
- 
+
 export type Otp = typeof otps.$inferSelect;
 export type NewOtp = typeof otps.$inferInsert;
 ```
 
----
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/otp" />
 
 ## 3. Session Schema
 
@@ -696,8 +702,8 @@ import {
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./schema.helper";
- 
+import { timestamps } from "./otp.schema";
+
 export const sessions = mysqlTable(
   "sessions",
   {
@@ -721,7 +727,7 @@ export const sessions = mysqlTable(
     index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
   ]
 );
- 
+
 //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -729,12 +735,14 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     references: [users.id]
   })
 }));
- 
+
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 ```
 
----
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/session" />
 
 ## 4. Refresh Token Schema
 
@@ -751,11 +759,11 @@ import {
   timestamp,
   index,
   bigint,
-  text,
+  text
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./schema.helper";
+import { timestamps } from "./otp.schema";
 
 export const refreshTokens = mysqlTable(
   "refresh_tokens",
@@ -769,33 +777,34 @@ export const refreshTokens = mysqlTable(
     isRevoked: boolean("is_revoked").default(false).notNull(),
     revokedAt: timestamp("revoked_at"),
     replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-    ...timestamps,
+    ...timestamps
   },
-  (table) => [
+  table => [
     index("user_id_idx").on(table.userId),
     index("token_hash_idx").on(table.tokenHash),
     index("is_revoked_idx").on(table.isRevoked),
-    index("expires_at_idx").on(table.expiresAt),
-  ],
+    index("expires_at_idx").on(table.expiresAt)
+  ]
 );
 
 //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
-export const refreshTokensRelations = relations(
-  refreshTokens,
-  ({ one }) => {
-    return {
-      user: one(users, {
-        fields: [refreshTokens.userId],
-        references: [users.id],
-      }),
-    };
-  },
-);
+export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [refreshTokens.userId],
+      references: [users.id]
+    })
+  };
+});
 
 //? Refresh Token type
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 ```
+
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
 
 ## 5. Export all schemas
 
@@ -825,19 +834,21 @@ import { Config, defineConfig } from "drizzle-kit";
 import env from "./src/configs/env";
 
 export default defineConfig({
-  out: "./src/drizzle/migrations",      // Directory where migrations are generated
-  schema: "./src/drizzle/index.ts",     // Central schema entry point
-  dialect: "mysql",                     // Database dialect
+  out: "./src/drizzle/migrations", // Directory where migrations are generated
+  schema: "./src/drizzle/index.ts", // Central schema entry point
+  dialect: "mysql", // Database dialect
   dbCredentials: {
     url: env.DATABASE_URL!
   },
-  verbose: true,                        // Enable detailed logs
-  strict: true                          // Enforce strict schema validation
+  verbose: true, // Enable detailed logs
+  strict: true // Enforce strict schema validation
 }) satisfies Config;
 ```
 
 **Notes:**
 
 - <Code children="schema" /> must point to the file that exports all schemas.
-- <Code children="env.DATABASE_URL" /> should be validated via Env Configuration before use.
-- <Code children="strict: true" /> helps catch schema issues early during migration generation.
+- <Code children="env.DATABASE_URL" /> should be validated via Env Configuration
+  before use.
+- <Code children="strict: true" /> helps catch schema issues early during
+  migration generation.

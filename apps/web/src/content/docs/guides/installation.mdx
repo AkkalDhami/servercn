@@ -33,7 +33,7 @@ The fastest way to get started with ServerCN:
 
 ### 1. Express Server
 
-The Express Server Foundation is the core starting block provided by servercn 
+The Express Server Foundation is the core starting block provided by servercn
 
 <PackageManagerTabs command="npx servercn init express-server" />
 
@@ -62,7 +62,6 @@ The Mongoose Starter is a database foundation provided by servercn for projects 
 <PackageManagerTabs command="npx servercn init mongoose-starter" />
 
 [Mongoose Starter Docs](/docs/foundations/mongoose-starter)
-
 
 ## Configuration Options
 
@@ -94,7 +93,7 @@ The Mongoose Starter is a database foundation provided by servercn for projects 
 - **MongoDB**: With Mongoose ODM
 - **MySQL**: With Drizzle ORM
 - **PostgreSQL**: With Drizzle ORM
--  More databases coming soon
+- More databases coming soon
 
 ## servercn.config.json
 
@@ -133,6 +132,7 @@ ServerCN provides first-class support for popular databases through well-integra
 ### MongoDB with Mongoose
 
 ServerCN supports **MongoDB** using the **Mongoose ODM**. When you choose this option, the CLI will:
+
 - Set up a robust database connection utility.
 - Scaffold Mongoose schemas and models following your chosen architecture (MVC or Feature).
 - Handle common Mongoose patterns for authentication and role-based access control.
@@ -140,6 +140,7 @@ ServerCN supports **MongoDB** using the **Mongoose ODM**. When you choose this o
 ### MySQL with Drizzle
 
 For **MySQL**, ServerCN uses **Drizzle ORM**. This setup provides:
+
 - Fully type-safe schemas using Drizzle's TypeScript-first approach.
 - Migration scripts and configuration for `drizzle-kit`.
 - Efficient relational data modeling with Drizzle's declarative syntax.
@@ -147,10 +148,10 @@ For **MySQL**, ServerCN uses **Drizzle ORM**. This setup provides:
 ### PostgreSQL with Drizzle
 
 ServerCN also supports **PostgreSQL** via **Drizzle ORM**, offering:
+
 - Advanced PostgreSQL features mapping directly to Drizzle schemas.
 - Type-safe queries and relations.
 - Seamless integration with PostgreSQL-specific data types.
-
 
 ## Adding Components
 
@@ -337,4 +338,8 @@ To remove ServerCN from your project:
 2. Remove any ServerCN components you've added
 3. Remove ServerCN-specific dependencies (if any)
 
-<Note text={"Note: ServerCN doesn't install itself as a runtime dependency. Components are copied into your codebase, so you own the code completely."} />
+<Note
+  text={
+    "Note: ServerCN doesn't install itself as a runtime dependency. Components are copied into your codebase, so you own the code completely."
+  }
+/>

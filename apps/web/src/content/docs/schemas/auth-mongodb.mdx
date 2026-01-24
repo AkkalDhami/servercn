@@ -772,7 +772,7 @@ feature_structure:
 
 # Auth Domain (MongoDB)
 
-This page documents the authentication schemas for projects using <Code children="MongoDB" /> with <Code children="Mongoose" />. 
+This page documents the authentication schemas for projects using <Code children="MongoDB" /> with <Code children="Mongoose" />.
 
 The Auth Domain provides a set of production-ready models that handle user identity, verification, and session management.
 
@@ -906,6 +906,10 @@ const User: Model<IUser> =
 export default User;
 ```
 
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/user" />
+
 ## 2. OTP Schema
 
 The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
@@ -1006,12 +1010,16 @@ const Otp: Model<IOtp> =
 export default Otp;
 ```
 
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/otp" />
+
 ## 3. Session Schema
 
 The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
 **MVC Path:** <Code children="src/models/session.model.ts"/>  
-**Feature Path:** <Code children="src/modules/auth/session.model.ts"/> 
+**Feature Path:** <Code children="src/modules/auth/session.model.ts"/>
 
 ```ts
 import mongoose, { Document, Schema, Model } from "mongoose";
@@ -1080,7 +1088,9 @@ const Session: Model<ISession> =
 export default Session;
 ```
 
----
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/session" />
 
 ## 4. Refresh Token Schema
 
@@ -1145,7 +1155,7 @@ refreshTokenSchema.index({ isRevoked: 1 });
 refreshTokenSchema.index(
   { createdAt: 1 },
   { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 } // 7 days
-); 
+);
 
 const RefreshToken: Model<IRefreshToken> =
   mongoose.models.RefreshToken ||
@@ -1153,6 +1163,10 @@ const RefreshToken: Model<IRefreshToken> =
 
 export default RefreshToken;
 ```
+
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema auth/refresh-token" />
 
 ## 5. Auth Constants
 

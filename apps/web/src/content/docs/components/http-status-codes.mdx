@@ -225,7 +225,9 @@ The **HTTP Status Codes** component solves this by providing a clear, standardiz
 ## Status Code Reference
 
 ### 2xx Success
+
 These codes indicate that the client's request was successfully received, understood, and accepted.
+
 ```
 | Status Code | Constant     | Description                                                              | Recommended Usage                                                                                                          |
 | ----------- | ------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
@@ -234,7 +236,9 @@ These codes indicate that the client's request was successfully received, unders
 | 202         | ACCEPTED     | The request has been accepted for asynchronous processing.               | Use when the request is queued or handled by a background job and processing is not yet complete.                          |
 | 204         | NO_CONTENT   | The request was successful but there is no response body.                | Use for successful `DELETE` operations or updates where no data needs to be returned.                                      |
 ```
+
 ### 3xx Redirection
+
 These codes indicate that the client must take additional action to complete the request.
 
 ```
@@ -246,6 +250,7 @@ These codes indicate that the client must take additional action to complete the
 ```
 
 ### 4xx Client Errors
+
 These codes indicate that the request contains bad syntax or cannot be fulfilled.
 
 ```
@@ -259,7 +264,9 @@ These codes indicate that the request contains bad syntax or cannot be fulfilled
 | 422         | UNPROCESSABLE_ENTITY   | The request is valid but fails domain-specific validation rules.    | Use for semantic validation errors (e.g., weak password, invalid state transition). |
 | 429         | TOO_MANY_REQUESTS      | Too many requests have been sent in a given time window.            | Use when rate limits are exceeded. Include retry headers when possible.             |
 ```
+
 ### 5xx Server Errors
+
 These codes indicate the server failed to fulfill an apparently valid request.
 
 ```

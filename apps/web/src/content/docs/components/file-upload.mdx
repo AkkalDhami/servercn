@@ -921,66 +921,65 @@ feature_structure:
               - type: file
                 name: upload.controller.ts
                 content: |
-                    import { NextFunction, Request, Response } from "express";
+                  import { NextFunction, Request, Response } from "express";
 
-                    import { ApiResponse } from "../../shared/utils/api-response";
-                    import { AsyncHandler } from "../../shared/utils/async-handler";
-                    import {
-                      CloudinaryUploadResult,
-                      deleteFileFromCloudinary,
-                      uploadToCloudinary
-                    } from "./upload.service";
-                    import { ApiError } from "../../shared/errors/api-error";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+                  import { AsyncHandler } from "../../shared/utils/async-handler";
+                  import {
+                    CloudinaryUploadResult,
+                    deleteFileFromCloudinary,
+                    uploadToCloudinary
+                  } from "./upload.service";
+                  import { ApiError } from "../../shared/errors/api-error";
 
-                    export const uploadFile = AsyncHandler(
-                      async (req: Request, res: Response, next: NextFunction) => {
-                        if (!req.file) {
-                          return next(ApiError.badRequest("File is required"));
-                        }
-
-                        const file = await uploadToCloudinary(req.file.buffer, {
-                          folder: "uploads/files",
-                          resource_type: "auto"
-                        });
-
-                        return ApiResponse.created(res, "File uploaded successfully", file);
+                  export const uploadFile = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      if (!req.file) {
+                        return next(ApiError.badRequest("File is required"));
                       }
-                    );
 
-                    export const uploadMultipleFile = AsyncHandler(
-                      async (req: Request, res: Response, next: NextFunction) => {
-                        const files = req.files as Express.Multer.File[];
+                      const file = await uploadToCloudinary(req.file.buffer, {
+                        folder: "uploads/files",
+                        resource_type: "auto"
+                      });
 
-                        if (!files || files.length === 0) {
-                          return next(ApiError.badRequest("Files are required"));
-                        }
+                      return ApiResponse.created(res, "File uploaded successfully", file);
+                    }
+                  );
 
-                        const results: CloudinaryUploadResult[] = await Promise.all(
-                          files.map(async file => {
-                            return await uploadToCloudinary(file.buffer, {
-                              folder: "uploads/images"
-                            });
-                          })
-                        );
+                  export const uploadMultipleFile = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const files = req.files as Express.Multer.File[];
 
-                        return ApiResponse.created(res, "Files uploaded successfully", results);
+                      if (!files || files.length === 0) {
+                        return next(ApiError.badRequest("Files are required"));
                       }
-                    );
 
-                    export const deleteFile = AsyncHandler(
-                      async (req: Request, res: Response, next: NextFunction) => {
-                        const { public_id } = req.body;
+                      const results: CloudinaryUploadResult[] = await Promise.all(
+                        files.map(async file => {
+                          return await uploadToCloudinary(file.buffer, {
+                            folder: "uploads/images"
+                          });
+                        })
+                      );
 
-                        if (!public_id) {
-                          return next(ApiError.badRequest("File ID is required"));
-                        }
+                      return ApiResponse.created(res, "Files uploaded successfully", results);
+                    }
+                  );
 
-                        await deleteFileFromCloudinary([public_id]);
+                  export const deleteFile = AsyncHandler(
+                    async (req: Request, res: Response, next: NextFunction) => {
+                      const { public_id } = req.body;
 
-                        return ApiResponse.Success(res, "File deleted successfully", null, 200);
+                      if (!public_id) {
+                        return next(ApiError.badRequest("File ID is required"));
                       }
-                    );
 
+                      await deleteFileFromCloudinary([public_id]);
+
+                      return ApiResponse.Success(res, "File deleted successfully", null, 200);
+                    }
+                  );
 
               - type: file
                 name: upload.routes.ts
@@ -1316,10 +1315,12 @@ export default upload;
 Services for uploading files to Cloudinary and delete files from cloudinary.
 
 **MVC:** <Code children="src/services/cloudinary.service.ts" /> or
+
 <Code children="src/utils/cloudinary.ts" /> or
 <Code children="src/helpers/cloudinary.ts" />
 
 **Feature:** <Code children="src/modules/upload/cloudinary.service.ts" /> or
+
 <Code children="src/modules/upload/upload.service.ts" />
 
 ```ts
@@ -1396,18 +1397,20 @@ import { ApiError } from "../utils/api-error";
 import { ApiResponse } from "../utils/api-response";
 import { AsyncHandler } from "../utils/async-handler";
 
-export const uploadFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.file) {
-    return next(ApiError.badRequest("File is required"));
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToCloudinary(req.file.buffer, {
+      folder: "uploads/files",
+      resource_type: "auto"
+    });
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
   }
-
-  const file = await uploadToCloudinary(req.file.buffer, {
-    folder: "uploads/files",
-    resource_type: "auto"
-  });
-
-  return ApiResponse.created(res, "File uploaded successfully", file);
-});
+);
 
 export const uploadMultipleFile = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -1429,17 +1432,19 @@ export const uploadMultipleFile = AsyncHandler(
   }
 );
 
-export const deleteFile = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  const { public_id } = req.body;
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { public_id } = req.body;
 
-  if (!public_id) {
-    return next(ApiError.badRequest("File ID is required"));
+    if (!public_id) {
+      return next(ApiError.badRequest("File ID is required"));
+    }
+
+    await deleteFileFromCloudinary([public_id]);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
   }
-
-  await deleteFileFromCloudinary([public_id]);
-
-  return ApiResponse.Success(res, "File deleted successfully", null, 200);
-});
+);
 ```
 
 **Feature:** <Code children="src/modules/upload/upload.controller.ts" />
@@ -1452,7 +1457,7 @@ import { AsyncHandler } from "../../shared/utils/async-handler";
 import {
   CloudinaryUploadResult,
   deleteFileFromCloudinary,
-  uploadToCloudinary,
+  uploadToCloudinary
 } from "./upload.service";
 import { ApiError } from "../../shared/errors/api-error";
 
@@ -1464,7 +1469,7 @@ export const uploadFile = AsyncHandler(
 
     const file = await uploadToCloudinary(req.file.buffer, {
       folder: "uploads/files",
-      resource_type: "auto",
+      resource_type: "auto"
     });
 
     return ApiResponse.created(res, "File uploaded successfully", file);
@@ -1480,9 +1485,9 @@ export const uploadMultipleFile = AsyncHandler(
     }
 
     const results: CloudinaryUploadResult[] = await Promise.all(
-      files.map(async (file) => {
+      files.map(async file => {
         return await uploadToCloudinary(file.buffer, {
-          folder: "uploads/images",
+          folder: "uploads/images"
         });
       })
     );

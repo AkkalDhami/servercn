@@ -30,7 +30,7 @@ mvc_structure:
               };
 
               export default env;
-      
+
       - type: folder
         name: constants
         children:
@@ -67,7 +67,7 @@ mvc_structure:
               } as const;
 
               export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
-      
+
       - type: folder
         name: controllers
         children:
@@ -121,7 +121,7 @@ mvc_structure:
                   return ApiResponse.Success(res, "Service is healthy", healthData);
                 }
               );
-      
+
       - type: folder
         name: middlewares
         children:
@@ -161,7 +161,7 @@ mvc_structure:
 
                 res.status(statusCode).json(response);
               };
-          
+
           - type: file
             name: not-found-handler.ts
             content: |
@@ -171,7 +171,7 @@ mvc_structure:
               export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
                 next(new ApiError(404, `Not Found - ${req.originalUrl}`));
               };
-      
+
       - type: folder
         name: routes
         children:
@@ -190,7 +190,7 @@ mvc_structure:
               router.get("/detailed", detailedHealthCheck);
 
               export default router;
-      
+
       - type: folder
         name: utils
         children:
@@ -270,7 +270,6 @@ mvc_structure:
               * throw ApiError.badRequest("Bad request");
               */
 
-        
           - type: file
             name: api-response.ts
             content: |
@@ -345,7 +344,6 @@ mvc_structure:
               * ApiResponse.created(res, "Created", data);
               */
 
-         
           - type: file
             name: async-handler.ts
             content: |
@@ -362,7 +360,7 @@ mvc_structure:
                   Promise.resolve(fn(req, res, next)).catch(next);
                 };
               }
-         
+
           - type: file
             name: logger.ts
             content: |
@@ -383,7 +381,7 @@ mvc_structure:
                       }
                     : undefined
               });
-          
+
           - type: file
             name: shutdown.ts
             content: |
@@ -418,7 +416,6 @@ mvc_structure:
                 });
               };
 
-      
       - type: file
         name: app.ts
         content: |
@@ -475,7 +472,7 @@ mvc_structure:
           });
 
           gracefulShutdown(server);
-  
+
   - type: file
     name: .env.example
     content: |
@@ -501,7 +498,6 @@ mvc_structure:
         "include": ["src/**/*"],
         "exclude": ["node_modules"]
       }
-      
 
 feature_structure:
   - type: folder
@@ -587,7 +583,7 @@ feature_structure:
                       return ApiResponse.Success(res, "Service is healthy", healthData);
                     }
                   );
-               
+
               - type: file
                 name: health.routes.ts
                 content: |
@@ -600,7 +596,7 @@ feature_structure:
                   router.get("/detailed", detailedHealthCheck);
 
                   export default router;
-      
+
       - type: folder
         name: routes
         children:
@@ -656,7 +652,6 @@ feature_structure:
 
                   export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
 
-         
           - type: folder
             name: errors
             children:
@@ -736,7 +731,6 @@ feature_structure:
                   * throw ApiError.badRequest("Bad request");
                   */
 
-          
           - type: folder
             name: middlewares
             children:
@@ -777,7 +771,6 @@ feature_structure:
                     res.status(statusCode).json(response);
                   };
 
-              
               - type: file
                 name: not-found-handler.ts
                 content: |
@@ -792,7 +785,6 @@ feature_structure:
                     throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
                   };
 
-          
           - type: folder
             name: utils
             children:
@@ -864,7 +856,6 @@ feature_structure:
                     }
                   }
 
-             
               - type: file
                 name: async-handler.ts
                 content: |
@@ -881,7 +872,7 @@ feature_structure:
                       Promise.resolve(fn(req, res, next)).catch(next);
                     };
                   }
-              
+
               - type: file
                 name: logger.ts
                 content: |
@@ -936,7 +927,7 @@ feature_structure:
                       });
                     });
                   };
-      
+
       - type: file
         name: app.ts
         content: |
@@ -1003,7 +994,7 @@ feature_structure:
       PORT='5000'
       NODE_ENV='development'
       CORS_ORIGIN='http://localhost:3000'
-      LOG_LEVEL='info'    
+      LOG_LEVEL='info'
 
   - type: file
     name: tsconfig.json
@@ -1022,7 +1013,6 @@ feature_structure:
         "include": ["src/**/*"],
         "exclude": ["node_modules"]
       }
-        
 ---
 
 # Express Server Foundation
@@ -1037,10 +1027,10 @@ To install the Express Server Foundation, run the following command:
 
 <PackageManagerTabs command="npx servercn init express-server" />
 
-
 ## What This Foundation Solves
 
 Most Express projects require the same initial setup:
+
 - Environment variable configuration & validation
 - CORS and security headers
 - Standardized API response and error formats
@@ -1095,9 +1085,11 @@ src/
 Regardless of the architecture you choose, you get these features out of the box:
 
 ### Standard Response Format
+
 All API responses follow a predictable structure, making frontend integration seamless:
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -1108,6 +1100,7 @@ All API responses follow a predictable structure, making frontend integration se
 ```
 
 **Error Response:**
+
 ```json
 {
   "success": false,
@@ -1118,14 +1111,17 @@ All API responses follow a predictable structure, making frontend integration se
 ```
 
 ### Fast-Fail Environment Validation
+
 Environment variables are validated at startup using **Zod**. If a required variable (like `PORT` or `DATABASE_URL`) is missing, the server will log a clear error and exit immediately, preventing runtime crashes.
 
 ### Graceful Shutdown
+
 The foundation includes logic to handle `SIGINT` and `SIGTERM` signals, ensuring that active requests are completed and database connections are closed properly before the process exits.
 
 ## Extending the Foundation
 
 The Express Server Foundation is cumulative. Once initialized, you can easily add:
+
 - **Database Starters**: Mongoose, Drizzle (MySQL/PostgreSQL)
 - **Auth Components**: JWT Utilities, OAuth, RBAC
 - **Utility Components**: Logger, File Upload, Email Service
@@ -1135,7 +1131,7 @@ Each component you add with `servercn add` will automatically align with your ch
 ## Summary
 
 Use the **Express Server Foundation** when:
+
 - Starting a new production-ready Express API.
 - You want a clean, typed foundation without the weight of a full framework.
 - You need a consistent structure that scales with your team.
-

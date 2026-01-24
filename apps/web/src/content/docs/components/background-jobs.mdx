@@ -73,6 +73,7 @@ feature_structure:
 The **Background Jobs** component provides a standardized way to schedule and manage recurring tasks in your ServerCN application using <Code children="node-cron" />.
 
 Background jobs are essential for tasks like:
+
 - Generating and sending daily reports.
 - Cleaning up temporary files or expired sessions.
 - Synchronizing data with third-party APIs.
@@ -119,13 +120,17 @@ import cron from "node-cron";
  * # * * * * * *
  */
 
-export const dailyCleanupJob = cron.schedule("0 0 * * *", () => {
-  console.log("Running daily cleanup at midnight...");
-  // Implement cleanup logic here
-}, {
-  scheduled: false, // Don't start automatically
-  timezone: "UTC"
-});
+export const dailyCleanupJob = cron.schedule(
+  "0 0 * * *",
+  () => {
+    console.log("Running daily cleanup at midnight...");
+    // Implement cleanup logic here
+  },
+  {
+    scheduled: false, // Don't start automatically
+    timezone: "UTC"
+  }
+);
 ```
 
 ### 2. Initialize Jobs
@@ -141,7 +146,7 @@ import { reportGenerationJob } from "./report-generation.job";
 export const initJobs = () => {
   dailyCleanupJob.start();
   reportGenerationJob.start();
-  
+
   console.log("✅ All background jobs started successfully.");
 };
 ```
@@ -158,7 +163,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  
+
   // Start background jobs after server starts
   initJobs();
 });
@@ -166,19 +171,20 @@ app.listen(PORT, () => {
 
 ## Cron Syntax Refresher
 
-| Schedule | Syntax |
-| :--- | :--- |
-| Every minute | `* * * * *` |
-| Every hour | `0 * * * *` |
-| Every day at midnight | `0 0 * * *` |
-| Every Sunday at noon | `0 12 * * 0` |
-| Every 1st of the month | `0 0 1 * *` |
+| Schedule               | Syntax       |
+| :--------------------- | :----------- |
+| Every minute           | `* * * * *`  |
+| Every hour             | `0 * * * *`  |
+| Every day at midnight  | `0 0 * * *`  |
+| Every Sunday at noon   | `0 12 * * 0` |
+| Every 1st of the month | `0 0 1 * *`  |
 
 ## Real-World Examples
 
 Here are some common scenarios where background jobs are used in production-grade Express applications.
 
 ### 1. Daily Database Cleanup
+
 Remove unverified users who haven't verified their email within 24 hours.
 
 ```ts
@@ -188,9 +194,9 @@ import { users } from "../models/user.model"; // Or schema
 export const cleanupUnverifiedUsers = cron.schedule("0 0 * * *", async () => {
   try {
     console.log("🧹 Starting unverified user cleanup...");
-    
+
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     // Example deletion logic
     const result = await users.deleteMany({
       isEmailVerified: false,
@@ -205,6 +211,7 @@ export const cleanupUnverifiedUsers = cron.schedule("0 0 * * *", async () => {
 ```
 
 ### 2. System Health Heartbeat
+
 Send a heartbeat or log system performance metrics every 15 minutes.
 
 ```ts
@@ -217,7 +224,7 @@ export const systemMonitorJob = cron.schedule("*/15 * * * *", () => {
   const usage = ((totalMem - freeMem) / totalMem) * 100;
 
   console.log(`📊 System Health: ${usage.toFixed(2)}% memory usage`);
-  
+
   if (usage > 90) {
     // Trigger alert or notification
     console.warn("⚠️ High memory usage detected!");
@@ -226,6 +233,7 @@ export const systemMonitorJob = cron.schedule("*/15 * * * *", () => {
 ```
 
 ### 3. Syncing Exchange Rates
+
 Fetch and cache currency exchange rates from an external API every hour.
 
 ```ts
@@ -236,10 +244,10 @@ export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
   try {
     console.log("💱 Syncing exchange rates...");
     const { data } = await axios.get("https://api.exchangerate.host/latest");
-    
+
     // Logic to store rates in Redis or Database
     // await cache.set("exchange_rates", JSON.stringify(data.rates));
-    
+
     console.log("✅ Exchange rates updated successfully.");
   } catch (error) {
     console.error("❌ Exchange rate sync failed:", error);
@@ -250,15 +258,19 @@ export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
 ## Best Practices
 
 ### 1. Error Handling
+
 Always wrap your job logic in `try-catch` blocks to prevent an error in one job from crashing your entire Node.js process.
 
 ### 2. Logging
+
 Use a proper logger (like Winston or Pino) inside your jobs to track execution history and troubleshoot failures.
 
 ### 3. Resource Management
+
 If a job performs heavy database operations, ensure it doesn't block the main event loop. Consider offloading very large tasks to a separate worker process or a dedicated queue system (like BullMQ) if needed.
 
 ### 4. Idempotency
+
 Ensure your jobs are idempotent—running the same job twice (due to a restart or overlap) should not cause data corruption or duplicate side effects.
 
 ## Summary

@@ -229,7 +229,6 @@ refreshTokenSchema.index(
   { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 }
 ); // ttl index
 
-
 const RefreshToken: Model<IRefreshToken> =
   mongoose.models.RefreshToken ||
   mongoose.model<IRefreshToken>("RefreshToken", refreshTokenSchema);
@@ -283,14 +282,17 @@ export const refreshTokens = mysqlTable(
   ]
 );
 
-export const refreshTokensRelations = relations(refreshTokens, ({one, many})=>{
-  return {
-    user: one(users, {
-      fields: [refreshTokens.userId],
-      references: [users.id]
-    })
+export const refreshTokensRelations = relations(
+  refreshTokens,
+  ({ one, many }) => {
+    return {
+      user: one(users, {
+        fields: [refreshTokens.userId],
+        references: [users.id]
+      })
+    };
   }
-});
+);
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type NewRefreshToken = typeof refreshTokens.$inferInsert;

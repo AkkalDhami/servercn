@@ -177,17 +177,18 @@ export function AsyncHandler(fn: AsyncRouteHandler) {
 }
 ```
 
-
 ## Usage Example
 
 ```ts
 import { Request, Response, NextFunction } from "express";
 import { AsyncHandler } from "..utils/async-handler";
 
-export const registerUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  /*
-   * business logic
-   * your actual code
-   */
-});
+export const registerUser = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    /*
+     * business logic
+     * your actual code
+     */
+  }
+);
 ```

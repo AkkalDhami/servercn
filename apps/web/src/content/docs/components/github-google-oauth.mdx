@@ -236,7 +236,7 @@ mvc_structure:
             content: |
               import { Request, Response, NextFunction } from "express";
               import { ApiError } from "../utils/api-error";
-              
+
               export const notFoundHandler = (
                 req: Request,
                 res: Response,
@@ -440,7 +440,7 @@ mvc_structure:
             content: |
               import pino from "pino";
               import env from "../configs/env";
-              
+
               export const logger = pino({
                 level: env.LOG_LEVEL,
                 transport:
@@ -460,30 +460,30 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { Express, Request, Response } from "express";
-          
+
           import { notFoundHandler } from "./middlewares/not-found-handler";
           import { errorHandler } from "./middlewares/error-handler";
-          
+
           import AuthRoutes from "./routes/oauth.routes";
-          
+
           import "./configs/passport";
-          
+
           const app: Express = express();
-          
+
           app.use(express.json());
           app.use(express.urlencoded({ extended: true }));
-          
-          
+
+
           // Routes
           app.use("/api/auth", AuthRoutes);
-          
+
           // Not found handler (should be after routes)
           app.use(notFoundHandler);
-          
+
           // Global error handler (should be last)
           app.use(errorHandler);
-          
-          export default app;  
+
+          export default app;
 
   - type: file
     name: .env.example
@@ -723,7 +723,7 @@ feature_structure:
                 content: |
                   import { Request, Response, NextFunction } from "express";
                   import { ApiError } from "../errors/api-error";
-                  
+
                   export const notFoundHandler = (
                     req: Request,
                     res: Response,
@@ -823,13 +823,13 @@ feature_structure:
                       Promise.resolve(fn(req, res, next)).catch(next);
                     };
                   }
-                  
+
               - type: file
                 name: logger.ts
                 content: |
                   import pino from "pino";
                   import env from "../configs/env";
-                  
+
                   export const logger = pino({
                     level: env.LOG_LEVEL,
                     transport:
@@ -970,40 +970,40 @@ feature_structure:
             content: |
               import { Router } from "express";
               import OAuthRoutes from "../modules/oauth/oauth.routes";
-              
+
               const router = Router();
-              
+
               router.use("/auth", OAuthRoutes);
-              
+
               export default router;
 
       - type: file
         name: app.ts
         content: |
           import express, { Express } from "express";
- 
+
           import { notFoundHandler } from "./shared/middlewares/not-found-handler";
           import { errorHandler } from "./shared/middlewares/error-handler";
-          
+
           import Routes from "./routes/index";
-          
+
           import "./shared/configs/passport";
-          
+
           const app: Express = express();
-          
+
           app.use(express.json());
           app.use(express.urlencoded({ extended: true }));
-          
+
           // Routes
           app.use("/api", Routes);
-          
+
           // Not found handler (should be after routes)
           app.use(notFoundHandler);
-          
+
           // Global error handler (should be last)
           app.use(errorHandler);
-          
-          export default app; 
+
+          export default app;
 
   - type: file
     name: .env.example
@@ -1042,7 +1042,7 @@ This component requires additional ServerCN components.
 
 ### 1. Install ServerCN dependencies(Optional)
 
-- [**HTTP Status Codes**](/docs/components/http-status-codes) 
+- [**HTTP Status Codes**](/docs/components/http-status-codes)
 - [**Api Response Handler**](/docs/components/api-response-handler)
 - [**Api Error Handler**](/docs/components/api-error-handler)
 - [**Global Error Handler**](/docs/components/global-error-handler)
@@ -1099,7 +1099,6 @@ GITHUB_REDIRECT_URI="your-github-redirect-uri"
 - **Stateless**: Uses `session: false`.
 - **Manual Persistence**: You must implement the database saving logic.
 - **Redirect URI Mismatch**: Ensure strict matching with provider settings.
-
 
 ## Related Components
 
