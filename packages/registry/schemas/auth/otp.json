@@ -29,7 +29,7 @@
     },
     "dependencies": {
       "runtime": ["express"],
-      "dev": []
+      "dev": ["drizzle-kit", "@types/express"]
     }
   }
 }
