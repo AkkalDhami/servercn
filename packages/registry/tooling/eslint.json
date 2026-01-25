@@ -1,0 +1,25 @@
+{
+  "title": "ESLint",
+  "slug": "eslint",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "tooling/eslint/express/common",
+      "feature": "tooling/eslint/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+
+    "dev": [
+      "eslint",
+      "@typescript-eslint/parser",
+      "@typescript-eslint/eslint-plugin",
+      "eslint-config-prettier",
+      "eslint-plugin-prettier",
+      "prettier"
+    ]
+  }
+}

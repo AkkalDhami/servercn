@@ -1,0 +1,17 @@
+{
+  "title": "Commitlint",
+  "slug": "commitlint",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "tooling/commitlint/express/common",
+      "feature": "tooling/commitlint/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": ["@commitlint/cli", "@commitlint/config-conventional"]
+  }
+}
