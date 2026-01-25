@@ -16,6 +16,9 @@
     "generate:mdx": "npm run generate -w packages/cli",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "**/*": "npx prettier --write --ignore-unknown"
+  },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
@@ -33,6 +36,7 @@
     "drizzle-kit": "^0.31.8",
     "eslint": "^9.0.0",
     "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.11",
     "prettier": "3.7.4",
