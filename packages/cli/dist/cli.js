@@ -463,6 +463,7 @@ Success! ${capitalize(component.type)} ${component.title} added successfully
 import fs8 from "fs-extra";
 import path11 from "path";
 import prompts2 from "prompts";
+import { execa as execa2 } from "execa";
 async function init(foundation) {
   const cwd = process.cwd();
   const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
@@ -502,6 +503,12 @@ async function init(foundation) {
           { title: "MVC (controllers, services, models)", value: "mvc" },
           { title: "Feature-based (domain-driven modules)", value: "feature" }
         ]
+      },
+      {
+        type: "confirm",
+        name: "initGit",
+        message: "Initialize git repository?",
+        initial: true
       }
     ]);
     const rootPath2 = path11.resolve(cwd, response2.root);
@@ -509,6 +516,14 @@ async function init(foundation) {
     if (!fs8.pathExistsSync(rootPath2)) {
       logger.error(`Failed to create project directory: ${rootPath2}`);
       process.exit(1);
+    }
+    if (response2.initGit) {
+      try {
+        await execa2("git", ["init"], { cwd: rootPath2 });
+        logger.info("Initialized git repository.");
+      } catch (error) {
+        logger.warn("Failed to initialize git repository. Is git installed?");
+      }
     }
     logger.info(`Initializing with foundation: ${foundation}`);
     try {

@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
+import { execa } from "execa";
 import { logger } from "../utils/cli-logger";
 import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
 import { getRegistryComponent } from "../lib/registry";
@@ -51,6 +52,12 @@ export async function init(foundation?: string) {
           { title: "MVC (controllers, services, models)", value: "mvc" },
           { title: "Feature-based (domain-driven modules)", value: "feature" }
         ]
+      },
+      {
+        type: "confirm",
+        name: "initGit",
+        message: "Initialize git repository?",
+        initial: true
       }
     ]);
 
@@ -61,6 +68,15 @@ export async function init(foundation?: string) {
     if (!fs.pathExistsSync(rootPath)) {
       logger.error(`Failed to create project directory: ${rootPath}`);
       process.exit(1);
+    }
+
+    if (response.initGit) {
+      try {
+        await execa("git", ["init"], { cwd: rootPath });
+        logger.info("Initialized git repository.");
+      } catch (error) {
+        logger.warn("Failed to initialize git repository. Is git installed?");
+      }
     }
 
     logger.info(`Initializing with foundation: ${foundation}`);
