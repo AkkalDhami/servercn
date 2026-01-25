@@ -25,4 +25,5 @@ export type ItemType =
   | "blueprint"
   | "guide"
   | "schema"
-  | "foundation";
+  | "foundation"
+  | "tooling";

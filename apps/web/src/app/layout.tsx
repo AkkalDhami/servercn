@@ -60,6 +60,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           <ScrollToTopButton />
           <Navbar />
+
           {children}
         </ThemeProvider>
       </body>

@@ -13,6 +13,7 @@ import CodeTheme from "../docs/code-theme";
 export const ITEM_GROUP_NAMING = {
   guide: "Getting Started",
   foundation: "Foundations",
+  tooling: "Tooling",
   component: "Components",
   blueprint: "Blueprints",
   schema: "Schemas"
@@ -21,6 +22,7 @@ export const ITEM_GROUP_NAMING = {
 const navSections = [
   { title: ITEM_GROUP_NAMING.guide, items: getTypeItems("guide") },
   { title: ITEM_GROUP_NAMING.foundation, items: getTypeItems("foundation") },
+  { title: ITEM_GROUP_NAMING.tooling, items: getTypeItems("tooling") },
   { title: ITEM_GROUP_NAMING.component, items: getTypeItems("component") },
   { title: ITEM_GROUP_NAMING.blueprint, items: getTypeItems("blueprint") },
   { title: ITEM_GROUP_NAMING.schema, items: getTypeItems("schema") }

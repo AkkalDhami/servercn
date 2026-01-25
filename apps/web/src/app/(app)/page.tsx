@@ -4,11 +4,10 @@ import GoogleOAuthSection from "@/components/home/google-auth-section";
 
 export default function Home() {
   return (
-    <main className="">
+    <main className="relative">
       <HeroSection />
       <GoogleOAuthSection />
       <WhyServerCN />
-      {/* <Working /> */}
     </main>
   );
 }

@@ -36,7 +36,7 @@ export function ScrollToTopButton() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
         onClick={handleOnclick}
-        className="bg-muted-primary hover:bg-muted-secondary text-accent fixed right-4 bottom-3 z-40 cursor-pointer rounded-md p-3 duration-300">
+        className="bg-primary hover:bg-primary/80 text-primary-foreground fixed right-4 bottom-3 z-40 cursor-pointer rounded-md p-3 duration-300">
         <ArrowUp className="size-4" />
       </motion.button>
     )
