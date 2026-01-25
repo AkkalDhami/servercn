@@ -1,48 +1,39 @@
 import {
-  pgTable,
+  mysqlTable,
   serial,
   varchar,
   boolean,
   timestamp,
-  integer,
-  pgEnum,
+  int,
+  mysqlEnum,
   index
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/mysql-core";
+import { timestamps } from "./schema.helper";
 
-export const OTP_MAX_ATTEMPTS = 5;
+const OTP_MAX_ATTEMPTS = 5;
 
-export const OTP_TYPES = [
+const OTP_TYPES = [
   "signin",
   "email-verification",
   "password-reset",
   "password-change"
 ] as const;
 
-export const otpTypeEnum = pgEnum("otp_type", OTP_TYPES);
-
-const timestamps = {
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull()
-};
-
-export const otps = pgTable(
+export const otps = mysqlTable(
   "otps",
   {
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
     nextResendAllowedAt: timestamp("next_resend_allowed_at", {
-      mode: "string"
+      mode: "date"
     }).notNull(),
-    type: otpTypeEnum("type").notNull(),
-    expiresAt: timestamp("expires_at").notNull(),
+    type: mysqlEnum("type", OTP_TYPES).notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
     isUsed: boolean("is_used").default(false).notNull(),
-    usedAt: timestamp("used_at"),
-    attempts: integer("attempts").default(0).notNull(),
-    maxAttempts: integer("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
+    usedAt: timestamp("used_at", { mode: "date" }),
+    attempts: int("attempts").default(0).notNull(),
+    maxAttempts: int("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
     ...timestamps
   },
   table => [

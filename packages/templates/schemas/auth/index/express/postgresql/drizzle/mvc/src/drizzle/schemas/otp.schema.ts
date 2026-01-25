@@ -8,25 +8,16 @@ import {
   pgEnum,
   index
 } from "drizzle-orm/pg-core";
+import { timestamps } from "./schema.helper";
 
-export const OTP_MAX_ATTEMPTS = 5;
+const OTP_MAX_ATTEMPTS = 5;
 
-export const OTP_TYPES = [
+export const otpTypeEnum = pgEnum("otp_type", [
   "signin",
   "email-verification",
   "password-reset",
   "password-change"
-] as const;
-
-export const otpTypeEnum = pgEnum("otp_type", OTP_TYPES);
-
-const timestamps = {
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull()
-};
+]);
 
 export const otps = pgTable(
   "otps",
@@ -34,9 +25,7 @@ export const otps = pgTable(
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
-    nextResendAllowedAt: timestamp("next_resend_allowed_at", {
-      mode: "string"
-    }).notNull(),
+    nextResendAllowedAt: timestamp("next_resend_allowed_at").notNull(),
     type: otpTypeEnum("type").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     isUsed: boolean("is_used").default(false).notNull(),

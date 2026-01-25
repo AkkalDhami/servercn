@@ -31,13 +31,11 @@ export const otps = mysqlTable(
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
-    nextResendAllowedAt: timestamp("next_resend_allowed_at", {
-      mode: "string"
-    }).notNull(),
+    nextResendAllowedAt: timestamp("next_resend_allowed_at").notNull(),
     type: mysqlEnum("type", OTP_TYPES).notNull(),
-    expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     isUsed: boolean("is_used").default(false).notNull(),
-    usedAt: timestamp("used_at", { mode: "string" }),
+    usedAt: timestamp("used_at"),
     attempts: int("attempts").default(0).notNull(),
     maxAttempts: int("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
     ...timestamps

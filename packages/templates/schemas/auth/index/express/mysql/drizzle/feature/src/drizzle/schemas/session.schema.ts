@@ -8,14 +8,8 @@ import {
   int
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
-
-//? you should have users table
-// import { users } from "./user.schema";
-
-const timestamps = {
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
-};
+import { users } from "./user.schema";
+import { timestamps } from "./schema.helper";
 
 export const sessions = mysqlTable(
   "sessions",
@@ -41,13 +35,13 @@ export const sessions = mysqlTable(
   ]
 );
 
-//? relations between user and session
-// export const sessionsRelations = relations(sessions, ({ one }) => ({
-//   user: one(users, {
-//     fields: [sessions.userId],
-//     references: [users.id]
-//   })
-// }));
+//? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id]
+  })
+}));
 
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;

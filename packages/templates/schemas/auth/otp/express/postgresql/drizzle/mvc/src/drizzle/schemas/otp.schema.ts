@@ -21,10 +21,10 @@ export const OTP_TYPES = [
 export const otpTypeEnum = pgEnum("otp_type", OTP_TYPES);
 
 const timestamps = {
-  createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "string" })
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => new Date().toISOString())
+    .$onUpdate(() => new Date())
     .notNull()
 };
 
@@ -38,9 +38,9 @@ export const otps = pgTable(
       mode: "string"
     }).notNull(),
     type: otpTypeEnum("type").notNull(),
-    expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     isUsed: boolean("is_used").default(false).notNull(),
-    usedAt: timestamp("used_at", { mode: "string" }),
+    usedAt: timestamp("used_at"),
     attempts: integer("attempts").default(0).notNull(),
     maxAttempts: integer("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
     ...timestamps
