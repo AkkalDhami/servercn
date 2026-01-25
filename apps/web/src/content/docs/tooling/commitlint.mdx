@@ -1,0 +1,57 @@
+---
+title: Commitlint
+description: A robust Commitlint configuration for TypeScript and Express.js projects.
+command: npx servercn add commitlint
+---
+
+# Commitlint
+
+Commitlint checks if your commit messages meet the conventional commit format. This helps in creating a clean and readable git history.
+
+## Installation
+
+Install Commitlint using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add commitlint" />
+
+## Configuration
+
+The component installs `@commitlint/config-conventional` and sets up a `commitlint.config.js` file.
+
+### Example Configuration
+
+```javascript
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+};
+```
+
+## Conventional Commits
+
+Commit messages should follow this pattern:
+
+```text
+type(scope): subject
+
+body
+footer
+```
+
+### Common Types
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
+
+## Husky Integration
+
+Commitlint is typically run using the `commit-msg` hook:
+
+```bash
+# .husky/commit-msg
+npx --no -- commitlint --edit "$1"
+```

@@ -279,6 +279,63 @@
     },
 
     {
+      "slug": "eslint",
+      "title": "ESLint",
+      "description": "A robust ESLint configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/eslint"
+    },
+    {
+      "slug": "prettier",
+      "title": "Prettier",
+      "description": "A robust Prettier configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/prettier"
+    },
+    {
+      "slug": "husky",
+      "title": "Husky",
+      "description": "A robust Husky configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/husky"
+    },
+    {
+      "slug": "lint-staged",
+      "title": "Lint-Staged",
+      "description": "A robust Lint-Staged configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/lint-staged"
+    },
+    {
+      "slug": "commitlint",
+      "title": "Commitlint",
+      "description": "A robust Commitlint configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/commitlint"
+    },
+    {
+      "slug": "commitizen",
+      "title": "Commitizen",
+      "description": "A robust Commitizen configuration for TypeScript and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/commitizen"
+    },
+    {
+      "slug": "typescript",
+      "title": "TypeScript",
+      "description": "A robust TypeScript configuration for Node.js and Express.js projects.",
+      "type": "tooling",
+      "status": "stable",
+      "docs": "/docs/tooling/typescript"
+    },
+
+    {
       "slug": "stateless-auth",
       "title": "Stateless Authentication",
       "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",

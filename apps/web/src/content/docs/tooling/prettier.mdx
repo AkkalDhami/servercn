@@ -1,0 +1,53 @@
+---
+title: Prettier
+description: A robust Prettier configuration for TypeScript and Express.js projects.
+command: npx servercn add prettier
+---
+
+# Prettier
+
+Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
+
+## Installation
+
+Install the Prettier configuration using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add prettier" />
+
+## Configuration
+
+The component installs a `.prettierrc` file and a `.prettierignore` file with sensible defaults for backend development.
+
+### Example `.prettierrc`
+
+```json
+{
+  "semi": true,
+  "trailingComma": "none",
+  "singleQuote": false,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "endOfLine": "auto",
+  "arrowParens": "avoid"
+}
+```
+
+## Scripts
+
+Add the following scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  }
+}
+```
+
+## Why use Prettier?
+
+- **Consistent Style**: No more debates about tabs vs spaces or semi-colons.
+- **Save Time**: Automatically formats on save or via CLI.
+- **Easy Integration**: Works perfectly with ESLint and most IDEs.
+- **Readable Code**: Ensures everyone on the team reads the same code structure.

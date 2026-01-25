@@ -1,0 +1,61 @@
+---
+title: TypeScript
+description: A robust TypeScript configuration for Node.js and Express.js projects.
+command: npx servercn add typescript
+---
+
+# TypeScript
+
+TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
+
+## Installation
+
+Install the TypeScript configuration using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add typescript" />
+
+## Configuration
+
+The component provides a `tsconfig.json` file optimized for modern Node.js backend development.
+
+### Example `tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "declaration": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+## Scripts
+
+Add the following scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start": "node dist/server.js"
+  }
+}
+```
+
+## Features
+
+- **Strict Type Checking**: Enabled by default to catch bugs early.
+- **Modern ES Support**: Pre-configured for the latest ECMAScript features.
+- **Source Maps**: Configured for easier debugging.
+- **Clean Output**: Separates source code from compiled JavaScript.

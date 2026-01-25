@@ -1,0 +1,44 @@
+---
+title: Husky
+description: A robust Husky configuration for TypeScript and Express.js projects.
+command: npx servercn add husky
+---
+
+# Husky
+
+Husky is a tool that allows you to easily manage Git hooks. Git hooks are scripts that run automatically every time a particular event occurs in a Git repository.
+
+## Installation
+
+Install Husky using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add husky" />
+
+## Usage
+
+Husky is typically used to run scripts like linting, testing, or formatting before you commit code.
+
+### Pre-commit Hook
+
+The component sets up a `pre-commit` hook that often runs `lint-staged`.
+
+```bash
+# .husky/pre-commit
+npx lint-staged
+```
+
+### Pre-push Hook
+
+You can also add a `pre-push` hook to run tests before pushing to the remote repository.
+
+```bash
+# .husky/pre-push
+npm test
+```
+
+## Benefits
+
+- **Enforce Quality**: Prevents bad code from being committed.
+- **Automate Workflows**: Link Git events to your development scripts.
+- **Team Consistency**: Ensures all contributors follow the same Git hook rules.
+- **Easy Management**: No need to manually configure files in `.git/hooks`.

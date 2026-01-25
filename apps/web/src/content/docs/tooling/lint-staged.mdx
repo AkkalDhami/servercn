@@ -1,0 +1,44 @@
+---
+title: Lint-Staged
+description: A robust Lint-Staged configuration for TypeScript and Express.js projects.
+command: npx servercn add lint-staged
+---
+
+# Lint-Staged
+
+Lint-Staged allows you to run linters against staged git files and don't let 💩 slip into your code base!
+
+## Installation
+
+Install Lint-Staged using the ServerCN CLI:
+
+<PackageManagerTabs command="npx servercn add lint-staged" />
+
+## Configuration
+
+The component adds a `lint-staged` configuration to your `package.json` or creates a `.lintstagedrc` file.
+
+### Example Configuration
+
+```json
+{
+  "src/**/*.ts": [
+    "eslint --fix",
+    "prettier --write"
+  ]
+}
+```
+
+## How It Works
+
+1. You stage your changes with `git add`.
+2. You run `git commit`.
+3. Husky triggers the `pre-commit` hook.
+4. `lint-staged` runs defined commands only on the files that are about to be committed.
+5. If everything passes, the commit is successful.
+
+## Features
+
+- **Efficiency**: Only runs linting on changed files, not the whole project.
+- **Auto-fix**: Can automatically fix formatting issues before committing.
+- **Speed**: significantly faster than running a full lint check on every commit.
