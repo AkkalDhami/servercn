@@ -1,6 +1,6 @@
 import { execa } from "execa";
 import { detectPackageManager } from "./detect";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 import type { InstallOptions } from "../types";
 
 export async function installDependencies({
@@ -13,7 +13,7 @@ export async function installDependencies({
   const pm = detectPackageManager();
 
   const run = async (args: string[]) => {
-    logger.info(`Installing dependencies: ${args.join(" ")}`);
+    logger.info(`installing dependencies: ${args.join(" ")}`);
     await execa(pm, args, {
       cwd,
       stdio: "inherit"
@@ -21,11 +21,17 @@ export async function installDependencies({
   };
 
   if (runtime.length) {
+    logger.section("runtime dependencies");
     await run(getInstallArgs(pm, runtime, false));
+    logger.success(
+      `${runtime.length} runtime dependencies installed successfully`
+    );
   }
 
   if (dev.length) {
+    logger.section("dev dependencies");
     await run(getInstallArgs(pm, dev, true));
+    logger.success(`${dev.length} dev dependencies installed successfully`);
   }
 }
 

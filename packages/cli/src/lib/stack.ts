@@ -1,11 +1,11 @@
 import type { StackConfig } from "../types";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 
 export function parseStack(stack: string): StackConfig {
   const [framework, database, language] = stack.split("-");
 
   if (framework !== "express") {
-    logger.error(`Unsupported framework: ${framework}`);
+    logger.error(`unsupported framework: ${framework}`);
     process.exit(1);
   }
 

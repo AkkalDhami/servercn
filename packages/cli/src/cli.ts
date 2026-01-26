@@ -39,8 +39,6 @@ async function main() {
 
       if (components[0] === "schema") {
         type = "schema";
-        console.log({ components });
-        console.log(components.slice(1)[0]);
         if (components.slice(1)[0].includes("auth/")) {
           items = components.slice(1);
         } else {

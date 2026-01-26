@@ -7,66 +7,29 @@ import { Command } from "commander";
 import path10 from "path";
 import prompts from "prompts";
 
-// src/lib/paths.ts
-import path from "path";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = path.dirname(__filename);
-function getServercnRoot() {
-  return path.resolve(__dirname, "../../..");
-}
-function getRegistryPath(folder) {
-  const folderName = folder ? `/${folder}s` : "";
-  return path.join(getServercnRoot(), `packages/registry${folderName}`);
-}
-function getTemplatesPath() {
-  return path.join(getServercnRoot(), `packages/templates/`);
-}
-
 // src/lib/copy.ts
 import fs from "fs-extra";
-import path2 from "path";
+import path from "path";
 
-// src/utils/cli-colors.ts
+// src/utils/logger.ts
 import kleur from "kleur";
-var colors = {
-  error: kleur.red,
-  warn: kleur.yellow,
-  info: kleur.cyan,
-  success: kleur.green,
-  muted: kleur.gray,
-  created: kleur.magenta,
-  overwritten: kleur.yellow
-};
-
-// src/utils/cli-logger.ts
 var logger = {
-  error(...args) {
-    console.log(colors.error(`${args.join(" ")}`));
-  },
-  warn(...args) {
-    console.log(colors.warn(`${args.join(" ")}`));
-  },
-  info(...args) {
-    console.log(colors.info(`${args.join(" ")}`));
-  },
-  success(...args) {
-    console.log(colors.success(`${args.join(" ")}`));
-  },
   log(...args) {
     console.log(args.join(" "));
   },
-  created(...args) {
-    console.log(colors.created(`Created: ${args.join(" ")}`));
-  },
-  overwritten(...args) {
-    console.log(colors.overwritten(`Overwritten: ${args.join(" ")}`));
-  },
-  muted(...args) {
-    console.log(colors.muted(`${args.join(" ")}`));
-  },
   break() {
     console.log("");
+  },
+  created: (msg) => console.log(kleur.blue("\u2714 created: " + msg)),
+  info: (msg) => console.log(kleur.cyan(msg)),
+  success: (msg) => console.log("\n" + kleur.green("\u2714 success! " + msg)),
+  skip: (msg) => console.log(kleur.yellow("\u21BA skip: " + msg)),
+  error: (msg) => console.log(kleur.red("\u2716 " + msg)),
+  muted: (msg) => console.log(kleur.dim(msg)),
+  warn: (msg) => console.log(kleur.yellow("\u26A0 " + msg)),
+  overwritten: (msg) => console.log(kleur.yellow("overwrite: " + msg)),
+  section: (title) => {
+    console.log("\n" + title);
   }
 };
 
@@ -79,17 +42,17 @@ async function copyTemplate({
   dryRun = false
 }) {
   if (!await fs.pathExists(templateDir)) {
-    logger.error(`Template not found: ${templateDir}`);
+    logger.error(`template not found: ${templateDir}`);
     process.exit(1);
   }
   await fs.ensureDir(targetDir);
   const entries = await fs.readdir(templateDir, { withFileTypes: true });
   for (const entry of entries) {
-    const srcPath = path2.join(templateDir, entry.name);
+    const srcPath = path.join(templateDir, entry.name);
     let rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
     let finalName = rawName;
-    const destPath = path2.join(targetDir, finalName);
-    const relativeDestPath = path2.relative(process.cwd(), destPath);
+    const destPath = path.join(targetDir, finalName);
+    const relativeDestPath = path.relative(process.cwd(), destPath);
     if (entry.isDirectory()) {
       await copyTemplate({
         templateDir: srcPath,
@@ -103,22 +66,22 @@ async function copyTemplate({
     const exists = await fs.pathExists(destPath);
     if (exists) {
       if (conflict === "skip") {
-        logger.warn(`Skipped: ${relativeDestPath}`);
+        logger.skip(`${relativeDestPath} (already exists)`);
         continue;
       }
       if (conflict === "error") {
-        throw new Error(`File already exists: ${relativeDestPath}`);
+        throw new Error(`file already exists: ${relativeDestPath}`);
       }
     }
     if (dryRun) {
       logger.info(
-        `[dry-run] ${exists ? "OVERWRITE" : "CREATE"}: ${relativeDestPath}`
+        `[dry-run] ${exists ? "overwrite" : "create"}: ${relativeDestPath}`
       );
       continue;
     }
     const buffer = await fs.readFile(srcPath);
     const isBinary = buffer.includes(0);
-    await fs.ensureDir(path2.dirname(destPath));
+    await fs.ensureDir(path.dirname(destPath));
     if (isBinary) {
       await fs.copyFile(srcPath, destPath);
     } else {
@@ -132,8 +95,24 @@ async function copyTemplate({
 // src/lib/registry.ts
 import fs2 from "fs-extra";
 import path3 from "path";
+
+// src/lib/paths.ts
+import path2 from "path";
+import { fileURLToPath } from "url";
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path2.dirname(__filename);
+function getServercnRoot() {
+  return path2.resolve(__dirname, "../");
+}
+var paths = {
+  root: getServercnRoot(),
+  registry: (f) => path2.join(getServercnRoot(), "registry", f ? `${f}s` : ""),
+  templates: () => path2.join(getServercnRoot(), "templates")
+};
+
+// src/lib/registry.ts
 async function getRegistryComponent(name, type) {
-  const registryPath = getRegistryPath(type);
+  const registryPath = paths.registry(type);
   const filePath = path3.join(registryPath, `${name}.json`);
   if (!await fs2.pathExists(filePath)) {
     logger.error(`${type} "${name}" not found`);
@@ -171,17 +150,23 @@ async function installDependencies({
   if (!runtime.length && !dev.length) return;
   const pm = detectPackageManager();
   const run = async (args) => {
-    logger.info(`Installing dependencies: ${args.join(" ")}`);
+    logger.info(`installing dependencies: ${args.join(" ")}`);
     await execa(pm, args, {
       cwd,
       stdio: "inherit"
     });
   };
   if (runtime.length) {
+    logger.section("runtime dependencies");
     await run(getInstallArgs(pm, runtime, false));
+    logger.success(
+      `${runtime.length} runtime dependencies installed successfully`
+    );
   }
   if (dev.length) {
+    logger.section("dev dependencies");
     await run(getInstallArgs(pm, dev, true));
+    logger.success(`${dev.length} dev dependencies installed successfully`);
   }
 }
 function getInstallArgs(pm, packages, isDev) {
@@ -216,7 +201,9 @@ ${newLines.join("\n")}
 ` : `${newLines.join("\n")}
 `;
   fs4.writeFileSync(envExamplePath, content, "utf8");
-  logger.success(`Updated .env.example`);
+  logger.section("Environment");
+  logger.log(`updated .env.example`);
+  logger.log(`configure environment variables in .env file.`);
 }
 
 // src/lib/package.ts
@@ -226,7 +213,7 @@ import { execSync } from "child_process";
 function ensurePackageJson(dir) {
   const pkgPath = path7.join(dir, "package.json");
   if (fs5.existsSync(pkgPath)) return;
-  logger.info("Initializing package.json");
+  logger.info("initializing package.json");
   execSync("npm init -y", {
     cwd: dir,
     stdio: "ignore"
@@ -281,18 +268,18 @@ var env = parsed.data;
 async function assertInitialized() {
   const configPath = path8.resolve(process.cwd(), SERVERCN_CONFIG_FILE);
   if (!await fs6.pathExists(configPath)) {
-    logger.error("ServerCN is not initialized in this project.");
-    logger.info("Run the following command first:");
-    logger.log("- npx servercn init");
-    logger.muted("For express server: npx servercn init express-server");
+    logger.error("servercn is not initialized in this project.");
+    logger.info("run the following command first:");
+    logger.log("=> npx servercn init");
+    logger.muted("for express server: npx servercn init express-server");
     logger.muted(
-      "For (Drizzle + MySQL) Starter: npx servercn init drizzle-mysql-server"
+      "for (drizzle + mysql) starter: npx servercn init drizzle-mysql-starter"
     );
     logger.muted(
-      "For (Drizzle + PostgreSQL) Starter: npx servercn init drizzle-pg-server"
+      "for (drizzle + postgresql) starter: npx servercn init drizzle-pg-starter"
     );
     logger.muted(
-      `Visit ${env.SERVERCN_URL}/docs/installation for more information`
+      `visit ${env.SERVERCN_URL}/docs/installation for more information`
     );
     process.exit(1);
   }
@@ -328,12 +315,6 @@ function getDatabaseConfig(foundation) {
   }
 }
 
-// src/utils/capatalize.ts
-function capitalize(text) {
-  if (!text) return "";
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 // src/commands/add.ts
 async function add(componentName, options = {}) {
   await assertInitialized();
@@ -350,7 +331,7 @@ async function add(componentName, options = {}) {
   const arch = config.stack.architecture;
   const targetDir = resolveTargetDir(".");
   if (!targetDir) {
-    logger.error("Failed to resolve target directory");
+    logger.error("failed to resolve target directory");
     process.exit(1);
   }
   let templateDir;
@@ -370,24 +351,24 @@ async function add(componentName, options = {}) {
       choices
     });
     if (!algorithm) {
-      logger.warn("Operation cancelled");
+      logger.warn("operation cancelled");
       return;
     }
     const algoConfig = component.algorithms[algorithm];
     const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
     if (!selectedTemplate) {
       logger.error(
-        `Architecture "${arch}" is not supported for "${component.title}"`
+        `architecture "${arch}" is not supported for "${component.title}"`
       );
       process.exit(1);
     }
-    templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
+    templateDir = path10.resolve(paths.templates(), selectedTemplate);
     runtimeDeps = algoConfig.dependencies?.runtime;
-    logger.info(`Using algorithm: ${algoConfig.title}`);
+    logger.info(`using algorithm: ${algoConfig.title}`);
   } else {
     const templateConfig = component.templates?.[stack];
     if (!templateConfig) {
-      logger.error(`Stack "${stack}" is not supported by "${component.title}"`);
+      logger.error(`stack "${stack}" is not supported by "${component.title}"`);
       process.exit(1);
     }
     let selectedTemplate;
@@ -396,14 +377,14 @@ async function add(componentName, options = {}) {
       const databaseOrm = config.database?.orm;
       if (!database || !databaseOrm) {
         logger.error(
-          "Database not configured in servercn.config.json. Please run init first."
+          "database not configured in servercn.config.json. please run init first."
         );
         process.exit(1);
       }
       const dbConfig = templateConfig[database];
       if (!dbConfig || !dbConfig[databaseOrm]) {
         logger.error(
-          `Database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
+          `database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
         );
         process.exit(1);
       }
@@ -411,7 +392,7 @@ async function add(componentName, options = {}) {
       const archConfig = dbArchOptions[arch] ?? dbArchOptions.base;
       if (!archConfig) {
         logger.error(
-          `Architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
+          `architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
         );
         process.exit(1);
       }
@@ -428,13 +409,14 @@ async function add(componentName, options = {}) {
     }
     if (!selectedTemplate) {
       logger.error(
-        `Architecture "${arch}" is not supported by "${component.slug}"`
+        `architecture "${arch}" is not supported by "${component.slug}"`
       );
       process.exit(1);
     }
-    templateDir = path10.resolve(getTemplatesPath(), selectedTemplate);
+    templateDir = path10.resolve(paths.templates(), selectedTemplate);
     runtimeDeps = component.dependencies?.runtime;
   }
+  logger.section("copying files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -452,11 +434,8 @@ async function add(componentName, options = {}) {
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
   }
-  logger.success(
-    `
-Success! ${capitalize(component.type)} ${component.title} added successfully
-`
-  );
+  logger.success(`${component.type}: ${component.slug} added successfully
+`);
 }
 
 // src/commands/init.ts
@@ -468,8 +447,8 @@ async function init(foundation) {
   const cwd = process.cwd();
   const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
   if (await fs8.pathExists(configPath) && !foundation) {
-    logger.warn("ServerCN is already initialized in this project.");
-    logger.info("You can now run: servercn add <component>");
+    logger.warn("servercn is already initialized in this project.");
+    logger.info("you can now run: servercn add <component>");
     process.exit(1);
   }
   const tsConfig = {
@@ -520,12 +499,12 @@ async function init(foundation) {
     if (response2.initGit) {
       try {
         await execa2("git", ["init"], { cwd: rootPath2 });
-        logger.info("Initialized git repository.");
+        logger.info("initialized git repository.");
       } catch (error) {
-        logger.warn("Failed to initialize git repository. Is git installed?");
+        logger.warn("failed to initialize git repository. is git installed?");
       }
     }
-    logger.info(`Initializing with foundation: ${foundation}`);
+    logger.info(`initializing with foundation: ${foundation}`);
     try {
       const component = await getRegistryComponent(foundation, "foundation");
       const config2 = {
@@ -595,6 +574,13 @@ dist
 .env
 node_modules`
       );
+      await fs8.writeFile(
+        path11.join(rootPath2, ".gitignore"),
+        `build
+dist
+.env
+node_modules`
+      );
       await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig, {
         spaces: 2
       });
@@ -605,13 +591,10 @@ node_modules`
       const templatePathRelative = component.templates?.express?.[response2.architecture];
       if (!templatePathRelative) {
         throw new Error(
-          `Template not found for ${foundation} (express/${response2.architecture})`
+          `template not found for ${foundation.toLowerCase()} (express/${response2.architecture})`
         );
       }
-      const templateDir = path11.resolve(
-        getTemplatesPath(),
-        templatePathRelative
-      );
+      const templateDir = path11.resolve(paths.templates(), templatePathRelative);
       await copyTemplate({
         templateDir,
         targetDir: rootPath2,
@@ -623,19 +606,20 @@ node_modules`
         dev: component.dependencies?.dev,
         cwd: rootPath2
       });
-      logger.success(`
-Success! ServerCN initialized with ${foundation}.`);
-      logger.info("Configure environment variables in .env file.");
-      logger.log("Run the following commands:");
+      logger.success(`servercn initialized with ${foundation}.`);
+      logger.info("configure environment variables in .env file.");
+      logger.log("run the following commands:");
       if (response2.root === ".") {
-        logger.muted(`1. npm run dev`);
+        logger.muted(`1. npm run dev
+`);
       } else {
         logger.muted(`1. cd ${response2.root}`);
-        logger.muted(`2. npm run dev`);
+        logger.muted(`2. npm run dev
+`);
       }
       return;
     } catch (error) {
-      logger.error(`Failed to initialize foundation: ${error}`);
+      logger.error(`failed to initialize foundation: ${error}`);
       process.exit(1);
     }
   }
@@ -643,21 +627,21 @@ Success! ServerCN initialized with ${foundation}.`);
     {
       type: "text",
       name: "root",
-      message: "Project root directory",
+      message: "project root directory",
       initial: ".",
       format: (val) => val.trim() || "."
     },
     {
       type: "text",
       name: "srcDir",
-      message: "Source directory",
+      message: "source directory",
       initial: "src",
       format: (val) => val.trim() || "src"
     },
     {
       type: "select",
       name: "architecture",
-      message: "Select architecture",
+      message: "select architecture",
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
         { title: "Feature-based (domain-driven modules)", value: "feature" }
@@ -666,10 +650,10 @@ Success! ServerCN initialized with ${foundation}.`);
     {
       type: "select",
       name: "language",
-      message: "Programming language",
+      message: "programming language",
       choices: [
         {
-          title: "TypeScript (recommended)",
+          title: "typescript (recommended)",
           value: "typescript"
         }
       ]
@@ -677,24 +661,24 @@ Success! ServerCN initialized with ${foundation}.`);
     {
       type: "select",
       name: "framework",
-      message: "Backend framework",
-      choices: [{ title: "Express", value: "express" }]
+      message: "backend framework",
+      choices: [{ title: "express", value: "express" }]
     },
     {
       type: "select",
       name: "databaseType",
-      message: "Select database",
+      message: "select database",
       choices: [
         {
-          title: "MongoDB",
+          title: "mongodb",
           value: "mongodb"
         },
         {
-          title: "PostgreSQL",
+          title: "postgresql",
           value: "postgresql"
         },
         {
-          title: "MySQL",
+          title: "mysql",
           value: "mysql"
         }
       ]
@@ -702,21 +686,21 @@ Success! ServerCN initialized with ${foundation}.`);
     {
       type: (prev) => prev === "mongodb" ? "select" : null,
       name: "orm",
-      message: "MongoDB library",
-      choices: [{ title: "Mongoose", value: "mongoose" }]
+      message: "mongodb library",
+      choices: [{ title: "mongoose", value: "mongoose" }]
     },
     {
       type: (_prev, values) => ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
       name: "orm",
-      message: "ORM / Query builder",
+      message: "orm / query builder",
       choices: [
-        { title: "Drizzle", value: "drizzle" }
-        // { title: "Prisma", value: "prisma" }
+        { title: "drizzle", value: "drizzle" }
+        // { title: "prisma", value: "prisma" }
       ]
     }
   ]);
   if (!response.architecture) {
-    logger.warn("Initialization cancelled.");
+    logger.warn("initialization cancelled.");
     return;
   }
   const rootPath = path11.resolve(cwd, response.root);
@@ -752,22 +736,24 @@ Success! ServerCN initialized with ${foundation}.`);
   await fs8.writeJson(path11.join(rootPath, "tsconfig.json"), tsConfig, {
     spaces: 2
   });
-  logger.success("\nSuccess! ServerCN initialized successfully.");
-  logger.log("You may now add components by running:");
+  logger.success("servercn initialized successfully.");
+  logger.log("you may now add components by running:");
   if (response.root === ".") {
     logger.muted("1. npx servercn add <component>");
   } else {
     logger.muted(`1. cd ${response.root}`);
     logger.muted("2. npx servercn add <component>");
   }
-  logger.muted("Ex: npx servercn add jwt-utils file-upload");
+  logger.muted(
+    "ex: npx servercn add jwt-utils error-handler http-status-codes"
+  );
 }
 
 // src/lib/registry-list.ts
 import fs9 from "fs-extra";
 import path12 from "path";
 async function loadRegistry(type) {
-  const registryDir = getRegistryPath(type);
+  const registryDir = paths.registry(type);
   const files = await fs9.readdir(registryDir);
   const components = [];
   for (const file of files) {
@@ -806,12 +792,12 @@ async function renderGrouppedRegistries(type, logs) {
   let i = 1;
   for (const category of Object.keys(groupedComponents).sort()) {
     logger.info(`
-${category.toUpperCase()}S`);
+${category.toLowerCase()}s`);
     const items = groupedComponents[category].sort(
       (a, b) => a.title.localeCompare(b.title)
     );
     for (const c of items) {
-      logger.log(`${i++}. ${c.title}: ${c.slug}`);
+      logger.log(`${i++}. ${c.title.toLowerCase()}: ${c.slug}`);
     }
     logger.break();
     logs && logs.map((log) => logger.muted(log));
@@ -819,28 +805,28 @@ ${category.toUpperCase()}S`);
 }
 async function list() {
   const componentLogs = [
-    "To add components run: npx servercn add <component-name>",
-    "Ex: npx servercn add http-status-codes",
-    "Ex: npx servercn add jwt-utils rbac verify-auth-middleware",
-    `For more info, visit: ${env.SERVERCN_URL}/components`
+    "to add components run: npx servercn add <component-name>",
+    "ex: npx servercn add http-status-codes",
+    "ex: npx servercn add jwt-utils rbac verify-auth-middleware",
+    `for more info, visit: ${env.SERVERCN_URL}/components`
   ];
   const foundationLogs = [
-    "To add foundation run: npx servercn init <foundation-name>",
-    "Ex: npx servercn init express-server",
-    "Ex: npx servercn init drizzle-mysql-starter",
-    `For more info, visit: ${env.SERVERCN_URL}/foundations`
+    "to add foundation run: npx servercn init <foundation-name>",
+    "ex: npx servercn init express-server",
+    "ex: npx servercn init drizzle-mysql-starter",
+    `for more info, visit: ${env.SERVERCN_URL}/foundations`
   ];
   const blueprintLogs = [
-    "To add blueprint run: npx servercn add blueprint <blueprint-name>",
-    "Ex: npx servercn add blueprint jwt-utils rbac verify-auth-middleware",
-    `For more info, visit: ${env.SERVERCN_URL}/blueprints`
+    "to add blueprint run: npx servercn add blueprint <blueprint-name>",
+    "ex: npx servercn add blueprint jwt-utils rbac verify-auth-middleware",
+    `for more info, visit: ${env.SERVERCN_URL}/blueprints`
   ];
   const schemaLogs = [
-    "To add schema run: npx servercn add schema <schema-name>",
-    "Ex: npx servercn add schema auth/user",
-    "Ex: npx servercn add schema auth/otp",
-    "Ex: npx servercn add schema auth/session",
-    `For more info, visit: ${env.SERVERCN_URL}/schemas`
+    "to add schema run: npx servercn add schema <schema-name>",
+    "ex: npx servercn add schema auth/user",
+    "ex: npx servercn add schema auth/otp",
+    "ex: npx servercn add schema auth/session",
+    `for more info, visit: ${env.SERVERCN_URL}/schemas`
   ];
   await renderGrouppedRegistries("component", componentLogs);
   await renderGrouppedRegistries("foundation", foundationLogs);
@@ -861,8 +847,6 @@ async function main() {
     let items = components;
     if (components[0] === "schema") {
       type = "schema";
-      console.log({ components });
-      console.log(components.slice(1)[0]);
       if (components.slice(1)[0].includes("auth/")) {
         items = components.slice(1);
       } else {

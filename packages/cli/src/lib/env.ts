@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 
 export function updateEnvExample(envKeys: string[] = [], cwd = process.cwd()) {
   if (!envKeys.length) return;
@@ -31,5 +31,7 @@ export function updateEnvExample(envKeys: string[] = [], cwd = process.cwd()) {
 
   fs.writeFileSync(envExamplePath, content, "utf8");
 
-  logger.success(`Updated .env.example`);
+  logger.section("Environment");
+  logger.log(`updated .env.example`);
+  logger.log(`configure environment variables in .env file.`);
 }

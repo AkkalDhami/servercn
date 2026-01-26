@@ -29,8 +29,9 @@
   "license": "MIT",
   "files": [
     "dist",
-    "../registry",
-    "../templates"
+    "registry",
+    "templates",
+    "README.md"
   ],
   "type": "module",
   "dependencies": {

@@ -1,12 +1,22 @@
 ---
 title: Commitlint
-description: A robust Commitlint configuration for TypeScript and Express.js projects.
+description: A production-ready Commitlint configuration for TypeScript and Express.js projects, with clear rules and enforced Git commit standards.
 command: npx servercn add commitlint
 ---
 
 # Commitlint
 
-Commitlint checks if your commit messages meet the conventional commit format. This helps in creating a clean and readable git history.
+Commitlint enforces **consistent, meaningful, and machine-readable commit messages** by validating them against the [Conventional Commits](https://www.conventionalcommits.org/) specification. In ServerCN projects, this improves:
+
+* Git history readability
+* Automated changelog generation
+* Semantic versioning workflows
+* CI/CD reliability
+* Team collaboration and code reviews
+
+This component is designed for **TypeScript + Express.js** backends but works for any Node.js project.
+
+[Official Documentation](https://commitlint.js.org/)
 
 ## Installation
 
@@ -14,44 +24,162 @@ Install Commitlint using the ServerCN CLI:
 
 <PackageManagerTabs command="npx servercn add commitlint" />
 
-## Configuration
+This command automatically:
 
-The component installs `@commitlint/config-conventional` and sets up a `commitlint.config.js` file.
+* Installs required Commitlint dependencies
+* Creates a strongly-typed configuration file
+* Prepares the project for Git hook integration
 
-### Example Configuration
+## What Gets Installed
 
-```javascript
-module.exports = {
-  extends: ['@commitlint/config-conventional'],
+The component installs the following packages:
+
+* <Code children="@commitlint/cli" /> – The Commitlint command-line interface
+* <Code children="@commitlint/config-conventional" /> – Standard Conventional Commit rules
+
+It also generates a configuration file:
+
+* <Code children="commitlint.config.ts" /> – Centralized rule definition
+
+## Commitlint Configuration
+
+Below is the default configuration provided by ServerCN, with inline explanations for clarity.
+
+### `commitlint.config.ts`
+
+```ts
+import type { UserConfig } from "@commitlint/types";
+
+const config: UserConfig = {
+  /**
+   * Extends the official Conventional Commits rule set.
+   * https://www.conventionalcommits.org/
+   */
+  extends: ["@commitlint/config-conventional"],
+
+  rules: {
+    /**
+     * Restricts commit types to a predefined list.
+     * This keeps commit history consistent and predictable.
+     */
+    "type-enum": [
+      2, // Severity: 2 = error (commit will be rejected)
+      "always",
+      [
+        "feat",      // New features
+        "fix",       // Bug fixes
+        "docs",      // Documentation changes only
+        "style",     // Formatting, missing semicolons, etc (no logic change)
+        "refactor",  // Code restructuring without behavior change
+        "test",      // Adding or updating tests
+        "chore",     // Tooling, config, or maintenance tasks
+        "ci",        // CI/CD configuration changes
+        "perf",      // Performance improvements
+        "build",     // Build system or dependency changes
+        "release",   // Release-related commits
+        "workflow",  // GitHub Actions or workflow changes
+        "security"   // Security patches and fixes
+      ]
+    ],
+
+    /**
+     * Allows longer commit bodies for detailed explanations.
+     * Set to warning (0) instead of error to stay flexible.
+     */
+    "body-max-length": [0, "always", 500],
+
+    /**
+     * Prevents excessively long commit headers.
+     * Helps keep logs readable in GitHub, GitLab, and CI tools.
+     */
+    "header-max-length": [0, "always", 200]
+  }
 };
+
+export default config;
 ```
 
-## Conventional Commits
+## Conventional Commit Format
 
-Commit messages should follow this pattern:
+All commit messages **must** follow this structure:
 
 ```text
 type(scope): subject
 
 body
+
 footer
 ```
 
-### Common Types
+### Breakdown
 
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation only changes
-- `style`: Changes that do not affect the meaning of the code
-- `refactor`: A code change that neither fixes a bug nor adds a feature
-- `test`: Adding missing tests or correcting existing tests
-- `chore`: Changes to the build process or auxiliary tools
+* **type** – Nature of the change (required)
+* **scope** – Affected module or area (optional)
+* **subject** – Short, imperative description (required)
+* **body** – Detailed explanation (optional)
+* **footer** – Breaking changes or issue references (optional)
 
-## Husky Integration
+### Example
 
-Commitlint is typically run using the `commit-msg` hook:
+```text
+feat(auth): add refresh token rotation
+
+Implements rotating refresh tokens to improve session security.
+
+BREAKING CHANGE: old refresh tokens are now invalidated on use
+```
+
+
+## Common Commit Types
+
+- <Code children="feat" />: Introduces a new feature             
+- <Code children="fix" />: Fixes a bug                            
+- <Code children="docs" />: Documentation-only changes           
+- <Code children="style" />: Formatting changes (no logic impact) 
+- <Code children="refactor" />: Code restructuring                   
+- <Code children="test" />: Adding or updating tests             
+- <Code children="chore" />: Maintenance or tooling tasks         
+- <Code children="ci" />: CI/CD configuration                  
+- <Code children="perf" />: Performance improvements             
+- <Code children="build" />: Build system or dependency changes   
+- <Code children="release" />: Release preparation or versioning    
+- <Code children="workflow" />: GitHub Actions or workflow changes   
+- <Code children="security" />: Security-related fixes               
+
+
+## Husky Integration (Recommended)
+
+Commitlint is most effective when enforced via Git hooks. ServerCN is designed to work seamlessly with **Husky**.
+
+### Commit Message Hook
 
 ```bash
 # .husky/commit-msg
 npx --no -- commitlint --edit "$1"
 ```
+
+This ensures:
+
+* Invalid commit messages are rejected immediately
+* Team-wide standards are enforced automatically
+* No invalid commits reach the repository
+
+
+## Best Practices
+
+* Keep the **subject line under 72 characters** when possible
+* Use the **imperative mood** ("add", not "added")
+* Always use a **scope** for backend modules (e.g. <Code children="auth" />, <Code children="user" />, <Code children="db" />)
+* Use <Code children="BREAKING CHANGE:" /> in the footer for API-breaking updates
+
+
+## Summary
+
+The ServerCN Commitlint component provides:
+
+* Strong commit discipline
+* Clear, extensible rules
+* Type-safe configuration
+* CI/CD-friendly enforcement
+
+This makes it suitable for **production-grade backend systems** and **team-based development**.

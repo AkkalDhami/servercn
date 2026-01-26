@@ -7,6 +7,8 @@ ServerCN is a component registry for building production-ready Node.js backends 
 
 Visit [ServerCN](https://servercn.vercel.app) for more information.
 
+[GitHub](https://github.com/akkaldhami/servercn)
+
 ---
 
 ## Features

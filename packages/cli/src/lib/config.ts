@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 import type { ServerCNConfig } from "../types";
 import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
 
@@ -33,10 +33,3 @@ export function getDatabaseConfig(foundation: string) {
       return null;
   }
 }
-
-const packageManagers = {
-  pnpm: (c: string) => `pnpm dlx ${c.replace("npx ", "")}`,
-  npm: (c: string) => c,
-  yarn: (c: string) => `yarn ${c.replace("npx ", "")}`,
-  bun: (c: string) => `bunx --bun ${c.replace("npx ", "")}`
-};

@@ -318,14 +318,7 @@
       "status": "stable",
       "docs": "/docs/tooling/commitlint"
     },
-    {
-      "slug": "commitizen",
-      "title": "Commitizen",
-      "description": "A robust Commitizen configuration for TypeScript and Express.js projects.",
-      "type": "tooling",
-      "status": "stable",
-      "docs": "/docs/tooling/commitizen"
-    },
+
     {
       "slug": "typescript",
       "title": "TypeScript",

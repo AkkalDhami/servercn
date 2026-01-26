@@ -1,18 +1,17 @@
 import path from "path";
 import prompts from "prompts";
 
-import { getTemplatesPath } from "../lib/paths";
 import { copyTemplate } from "../lib/copy";
 import { getRegistryComponent } from "../lib/registry";
 import { resolveTargetDir } from "../lib/architecture";
 import { installDependencies } from "../lib/install-deps";
 import { updateEnvExample } from "../lib/env";
 import { ensurePackageJson, ensureTsConfig } from "../lib/package";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 import { assertInitialized } from "../lib/assert-initialized";
 import { getServerCNConfig } from "../lib/config";
 import type { AddOptions } from "../types";
-import { capitalize } from "../utils/capatalize";
+import { paths } from "../lib/paths";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   await assertInitialized();
@@ -37,7 +36,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const targetDir = resolveTargetDir(".");
 
   if (!targetDir) {
-    logger.error("Failed to resolve target directory");
+    logger.error("failed to resolve target directory");
     process.exit(1);
   }
 
@@ -60,7 +59,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
     });
 
     if (!algorithm) {
-      logger.warn("Operation cancelled");
+      logger.warn("operation cancelled");
       return;
     }
 
@@ -71,20 +70,20 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
     if (!selectedTemplate) {
       logger.error(
-        `Architecture "${arch}" is not supported for "${component.title}"`
+        `architecture "${arch}" is not supported for "${component.title}"`
       );
       process.exit(1);
     }
 
-    templateDir = path.resolve(getTemplatesPath(), selectedTemplate);
+    templateDir = path.resolve(paths.templates(), selectedTemplate);
     runtimeDeps = algoConfig.dependencies?.runtime;
 
-    logger.info(`Using algorithm: ${algoConfig.title}`);
+    logger.info(`using algorithm: ${algoConfig.title}`);
   } else {
     const templateConfig = component.templates?.[stack];
 
     if (!templateConfig) {
-      logger.error(`Stack "${stack}" is not supported by "${component.title}"`);
+      logger.error(`stack "${stack}" is not supported by "${component.title}"`);
       process.exit(1);
     }
 
@@ -95,7 +94,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
       const databaseOrm = config.database?.orm;
       if (!database || !databaseOrm) {
         logger.error(
-          "Database not configured in servercn.config.json. Please run init first."
+          "database not configured in servercn.config.json. please run init first."
         );
         process.exit(1);
       }
@@ -103,7 +102,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
       const dbConfig = (templateConfig as any)[database];
       if (!dbConfig || !dbConfig[databaseOrm]) {
         logger.error(
-          `Database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
+          `database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
         );
         process.exit(1);
       }
@@ -113,7 +112,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
       if (!archConfig) {
         logger.error(
-          `Architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
+          `architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
         );
         process.exit(1);
       }
@@ -137,15 +136,16 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
     if (!selectedTemplate) {
       logger.error(
-        `Architecture "${arch}" is not supported by "${component.slug}"`
+        `architecture "${arch}" is not supported by "${component.slug}"`
       );
       process.exit(1);
     }
 
-    templateDir = path.resolve(getTemplatesPath(), selectedTemplate);
+    templateDir = path.resolve(paths.templates(), selectedTemplate);
     runtimeDeps = component.dependencies?.runtime;
   }
 
+  logger.section("copying files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -167,7 +167,5 @@ export async function add(componentName: string, options: AddOptions = {}) {
     updateEnvExample(component.env, process.cwd());
   }
 
-  logger.success(
-    `\nSuccess! ${capitalize(component.type)} ${component.title} added successfully\n`
-  );
+  logger.success(`${component.type}: ${component.slug} added successfully\n`);
 }

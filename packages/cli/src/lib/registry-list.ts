@@ -1,10 +1,10 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { getRegistryPath } from "./paths";
 import type { RegistryType } from "../types/registry";
+import { paths } from "./paths";
 
 export async function loadRegistry(type: RegistryType) {
-  const registryDir = getRegistryPath(type);
+  const registryDir = paths.registry(type);
   const files = await fs.readdir(registryDir);
 
   const components = [];

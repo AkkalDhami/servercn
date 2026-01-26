@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 import type { CopyOptions } from "../types";
 
 export type ConflictStrategy = "skip" | "overwrite" | "error";
@@ -13,7 +13,7 @@ export async function copyTemplate({
   dryRun = false
 }: CopyOptions) {
   if (!(await fs.pathExists(templateDir))) {
-    logger.error(`Template not found: ${templateDir}`);
+    logger.error(`template not found: ${templateDir}`);
     process.exit(1);
   }
 
@@ -45,17 +45,17 @@ export async function copyTemplate({
 
     if (exists) {
       if (conflict === "skip") {
-        logger.warn(`Skipped: ${relativeDestPath}`);
+        logger.skip(`${relativeDestPath} (already exists)`);
         continue;
       }
       if (conflict === "error") {
-        throw new Error(`File already exists: ${relativeDestPath}`);
+        throw new Error(`file already exists: ${relativeDestPath}`);
       }
     }
 
     if (dryRun) {
       logger.info(
-        `[dry-run] ${exists ? "OVERWRITE" : "CREATE"}: ${relativeDestPath}`
+        `[dry-run] ${exists ? "overwrite" : "create"}: ${relativeDestPath}`
       );
       continue;
     }

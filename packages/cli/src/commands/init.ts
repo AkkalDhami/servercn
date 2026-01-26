@@ -2,21 +2,21 @@ import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
 import { execa } from "execa";
-import { logger } from "../utils/cli-logger";
+import { logger } from "../utils/logger";
 import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
 import { getRegistryComponent } from "../lib/registry";
-import { getTemplatesPath } from "../lib/paths";
 import { copyTemplate } from "../lib/copy";
 import { installDependencies } from "../lib/install-deps";
 import { getDatabaseConfig } from "../lib/config";
+import { paths } from "../lib/paths";
 
 export async function init(foundation?: string) {
   const cwd = process.cwd();
   const configPath = path.join(cwd, SERVERCN_CONFIG_FILE);
 
   if ((await fs.pathExists(configPath)) && !foundation) {
-    logger.warn("ServerCN is already initialized in this project.");
-    logger.info("You can now run: servercn add <component>");
+    logger.warn("servercn is already initialized in this project.");
+    logger.info("you can now run: servercn add <component>");
     process.exit(1);
   }
 
@@ -73,13 +73,13 @@ export async function init(foundation?: string) {
     if (response.initGit) {
       try {
         await execa("git", ["init"], { cwd: rootPath });
-        logger.info("Initialized git repository.");
+        logger.info("initialized git repository.");
       } catch (error) {
-        logger.warn("Failed to initialize git repository. Is git installed?");
+        logger.warn("failed to initialize git repository. is git installed?");
       }
     }
 
-    logger.info(`Initializing with foundation: ${foundation}`);
+    logger.info(`initializing with foundation: ${foundation}`);
 
     try {
       const component = await getRegistryComponent(foundation, "foundation");
@@ -159,6 +159,10 @@ export async function init(foundation?: string) {
         path.join(rootPath, ".prettierignore"),
         `build\ndist\n.env\nnode_modules`
       );
+      await fs.writeFile(
+        path.join(rootPath, ".gitignore"),
+        `build\ndist\n.env\nnode_modules`
+      );
 
       await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
         spaces: 2
@@ -174,14 +178,11 @@ export async function init(foundation?: string) {
 
       if (!templatePathRelative) {
         throw new Error(
-          `Template not found for ${foundation} (express/${response.architecture})`
+          `template not found for ${foundation.toLowerCase()} (express/${response.architecture})`
         );
       }
 
-      const templateDir = path.resolve(
-        getTemplatesPath(),
-        templatePathRelative
-      );
+      const templateDir = path.resolve(paths.templates(), templatePathRelative);
 
       await copyTemplate({
         templateDir,
@@ -196,20 +197,20 @@ export async function init(foundation?: string) {
         cwd: rootPath
       });
 
-      logger.success(`\nSuccess! ServerCN initialized with ${foundation}.`);
-      logger.info("Configure environment variables in .env file.");
-      logger.log("Run the following commands:");
+      logger.success(`servercn initialized with ${foundation}.`);
+      logger.info("configure environment variables in .env file.");
+      logger.log("run the following commands:");
 
       if (response.root === ".") {
-        logger.muted(`1. npm run dev`);
+        logger.muted(`1. npm run dev\n`);
       } else {
         logger.muted(`1. cd ${response.root}`);
-        logger.muted(`2. npm run dev`);
+        logger.muted(`2. npm run dev\n`);
       }
 
       return;
     } catch (error) {
-      logger.error(`Failed to initialize foundation: ${error}`);
+      logger.error(`failed to initialize foundation: ${error}`);
       process.exit(1);
     }
   }
@@ -218,82 +219,82 @@ export async function init(foundation?: string) {
     {
       type: "text",
       name: "root",
-      message: "Project root directory",
+      message: "project root directory",
       initial: ".",
       format: val => val.trim() || "."
     },
     {
       type: "text",
       name: "srcDir",
-      message: "Source directory",
+      message: "source directory",
       initial: "src",
       format: val => val.trim() || "src"
     },
     {
       type: "select",
       name: "architecture",
-      message: "Select architecture",
+      message: "select architecture",
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
         { title: "Feature-based (domain-driven modules)", value: "feature" }
-      ]
+      ] as const
     },
     {
       type: "select",
       name: "language",
-      message: "Programming language",
+      message: "programming language",
       choices: [
         {
-          title: "TypeScript (recommended)",
+          title: "typescript (recommended)",
           value: "typescript"
         }
-      ]
+      ] as const
     },
     {
       type: "select",
       name: "framework",
-      message: "Backend framework",
-      choices: [{ title: "Express", value: "express" }]
+      message: "backend framework",
+      choices: [{ title: "express", value: "express" }]
     },
     {
       type: "select",
       name: "databaseType",
-      message: "Select database",
+      message: "select database",
       choices: [
         {
-          title: "MongoDB",
+          title: "mongodb",
           value: "mongodb"
         },
         {
-          title: "PostgreSQL",
+          title: "postgresql",
           value: "postgresql"
         },
         {
-          title: "MySQL",
+          title: "mysql",
           value: "mysql"
         }
-      ]
+      ] as const
     },
     {
       type: prev => (prev === "mongodb" ? "select" : null),
       name: "orm",
-      message: "MongoDB library",
-      choices: [{ title: "Mongoose", value: "mongoose" }]
+      message: "mongodb library",
+      choices: [{ title: "mongoose", value: "mongoose" }]
     },
     {
       type: (_prev, values) =>
         ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
       name: "orm",
-      message: "ORM / Query builder",
+      message: "orm / query builder",
       choices: [
-        { title: "Drizzle", value: "drizzle" }
-        // { title: "Prisma", value: "prisma" }
-      ]
+        { title: "drizzle", value: "drizzle" }
+        // { title: "prisma", value: "prisma" }
+      ] as const
     }
   ]);
 
   if (!response.architecture) {
-    logger.warn("Initialization cancelled.");
+    logger.warn("initialization cancelled.");
     return;
   }
 
@@ -343,14 +344,16 @@ export async function init(foundation?: string) {
     spaces: 2
   });
 
-  logger.success("\nSuccess! ServerCN initialized successfully.");
+  logger.success("servercn initialized successfully.");
 
-  logger.log("You may now add components by running:");
+  logger.log("you may now add components by running:");
   if (response.root === ".") {
     logger.muted("1. npx servercn add <component>");
   } else {
     logger.muted(`1. cd ${response.root}`);
     logger.muted("2. npx servercn add <component>");
   }
-  logger.muted("Ex: npx servercn add jwt-utils file-upload");
+  logger.muted(
+    "ex: npx servercn add jwt-utils error-handler http-status-codes"
+  );
 }
