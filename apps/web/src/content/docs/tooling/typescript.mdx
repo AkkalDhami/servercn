@@ -1,25 +1,28 @@
 ---
 title: TypeScript
 description: A robust TypeScript configuration for Node.js and Express.js projects.
-command: npx servercn add typescript
+command: npx servercn add tooling typescript
 ---
 
 # TypeScript
 
 TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
 
+[TypeScript Official Website](https://www.typescriptlang.org/)
+
 ## Installation
 
 Install the TypeScript configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add typescript" />
+<PackageManagerTabs command="npx servercn add tooling typescript" />
 
 ## Configuration
 
-The component provides a `tsconfig.json` file optimized for modern Node.js backend development.
+The component provides a <Code children="tsconfig.json" /> file optimized for modern Node.js backend development.
 
-### Example `tsconfig.json`
+<Code children="tsconfig.json" />
 
+### 1. Minimal
 ```json
 {
   "compilerOptions": {
@@ -30,26 +33,96 @@ The component provides a `tsconfig.json` file optimized for modern Node.js backe
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "rootDir": "src",
     "sourceMap": true,
-    "declaration": true
+    "rootDir": "src",
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [ "./*" ],
+      "@/src/*": [ "./src/*" ]
+    }
+  },
+  "include": [ "src/**/*" ],
+  "exclude": [ "node_modules" ]
+}
+```
+
+### 2. Advanced
+
+```json
+{
+  "compilerOptions": {
+    /* Base Options */
+    "target": "ES2021",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "removeComments": true,
+
+    /* Strictness */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Advanced */
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts"]
 }
 ```
 
 ## Scripts
 
-Add the following scripts to your `package.json`:
+Add the following scripts to your <Code children="package.json" />:
 
 ```json
 {
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "nodemon --watch ./src --exec tsx src/server.ts",
     "start": "node dist/server.js"
   }
+}
+```
+
+## nodemon.json
+
+<Code children="nodemon.json" />
+
+```json
+{
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "ignore": ["node_modules"],
+  "exec": "ts-node src/server.ts"
 }
 ```
 
@@ -59,3 +132,8 @@ Add the following scripts to your `package.json`:
 - **Modern ES Support**: Pre-configured for the latest ECMAScript features.
 - **Source Maps**: Configured for easier debugging.
 - **Clean Output**: Separates source code from compiled JavaScript.
+
+
+## Add More Tooling
+
+<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />

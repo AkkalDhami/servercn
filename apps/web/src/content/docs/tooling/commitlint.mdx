@@ -1,7 +1,7 @@
 ---
 title: Commitlint
 description: A production-ready Commitlint configuration for TypeScript and Express.js projects, with clear rules and enforced Git commit standards.
-command: npx servercn add commitlint
+command: npx servercn add tooling commitlint
 ---
 
 # Commitlint
@@ -22,7 +22,7 @@ This component is designed for **TypeScript + Express.js** backends but works fo
 
 Install Commitlint using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add commitlint" />
+<PackageManagerTabs command="npx servercn add tooling commitlint" />
 
 This command automatically:
 
@@ -45,12 +45,10 @@ It also generates a configuration file:
 
 Below is the default configuration provided by ServerCN, with inline explanations for clarity.
 
-### `commitlint.config.ts`
+<Code children="commitlint.config.ts"/>
 
 ```ts
-import type { UserConfig } from "@commitlint/types";
-
-const config: UserConfig = {
+export default {
   /**
    * Extends the official Conventional Commits rule set.
    * https://www.conventionalcommits.org/
@@ -95,8 +93,6 @@ const config: UserConfig = {
     "header-max-length": [0, "always", 200]
   }
 };
-
-export default config;
 ```
 
 ## Conventional Commit Format
@@ -147,7 +143,7 @@ BREAKING CHANGE: old refresh tokens are now invalidated on use
 - <Code children="security" />: Security-related fixes               
 
 
-## Husky Integration (Recommended)
+## Husky Integration
 
 Commitlint is most effective when enforced via Git hooks. ServerCN is designed to work seamlessly with **Husky**.
 
@@ -183,3 +179,7 @@ The ServerCN Commitlint component provides:
 * CI/CD-friendly enforcement
 
 This makes it suitable for **production-grade backend systems** and **team-based development**.
+
+## Add More Tooling
+
+<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />

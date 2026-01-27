@@ -355,7 +355,7 @@
 
     {
       "slug": "auth",
-      "title": "Auth Domain",
+      "title": "Authentication",
       "description": "Authentication domain schemas including User, OTP, and Session models with support for multiple databases.",
       "type": "schema",
       "status": "stable",
@@ -377,6 +377,33 @@
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
         "useCases": ["cms", "content-platform"],
+        "relations": true
+      }
+    },
+    {
+      "slug": "todo",
+      "title": "Todo App",
+      "description": "A production-ready Todo schema with support for MongoDB, PostgreSQL, and MySQL.",
+      "type": "schema",
+      "status": "stable",
+      "docs": "/docs/schemas/todo",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "todo-mongodb"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "todo-postgresql"
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "todo-mysql"
+          }
+        ],
+        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
+        "useCases": ["task-management", "productivity-app"],
         "relations": true
       }
     }

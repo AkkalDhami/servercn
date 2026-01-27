@@ -2,8 +2,8 @@
 
 title: ESLint
 description: A production-grade ESLint configuration for TypeScript and Express.js projects, optimized for backend reliability and team consistency.
-command: npx servercn add eslint
---------------------------------
+command: npx servercn add tooling eslint
+---
 
 # ESLint
 
@@ -18,13 +18,13 @@ In ServerCN projects, ESLint is treated as a **first-line quality gate** that:
 
 This configuration is tailored specifically for **Node.js, TypeScript, and Express.js backends**.
 
----
+[ESLint Official Docs](https://eslint.org/)
 
 ## Installation
 
 Install the ESLint configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add eslint" />
+<PackageManagerTabs command="npx servercn add tooling eslint" />
 
 This command automatically:
 
@@ -32,7 +32,6 @@ This command automatically:
 * Sets up a TypeScript-aware configuration
 * Aligns ESLint with Prettier to avoid rule conflicts
 
----
 
 ## What Gets Installed
 
@@ -43,93 +42,66 @@ The component installs and configures the following core packages:
 * <Code children="@typescript-eslint/eslint-plugin" /> – TypeScript-specific rules
 * <Code children="eslint-config-prettier" /> – Disables stylistic rules handled by Prettier
 
----
 
 ## ESLint Configuration
 
 ServerCN provides a **sensible default configuration** focused on backend correctness rather than frontend stylistic noise.
 
-Depending on your ESLint version, the config may be generated as either:
-
-* <Code children=".eslintrc.json" /> (legacy)
-* <Code children="eslint.config.js" /> (flat config, ESLint v9+)
-
 Below is the canonical configuration with inline explanations.
 
-### Example `.eslintrc.json`
+<Code children="eslint.config.mjs" />
 
-```json
-{
-  "root": true,
+```ts
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsparser from "@typescript-eslint/parser";
+import prettierPlugin from "eslint-plugin-prettier";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+export default [
+  {
+    files: ["**/*.ts"],
 
-  /**
-   * Uses the TypeScript parser so ESLint can understand
-   * modern TypeScript syntax and type information.
-   */
-  "parser": "@typescript-eslint/parser",
+    languageOptions: {
+      parser: tsparser,
+      sourceType: "module"
+    },
 
-  "plugins": ["@typescript-eslint"],
+    plugins: {
+      "@typescript-eslint": tseslint,
+      prettier: prettierPlugin
+    },
 
-  "extends": [
-    /**
-     * Base ESLint recommended rules
-     */
-    "eslint:recommended",
-
-    /**
-     * Recommended rules for TypeScript projects
-     */
-    "plugin:@typescript-eslint/recommended",
-
-    /**
-     * Disables ESLint rules that would conflict with Prettier
-     */
-    "prettier"
-  ],
-
-  "rules": {
-    /**
-     * Allow console logs but warn instead of failing builds.
-     * Useful for backend diagnostics while staying disciplined.
-     */
-    "no-console": "warn",
-
-    /**
-     * Prevents usage of `any`, enforcing explicit and safe typing.
-     * This is critical for large or long-lived codebases.
-     */
-    "@typescript-eslint/no-explicit-any": "error",
-
-    /**
-     * Disabled to reduce verbosity in Express controllers
-     * where return types are often obvious or inferred.
-     */
-    "@typescript-eslint/explicit-function-return-type": "off"
-  }
-}
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      "@typescript-eslint/no-unused-vars": "warn",
+      "no-console": "warn",
+      semi: ["error", "always"],
+      quotes: ["error", "double"],
+      "prettier/prettier": "error"
+    }
+  },
+  eslintConfigPrettier
+];
 ```
 
----
 
-## Recommended Scripts
+## Scripts
 
-Add the following scripts to your `package.json` to standardize linting across environments:
+Add the following scripts to your <Code children="package.json" /> to standardize linting across environments:
 
 ```json
 {
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix"
   }
 }
 ```
 
-### Script Usage
+**Script Usage:**
 
-* `npm run lint` – Runs ESLint in read-only mode
-* `npm run lint:fix` – Automatically fixes safe, rule-compliant issues
+* <Code children="npm run lint:check" /> – Runs ESLint in read-only mode
+* <Code children="npm run lint:fix" /> – Automatically fixes safe, rule-compliant issues
 
----
 
 ## Prettier Compatibility
 
@@ -140,7 +112,6 @@ ServerCN intentionally separates **code formatting** from **code correctness**:
 
 This prevents the common ESLint–Prettier conflict and keeps responsibilities clear.
 
----
 
 ## Features
 
@@ -150,16 +121,13 @@ This prevents the common ESLint–Prettier conflict and keeps responsibilities c
 * **CI Friendly**: Safe to run in automated pipelines
 * **Extensible**: Easy to layer additional rules per project needs
 
----
 
 ## Best Practices
 
-* Run `lint` locally before pushing commits
-* Use `lint:fix` only on clean working trees
+* Run <Code children="npm run lint:check" /> locally before pushing commits
+* Use <Code children="npm run lint:fix" /> only on clean working trees
 * Avoid disabling rules globally; prefer scoped overrides
 * Pair ESLint with Commitlint and Prettier for full workflow coverage
-
----
 
 ## Summary
 
@@ -171,3 +139,8 @@ The ServerCN ESLint component provides:
 * Consistent standards across teams and repositories
 
 This makes it suitable for **serious backend systems** and **resume-grade projects**.
+
+
+## Add More Tooling
+
+<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />

@@ -1,18 +1,20 @@
 ---
 title: Prettier
 description: A robust Prettier configuration for TypeScript and Express.js projects.
-command: npx servercn add prettier
+command: npx servercn add tooling prettier
 ---
 
 # Prettier
 
 Prettier is an opinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
 
+[Prettier Official Docs](https://prettier.io/)
+
 ## Installation
 
 Install the Prettier configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add prettier" />
+<PackageManagerTabs command="npx servercn add tooling prettier" />
 
 ## Configuration
 
@@ -22,13 +24,13 @@ The component installs a `.prettierrc` file and a `.prettierignore` file with se
 
 ```json
 {
-  "semi": true,
-  "trailingComma": "none",
   "singleQuote": false,
-  "printWidth": 80,
+  "semi": true,
   "tabWidth": 2,
-  "endOfLine": "auto",
-  "arrowParens": "avoid"
+  "trailingComma": "none",
+  "bracketSameLine": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
 }
 ```
 
@@ -39,8 +41,8 @@ Add the following scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
   }
 }
 ```
@@ -51,3 +53,8 @@ Add the following scripts to your `package.json`:
 - **Save Time**: Automatically formats on save or via CLI.
 - **Easy Integration**: Works perfectly with ESLint and most IDEs.
 - **Readable Code**: Ensures everyone on the team reads the same code structure.
+
+
+## Add More Tooling
+
+<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />
