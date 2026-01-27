@@ -1,0 +1,17 @@
+{
+  "title": "Lint-Staged",
+  "slug": "lint-staged",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "toolings/lint-staged/express/common",
+      "feature": "toolings/lint-staged/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": ["lint-staged"]
+  }
+}

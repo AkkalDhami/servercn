@@ -1,0 +1,17 @@
+{
+  "title": "Husky",
+  "slug": "husky",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "toolings/husky/express/common",
+      "feature": "toolings/husky/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": ["husky"]
+  }
+}

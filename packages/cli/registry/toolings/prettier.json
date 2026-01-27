@@ -1,0 +1,17 @@
+{
+  "title": "Prettier",
+  "slug": "prettier",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "toolings/prettier/express/common",
+      "feature": "toolings/prettier/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": ["prettier"]
+  }
+}

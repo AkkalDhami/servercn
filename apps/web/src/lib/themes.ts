@@ -133,11 +133,6 @@ export const CODE_THEMES: ITheme[] = [
     value: "rose-pine-moon"
   },
   {
-    label: "Rose Pine Dawn",
-    value: "rose-pine-dawn",
-    light: true
-  },
-  {
     label: "Rose Pine",
     value: "rose-pine"
   },

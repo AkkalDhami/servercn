@@ -1,0 +1,17 @@
+{
+  "title": "TypeScript",
+  "slug": "typescript",
+  "type": "tooling",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "toolings/typescript/express/common",
+      "feature": "toolings/typescript/express/common"
+    }
+  },
+  "dependencies": {
+    "runtime": [],
+    "dev": ["typescript", "@types/node", "tsx", "ts-node", "nodemon"]
+  }
+}
