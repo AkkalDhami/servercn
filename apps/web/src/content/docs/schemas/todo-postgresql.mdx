@@ -1,0 +1,198 @@
+---
+title: Todo | PostgreSQL (Drizzle) | Schema
+description: Production-ready Todo schema for PostgreSQL using Drizzle ORM, featuring type safety and relational mappings.
+command: npx servercn add schema todo
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: todo.schema.ts
+                content: |
+                  import {
+                    boolean,
+                    pgTable,
+                    text,
+                    timestamp,
+                    uuid,
+                    varchar,
+                    index
+                  } from "drizzle-orm/pg-core";
+                  import { users } from "./user.schema";
+
+                  export const todos = pgTable("todos", {
+                    id: uuid("id").primaryKey().defaultRandom(),
+                    userId: uuid("user_id")
+                      .notNull()
+                      .references(() => users.id, { onDelete: "cascade" }),
+                    title: varchar("title", { length: 255 }).notNull(),
+                    description: text("description"),
+                    completed: boolean("completed").notNull().default(false),
+                    createdAt: timestamp("created_at").notNull().defaultNow(),
+                    updatedAt: timestamp("updated_at")
+                      .notNull()
+                      .defaultNow()
+                  }, (table) => [
+                    index("todo_user_id_idx").on(table.userId),
+                    index("todo_completed_idx").on(table.completed)
+                  ]);
+
+                  export type Todo = typeof todos.$inferSelect;
+                  export type NewTodo = typeof todos.$inferInsert;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: todo.schema.ts
+                content: |
+                  import {
+                    boolean,
+                    pgTable,
+                    text,
+                    timestamp,
+                    uuid,
+                    varchar,
+                    index
+                  } from "drizzle-orm/pg-core";
+                  import { users } from "./user.schema";
+
+                  export const todos = pgTable("todos", {
+                    id: uuid("id").primaryKey().defaultRandom(),
+                    userId: uuid("user_id")
+                      .notNull()
+                      .references(() => users.id, { onDelete: "cascade" }),
+                    title: varchar("title", { length: 255 }).notNull(),
+                    description: text("description"),
+                    completed: boolean("completed").notNull().default(false),
+                    createdAt: timestamp("created_at").notNull().defaultNow(),
+                    updatedAt: timestamp("updated_at")
+                      .notNull()
+                      .defaultNow()
+                  }, (table) => [
+                    index("todo_user_id_idx").on(table.userId),
+                    index("todo_completed_idx").on(table.completed)
+                  ]);
+
+                  export type Todo = typeof todos.$inferSelect;
+                  export type NewTodo = typeof todos.$inferInsert;
+---
+
+# Todo (PostgreSQL)
+
+This page documents the Todo schema for projects using <Code children="PostgreSQL" /> with <Code children="Drizzle ORM" />.
+
+The PostgreSQL implementation leverages strong types and relational integrity to provide a secure and efficient task management foundation.
+
+<Note text="This schema relies on the users table from the Auth Domain. The userId field is configured with a foreign key constraint and onDelete: 'cascade'." />
+
+
+## Installation Guide
+
+To add this schema to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema todo" />
+
+During initialization, ensure you select <Code children="PostgreSQL" /> when prompted for the database.
+
+## Database Design
+
+To see the complete database design, including the User schema from the Auth Domain, please click [here](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392) visualization.
+
+[Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
+
+## 1. Todo Schema
+
+The **Todo Schema** defines the structure of your tasks in PostgreSQL.
+
+**MVC Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>  
+**Feature Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>
+
+```ts
+import {
+  boolean,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+  index
+} from "drizzle-orm/pg-core";
+import { users } from "./user.schema";
+
+/**
+ * Todos Table Definition
+ * Defines the structure and constraints for the todos table
+ */
+export const todos = pgTable("todos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  completed: boolean("completed").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+}, (table) => [
+  index("todo_user_id_idx").on(table.userId),
+  index("todo_completed_idx").on(table.completed),
+  index("todo_created_at_idx").on(table.createdAt)
+]);
+
+/**
+ * Type Inference
+ * Export types for use in your application services
+ */
+export type Todo = typeof todos.$inferSelect;
+export type NewTodo = typeof todos.$inferInsert;
+```
+
+## Relational Intelligence
+
+Drizzle allows you to define explicit relations for easier querying:
+
+```ts
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+export const todosRelations = relations(todos, ({ one }) => ({
+  user: one(users, {
+    fields: [todos.userId],
+    references: [users.id],
+  }),
+}));
+```
+
+Usage in your application:
+
+```ts
+const userWithTodos = await db.query.users.findMany({
+  with: {
+    todos: true,
+  },
+});
+```
+
+## Key Benefits
+
+- **Foreign Key Constraints**: Automatically handles cascading deletes when a user is removed.
+- **Strict Data Types**: Uses appropriate types like `uuid` for IDs and `timestamp with time zone` for dates.
+- **Type Safety**: Infer models directly from the schema definition.
+- **Blazing Fast**: Optimized with indexes for user-specific lookups.

@@ -1,0 +1,191 @@
+---
+title: Todo | MySQL (Drizzle) | Schema
+description: Production-ready Todo schema for MySQL using Drizzle ORM, featuring type safety and performance optimizations.
+command: npx servercn add schema todo
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: todo.schema.ts
+                content: |
+                  import {
+                    boolean,
+                    mysqlTable,
+                    text,
+                    timestamp,
+                    varchar,
+                    char,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { users } from "./user.schema";
+
+                  export const todos = mysqlTable("todos", {
+                    id: char("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+                    userId: char("user_id", { length: 36 })
+                      .notNull()
+                      .references(() => users.id, { onDelete: "cascade" }),
+                    title: varchar("title", { length: 255 }).notNull(),
+                    description: text("description"),
+                    completed: boolean("completed").notNull().default(false),
+                    createdAt: timestamp("created_at").notNull().defaultNow(),
+                    updatedAt: timestamp("updated_at")
+                      .notNull()
+                      .defaultNow()
+                      .onUpdateNow()
+                  }, (table) => [
+                    index("todo_user_id_idx").on(table.userId),
+                    index("todo_completed_idx").on(table.completed)
+                  ]);
+
+                  export type Todo = typeof todos.$inferSelect;
+                  export type NewTodo = typeof todos.$inferInsert;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: todo.schema.ts
+                content: |
+                  import {
+                    boolean,
+                    mysqlTable,
+                    text,
+                    timestamp,
+                    varchar,
+                    char,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { users } from "./user.schema";
+
+                  export const todos = mysqlTable("todos", {
+                    id: char("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+                    userId: char("user_id", { length: 36 })
+                      .notNull()
+                      .references(() => users.id, { onDelete: "cascade" }),
+                    title: varchar("title", { length: 255 }).notNull(),
+                    description: text("description"),
+                    completed: boolean("completed").notNull().default(false),
+                    createdAt: timestamp("created_at").notNull().defaultNow(),
+                    updatedAt: timestamp("updated_at")
+                      .notNull()
+                      .defaultNow()
+                      .onUpdateNow()
+                  }, (table) => [
+                    index("todo_user_id_idx").on(table.userId),
+                    index("todo_completed_idx").on(table.completed)
+                  ]);
+
+                  export type Todo = typeof todos.$inferSelect;
+                  export type NewTodo = typeof todos.$inferInsert;
+---
+
+# Todo (MySQL)
+
+This page documents the Todo schema for projects using <Code children="MySQL" /> with <Code children="Drizzle ORM" />.
+
+The MySQL implementation focuses on compatibility and performance, using standard types and efficient indexes.
+
+<Note text="This schema works in tandem with the Auth Domain. The userId field references the id from the users table with a cascade delete rule." />
+
+## Installation Guide
+
+To add this schema to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema todo" />
+
+During initialization, ensure you select <Code children="MySQL" /> when prompted for the database.
+
+## Database Design
+
+To see the complete database design, including the User schema from the Auth Domain, please click [here](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392) visualization.
+
+[Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
+
+
+## 1. Todo Schema
+
+The **Todo Schema** defines the structure of your tasks in MySQL.
+
+**MVC Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>  
+**Feature Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>
+
+```ts
+import {
+  boolean,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  char,
+  index
+} from "drizzle-orm/mysql-core";
+import { users } from "./user.schema";
+
+/**
+ * Todos Table Definition
+ * Defines the structure and constraints for the todos table
+ */
+export const todos = mysqlTable("todos", {
+  id: char("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: char("user_id", { length: 36 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  completed: boolean("completed").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .onUpdateNow() // MySQL specific: updates on every row mutation
+}, (table) => [
+  index("todo_user_id_idx").on(table.userId),
+  index("todo_completed_idx").on(table.completed),
+  index("todo_created_at_idx").on(table.createdAt)
+]);
+
+/**
+ * Type Inference
+ * Export types for use in your application services
+ */
+export type Todo = typeof todos.$inferSelect;
+export type NewTodo = typeof todos.$inferInsert;
+```
+
+## Relational Design
+
+Explicit relations make data fetching much simpler and more expressive:
+
+```ts
+import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
+
+export const todosRelations = relations(todos, ({ one }) => ({
+  user: one(users, {
+    fields: [todos.userId],
+    references: [users.id],
+  }),
+}));
+```
+
+## Key Benefits
+
+- **On-Update Timestamps**: Uses MySQL's native capability to automatically update the `updatedAt` field.
+- **Relational Integrity**: Consistent foreign key relationships with cascading deletes.
+- **Type Safety**: Full TypeScript support when performing CRUD operations.
+- **Optimized IDs**: Uses CHAR(36) to store UUIDs efficiently in MySQL.

@@ -1,0 +1,222 @@
+---
+title: Todo | MongoDB (Mongoose) | Schema
+description: Production-ready Todo schema for MongoDB using Mongoose, featuring full type safety and user associations.
+command: npx servercn add schema todo
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: todo.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema, Types } from "mongoose";
+
+              export interface ITodo extends Document {
+                _id: Types.ObjectId;
+                userId: Types.ObjectId;
+                title: string;
+                description?: string;
+                completed: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const todoSchema = new Schema<ITodo>(
+                {
+                  userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: [true, "User ID is required"]
+                  },
+                  title: {
+                    type: String,
+                    required: [true, "Title is required"],
+                    trim: true
+                  },
+                  description: {
+                    type: String,
+                    trim: true
+                  },
+                  completed: {
+                    type: Boolean,
+                    default: false
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              const Todo: Model<ITodo> =
+                mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
+
+              export default Todo;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: todo
+            children:
+              - type: file
+                name: todo.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema, Types } from "mongoose";
+
+                  export interface ITodo extends Document {
+                    _id: Types.ObjectId;
+                    userId: Types.ObjectId;
+                    title: string;
+                    description?: string;
+                    completed: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const todoSchema = new Schema<ITodo>(
+                    {
+                      userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: [true, "User ID is required"]
+                      },
+                      title: {
+                        type: String,
+                        required: [true, "Title is required"],
+                        trim: true
+                      },
+                      description: {
+                        type: String,
+                        trim: true
+                      },
+                      completed: {
+                        type: Boolean,
+                        default: false
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  const Todo: Model<ITodo> =
+                    mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
+
+                  export default Todo;
+---
+
+# Todo (MongoDB)
+
+This page documents the Todo schema for projects using <Code children="MongoDB" /> with <Code children="Mongoose" />.
+
+The Todo schema provides a production-ready model for managing tasks, complete with user validation and performance considerations.
+
+<Note text="This schema is designed to work with the User model from the Auth Domain. Ensure you have installed the authentication schemas before using Todos." />
+
+## Installation Guide
+
+To add this schema to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema todo" />
+
+During initialization, ensure you select <Code children="MongoDB" /> when prompted for the database.
+
+## Database Design
+
+To see the complete database design, including the User schema from the Auth Domain, please click [here](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392) visualization.
+
+[Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
+
+
+## 1. Todo Schema
+
+The **Todo Schema** stores individual task information and maintains a reference to the user who created it.
+
+**MVC Path:** <Code children="src/models/todo.model.ts"/>  
+**Feature Path:** <Code children="src/modules/todo/todo.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
+
+/**
+ * Todo Interface
+ * Defines the structure of a Todo document
+ */
+export interface ITodo extends Document {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+
+  title: string;
+  description?: string;
+  completed: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Todo Schema definition
+ */
+const todoSchema = new Schema<ITodo>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+      required: [true, "User ID is required"],
+      index: true // Indexed for faster user-specific queries
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [255, "Title cannot be longer than 255 characters"]
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [2000, "Description cannot be longer than 2000 characters"]
+    },
+    completed: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true // Automatically adds createdAt and updatedAt
+  }
+);
+
+// Performance Indexes
+todoSchema.index({ userId: 1, completed: 1 }); // Great for fetching pending/completed tasks for a user
+todoSchema.index({ createdAt: -1 }); // Useful for sorting tasks by date
+
+const Todo: Model<ITodo> =
+  mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
+
+export default Todo;
+```
+
+## Relationship Reference
+
+The `userId` field uses a reference to the `User` model. When querying todos, you can easily populate user information:
+
+```ts
+const userTodos = await Todo.find({ userId: req.user._id })
+  .populate("userId", "name email")
+  .sort("-createdAt");
+```
+
+## Key Benefits
+
+- **Strict Validation**: Ensures all todos have a user and a title.
+- **Auto-Timestamps**: Leverages Mongoose's built-in timestamp support.
+- **Optimized Queries**: Includes indexes for common access patterns.
+- **MLean Ready**: Compatible with `.lean()` for faster read operations.

@@ -1,0 +1,80 @@
+---
+title: Todo App Schema
+description: Production-ready Todo schemas with support for MongoDB, PostgreSQL, and MySQL databases.
+command: npx servercn add schema todo
+---
+
+# Todo App Schema
+
+The **Todo App Schema** provides a robust foundation for building task management applications. It includes a complete set of fields for managing tasks, tracking completion status, and associating todos with users.
+
+## Database Variants
+
+The Todo schema is available for multiple databases:
+
+1. **[MongoDB (Mongoose)](/docs/schemas/todo-mongodb)** - Using Mongoose models with full type safety.
+2. **[PostgreSQL (Drizzle)](/docs/schemas/todo-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
+3. **[MySQL (Drizzle)](/docs/schemas/todo-mysql)** - Type-safe Drizzle schemas for MySQL.
+
+## Database Design
+
+To see the complete database design, including the User schema from the Auth Domain, please click [here](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392) visualization.
+
+[Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
+
+
+## Features
+
+- **User Association**: Links todos to specific users.
+- **Auto Timestamps**: Automatically tracks creation and update times.
+- **Flexible Data**: Support for titles, descriptions, and completion status.
+- **Type Safety**: Fully typed models and schemas for both Mongoose and Drizzle.
+
+## Quick Start
+
+### Install Todo Schema
+
+To add the Todo schema to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema todo" />
+
+This will install the appropriate schema file based on your project's database configuration.
+
+## Schema Breakdown
+
+### 1. Todo Model
+
+The **Todo Model** is the core component for storing task information.
+
+**Key Fields:**
+
+- `userId`: Reference to the user who owns the task.
+- `title`: The title of the task (required).
+- `description`: Optional detailed description of the task.
+- `completed`: Boolean flag indicating if the task is finished.
+- `createdAt`: When the task was created.
+- `updatedAt`: When the task was last updated.
+
+**View Documentation: [MongoDB](/docs/schemas/todo-mongodb) | [PostgreSQL](/docs/schemas/todo-postgresql) | [MySQL](/docs/schemas/todo-mysql)**
+
+## Relationship Design
+
+The Todo schema is designed to work seamlessly with the [Auth Domain](/docs/schemas/auth). It maintains a one-to-many relationship:
+- One **User** (from Auth Domain) can have many **Todos**.
+- One **Todo** belongs to exactly one **User**.
+
+### Integration with Auth
+This schema assumes you have the **Auth Domain** installed. The `userId` field acts as a foreign key (PostgreSQL/MySQL) or reference (MongoDB) to the `User` model. This allows you to:
+- Enforce data ownership.
+- Fetch todos for a specific authenticated user.
+- Automatically delete todos when a user account is deleted (Cascading).
+
+To install the Auth Domain alongside Todos:
+<PackageManagerTabs command="npx servercn add schema auth" />
+
+## Learn More
+
+- [MongoDB (Mongoose) Implementation](/docs/schemas/todo-mongodb)
+- [PostgreSQL (Drizzle) Implementation](/docs/schemas/todo-postgresql)
+- [MySQL (Drizzle) Implementation](/docs/schemas/todo-mysql)
+- [Auth Domain Schemas](/docs/schemas/auth)
