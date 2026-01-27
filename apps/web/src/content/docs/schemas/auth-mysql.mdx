@@ -18,7 +18,6 @@ mvc_structure:
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
@@ -26,11 +25,12 @@ mvc_structure:
                     json,
                     uniqueIndex,
                     index,
-                    mysqlEnum,
+                    mysqlEnum
                   } from "drizzle-orm/mysql-core";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
+                  import { sessions } from "./session.schema";
 
                   export interface IAvatar {
                     public_id?: string;
@@ -41,7 +41,7 @@ mvc_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 100 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }),
@@ -63,29 +63,34 @@ mvc_structure:
                       deletedAt: timestamp("deleted_at"),
                       reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       uniqueIndex("email_idx").on(table.email),
                       index("role_idx").on(table.role),
-                      index("is_deleted_idx").on(table.isDeleted),
-                    ],
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+                  //? Relations between
+                  //? i. user and refresh tokens.
+                  //? ii. user and sessions.
+                  //? (One-to-Many)
                   export const usersRelations = relations(users, ({ many }) => ({
                     refreshTokens: many(refreshTokens),
+                    sessions: many(sessions)
                   }));
 
                   //? User type
                   export type User = typeof users.$inferSelect;
                   export type NewUser = typeof users.$inferInsert;
+
+              
               - type: file
                 name: otp.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
@@ -93,6 +98,7 @@ mvc_structure:
                     mysqlEnum,
                     index
                   } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
                    
                   const OTP_MAX_ATTEMPTS = 5;
                    
@@ -105,15 +111,10 @@ mvc_structure:
                    
                   type OTPType = (typeof OTP_TYPES)[number];
                    
-                  export const timestamps = {
-                    createdAt: timestamp("created_at").defaultNow().notNull(),
-                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
-                  };
-                   
                   export const otps = mysqlTable(
                     "otps",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       email: varchar("email", { length: 255 }).notNull(),
                       otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
                       nextResendAllowedAt: timestamp("next_resend_allowed_at", {
@@ -136,12 +137,23 @@ mvc_structure:
                    
                   export type Otp = typeof otps.$inferSelect;
                   export type NewOtp = typeof otps.$inferInsert;
+              
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+
               - type: file
                 name: session.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     timestamp,
                     boolean,
@@ -150,18 +162,18 @@ mvc_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
-                   
+                  import { timestamps } from "./schema.helper";
+
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
                       tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
                       ip: varchar("ip", { length: 45 }),
-                      userAgent: varchar("user_agent", { length: 512 }),
+                      userAgent: varchar("user_agent", { length: 255 }),
                       isActive: boolean("is_active").default(true).notNull(),
                       lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
                       expiresAt: timestamp("expires_at").notNull(),
@@ -170,44 +182,45 @@ mvc_structure:
                     table => [
                       index("userId_idx").on(table.userId),
                       index("tokenHash_idx").on(table.tokenHash),
-                      index("isActive_idx").on(table.isActive),
-                      index("userId_isActive_idx").on(table.userId, table.isActive),
-                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                      index("isActive_idx").on(table.isActive)
                     ]
                   );
-                   
-                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+
+                  //? Relations between session and users.
+                  //? Many sessions can be associated with one user.
+                  //? (Many-to-One)
                   export const sessionsRelations = relations(sessions, ({ one }) => ({
                     user: one(users, {
                       fields: [sessions.userId],
                       references: [users.id]
                     })
                   }));
-                   
+
                   export type Session = typeof sessions.$inferSelect;
                   export type NewSession = typeof sessions.$inferInsert;
+
+             
               - type: file
                 name: refresh-token.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
                     index,
-                    bigint,
                     text,
+                    int
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
 
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
                     {
-                      id: serial("id").primaryKey(),
-                      userId: bigint("user_id", { mode: "number", unsigned: true })
+                      id: int("id").primaryKey().autoincrement(),
+                      userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
                       tokenHash: text("token_hash").notNull(),
@@ -215,32 +228,33 @@ mvc_structure:
                       isRevoked: boolean("is_revoked").default(false).notNull(),
                       revokedAt: timestamp("revoked_at"),
                       replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       index("user_id_idx").on(table.userId),
                       index("token_hash_idx").on(table.tokenHash),
                       index("is_revoked_idx").on(table.isRevoked),
-                      index("expires_at_idx").on(table.expiresAt),
-                    ],
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
-                  export const refreshTokensRelations = relations(
-                    refreshTokens,
-                    ({ one }) => {
-                      return {
-                        user: one(users, {
-                          fields: [refreshTokens.userId],
-                          references: [users.id],
-                        }),
-                      };
-                    },
-                  );
+                  //? Relations between user and refresh tokens.
+                  //? Many refresh tokens can be associated with one user.
+                  //? (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
 
                   //? Refresh Token type
                   export type RefreshToken = typeof refreshTokens.$inferSelect;
                   export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+                
+                 
           - type: file
             name: index.ts
             content: |
@@ -280,7 +294,6 @@ feature_structure:
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
@@ -288,11 +301,12 @@ feature_structure:
                     json,
                     uniqueIndex,
                     index,
-                    mysqlEnum,
+                    mysqlEnum
                   } from "drizzle-orm/mysql-core";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
+                  import { sessions } from "./session.schema";
 
                   export interface IAvatar {
                     public_id?: string;
@@ -303,7 +317,7 @@ feature_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 100 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }),
@@ -325,29 +339,34 @@ feature_structure:
                       deletedAt: timestamp("deleted_at"),
                       reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       uniqueIndex("email_idx").on(table.email),
                       index("role_idx").on(table.role),
-                      index("is_deleted_idx").on(table.isDeleted),
-                    ],
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+                  //? Relations between
+                  //? i. user and refresh tokens.
+                  //? ii. user and sessions.
+                  //? (One-to-Many)
                   export const usersRelations = relations(users, ({ many }) => ({
                     refreshTokens: many(refreshTokens),
+                    sessions: many(sessions)
                   }));
 
                   //? User type
                   export type User = typeof users.$inferSelect;
                   export type NewUser = typeof users.$inferInsert;
+
+              
               - type: file
                 name: otp.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
@@ -355,6 +374,7 @@ feature_structure:
                     mysqlEnum,
                     index
                   } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
                    
                   const OTP_MAX_ATTEMPTS = 5;
                    
@@ -367,15 +387,10 @@ feature_structure:
                    
                   type OTPType = (typeof OTP_TYPES)[number];
                    
-                  export const timestamps = {
-                    createdAt: timestamp("created_at").defaultNow().notNull(),
-                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
-                  };
-                   
                   export const otps = mysqlTable(
                     "otps",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       email: varchar("email", { length: 255 }).notNull(),
                       otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
                       nextResendAllowedAt: timestamp("next_resend_allowed_at", {
@@ -398,12 +413,23 @@ feature_structure:
                    
                   export type Otp = typeof otps.$inferSelect;
                   export type NewOtp = typeof otps.$inferInsert;
+              
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+
               - type: file
                 name: session.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     timestamp,
                     boolean,
@@ -412,18 +438,18 @@ feature_structure:
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
-                   
+                  import { timestamps } from "./schema.helper";
+
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
                       tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
                       ip: varchar("ip", { length: 45 }),
-                      userAgent: varchar("user_agent", { length: 512 }),
+                      userAgent: varchar("user_agent", { length: 255 }),
                       isActive: boolean("is_active").default(true).notNull(),
                       lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
                       expiresAt: timestamp("expires_at").notNull(),
@@ -432,44 +458,45 @@ feature_structure:
                     table => [
                       index("userId_idx").on(table.userId),
                       index("tokenHash_idx").on(table.tokenHash),
-                      index("isActive_idx").on(table.isActive),
-                      index("userId_isActive_idx").on(table.userId, table.isActive),
-                      index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+                      index("isActive_idx").on(table.isActive)
                     ]
                   );
-                   
-                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+
+                  //? Relations between session and users.
+                  //? Many sessions can be associated with one user.
+                  //? (Many-to-One)
                   export const sessionsRelations = relations(sessions, ({ one }) => ({
                     user: one(users, {
                       fields: [sessions.userId],
                       references: [users.id]
                     })
                   }));
-                   
+
                   export type Session = typeof sessions.$inferSelect;
                   export type NewSession = typeof sessions.$inferInsert;
+
+             
               - type: file
                 name: refresh-token.schema.ts
                 content: |
                   import {
                     mysqlTable,
-                    serial,
                     varchar,
                     boolean,
                     timestamp,
                     index,
-                    bigint,
                     text,
+                    int
                   } from "drizzle-orm/mysql-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
 
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
                     {
-                      id: serial("id").primaryKey(),
-                      userId: bigint("user_id", { mode: "number", unsigned: true })
+                      id: int("id").primaryKey().autoincrement(),
+                      userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
                       tokenHash: text("token_hash").notNull(),
@@ -477,32 +504,33 @@ feature_structure:
                       isRevoked: boolean("is_revoked").default(false).notNull(),
                       revokedAt: timestamp("revoked_at"),
                       replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       index("user_id_idx").on(table.userId),
                       index("token_hash_idx").on(table.tokenHash),
                       index("is_revoked_idx").on(table.isRevoked),
-                      index("expires_at_idx").on(table.expiresAt),
-                    ],
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
-                  export const refreshTokensRelations = relations(
-                    refreshTokens,
-                    ({ one }) => {
-                      return {
-                        user: one(users, {
-                          fields: [refreshTokens.userId],
-                          references: [users.id],
-                        }),
-                      };
-                    },
-                  );
+                  //? Relations between user and refresh tokens.
+                  //? Many refresh tokens can be associated with one user.
+                  //? (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
 
                   //? Refresh Token type
                   export type RefreshToken = typeof refreshTokens.$inferSelect;
                   export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+                
+                 
           - type: file
             name: index.ts
             content: |
@@ -541,6 +569,10 @@ To add these schemas to your project, run:
 During installation, select **MySQL (Drizzle)** when prompted for the database.
 This will install all authentication-related schemas into the <Code children="src/drizzle/schemas" /> folder.
 
+## Database Schema Design
+
+[Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
+
 ## 1. User Schema
 
 The **User Schema** is the core component for storing user identity, credentials, and profile information.
@@ -550,7 +582,6 @@ The **User Schema** is the core component for storing user identity, credentials
 ```ts
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
@@ -560,9 +591,10 @@ import {
   index,
   mysqlEnum
 } from "drizzle-orm/mysql-core";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
 import { refreshTokens } from "./refresh-token.schema";
+import { sessions } from "./session.schema";
 
 export interface IAvatar {
   public_id?: string;
@@ -573,7 +605,7 @@ export interface IAvatar {
 export const users = mysqlTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     name: varchar("name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }),
@@ -604,9 +636,13 @@ export const users = mysqlTable(
   ]
 );
 
-//? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+//? Relations between
+//? i. user and refresh tokens.
+//? ii. user and sessions.
+//? (One-to-Many)
 export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens)
+  refreshTokens: many(refreshTokens),
+  sessions: many(sessions)
 }));
 
 //? User type
@@ -627,7 +663,6 @@ The **OTP Schema** handles one-time passwords for email verification, password r
 ```ts
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
@@ -635,6 +670,7 @@ import {
   mysqlEnum,
   index
 } from "drizzle-orm/mysql-core";
+import { timestamps } from "./schema.helper";
 
 const OTP_MAX_ATTEMPTS = 5;
 
@@ -647,15 +683,10 @@ const OTP_TYPES = [
 
 type OTPType = (typeof OTP_TYPES)[number];
 
-export const timestamps = {
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
-};
-
 export const otps = mysqlTable(
   "otps",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
     nextResendAllowedAt: timestamp("next_resend_allowed_at", {
@@ -693,7 +724,6 @@ The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 ```ts
 import {
   mysqlTable,
-  serial,
   varchar,
   timestamp,
   boolean,
@@ -702,18 +732,18 @@ import {
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 
 export const sessions = mysqlTable(
   "sessions",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
     ip: varchar("ip", { length: 45 }),
-    userAgent: varchar("user_agent", { length: 512 }),
+    userAgent: varchar("user_agent", { length: 255 }),
     isActive: boolean("is_active").default(true).notNull(),
     lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
     expiresAt: timestamp("expires_at").notNull(),
@@ -722,13 +752,13 @@ export const sessions = mysqlTable(
   table => [
     index("userId_idx").on(table.userId),
     index("tokenHash_idx").on(table.tokenHash),
-    index("isActive_idx").on(table.isActive),
-    index("userId_isActive_idx").on(table.userId, table.isActive),
-    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+    index("isActive_idx").on(table.isActive)
   ]
 );
 
-//? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+//? Relations between session and users.
+//? Many sessions can be associated with one user.
+//? (Many-to-One)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
@@ -753,23 +783,22 @@ The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
 ```ts
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
   index,
-  bigint,
-  text
+  text,
+  int
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 
 export const refreshTokens = mysqlTable(
   "refresh_tokens",
   {
-    id: serial("id").primaryKey(),
-    userId: bigint("user_id", { mode: "number", unsigned: true })
+    id: int("id").primaryKey().autoincrement(),
+    userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: text("token_hash").notNull(),
@@ -787,7 +816,9 @@ export const refreshTokens = mysqlTable(
   ]
 );
 
-//? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+//? Relations between user and refresh tokens.
+//? Many refresh tokens can be associated with one user.
+//? (Many-to-One)
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
   return {
     user: one(users, {

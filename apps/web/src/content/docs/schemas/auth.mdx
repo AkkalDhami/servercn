@@ -40,7 +40,7 @@ mvc_structure:
                   export const otps = mysqlTable(
                     "otps",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       email: varchar("email", { length: 255 }).notNull(),
                       otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
                       nextResendAllowedAt: timestamp("next_resend_allowed_at", {
@@ -84,7 +84,7 @@ mvc_structure:
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: bigint("user_id", { mode: "number", unsigned: true })
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -146,7 +146,7 @@ mvc_structure:
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -206,7 +206,7 @@ mvc_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 100 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }),
@@ -307,7 +307,7 @@ feature_structure:
                   export const otps = mysqlTable(
                     "otps",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       email: varchar("email", { length: 255 }).notNull(),
                       otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
                       nextResendAllowedAt: timestamp("next_resend_allowed_at", {
@@ -351,7 +351,7 @@ feature_structure:
                   export const refreshTokens = mysqlTable(
                     "refresh_tokens",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: bigint("user_id", { mode: "number", unsigned: true })
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -413,7 +413,7 @@ feature_structure:
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -473,7 +473,7 @@ feature_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 100 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }),

@@ -26,11 +26,12 @@ mvc_structure:
                     json,
                     uniqueIndex,
                     index,
-                    pgEnum,
+                    pgEnum
                   } from "drizzle-orm/pg-core";
                   import { timestamps } from "./schema.helper";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
+                  import { sessions } from "./session.schema";
 
                   export interface IAvatar {
                     public_id?: string;
@@ -50,9 +51,7 @@ mvc_structure:
                       password: varchar("password", { length: 255 }),
                       role: roleEnum("role").default("user").notNull(),
 
-                      provider: providerEnum("provider")
-                        .default("local")
-                        .notNull(),
+                      provider: providerEnum("provider").default("local").notNull(),
                       providerId: varchar("provider_id", { length: 255 }),
 
                       avatar: json("avatar").$type<IAvatar>(),
@@ -66,23 +65,28 @@ mvc_structure:
                       deletedAt: timestamp("deleted_at"),
                       reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       uniqueIndex("email_idx").on(table.email),
                       index("role_idx").on(table.role),
-                      index("is_deleted_idx").on(table.isDeleted),
-                    ],
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+                  //? Relations between:
+                  //? i. user and refresh tokens.
+                  //? ii. user and sessions.
+                  //? (One-to-Many)
                   export const usersRelations = relations(users, ({ many }) => ({
                     refreshTokens: many(refreshTokens),
+                    sessions: many(sessions)
                   }));
 
                   //? User type
                   export type User = typeof users.$inferSelect;
                   export type NewUser = typeof users.$inferInsert;
+
               - type: file
                 name: otp.schema.ts
                 content: |
@@ -96,6 +100,7 @@ mvc_structure:
                     pgEnum,
                     index
                   } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
                    
                   const OTP_MAX_ATTEMPTS = 5;
                    
@@ -105,15 +110,6 @@ mvc_structure:
                     "password-reset",
                     "password-change"
                   ]);
-                   
-                  export const timestamps = {
-                    createdAt: timestamp("created_at").defaultNow().notNull(),
-                    updatedAt: timestamp("updated_at")
-                      .defaultNow()
-                      .$onUpdate(() => new Date())
-                      .notNull()
-                  };
-
                    
                   export const otps = pgTable(
                     "otps",
@@ -139,6 +135,21 @@ mvc_structure:
                    
                   export type Otp = typeof otps.$inferSelect;
                   export type NewOtp = typeof otps.$inferInsert;
+              
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+
+
               - type: file
                 name: session.schema.ts
                 content: |
@@ -153,8 +164,8 @@ mvc_structure:
                   } from "drizzle-orm/pg-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
-                   
+                  import { timestamps } from "./schema.helper";
+
                   export const sessions = pgTable(
                     "sessions",
                     {
@@ -178,17 +189,21 @@ mvc_structure:
                       index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
                     ]
                   );
-                   
-                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+
+                  //? Relations between session and users.
+                  //? Many sessions can be associated with one user.
+                  //? (Many-to-One)
                   export const sessionsRelations = relations(sessions, ({ one }) => ({
                     user: one(users, {
                       fields: [sessions.userId],
                       references: [users.id]
                     })
                   }));
-                   
+
                   export type Session = typeof sessions.$inferSelect;
                   export type NewSession = typeof sessions.$inferInsert;
+
+              
               - type: file
                 name: refresh-token.schema.ts
                 content: |
@@ -199,12 +214,12 @@ mvc_structure:
                     boolean,
                     timestamp,
                     index,
-                    bigint,
                     text,
+                    integer
                   } from "drizzle-orm/pg-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
 
                   export const refreshTokens = pgTable(
                     "refresh_tokens",
@@ -218,32 +233,32 @@ mvc_structure:
                       isRevoked: boolean("is_revoked").default(false).notNull(),
                       revokedAt: timestamp("revoked_at"),
                       replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       index("user_id_idx").on(table.userId),
                       index("token_hash_idx").on(table.tokenHash),
                       index("is_revoked_idx").on(table.isRevoked),
-                      index("expires_at_idx").on(table.expiresAt),
-                    ],
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
-                  export const refreshTokensRelations = relations(
-                    refreshTokens,
-                    ({ one }) => {
-                      return {
-                        user: one(users, {
-                          fields: [refreshTokens.userId],
-                          references: [users.id],
-                        }),
-                      };
-                    },
-                  );
+                  //? Relations between user and refresh tokens.
+                  //? Many refresh tokens can be associated with one user.
+                  //? (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
 
                   //? Refresh Token type
                   export type RefreshToken = typeof refreshTokens.$inferSelect;
                   export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+
           - type: file
             name: index.ts
             content: |
@@ -291,11 +306,12 @@ feature_structure:
                     json,
                     uniqueIndex,
                     index,
-                    pgEnum,
+                    pgEnum
                   } from "drizzle-orm/pg-core";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
                   import { relations } from "drizzle-orm";
                   import { refreshTokens } from "./refresh-token.schema";
+                  import { sessions } from "./session.schema";
 
                   export interface IAvatar {
                     public_id?: string;
@@ -315,9 +331,7 @@ feature_structure:
                       password: varchar("password", { length: 255 }),
                       role: roleEnum("role").default("user").notNull(),
 
-                      provider: providerEnum("provider")
-                        .default("local")
-                        .notNull(),
+                      provider: providerEnum("provider").default("local").notNull(),
                       providerId: varchar("provider_id", { length: 255 }),
 
                       avatar: json("avatar").$type<IAvatar>(),
@@ -331,23 +345,28 @@ feature_structure:
                       deletedAt: timestamp("deleted_at"),
                       reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       uniqueIndex("email_idx").on(table.email),
                       index("role_idx").on(table.role),
-                      index("is_deleted_idx").on(table.isDeleted),
-                    ],
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+                  //? Relations between:
+                  //? i. user and refresh tokens.
+                  //? ii. user and sessions.
+                  //? (One-to-Many)
                   export const usersRelations = relations(users, ({ many }) => ({
                     refreshTokens: many(refreshTokens),
+                    sessions: many(sessions)
                   }));
 
                   //? User type
                   export type User = typeof users.$inferSelect;
                   export type NewUser = typeof users.$inferInsert;
+
               - type: file
                 name: otp.schema.ts
                 content: |
@@ -361,6 +380,7 @@ feature_structure:
                     pgEnum,
                     index
                   } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
                    
                   const OTP_MAX_ATTEMPTS = 5;
                    
@@ -370,15 +390,6 @@ feature_structure:
                     "password-reset",
                     "password-change"
                   ]);
-                   
-                  export const timestamps = {
-                    createdAt: timestamp("created_at").defaultNow().notNull(),
-                    updatedAt: timestamp("updated_at")
-                      .defaultNow()
-                      .$onUpdate(() => new Date())
-                      .notNull()
-                  };
-
                    
                   export const otps = pgTable(
                     "otps",
@@ -404,6 +415,21 @@ feature_structure:
                    
                   export type Otp = typeof otps.$inferSelect;
                   export type NewOtp = typeof otps.$inferInsert;
+              
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+
+
               - type: file
                 name: session.schema.ts
                 content: |
@@ -418,8 +444,8 @@ feature_structure:
                   } from "drizzle-orm/pg-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
-                   
+                  import { timestamps } from "./schema.helper";
+
                   export const sessions = pgTable(
                     "sessions",
                     {
@@ -443,17 +469,21 @@ feature_structure:
                       index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
                     ]
                   );
-                   
-                  //? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+
+                  //? Relations between session and users.
+                  //? Many sessions can be associated with one user.
+                  //? (Many-to-One)
                   export const sessionsRelations = relations(sessions, ({ one }) => ({
                     user: one(users, {
                       fields: [sessions.userId],
                       references: [users.id]
                     })
                   }));
-                   
+
                   export type Session = typeof sessions.$inferSelect;
                   export type NewSession = typeof sessions.$inferInsert;
+
+              
               - type: file
                 name: refresh-token.schema.ts
                 content: |
@@ -464,12 +494,12 @@ feature_structure:
                     boolean,
                     timestamp,
                     index,
-                    bigint,
                     text,
+                    integer
                   } from "drizzle-orm/pg-core";
                   import { relations } from "drizzle-orm";
                   import { users } from "./user.schema";
-                  import { timestamps } from "./otp.schema";
+                  import { timestamps } from "./schema.helper";
 
                   export const refreshTokens = pgTable(
                     "refresh_tokens",
@@ -483,32 +513,32 @@ feature_structure:
                       isRevoked: boolean("is_revoked").default(false).notNull(),
                       revokedAt: timestamp("revoked_at"),
                       replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-                      ...timestamps,
+                      ...timestamps
                     },
-                    (table) => [
+                    table => [
                       index("user_id_idx").on(table.userId),
                       index("token_hash_idx").on(table.tokenHash),
                       index("is_revoked_idx").on(table.isRevoked),
-                      index("expires_at_idx").on(table.expiresAt),
-                    ],
+                      index("expires_at_idx").on(table.expiresAt)
+                    ]
                   );
 
-                  //? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
-                  export const refreshTokensRelations = relations(
-                    refreshTokens,
-                    ({ one }) => {
-                      return {
-                        user: one(users, {
-                          fields: [refreshTokens.userId],
-                          references: [users.id],
-                        }),
-                      };
-                    },
-                  );
+                  //? Relations between user and refresh tokens.
+                  //? Many refresh tokens can be associated with one user.
+                  //? (Many-to-One)
+                  export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
+                    return {
+                      user: one(users, {
+                        fields: [refreshTokens.userId],
+                        references: [users.id]
+                      })
+                    };
+                  });
 
                   //? Refresh Token type
                   export type RefreshToken = typeof refreshTokens.$inferSelect;
                   export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+
           - type: file
             name: index.ts
             content: |
@@ -532,6 +562,7 @@ feature_structure:
         verbose: true,                        // Enable detailed logs
         strict: true                          // Enforce strict schema validation
       }) satisfies Config;
+
 ---
 
 # Auth Domain (PostgreSQL)
@@ -546,6 +577,10 @@ To add these schemas to your project, run:
 
 During installation, select **PostgreSQL (Drizzle)** when prompted for the database.
 This will install all authentication-related schemas into the <Code children="src/drizzle/schemas" /> folder.
+
+## Database Schema Design
+
+[Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
 
 ## 1. User Schema
 
@@ -566,9 +601,10 @@ import {
   index,
   pgEnum
 } from "drizzle-orm/pg-core";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
 import { refreshTokens } from "./refresh-token.schema";
+import { sessions } from "./session.schema";
 
 export interface IAvatar {
   public_id?: string;
@@ -611,9 +647,13 @@ export const users = pgTable(
   ]
 );
 
-//? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+//? Relations between:
+//? i. user and refresh tokens.
+//? ii. user and sessions.
+//? (One-to-Many)
 export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens)
+  refreshTokens: many(refreshTokens),
+  sessions: many(sessions)
 }));
 
 //? User type
@@ -708,7 +748,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 
 export const sessions = pgTable(
   "sessions",
@@ -729,12 +769,12 @@ export const sessions = pgTable(
     index("userId_idx").on(table.userId),
     index("tokenHash_idx").on(table.tokenHash),
     index("isActive_idx").on(table.isActive),
-    index("userId_isActive_idx").on(table.userId, table.isActive),
-    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
   ]
 );
 
-//? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+//? Relations between session and users.
+//? Many sessions can be associated with one user.
+//? (Many-to-One)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
@@ -769,7 +809,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
-import { timestamps } from "./otp.schema";
+import { timestamps } from "./schema.helper";
 
 export const refreshTokens = pgTable(
   "refresh_tokens",
@@ -793,7 +833,9 @@ export const refreshTokens = pgTable(
   ]
 );
 
-//? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+//? Relations between user and refresh tokens.
+//? Many refresh tokens can be associated with one user.
+//? (Many-to-One)
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
   return {
     user: one(users, {

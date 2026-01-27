@@ -1,7 +1,7 @@
 ---
 title: Stateless Auth | MongoDB (Mongoose)
 description: Production-ready stateless authentication implementation using Express, MongoDB, and Mongoose.
-command: npx servercn add stateless-auth
+command: npx servercn add blueprint stateless-auth
 
 mvc_structure:
   - type: folder
@@ -95,7 +95,7 @@ mvc_structure:
 
               if (!result.success) {
                 console.error("❌ Invalid environment configuration");
-                console.error(z.treeifyError(result.error));
+                console.error(z.prettifyError(result.error));
                 process.exit(1);
               }
 
@@ -5166,7 +5166,7 @@ feature_structure:
                   const parsed = envSchema.safeParse(process.env);
 
                   if (!parsed.success) {
-                    console.error("Invalid environment variables", z.treeifyError(parsed.error));
+                    console.error("Invalid environment variables", z.prettifyError(parsed.error));
                     process.exit(1);
                   }
 
@@ -6218,7 +6218,7 @@ This blueprint provides a complete stateless authentication system for **Express
 
 ## Installation Guide
 
-<PackageManagerTabs command="npx servercn add stateless-auth" />
+<PackageManagerTabs command="npx servercn add blueprint stateless-auth" />
 
 During installation, select <Code children="MongoDB (Mongoose)" /> as your database.
 

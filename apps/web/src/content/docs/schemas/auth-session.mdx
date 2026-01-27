@@ -28,7 +28,7 @@ mvc_structure:
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -68,7 +68,7 @@ mvc_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 50 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }).notNull(),
@@ -112,7 +112,7 @@ feature_structure:
                   export const sessions = mysqlTable(
                     "sessions",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       userId: int("user_id")
                         .references(() => users.id, { onDelete: "cascade" })
                         .notNull(),
@@ -152,7 +152,7 @@ feature_structure:
                   export const users = mysqlTable(
                     "users",
                     {
-                      id: serial("id").primaryKey(),
+                      id: int("id").primaryKey().autoincrement(),
                       name: varchar("name", { length: 50 }).notNull(),
                       email: varchar("email", { length: 255 }).notNull().unique(),
                       password: varchar("password", { length: 255 }).notNull(),
@@ -283,7 +283,7 @@ const timestamps = {
 export const sessions = mysqlTable(
   "sessions",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
@@ -345,7 +345,7 @@ const timestamps = {
 export const sessions = pgTable(
   "sessions",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),

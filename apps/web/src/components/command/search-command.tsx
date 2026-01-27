@@ -53,6 +53,7 @@ export default function SearchCommand({
   const foundations = getTypeItems("foundation");
   const blueprints = getTypeItems("blueprint");
   const schemas = getTypeItems("schema");
+  const toolings = getTypeItems("tooling");
 
   return (
     <>
@@ -90,7 +91,7 @@ export default function SearchCommand({
                 href="https://github.com/akkaldhami"
                 target="_blank"
                 onClick={() => setOpen(!open)}>
-                <FaGithub className="text-muted-secondary size-2.5 cursor-pointer" />
+                <FaGithub className="size-2.5 cursor-pointer" />
                 Github @akkaldhami
               </Link>
             </CommandItem>
@@ -119,6 +120,21 @@ export default function SearchCommand({
                     onClick={() => setOpen(!open)}
                     className="mb-0.5 w-full cursor-pointer">
                     <CircleCheckBig className="text-muted-secondary size-2.5" />{" "}
+                    {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {toolings.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.tooling.toUpperCase()}>
+              {toolings.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link
+                    href={item.url as Route}
+                    onClick={() => setOpen(!open)}
+                    className="mb-0.5 w-full cursor-pointer">
+                    <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
                     {item.title}
                   </Link>
                 </CommandItem>

@@ -263,7 +263,7 @@ export const timestamps = {
 export const refreshTokens = mysqlTable(
   "refresh_tokens",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
@@ -329,7 +329,7 @@ const timestamps = {
 export const refreshTokens = pgTable(
   "refresh_tokens",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: integer("user_id").notNull(),
     tokenHash: varchar("token_hash", { length: 255 }).notNull(),
     expiresAt: timestamp("expires_at", { mode: "string" }).notNull(),
