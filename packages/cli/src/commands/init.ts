@@ -29,7 +29,15 @@ export async function init(foundation?: string) {
       esModuleInterop: true,
       skipLibCheck: true,
       outDir: "dist",
-      rootDir: "src"
+      rootDir: "src",
+      sourceMap: true,
+      alwaysStrict: true,
+      useUnknownInCatchVariables: true,
+      forceConsistentCasingInFileNames: true,
+      baseUrl: ".",
+      paths: {
+        "@/*": ["./*"]
+      }
     },
     include: ["src/**/*"],
     exclude: ["node_modules"]
@@ -340,9 +348,9 @@ export async function init(foundation?: string) {
     spaces: 2
   });
 
-  await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
-    spaces: 2
-  });
+  // await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
+  //   spaces: 2
+  // });
 
   logger.success("servercn initialized successfully.");
 

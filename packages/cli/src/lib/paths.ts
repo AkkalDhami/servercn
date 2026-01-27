@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import type { ItemType } from "../types";
+import type { RegistryType } from "../types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +15,7 @@ export function getServercnRoot() {
 
 export const paths = {
   root: getServercnRoot(),
-  registry: (f?: ItemType) =>
+  registry: (f?: RegistryType) =>
     path.join(getServercnRoot(), "registry", f ? `${f}s` : ""),
   templates: () => path.join(getServercnRoot(), "templates")
 };

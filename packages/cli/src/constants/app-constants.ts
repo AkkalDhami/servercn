@@ -8,10 +8,11 @@ export const DatabaseList = ["mongodb", "postgresql", "mysql"] as const;
 
 export const OrmLists = ["mongoose", "drizzle", "prisma"] as const;
 
-export const ItemTypeList = [
+export const RegistryTypeList = [
   "component",
   "blueprint",
   "guide",
   "schema",
-  "foundation"
+  "foundation",
+  "tooling"
 ] as const;

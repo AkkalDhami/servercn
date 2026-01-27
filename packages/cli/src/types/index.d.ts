@@ -1,18 +1,18 @@
 import type {
   ArchitectureList,
   DatabaseList,
-  ItemTypeList,
+  RegistryTypeList,
   PackageManagerList
 } from "../constants/app-constants";
 import { ConflictStrategy } from "../lib/copy";
 
 export type Architecture = (typeof ArchitectureList)[number];
 export type Database = (typeof DatabaseList)[number];
-export type ItemType = (typeof ItemTypeList)[number];
+export type RegistryType = (typeof RegistryTypeList)[number];
 export type PackageManager = (typeof PackageManagerList)[number];
 
 export interface AddOptions {
-  type?: ItemType;
+  type?: RegistryType;
   stack?: string;
   arch?: string;
   dryRun?: boolean;

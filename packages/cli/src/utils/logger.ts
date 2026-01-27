@@ -14,7 +14,8 @@ export const logger = {
   error: (msg: string) => console.log(kleur.red("✖ " + msg)),
   muted: (msg: string) => console.log(kleur.dim(msg)),
   warn: (msg: string) => console.log(kleur.yellow("⚠ " + msg)),
-  overwritten: (msg: string) => console.log(kleur.yellow("overwrite: " + msg)),
+  overwritten: (msg: string) =>
+    console.log(kleur.yellow("↻ overwrite: " + msg)),
   section: (title: string) => {
     console.log("\n" + title);
   }

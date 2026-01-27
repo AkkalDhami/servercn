@@ -4,7 +4,7 @@ import { Command } from "commander";
 import { add } from "@/src/commands/add";
 import { init } from "@/src/commands/init";
 import { list } from "@/src/commands/list";
-import type { RegistryType } from "@/src/types/registry";
+import type { RegistryType } from "./types";
 
 const program = new Command();
 
@@ -39,13 +39,15 @@ async function main() {
 
       if (components[0] === "schema") {
         type = "schema";
-        if (components.slice(1)[0].includes("auth/")) {
-          items = components.slice(1);
-        } else {
-          items = [`${components.slice(1)}/index`];
-        }
+        items = components.slice(1).map(item => {
+          if (item === "auth") return "auth/index";
+          return item;
+        });
       } else if (components[0] === "blueprint") {
         type = "blueprint";
+        items = components.slice(1);
+      } else if (components[0] === "tooling") {
+        type = "tooling";
         items = components.slice(1);
       }
 

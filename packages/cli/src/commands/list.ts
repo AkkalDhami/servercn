@@ -1,8 +1,8 @@
 import { loadRegistry } from "../lib/registry-list";
 import { groupByCategory } from "../lib/group-by-category";
 import { logger } from "../utils/logger";
-import type { RegistryType } from "../types/registry";
 import { env } from "../configs/env";
+import type { RegistryType } from "../types";
 
 async function renderGrouppedRegistries(type: RegistryType, logs?: string[]) {
   const components = await loadRegistry(type);
@@ -32,15 +32,17 @@ export async function list() {
     "to add foundation run: npx servercn init <foundation-name>",
     "ex: npx servercn init express-server",
     "ex: npx servercn init drizzle-mysql-starter",
+    "ex: npx servercn init drizzle-pg-starter",
     `for more info, visit: ${env.SERVERCN_URL}/foundations`
   ];
   const blueprintLogs = [
     "to add blueprint run: npx servercn add blueprint <blueprint-name>",
-    "ex: npx servercn add blueprint jwt-utils rbac verify-auth-middleware",
+    "ex: npx servercn add blueprint stateless-auth",
     `for more info, visit: ${env.SERVERCN_URL}/blueprints`
   ];
   const schemaLogs = [
     "to add schema run: npx servercn add schema <schema-name>",
+    "ex: npx servercn add schema auth",
     "ex: npx servercn add schema auth/user",
     "ex: npx servercn add schema auth/otp",
     "ex: npx servercn add schema auth/session",

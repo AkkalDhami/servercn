@@ -6,6 +6,7 @@ import { Command } from "commander";
 // src/commands/add.ts
 import path10 from "path";
 import prompts from "prompts";
+import { execa as execa2 } from "execa";
 
 // src/lib/copy.ts
 import fs from "fs-extra";
@@ -27,7 +28,7 @@ var logger = {
   error: (msg) => console.log(kleur.red("\u2716 " + msg)),
   muted: (msg) => console.log(kleur.dim(msg)),
   warn: (msg) => console.log(kleur.yellow("\u26A0 " + msg)),
-  overwritten: (msg) => console.log(kleur.yellow("overwrite: " + msg)),
+  overwritten: (msg) => console.log(kleur.yellow("\u21BB overwrite: " + msg)),
   section: (title) => {
     console.log("\n" + title);
   }
@@ -258,7 +259,7 @@ var parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error(
     "\u274C Invalid environment variables:",
-    z.treeifyError(parsed.error)
+    z.prettifyError(parsed.error)
   );
   process.exit(1);
 }
@@ -317,106 +318,24 @@ function getDatabaseConfig(foundation) {
 
 // src/commands/add.ts
 async function add(componentName, options = {}) {
-  await assertInitialized();
-  const config = await getServerCNConfig();
+  if (!componentName) {
+    logger.error("Component name is required.");
+    process.exit(1);
+  }
   const type = options.type ?? "component";
   const component = await getRegistryComponent(componentName, type);
+  await assertInitialized();
+  const config = await getServerCNConfig();
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
-      `${type === "schema" ? "Schema" : "Component"} "${componentName}" does not support "${config.stack.framework}"`
+      `${type.charAt(0).toUpperCase() + type.slice(1)} "${componentName}" does not support "${config.stack.framework}".`
     );
     process.exit(1);
   }
-  const stack = config.stack.framework;
-  const arch = config.stack.architecture;
+  const { templatePath, additionalRuntimeDeps } = await resolveTemplateResolution(component, config, options);
+  const templateDir = path10.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
-  if (!targetDir) {
-    logger.error("failed to resolve target directory");
-    process.exit(1);
-  }
-  let templateDir;
-  let runtimeDeps;
-  const devDeps = component.dependencies?.dev;
-  if (component.algorithms && type !== "schema") {
-    const choices = Object.entries(component.algorithms).map(
-      ([key, value]) => ({
-        title: value.title,
-        value: key
-      })
-    );
-    const { algorithm } = await prompts({
-      type: "select",
-      name: "algorithm",
-      message: "Select implementation",
-      choices
-    });
-    if (!algorithm) {
-      logger.warn("operation cancelled");
-      return;
-    }
-    const algoConfig = component.algorithms[algorithm];
-    const selectedTemplate = algoConfig.templates?.[arch] ?? algoConfig.templates?.base;
-    if (!selectedTemplate) {
-      logger.error(
-        `architecture "${arch}" is not supported for "${component.title}"`
-      );
-      process.exit(1);
-    }
-    templateDir = path10.resolve(paths.templates(), selectedTemplate);
-    runtimeDeps = algoConfig.dependencies?.runtime;
-    logger.info(`using algorithm: ${algoConfig.title}`);
-  } else {
-    const templateConfig = component.templates?.[stack];
-    if (!templateConfig) {
-      logger.error(`stack "${stack}" is not supported by "${component.title}"`);
-      process.exit(1);
-    }
-    let selectedTemplate;
-    if (type === "schema") {
-      const database = config.database?.type;
-      const databaseOrm = config.database?.orm;
-      if (!database || !databaseOrm) {
-        logger.error(
-          "database not configured in servercn.config.json. please run init first."
-        );
-        process.exit(1);
-      }
-      const dbConfig = templateConfig[database];
-      if (!dbConfig || !dbConfig[databaseOrm]) {
-        logger.error(
-          `database "${database}-${databaseOrm}" is not supported by "${component.slug}"`
-        );
-        process.exit(1);
-      }
-      const dbArchOptions = dbConfig[databaseOrm];
-      const archConfig = dbArchOptions[arch] ?? dbArchOptions.base;
-      if (!archConfig) {
-        logger.error(
-          `architecture "${arch}" is not supported for schema "${component.slug}" on ${database}`
-        );
-        process.exit(1);
-      }
-      const variant = options.variant || "advanced";
-      selectedTemplate = typeof archConfig === "string" ? archConfig : archConfig[variant];
-      if (!selectedTemplate) {
-        logger.error(
-          `Variant "${variant}" is not supported for schema "${component.slug}"`
-        );
-        process.exit(1);
-      }
-    } else {
-      selectedTemplate = typeof templateConfig === "string" ? templateConfig : templateConfig[arch];
-    }
-    if (!selectedTemplate) {
-      logger.error(
-        `architecture "${arch}" is not supported by "${component.slug}"`
-      );
-      process.exit(1);
-    }
-    templateDir = path10.resolve(paths.templates(), selectedTemplate);
-    runtimeDeps = component.dependencies?.runtime;
-  }
-  logger.section("copying files");
+  logger.section("Copying files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -426,23 +345,133 @@ async function add(componentName, options = {}) {
   });
   ensurePackageJson(process.cwd());
   ensureTsConfig(process.cwd());
+  const runtimeDeps = [
+    ...component.dependencies?.runtime ?? [],
+    ...additionalRuntimeDeps
+  ];
+  const devDeps = component.dependencies?.dev ?? [];
   await installDependencies({
     runtime: runtimeDeps,
     dev: devDeps,
     cwd: process.cwd()
   });
+  await runPostInstallHooks(componentName, type, component);
+  logger.success(`${type}: ${component.slug} added successfully
+`);
+}
+async function resolveTemplateResolution(component, config, options) {
+  const type = component.type;
+  const framework = config.stack.framework;
+  const architecture = config.stack.architecture;
+  if (component.algorithms && type !== "schema") {
+    return resolveAlgorithmChoice(component, architecture);
+  }
+  const templateConfig = component.templates?.[framework];
+  if (!templateConfig) {
+    logger.error(
+      `Framework "${framework}" is not supported by "${component.title}".`
+    );
+    process.exit(1);
+  }
+  let selectedPath;
+  switch (type) {
+    case "schema":
+    case "blueprint":
+      selectedPath = resolveDatabaseTemplate(
+        templateConfig,
+        config,
+        architecture,
+        options,
+        component.slug
+      );
+      break;
+    case "tooling":
+      selectedPath = templateConfig[architecture];
+      break;
+    default:
+      selectedPath = typeof templateConfig === "string" ? templateConfig : templateConfig[architecture];
+      break;
+  }
+  if (!selectedPath) {
+    logger.error(
+      `Architecture "${architecture}" is not supported for ${type} "${component.slug}".`
+    );
+    process.exit(1);
+  }
+  return { templatePath: selectedPath, additionalRuntimeDeps: [] };
+}
+function resolveDatabaseTemplate(templateConfig, config, architecture, options, slug) {
+  const dbType = config.database?.type;
+  const orm = config.database?.orm;
+  if (!dbType || !orm) {
+    logger.error(
+      "Database or ORM not configured. Please run 'servercn init' first."
+    );
+    process.exit(1);
+  }
+  const dbConfig = templateConfig[dbType];
+  if (!dbConfig || !dbConfig[orm]) {
+    logger.error(
+      `Database stack "${dbType}-${orm}" is not supported by "${slug}".`
+    );
+    process.exit(1);
+  }
+  const archOptions = dbConfig[orm];
+  const selectedConfig = archOptions[architecture] ?? archOptions.base;
+  if (!selectedConfig) return void 0;
+  const variant = options.variant || "advanced";
+  return typeof selectedConfig === "string" ? selectedConfig : selectedConfig[variant];
+}
+async function resolveAlgorithmChoice(component, architecture) {
+  const choices = Object.entries(component.algorithms).map(
+    ([key, value]) => ({
+      title: value.title,
+      value: key
+    })
+  );
+  const { algorithm } = await prompts({
+    type: "select",
+    name: "algorithm",
+    message: "Select implementation algorithm:",
+    choices
+  });
+  if (!algorithm) {
+    logger.warn("Operation cancelled.");
+    process.exit(0);
+  }
+  const algoConfig = component.algorithms[algorithm];
+  const selectedTemplate = algoConfig.templates?.[architecture] ?? algoConfig.templates?.base;
+  if (!selectedTemplate) {
+    logger.error(
+      `Architecture "${architecture}" is not supported for algorithm "${algorithm}".`
+    );
+    process.exit(1);
+  }
+  return {
+    templatePath: selectedTemplate,
+    additionalRuntimeDeps: algoConfig.dependencies?.runtime ?? []
+  };
+}
+async function runPostInstallHooks(componentName, type, component) {
+  if (type === "tooling" && componentName === "husky") {
+    try {
+      await execa2("npx", ["husky", "init"], { stdio: "inherit" });
+    } catch (error) {
+      logger.warn(
+        "Could not initialize husky automatically. Please run 'npx husky init' manually."
+      );
+    }
+  }
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
   }
-  logger.success(`${component.type}: ${component.slug} added successfully
-`);
 }
 
 // src/commands/init.ts
 import fs8 from "fs-extra";
 import path11 from "path";
 import prompts2 from "prompts";
-import { execa as execa2 } from "execa";
+import { execa as execa3 } from "execa";
 async function init(foundation) {
   const cwd = process.cwd();
   const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
@@ -460,7 +489,15 @@ async function init(foundation) {
       esModuleInterop: true,
       skipLibCheck: true,
       outDir: "dist",
-      rootDir: "src"
+      rootDir: "src",
+      sourceMap: true,
+      alwaysStrict: true,
+      useUnknownInCatchVariables: true,
+      forceConsistentCasingInFileNames: true,
+      baseUrl: ".",
+      paths: {
+        "@/*": ["./*"]
+      }
     },
     include: ["src/**/*"],
     exclude: ["node_modules"]
@@ -498,7 +535,7 @@ async function init(foundation) {
     }
     if (response2.initGit) {
       try {
-        await execa2("git", ["init"], { cwd: rootPath2 });
+        await execa3("git", ["init"], { cwd: rootPath2 });
         logger.info("initialized git repository.");
       } catch (error) {
         logger.warn("failed to initialize git repository. is git installed?");
@@ -733,9 +770,6 @@ node_modules`
   await fs8.writeJson(path11.join(rootPath, SERVERCN_CONFIG_FILE), config, {
     spaces: 2
   });
-  await fs8.writeJson(path11.join(rootPath, "tsconfig.json"), tsConfig, {
-    spaces: 2
-  });
   logger.success("servercn initialized successfully.");
   logger.log("you may now add components by running:");
   if (response.root === ".") {
@@ -814,15 +848,17 @@ async function list() {
     "to add foundation run: npx servercn init <foundation-name>",
     "ex: npx servercn init express-server",
     "ex: npx servercn init drizzle-mysql-starter",
+    "ex: npx servercn init drizzle-pg-starter",
     `for more info, visit: ${env.SERVERCN_URL}/foundations`
   ];
   const blueprintLogs = [
     "to add blueprint run: npx servercn add blueprint <blueprint-name>",
-    "ex: npx servercn add blueprint jwt-utils rbac verify-auth-middleware",
+    "ex: npx servercn add blueprint stateless-auth",
     `for more info, visit: ${env.SERVERCN_URL}/blueprints`
   ];
   const schemaLogs = [
     "to add schema run: npx servercn add schema <schema-name>",
+    "ex: npx servercn add schema auth",
     "ex: npx servercn add schema auth/user",
     "ex: npx servercn add schema auth/otp",
     "ex: npx servercn add schema auth/session",
@@ -847,13 +883,15 @@ async function main() {
     let items = components;
     if (components[0] === "schema") {
       type = "schema";
-      if (components.slice(1)[0].includes("auth/")) {
-        items = components.slice(1);
-      } else {
-        items = [`${components.slice(1)}/index`];
-      }
+      items = components.slice(1).map((item) => {
+        if (item === "auth") return "auth/index";
+        return item;
+      });
     } else if (components[0] === "blueprint") {
       type = "blueprint";
+      items = components.slice(1);
+    } else if (components[0] === "tooling") {
+      type = "tooling";
       items = components.slice(1);
     }
     for (const item of items) {
