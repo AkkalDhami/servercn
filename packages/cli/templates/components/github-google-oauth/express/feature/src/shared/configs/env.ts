@@ -16,7 +16,7 @@ interface Config {
 }
 
 const env: Config = {
-  PORT: Number(process.env.PORT) || 3000,
+  PORT: Number(process.env.PORT) || 1111,
   NODE_ENV: process.env.NODE_ENV || "dev",
   LOG_LEVEL: process.env.LOG_LEVEL || "info",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
