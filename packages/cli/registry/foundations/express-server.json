@@ -18,7 +18,8 @@
       "cookie-parser",
       "pino-pretty",
       "pino",
-      "source-map-support"
+      "source-map-support",
+      "zod"
     ],
     "dev": [
       "@types/express",

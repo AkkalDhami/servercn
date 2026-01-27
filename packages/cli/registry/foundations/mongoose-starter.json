@@ -18,7 +18,9 @@
       "cookie-parser",
       "mongoose",
       "pino-pretty",
-      "pino"
+      "pino",
+      "source-map-support",
+      "zod"
     ],
     "dev": [
       "typescript",
@@ -35,7 +37,9 @@
       "@types/cookie-parser",
       "prettier",
       "@commitlint/cli",
-      "@commitlint/config-conventional"
+      "@commitlint/config-conventional",
+      "@types/source-map-support",
+      "lint-staged"
     ]
   },
   "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]

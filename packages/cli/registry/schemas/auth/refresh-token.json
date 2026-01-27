@@ -1,0 +1,35 @@
+{
+  "title": "Refresh Token",
+  "slug": "refresh-token",
+  "type": "schema",
+  "domain": "auth",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/auth/refresh-token/express/mysql/drizzle/mvc",
+          "feature": "schemas/auth/refresh-token/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/auth/refresh-token/express/postgresql/drizzle/mvc",
+          "feature": "schemas/auth/refresh-token/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/auth/refresh-token/express/mongodb/mongoose/mvc",
+          "feature": "schemas/auth/refresh-token/express/mongodb/mongoose/feature"
+        }
+      }
+    },
+    "dependencies": {
+      "runtime": ["express"],
+      "dev": ["@types/express"]
+    }
+  }
+}

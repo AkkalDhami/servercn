@@ -1,0 +1,35 @@
+{
+  "title": "Todo App",
+  "slug": "todo",
+  "type": "schema",
+  "domain": "todo",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/todo/express/mysql/drizzle/mvc",
+          "feature": "schemas/todo/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/todo/express/postgresql/drizzle/mvc",
+          "feature": "schemas/todo/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/todo/express/mongodb/mongoose/mvc",
+          "feature": "schemas/todo/express/mongodb/mongoose/feature"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "runtime": ["express"],
+    "dev": ["drizzle-kit", "@types/express"]
+  }
+}
