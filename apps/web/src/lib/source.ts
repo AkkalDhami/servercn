@@ -58,7 +58,6 @@ export const findNeighbour = (
     };
   }
 
-  // Find the current item in the main registry
   const currentItem = registry.items.find(item => item.slug === slug);
 
   if (!currentItem) {
@@ -68,12 +67,10 @@ export const findNeighbour = (
     };
   }
 
-  // Filter items by the same type and sort them
   const sameTypeItems = registry.items
     .filter(item => item.type === currentItem.type)
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  // Find the index within the filtered array
   const index = sameTypeItems.findIndex(item => item.slug === slug);
 
   return {
@@ -86,7 +83,7 @@ export const findNeighbour = (
 export function getTypeItems(type: ItemType): IRegistryItems[] {
   const items = registry.items
     .sort((a, b) => a.title.localeCompare(b.title))
-    .filter(item => item.type == type)
+    .filter(item => item.type == type && item.status == "stable")
     .map(item => ({
       title: item.title,
       url: item.docs,

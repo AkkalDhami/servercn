@@ -3,7 +3,8 @@ import { persist } from "zustand/middleware";
 import {
   STORAGE_THEME_KEY,
   DEFAULT_CODE_THEME,
-  COOKIE_THEME_KEY
+  COOKIE_THEME_KEY,
+  CODE_THEME_BG_KEY
 } from "@/lib/constants";
 import { CODE_THEMES } from "@/lib/themes";
 
@@ -11,6 +12,28 @@ interface CodeThemeState {
   theme: string;
   setTheme: (theme: string) => void;
 }
+
+interface CodeThemeBgState {
+  bg: string;
+  setBg: (bg: string) => void;
+}
+
+export const useCodeThemeBg = create<CodeThemeBgState>()(
+  persist(
+    set => ({
+      bg: "#101010",
+      setBg: (bg: string) => {
+        set({ bg });
+        if (typeof document !== "undefined") {
+          document.cookie = `${CODE_THEME_BG_KEY}=${bg}; path=/; max-age=31536000`;
+        }
+      }
+    }),
+    {
+      name: CODE_THEME_BG_KEY
+    }
+  )
+);
 
 export const useCodeTheme = create<CodeThemeState>()(
   persist(

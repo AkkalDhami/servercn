@@ -1,7 +1,7 @@
 export interface ITheme {
   label: string;
   value: string;
-  isFavorite?: boolean;
+  favorite?: boolean;
   light?: boolean;
 }
 
@@ -9,12 +9,12 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "Ayu Dark",
     value: "ayu-dark",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "Aurora X",
     value: "aurora-x",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "Dracula",
@@ -27,7 +27,7 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "Houston",
     value: "houston",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "LaserWave",
@@ -49,7 +49,7 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "Vesper(Default)",
     value: "vesper",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "Poimandres",
@@ -82,10 +82,6 @@ export const CODE_THEMES: ITheme[] = [
     value: "gruvbox-dark-hard"
   },
   {
-    label: "Gruvbox Dark Medium",
-    value: "gruvbox-dark-medium"
-  },
-  {
     label: "Material Theme",
     value: "material-theme"
   },
@@ -96,16 +92,12 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "Material Theme Ocean",
     value: "material-theme-ocean",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "GitHub Dark",
-    value: "github-dark"
-  },
-  {
-    label: "GitHub Dark Default",
     value: "github-dark-default",
-    isFavorite: true
+    favorite: true
   },
   {
     label: "GitHub Light Default",
@@ -115,14 +107,6 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "GitHub Dark High Contrast",
     value: "github-dark-high-contrast"
-  },
-  {
-    label: "Everforest Dark",
-    value: "everforest-dark"
-  },
-  {
-    label: "Solarized Dark",
-    value: "solarized-dark"
   },
   {
     label: "Slack Dark",
@@ -155,8 +139,42 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "One Dark Pro",
     value: "one-dark-pro",
-    isFavorite: true
+    favorite: true
   }
 ];
 
 export const LIGHT_THEMES: ITheme[] = CODE_THEMES.filter(t => t.light);
+
+export const THEME_PRIMARY_BG = {
+  andromeeda: "#23262e",
+  "aurora-x": "#07090f",
+  "ayu-dark": "#0b0e14",
+  dracula: "#282a36",
+  houston: "#17191e",
+  laserwave: "#27212e",
+  "vitesse-light": "#ffffff",
+  "vitesse-dark": "#121212",
+  "vitesse-black": "#000000",
+  vesper: "#101010",
+  poimandres: "#1b1e28",
+  "tokyo-night": "#1a1b26",
+  "synthwave-84": "#262335",
+  "kanagawa-dragon": "#181616",
+  "kanagawa-wave": "#1f1f28",
+  "light-plus": "#ffffff",
+  "gruvbox-dark-hard": "#1d2021",
+  "material-theme": "#263238",
+  "material-theme-darker": "#212121",
+  "material-theme-ocean": "#0f111a",
+  "github-dark-default": "#0d1117",
+  "github-light-default": "#ffffff",
+  "github-dark-high-contrast": "#0a0c10",
+  "slack-dark": "#222222",
+  "rose-pine-moon": "#232136",
+  "rose-pine": "#191724",
+  "dark-plus": "#1e1e1e",
+  "night-owl": "#011627",
+  "catppuccin-mocha": "#1e1e2e",
+  "catppuccin-macchiato": "#24273a",
+  "one-dark-pro": "#282c34"
+};
