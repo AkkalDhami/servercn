@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { STORAGE_THEME_KEY } from "@/lib/constants";
 import { useRouter } from "next/navigation";
-import { useCodeTheme } from "@/store/use-code-theme";
+import { useCodeTheme, useCodeThemeBg } from "@/store/use-code-theme";
 
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 
@@ -23,11 +23,13 @@ import {
   PopoverTrigger
 } from "@/components/ui/popover";
 import { CODE_THEMES } from "@/lib/themes";
+import { changeCodeBlockBg } from "@/app/actions/theme";
 
 export { STORAGE_THEME_KEY };
 
 export default function CodeTheme() {
   const { theme, setTheme } = useCodeTheme();
+  const { setBg } = useCodeThemeBg();
   const router = useRouter();
   const id = useId();
 
@@ -40,6 +42,13 @@ export default function CodeTheme() {
   }, []);
 
   if (!mounted) return null;
+
+  const changeCodeBgTheme = async () => {
+    const result = await changeCodeBlockBg();
+    setOpen(false);
+    setBg(result);
+    router.refresh();
+  };
 
   return (
     <div className="space-y-2">
@@ -81,6 +90,7 @@ export default function CodeTheme() {
                       key={t.value}
                       onSelect={() => {
                         setTheme(t.value);
+                        changeCodeBgTheme();
                         setOpen(false);
                         router.refresh();
                       }}
@@ -91,7 +101,7 @@ export default function CodeTheme() {
                         {theme === t.value && (
                           <CheckIcon className="ml-auto" size={16} />
                         )}
-                        {t.isFavorite && (
+                        {t.favorite && (
                           <span className="bg-primary size-2 rounded-full"></span>
                         )}
                       </div>

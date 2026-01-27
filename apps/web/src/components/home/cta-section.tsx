@@ -6,7 +6,7 @@ export default function CallToAction() {
   return (
     <section
       id="cta"
-      className="dark:bg-[radial-gradient(35%_80%_at_25%_0%,--theme(--color-foreground/.08),transparent)] relative mx-auto mb-18 flex w-full max-w-3xl flex-col justify-between gap-y-4 border-y px-4 py-20">
+      className="bg-[radial-gradient(35%_80%_at_25%_0%,--theme(--color-foreground/.08),transparent)] dark:bg-[radial-gradient(35%_80%_at_25%_0%,--theme(--color-foreground/.08),transparent)] relative mx-auto mb-18 flex w-full max-w-3xl flex-col justify-between gap-y-4 border-y px-4 py-20">
       <PlusIcon
         className="absolute top-[-12.5px] left-[-11.5px] z-1 size-6"
         strokeWidth={1}

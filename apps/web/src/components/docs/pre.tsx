@@ -3,6 +3,7 @@
 import * as React from "react";
 import CopyButton from "./copy-button";
 import { cn } from "@/lib/utils";
+import { useCodeThemeBg } from "@/store/use-code-theme";
 
 export function Pre({
   className,
@@ -12,6 +13,7 @@ export function Pre({
   const ref = React.useRef<HTMLPreElement>(null);
   const [copied, setCopied] = React.useState(false);
 
+  const { bg } = useCodeThemeBg();
   async function copy() {
     if (!ref.current) return;
 
@@ -29,7 +31,7 @@ export function Pre({
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="bg-editor absolute right-5 bottom-6 z-20 flex items-center justify-center rounded-md py-2 transition-all"
+        className="absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md py-2 transition-all"
       />
       <pre
         ref={ref}
@@ -37,7 +39,8 @@ export function Pre({
         className={cn(
           "bg-editor thin-scrollbar mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed",
           className
-        )}>
+        )}
+        style={{ backgroundColor: bg }}>
         {children}
       </pre>
     </div>

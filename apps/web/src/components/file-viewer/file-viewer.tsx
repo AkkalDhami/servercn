@@ -1,11 +1,12 @@
 "use client";
 
-import { useCodeTheme } from "@/store/use-code-theme";
+import { useCodeTheme, useCodeThemeBg } from "@/store/use-code-theme";
 import { useEffect, useState } from "react";
 import { highlightCode } from "@/app/actions/highlight";
 
 export default function FileViewer({ content }: { content?: string }) {
   const { theme } = useCodeTheme();
+  const { bg } = useCodeThemeBg();
   const [html, setHtml] = useState("");
 
   useEffect(() => {
@@ -35,7 +36,9 @@ export default function FileViewer({ content }: { content?: string }) {
   }
 
   return (
-    <div className="bg-editor h-full max-h-125 w-full whitespace-nowrap">
+    <div
+      className="h-full max-h-125 w-full whitespace-nowrap"
+      style={{ backgroundColor: bg }}>
       <div
         className="relative [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:p-3.5"
         dangerouslySetInnerHTML={{ __html: html }}

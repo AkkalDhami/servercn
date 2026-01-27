@@ -80,9 +80,9 @@ export default function HeroSection() {
               <Button
                 key={2}
                 asChild
-                variant="outline"
+                variant="ghost"
                 className={cn(
-                  "hover:bg-card-hover hover:shadow-tertiary h-9 gap-2 border-2 px-1 text-base shadow-none",
+                  "hover:shadow-tertiary h-9 gap-2 px-1 text-base",
                   "h-10 px-2 sm:h-12 sm:px-8"
                 )}>
                 <Link
@@ -99,7 +99,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mt-10 flex items-center justify-center">
+              className="mt-5 flex items-center justify-center sm:mt-10">
               <InitCopyButton />
             </motion.div>
 

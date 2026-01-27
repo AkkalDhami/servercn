@@ -6,6 +6,7 @@ import { Separator } from "../ui/separator";
 import FileTree from "./file-tree";
 import FileViewer from "./file-viewer";
 import { cn } from "@/lib/utils";
+import { useCodeThemeBg } from "@/store/use-code-theme";
 
 export default function BackendStructureViewer({
   structure,
@@ -16,6 +17,8 @@ export default function BackendStructureViewer({
   className?: string;
   sidebar?: "right" | "left";
 }) {
+  const { bg } = useCodeThemeBg();
+
   const [activeFile, setActiveFile] = React.useState<
     FileNode & { type: "file" }
   >();
@@ -24,7 +27,7 @@ export default function BackendStructureViewer({
     return (
       <div
         className={cn(
-          "bg-editor flex h-130 w-full max-w-[800px] overflow-auto",
+          "flex h-130 w-full max-w-[800px] overflow-auto",
           className
         )}>
         <div className="w-full max-w-[calc(100%-17rem)] overflow-auto p-4">
@@ -42,12 +45,18 @@ export default function BackendStructureViewer({
     );
   }
 
+  console.log({ bg });
+
   return (
     <div
       className={cn(
-        "bg-editor flex h-130 w-full max-w-[800px] overflow-auto rounded-xl border",
+        "flex h-130 w-full max-w-[800px] overflow-auto rounded-xl",
         className
-      )}>
+      )}
+      style={{
+        backgroundColor: bg,
+        border: `1px solid ${bg}`
+      }}>
       <div className="code-wrapper thin-scrollbar w-72 overflow-auto p-4">
         <FileTree
           data={structure}

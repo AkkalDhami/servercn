@@ -6,7 +6,7 @@ import { getTypeItems } from "@/lib/source";
 import Link from "next/link";
 import { Route } from "next";
 import { TextHoverEffect } from "../ui/text-hover-effect";
-import { GiBowieKnife } from "react-icons/gi";
+import { GiCrossedAxes } from "react-icons/gi";
 type FooterLink = {
   title: string;
   href: string;
@@ -204,8 +204,7 @@ function AnimatedContainer({
 function Weapon() {
   return (
     <div className="relative flex items-center gap-2">
-      <GiBowieKnife className="absolute size-4" />
-      <GiBowieKnife className="size-4 rotate-90 transform" />
+      <GiCrossedAxes className="size-4" />
     </div>
   );
 }
