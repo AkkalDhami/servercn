@@ -7,6 +7,7 @@ import morgan from "morgan";
 import { notFoundHandler } from "./middlewares/not-found-handler";
 import { errorHandler } from "./middlewares/error-handler";
 import healthRoutes from "./routes/health.routes";
+import "source-map-support/register";
 
 const app: Express = express();
 

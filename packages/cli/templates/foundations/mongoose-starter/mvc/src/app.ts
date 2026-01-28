@@ -8,13 +8,16 @@ import { notFoundHandler } from "./middlewares/not-found-handler";
 import { errorHandler } from "./middlewares/error-handler";
 import healthRoutes from "./routes/health.routes";
 
+import "source-map-support/register";
+import env from "./configs/env";
+
 const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "*",
+    origin: env.CORS_ORIGIN,
     credentials: true
   })
 );
