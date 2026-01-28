@@ -15,7 +15,7 @@ import { timestamps } from "./schema.helper";
 export const refreshTokens = mysqlTable(
   "refresh_tokens",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: bigint("user_id", { mode: "number", unsigned: true })
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),

@@ -27,8 +27,97 @@
     }
   },
   "dependencies": {
-    "runtime": ["express"],
-    "dev": ["@types/express"]
+    "common": {
+      "runtime": [
+        "argon2",
+        "cloudinary",
+        "cookie-parser",
+        "cors",
+        "express-rate-limit",
+        "helmet",
+        "jsonwebtoken",
+        "multer",
+        "nodemailer",
+        "passport",
+        "passport-github2",
+        "passport-google-oauth20",
+        "pino",
+        "pino-pretty",
+        "zod",
+        "source-map-support"
+      ],
+      "dev": [
+        "@commitlint/cli",
+        "@commitlint/config-conventional",
+        "@types/jsonwebtoken",
+        "@types/bcryptjs",
+        "@types/cookie-parser",
+        "@types/cors",
+        "@types/helmet",
+        "@types/jsonwebtoken",
+        "@types/morgan",
+        "@types/multer",
+        "@types/node",
+        "@types/nodemailer",
+        "@types/passport",
+        "@types/passport-github2",
+        "@types/passport-google-oauth20",
+        "dotenv",
+        "morgan",
+        "nodemon",
+        "prettier",
+        "tsc-alias",
+        "ts-node",
+        "tsx",
+        "typescript",
+        "@types/source-map-support"
+      ]
+    },
+
+    "stack:express": {
+      "runtime": ["express"],
+      "dev": ["@types/express"]
+    },
+
+    "db:mongodb": {
+      "runtime": [""],
+      "dev": [""]
+    },
+
+    "db:mysql": {
+      "runtime": [
+        "mysql2",
+        "ejs",
+        "node-cron",
+        "redis",
+        "swagger-autogen",
+        "swagger-ui-express"
+      ],
+      "dev": ["@types/ejs", "@types/swagger-ui-express"]
+    },
+
+    "db:postgresql": {
+      "runtime": [
+        "pg",
+        "ejs",
+        "node-cron",
+        "redis",
+        "swagger-autogen",
+        "swagger-ui-express"
+      ],
+      "dev": ["@types/ejs", "@types/swagger-ui-express"]
+    },
+
+    "orm:mongoose": {
+      "runtime": ["mongoose"],
+      "dev": [""]
+    },
+
+    "orm:drizzle": {
+      "runtime": ["drizzle-orm"],
+      "dev": ["drizzle-kit"]
+    }
   },
-  "env": []
+
+  "env": [""]
 }
