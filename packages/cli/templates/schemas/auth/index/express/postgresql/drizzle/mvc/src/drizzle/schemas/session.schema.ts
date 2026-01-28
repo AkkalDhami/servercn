@@ -35,7 +35,9 @@ export const sessions = pgTable(
   ]
 );
 
-//? Relations between user and sessions. One user can have many sessions. (One-to-Many)
+//? Relations between session and users.
+//? Many sessions can be associated with one user.
+//? (Many-to-One)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],

@@ -1,6 +1,5 @@
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
@@ -13,6 +12,7 @@ import {
 import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
 import { refreshTokens } from "./refresh-token.schema";
+import { sessions } from "./session.schema";
 
 export interface IAvatar {
   public_id?: string;
@@ -23,7 +23,7 @@ export interface IAvatar {
 export const users = mysqlTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     name: varchar("name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }),
@@ -54,9 +54,13 @@ export const users = mysqlTable(
   ]
 );
 
-//? Relations between user and refresh tokens. One user can have many refresh tokens. (One-to-Many)
+//? Relations between
+//? i. user and refresh tokens.
+//? ii. user and sessions.
+//? (One-to-Many)
 export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens)
+  refreshTokens: many(refreshTokens),
+  sessions: many(sessions)
 }));
 
 //? User type

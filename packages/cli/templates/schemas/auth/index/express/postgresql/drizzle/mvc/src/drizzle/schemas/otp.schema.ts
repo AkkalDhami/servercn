@@ -1,12 +1,12 @@
 import {
   pgTable,
-  serial,
   varchar,
   boolean,
   timestamp,
   integer,
   pgEnum,
-  index
+  index,
+  serial
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./schema.helper";
 

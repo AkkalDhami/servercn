@@ -20,7 +20,7 @@ const timestamps = {
 export const sessions = mysqlTable(
   "sessions",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),

@@ -18,7 +18,7 @@ const timestamps = {
 export const sessions = mysqlTable(
   "sessions",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
@@ -33,12 +33,13 @@ export const sessions = mysqlTable(
   table => [
     index("userId_idx").on(table.userId),
     index("tokenHash_idx").on(table.tokenHash),
-    index("isActive_idx").on(table.isActive),
-    index("userId_isActive_idx").on(table.userId, table.isActive),
-    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+    index("isActive_idx").on(table.isActive)
   ]
 );
 
+//? Relations between session and users.
+//? Many sessions can be associated with one user.
+//? (Many-to-One)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],

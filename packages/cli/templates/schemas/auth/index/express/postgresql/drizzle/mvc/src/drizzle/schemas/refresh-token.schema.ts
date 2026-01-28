@@ -34,7 +34,9 @@ export const refreshTokens = pgTable(
   ]
 );
 
-//? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+//? Relations between user and refresh tokens.
+//? Many refresh tokens can be associated with one user.
+//? (Many-to-One)
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
   return {
     user: one(users, {

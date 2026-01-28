@@ -1,6 +1,5 @@
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
@@ -20,7 +19,7 @@ export interface IAvatar {
 export const users = mysqlTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     name: varchar("name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }),

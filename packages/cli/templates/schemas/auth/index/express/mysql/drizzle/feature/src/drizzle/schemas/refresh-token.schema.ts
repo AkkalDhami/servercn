@@ -1,12 +1,11 @@
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
   index,
-  bigint,
-  text
+  text,
+  int
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
@@ -15,8 +14,8 @@ import { timestamps } from "./schema.helper";
 export const refreshTokens = mysqlTable(
   "refresh_tokens",
   {
-    id: serial("id").primaryKey(),
-    userId: bigint("user_id", { mode: "number", unsigned: true })
+    id: int("id").primaryKey().autoincrement(),
+    userId: int("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: text("token_hash").notNull(),
@@ -34,7 +33,9 @@ export const refreshTokens = mysqlTable(
   ]
 );
 
-//? Relations between user and refresh tokens. Many refresh tokens can be associated with one user. (Many-to-One)
+//? Relations between user and refresh tokens.
+//? Many refresh tokens can be associated with one user.
+//? (Many-to-One)
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => {
   return {
     user: one(users, {

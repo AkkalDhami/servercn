@@ -7,8 +7,8 @@ import {
   index,
   integer
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
+import { relations } from "drizzle-orm";
 
 const timestamps = {
   createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
@@ -38,12 +38,13 @@ export const sessions = pgTable(
   table => [
     index("userId_idx").on(table.userId),
     index("tokenHash_idx").on(table.tokenHash),
-    index("isActive_idx").on(table.isActive),
-    index("userId_isActive_idx").on(table.userId, table.isActive),
-    index("userId_lastUsedAt_idx").on(table.userId, table.lastUsedAt)
+    index("isActive_idx").on(table.isActive)
   ]
 );
 
+//? Relations between session and users.
+//? Many sessions can be associated with one user.
+//? (Many-to-One)
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],

@@ -1,17 +1,17 @@
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
   uniqueIndex,
-  mysqlEnum
+  mysqlEnum,
+  int
 } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable(
   "users",
   {
-    id: serial("id").primaryKey(),
+    id: int("id").primaryKey().autoincrement(),
     name: varchar("name", { length: 50 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
