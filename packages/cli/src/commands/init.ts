@@ -9,6 +9,7 @@ import { copyTemplate } from "../lib/copy";
 import { installDependencies } from "../lib/install-deps";
 import { getDatabaseConfig } from "../lib/config";
 import { paths } from "../lib/paths";
+import type { IFoundation, IServerCNConfig } from "../types";
 
 export async function init(foundation?: string) {
   const cwd = process.cwd();
@@ -48,23 +49,23 @@ export async function init(foundation?: string) {
       {
         type: "text",
         name: "root",
-        message: "Project root directory",
+        message: "project root directory",
         initial: ".",
         format: val => val.trim() || "."
       },
       {
         type: "select",
         name: "architecture",
-        message: "Select architecture",
+        message: "select architecture",
         choices: [
-          { title: "MVC (controllers, services, models)", value: "mvc" },
-          { title: "Feature-based (domain-driven modules)", value: "feature" }
+          { title: "mvc (controllers, services, models)", value: "mvc" },
+          { title: "feature (modules, shared)", value: "feature" }
         ]
       },
       {
         type: "confirm",
         name: "initGit",
-        message: "Initialize git repository?",
+        message: "initialize git repository?",
         initial: true
       }
     ]);
@@ -90,9 +91,12 @@ export async function init(foundation?: string) {
     logger.info(`initializing with foundation: ${foundation}`);
 
     try {
-      const component = await getRegistryComponent(foundation, "foundation");
+      const component: IFoundation = await getRegistryComponent(
+        foundation,
+        "foundation"
+      );
 
-      const config = {
+      const config: IServerCNConfig = {
         version: "1.0.0",
 
         project: {
@@ -181,8 +185,8 @@ export async function init(foundation?: string) {
         `export default ${JSON.stringify(commitlintConfig, null, 2)}`
       );
 
-      const templatePathRelative =
-        component.templates?.express?.[response.architecture];
+      const templatePathRelative: string =
+        component.templates.express[response.architecture as "mvc" | "feature"];
 
       if (!templatePathRelative) {
         throw new Error(
@@ -200,8 +204,8 @@ export async function init(foundation?: string) {
       });
 
       await installDependencies({
-        runtime: component.dependencies?.runtime,
-        dev: component.dependencies?.dev,
+        runtime: component.dependencies.runtime,
+        dev: component.dependencies.dev,
         cwd: rootPath
       });
 

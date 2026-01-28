@@ -11,7 +11,17 @@ import { logger } from "../utils/logger";
 import { assertInitialized } from "../lib/assert-initialized";
 import { getServerCNConfig } from "../lib/config";
 import { paths } from "../lib/paths";
-import type { AddOptions, RegistryType, ServerCNConfig } from "../types";
+import type {
+  AddOptions,
+  DatabaseType,
+  DependencySet,
+  FrameworkType,
+  IBlueprint,
+  IComponent,
+  IServerCNConfig,
+  OrmType,
+  RegistryType
+} from "../types";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   if (!componentName) {
@@ -21,25 +31,37 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
   const type: RegistryType = options.type ?? "component";
 
-  const component = await getRegistryComponent(componentName, type);
+  let component: IBlueprint | IComponent;
+  if (type === "blueprint") {
+    component = await getRegistryComponent(componentName, type);
+  } else {
+    component = await getRegistryComponent(componentName, type);
+  }
 
   await assertInitialized();
   const config = await getServerCNConfig();
 
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
-      `${type.charAt(0).toUpperCase() + type.slice(1)} "${componentName}" does not support "${config.stack.framework}".`
+      `${type} '${componentName}' does not support '${config.stack.framework}'.`
     );
     process.exit(1);
   }
 
-  const { templatePath, additionalRuntimeDeps } =
+  if (!component.architectures.includes(config.stack.architecture)) {
+    logger.error(
+      `${type} '${componentName}' does not support '${config.stack.architecture}'.`
+    );
+    process.exit(1);
+  }
+
+  const { templatePath, additionalRuntimeDeps, additionalDevDeps } =
     await resolveTemplateResolution(component, config, options);
 
   const templateDir = path.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
 
-  logger.section("Copying files");
+  logger.section("scaffolding component files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -52,10 +74,13 @@ export async function add(componentName: string, options: AddOptions = {}) {
   ensureTsConfig(process.cwd());
 
   const runtimeDeps = [
-    ...(component.dependencies?.runtime ?? []),
+    ...((component.dependencies?.runtime ?? []) as string[]),
     ...additionalRuntimeDeps
   ];
-  const devDeps = component.dependencies?.dev ?? [];
+  const devDeps = [
+    ...((component.dependencies?.dev ?? []) as string[]),
+    ...additionalDevDeps
+  ];
 
   await installDependencies({
     runtime: runtimeDeps,
@@ -68,27 +93,26 @@ export async function add(componentName: string, options: AddOptions = {}) {
   logger.success(`${type}: ${component.slug} added successfully\n`);
 }
 
-/**
- * Orchestrates the resolution of template paths based on project configuration and component type.
- */
 async function resolveTemplateResolution(
   component: any,
-  config: ServerCNConfig,
+  config: IServerCNConfig,
   options: AddOptions
-): Promise<{ templatePath: string; additionalRuntimeDeps: string[] }> {
+): Promise<{
+  templatePath: string;
+  additionalRuntimeDeps: string[];
+  additionalDevDeps: string[];
+}> {
   const type = component.type as RegistryType;
   const framework = config.stack.framework;
   const architecture = config.stack.architecture;
-
-  // Handle Components with multiple implementation algorithms (e.g., password-hashing)
-  if (component.algorithms && type !== "schema") {
+  if (component?.algorithms && type !== "schema") {
     return resolveAlgorithmChoice(component, architecture);
   }
 
   const templateConfig = component.templates?.[framework];
   if (!templateConfig) {
     logger.error(
-      `Framework "${framework}" is not supported by "${component.title}".`
+      `framework '${framework}' is not supported by '${component.title.toLowerCase()}'.`
     );
     process.exit(1);
   }
@@ -98,7 +122,6 @@ async function resolveTemplateResolution(
   switch (type) {
     case "schema":
     case "blueprint":
-      // Complex resolution based on Database and ORM
       selectedPath = resolveDatabaseTemplate(
         templateConfig,
         config,
@@ -106,15 +129,27 @@ async function resolveTemplateResolution(
         options,
         component.slug
       );
+
+      if (type === "blueprint" && selectedPath) {
+        const blueprintDeps = resolveDependencies(
+          component as IBlueprint,
+          framework,
+          config.database?.type as DatabaseType,
+          config.database?.orm as OrmType
+        );
+        return {
+          templatePath: selectedPath,
+          additionalRuntimeDeps: blueprintDeps.runtime,
+          additionalDevDeps: blueprintDeps.dev
+        };
+      }
       break;
 
     case "tooling":
-      // Direct resolution by architecture
       selectedPath = templateConfig[architecture];
       break;
 
     default:
-      // Standard component resolution: try architecture-specific, then fallback to base string
       selectedPath =
         typeof templateConfig === "string"
           ? templateConfig
@@ -124,20 +159,21 @@ async function resolveTemplateResolution(
 
   if (!selectedPath) {
     logger.error(
-      `Architecture "${architecture}" is not supported for ${type} "${component.slug}".`
+      `architecture '${architecture}' is not supported for ${type} '${component.slug}'.`
     );
     process.exit(1);
   }
 
-  return { templatePath: selectedPath, additionalRuntimeDeps: [] };
+  return {
+    templatePath: selectedPath,
+    additionalRuntimeDeps: [],
+    additionalDevDeps: []
+  };
 }
 
-/**
- * Resolves templates that depend on the project's database and ORM configuration.
- */
 function resolveDatabaseTemplate(
   templateConfig: any,
-  config: ServerCNConfig,
+  config: IServerCNConfig,
   architecture: string,
   options: AddOptions,
   slug: string
@@ -172,13 +208,14 @@ function resolveDatabaseTemplate(
     : selectedConfig[variant];
 }
 
-/**
- * Handles interactive selection for components that offer multiple algorithms.
- */
 async function resolveAlgorithmChoice(
   component: any,
   architecture: string
-): Promise<{ templatePath: string; additionalRuntimeDeps: string[] }> {
+): Promise<{
+  templatePath: string;
+  additionalRuntimeDeps: string[];
+  additionalDevDeps: string[];
+}> {
   const choices = Object.entries(component.algorithms).map(
     ([key, value]: any) => ({
       title: value.title,
@@ -211,19 +248,16 @@ async function resolveAlgorithmChoice(
 
   return {
     templatePath: selectedTemplate,
-    additionalRuntimeDeps: algoConfig.dependencies?.runtime ?? []
+    additionalRuntimeDeps: algoConfig.dependencies?.runtime ?? [],
+    additionalDevDeps: algoConfig.dependencies?.dev ?? []
   };
 }
 
-/**
- * Executes post-installation tasks like initializing husky or updating .env.example.
- */
 async function runPostInstallHooks(
   componentName: string,
   type: RegistryType,
   component: any
 ) {
-  // Edge case: Husky requires a specialized init command
   if (type === "tooling" && componentName === "husky") {
     try {
       await execa("npx", ["husky", "init"], { stdio: "inherit" });
@@ -234,8 +268,35 @@ async function runPostInstallHooks(
     }
   }
 
-  // Update .env.example if the component defines environment variables
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
   }
+}
+
+function resolveDependencies(
+  blueprint: IBlueprint,
+  framework: FrameworkType,
+  db: DatabaseType,
+  orm: OrmType
+): DependencySet {
+  const sets = blueprint.dependencies;
+
+  const relevantKeys = [
+    "common",
+    `stack:${framework}`,
+    `db:${db}`,
+    `orm:${orm}`
+  ];
+
+  return relevantKeys.reduce<DependencySet>(
+    (acc, key) => {
+      const set = sets[key];
+      if (set) {
+        acc.runtime.push(...(set.runtime || []));
+        acc.dev.push(...(set.dev || []));
+      }
+      return acc;
+    },
+    { runtime: [], dev: [] }
+  );
 }

@@ -4,12 +4,15 @@ import { logger } from "../utils/logger";
 import { env } from "../configs/env";
 import type { RegistryType } from "../types";
 
-async function renderGrouppedRegistries(type: RegistryType, logs?: string[]) {
+export async function renderGrouppedRegistries(
+  type: RegistryType,
+  logs?: string[]
+) {
   const components = await loadRegistry(type);
   const groupedComponents = groupByCategory(components);
   let i = 1;
   for (const category of Object.keys(groupedComponents).sort()) {
-    logger.info(`\n${category.toLowerCase()}s`);
+    logger.info(`\navailable ${category.toLowerCase()}s:`);
     const items = groupedComponents[category].sort((a, b) =>
       a.title.localeCompare(b.title)
     );

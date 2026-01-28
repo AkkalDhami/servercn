@@ -4,7 +4,7 @@
 import { Command } from "commander";
 
 // src/commands/add.ts
-import path10 from "path";
+import path11 from "path";
 import prompts from "prompts";
 import { execa as execa2 } from "execa";
 
@@ -25,7 +25,7 @@ var logger = {
   info: (msg) => console.log(kleur.cyan(msg)),
   success: (msg) => console.log("\n" + kleur.green("\u2714 success! " + msg)),
   skip: (msg) => console.log(kleur.yellow("\u21BA skip: " + msg)),
-  error: (msg) => console.log(kleur.red("\u2716 " + msg)),
+  error: (msg) => console.log(kleur.red(msg)),
   muted: (msg) => console.log(kleur.dim(msg)),
   warn: (msg) => console.log(kleur.yellow("\u26A0 " + msg)),
   overwritten: (msg) => console.log(kleur.yellow("\u21BB overwrite: " + msg)),
@@ -94,8 +94,8 @@ async function copyTemplate({
 }
 
 // src/lib/registry.ts
-import fs2 from "fs-extra";
-import path3 from "path";
+import fs3 from "fs-extra";
+import path4 from "path";
 
 // src/lib/paths.ts
 import path2 from "path";
@@ -111,34 +111,141 @@ var paths = {
   templates: () => path2.join(getServercnRoot(), "templates")
 };
 
+// src/lib/registry-list.ts
+import fs2 from "fs-extra";
+import path3 from "path";
+async function loadRegistry(type) {
+  const registryDir = paths.registry(type);
+  const files = await fs2.readdir(registryDir);
+  const components = [];
+  for (const file of files) {
+    let nestedFiles = [];
+    if (!file.endsWith(".json")) {
+      nestedFiles = await fs2.readdir(path3.join(registryDir, file));
+      for (const nestedFile of nestedFiles) {
+        if (!nestedFile.endsWith(".json")) continue;
+        const fullPath = path3.join(registryDir, file, nestedFile);
+        const data = await fs2.readJSON(fullPath);
+        components.push(data);
+      }
+    } else {
+      const fullPath = path3.join(registryDir, file);
+      const data = await fs2.readJSON(fullPath);
+      components.push(data);
+    }
+  }
+  return components;
+}
+
+// src/lib/group-by-category.ts
+function groupByCategory(components) {
+  return components.reduce((acc, c) => {
+    const category = c.type ?? "uncategorized";
+    acc[category] ??= [];
+    acc[category].push(c);
+    return acc;
+  }, {});
+}
+
+// src/configs/env.ts
+import { z } from "zod";
+import "dotenv/config";
+var envSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  SERVERCN_SILENT: z.string().default("true"),
+  LOG_LEVEL: z.string().default("info"),
+  SERVERCN_URL: z.string().default("https://servercn.vercel.app")
+});
+var parsed = envSchema.safeParse(process.env);
+if (!parsed.success) {
+  console.error(
+    "\u274C Invalid environment variables:",
+    z.prettifyError(parsed.error)
+  );
+  process.exit(1);
+}
+var env = parsed.data;
+
+// src/commands/list.ts
+async function renderGrouppedRegistries(type, logs) {
+  const components = await loadRegistry(type);
+  const groupedComponents = groupByCategory(components);
+  let i = 1;
+  for (const category of Object.keys(groupedComponents).sort()) {
+    logger.info(`
+available ${category.toLowerCase()}s:`);
+    const items = groupedComponents[category].sort(
+      (a, b) => a.title.localeCompare(b.title)
+    );
+    for (const c of items) {
+      logger.log(`${i++}. ${c.title.toLowerCase()}: ${c.slug}`);
+    }
+    logger.break();
+    logs && logs.map((log) => logger.muted(log));
+  }
+}
+async function list() {
+  const componentLogs = [
+    "to add components run: npx servercn add <component-name>",
+    "ex: npx servercn add http-status-codes",
+    "ex: npx servercn add jwt-utils rbac verify-auth-middleware",
+    `for more info, visit: ${env.SERVERCN_URL}/components`
+  ];
+  const foundationLogs = [
+    "to add foundation run: npx servercn init <foundation-name>",
+    "ex: npx servercn init express-server",
+    "ex: npx servercn init drizzle-mysql-starter",
+    "ex: npx servercn init drizzle-pg-starter",
+    `for more info, visit: ${env.SERVERCN_URL}/foundations`
+  ];
+  const blueprintLogs = [
+    "to add blueprint run: npx servercn add blueprint <blueprint-name>",
+    "ex: npx servercn add blueprint stateless-auth",
+    `for more info, visit: ${env.SERVERCN_URL}/blueprints`
+  ];
+  const schemaLogs = [
+    "to add schema run: npx servercn add schema <schema-name>",
+    "ex: npx servercn add schema auth",
+    "ex: npx servercn add schema auth/user",
+    "ex: npx servercn add schema auth/otp",
+    "ex: npx servercn add schema auth/session",
+    `for more info, visit: ${env.SERVERCN_URL}/schemas`
+  ];
+  await renderGrouppedRegistries("component", componentLogs);
+  await renderGrouppedRegistries("foundation", foundationLogs);
+  await renderGrouppedRegistries("blueprint", blueprintLogs);
+  await renderGrouppedRegistries("schema", schemaLogs);
+}
+
 // src/lib/registry.ts
 async function getRegistryComponent(name, type) {
   const registryPath = paths.registry(type);
-  const filePath = path3.join(registryPath, `${name}.json`);
-  if (!await fs2.pathExists(filePath)) {
-    logger.error(`${type} "${name}" not found`);
+  const filePath = path4.join(registryPath, `${name}.json`);
+  if (!await fs3.pathExists(filePath)) {
+    logger.error(`${type} '${name}' not found`);
+    await renderGrouppedRegistries(type);
     process.exit(1);
   }
-  return fs2.readJSON(filePath);
+  return fs3.readJSON(filePath);
 }
 
 // src/lib/architecture.ts
-import path4 from "path";
+import path5 from "path";
 function resolveTargetDir(folderName) {
   const cwd = process.cwd();
-  return path4.join(cwd, folderName);
+  return path5.join(cwd, folderName);
 }
 
 // src/lib/install-deps.ts
 import { execa } from "execa";
 
 // src/lib/detect.ts
-import fs3 from "fs";
-import path5 from "path";
+import fs4 from "fs";
+import path6 from "path";
 function detectPackageManager(cwd = process.cwd()) {
-  if (fs3.existsSync(path5.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
-  if (fs3.existsSync(path5.join(cwd, "yarn.lock"))) return "yarn";
-  if (fs3.existsSync(path5.join(cwd, "bun.lockb"))) return "bun";
+  if (fs4.existsSync(path6.join(cwd, "pnpm-lock.yaml"))) return "pnpm";
+  if (fs4.existsSync(path6.join(cwd, "yarn.lock"))) return "yarn";
+  if (fs4.existsSync(path6.join(cwd, "bun.lockb"))) return "bun";
   return "npm";
 }
 
@@ -161,13 +268,15 @@ async function installDependencies({
     logger.section("runtime dependencies");
     await run(getInstallArgs(pm, runtime, false));
     logger.success(
-      `${runtime.length} runtime dependencies installed successfully`
+      `installed ${runtime.length} ${runtime.length > 1 ? "dependencies" : "dependency"}`
     );
   }
   if (dev.length) {
     logger.section("dev dependencies");
     await run(getInstallArgs(pm, dev, true));
-    logger.success(`${dev.length} dev dependencies installed successfully`);
+    logger.success(
+      `installed ${dev.length} ${dev.length > 1 ? "dependencies" : "dependency"}`
+    );
   }
 }
 function getInstallArgs(pm, packages, isDev) {
@@ -185,12 +294,12 @@ function getInstallArgs(pm, packages, isDev) {
 }
 
 // src/lib/env.ts
-import fs4 from "fs";
-import path6 from "path";
+import fs5 from "fs";
+import path7 from "path";
 function updateEnvExample(envKeys = [], cwd = process.cwd()) {
   if (!envKeys.length) return;
-  const envExamplePath = path6.join(cwd, ".env.example");
-  const existing = fs4.existsSync(envExamplePath) ? fs4.readFileSync(envExamplePath, "utf8") : "";
+  const envExamplePath = path7.join(cwd, ".env.example");
+  const existing = fs5.existsSync(envExamplePath) ? fs5.readFileSync(envExamplePath, "utf8") : "";
   const existingKeys = new Set(
     existing.split("\n").map((line) => line.split("=")[0]?.trim()).filter(Boolean)
   );
@@ -201,19 +310,18 @@ function updateEnvExample(envKeys = [], cwd = process.cwd()) {
 ${newLines.join("\n")}
 ` : `${newLines.join("\n")}
 `;
-  fs4.writeFileSync(envExamplePath, content, "utf8");
-  logger.section("Environment");
+  fs5.writeFileSync(envExamplePath, content, "utf8");
   logger.log(`updated .env.example`);
-  logger.log(`configure environment variables in .env file.`);
+  logger.info(`configure your environment variables in .env file.`);
 }
 
 // src/lib/package.ts
-import fs5 from "fs";
-import path7 from "path";
+import fs6 from "fs";
+import path8 from "path";
 import { execSync } from "child_process";
 function ensurePackageJson(dir) {
-  const pkgPath = path7.join(dir, "package.json");
-  if (fs5.existsSync(pkgPath)) return;
+  const pkgPath = path8.join(dir, "package.json");
+  if (fs6.existsSync(pkgPath)) return;
   logger.info("initializing package.json");
   execSync("npm init -y", {
     cwd: dir,
@@ -221,8 +329,8 @@ function ensurePackageJson(dir) {
   });
 }
 function ensureTsConfig(dir) {
-  const tsconfigPath = path7.join(dir, "tsconfig.json");
-  if (fs5.existsSync(tsconfigPath)) return;
+  const tsconfigPath = path8.join(dir, "tsconfig.json");
+  if (fs6.existsSync(tsconfigPath)) return;
   const tsconfig = {
     compilerOptions: {
       target: "ES2021",
@@ -236,39 +344,20 @@ function ensureTsConfig(dir) {
     },
     include: ["src"]
   };
-  fs5.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
+  fs6.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
 }
 
 // src/lib/assert-initialized.ts
-import fs6 from "fs-extra";
-import path8 from "path";
+import fs7 from "fs-extra";
+import path9 from "path";
 
 // src/constants/app-constants.ts
 var SERVERCN_CONFIG_FILE = "servercn.config.json";
 
-// src/configs/env.ts
-import { z } from "zod";
-import "dotenv/config";
-var envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  SERVERCN_SILENT: z.string().default("true"),
-  LOG_LEVEL: z.string().default("info"),
-  SERVERCN_URL: z.string().default("https://servercn.vercel.app")
-});
-var parsed = envSchema.safeParse(process.env);
-if (!parsed.success) {
-  console.error(
-    "\u274C Invalid environment variables:",
-    z.prettifyError(parsed.error)
-  );
-  process.exit(1);
-}
-var env = parsed.data;
-
 // src/lib/assert-initialized.ts
 async function assertInitialized() {
-  const configPath = path8.resolve(process.cwd(), SERVERCN_CONFIG_FILE);
-  if (!await fs6.pathExists(configPath)) {
+  const configPath = path9.resolve(process.cwd(), SERVERCN_CONFIG_FILE);
+  if (!await fs7.pathExists(configPath)) {
     logger.error("servercn is not initialized in this project.");
     logger.info("run the following command first:");
     logger.log("=> npx servercn init");
@@ -287,16 +376,16 @@ async function assertInitialized() {
 }
 
 // src/lib/config.ts
-import fs7 from "fs-extra";
-import path9 from "path";
+import fs8 from "fs-extra";
+import path10 from "path";
 async function getServerCNConfig() {
   const cwd = process.cwd();
-  const configPath = path9.resolve(cwd, SERVERCN_CONFIG_FILE);
-  if (!await fs7.pathExists(configPath)) {
+  const configPath = path10.resolve(cwd, SERVERCN_CONFIG_FILE);
+  if (!await fs8.pathExists(configPath)) {
     logger.warn("ServerCN is not initialized. Run `servercn init` first.");
     process.exit(1);
   }
-  return fs7.readJSON(configPath);
+  return fs8.readJSON(configPath);
 }
 function getDatabaseConfig(foundation) {
   switch (foundation) {
@@ -323,19 +412,30 @@ async function add(componentName, options = {}) {
     process.exit(1);
   }
   const type = options.type ?? "component";
-  const component = await getRegistryComponent(componentName, type);
+  let component;
+  if (type === "blueprint") {
+    component = await getRegistryComponent(componentName, type);
+  } else {
+    component = await getRegistryComponent(componentName, type);
+  }
   await assertInitialized();
   const config = await getServerCNConfig();
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
-      `${type.charAt(0).toUpperCase() + type.slice(1)} "${componentName}" does not support "${config.stack.framework}".`
+      `${type} '${componentName}' does not support '${config.stack.framework}'.`
     );
     process.exit(1);
   }
-  const { templatePath, additionalRuntimeDeps } = await resolveTemplateResolution(component, config, options);
-  const templateDir = path10.resolve(paths.templates(), templatePath);
+  if (!component.architectures.includes(config.stack.architecture)) {
+    logger.error(
+      `${type} '${componentName}' does not support '${config.stack.architecture}'.`
+    );
+    process.exit(1);
+  }
+  const { templatePath, additionalRuntimeDeps, additionalDevDeps } = await resolveTemplateResolution(component, config, options);
+  const templateDir = path11.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
-  logger.section("Copying files");
+  logger.section("scaffolding component files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -349,7 +449,10 @@ async function add(componentName, options = {}) {
     ...component.dependencies?.runtime ?? [],
     ...additionalRuntimeDeps
   ];
-  const devDeps = component.dependencies?.dev ?? [];
+  const devDeps = [
+    ...component.dependencies?.dev ?? [],
+    ...additionalDevDeps
+  ];
   await installDependencies({
     runtime: runtimeDeps,
     dev: devDeps,
@@ -363,13 +466,13 @@ async function resolveTemplateResolution(component, config, options) {
   const type = component.type;
   const framework = config.stack.framework;
   const architecture = config.stack.architecture;
-  if (component.algorithms && type !== "schema") {
+  if (component?.algorithms && type !== "schema") {
     return resolveAlgorithmChoice(component, architecture);
   }
   const templateConfig = component.templates?.[framework];
   if (!templateConfig) {
     logger.error(
-      `Framework "${framework}" is not supported by "${component.title}".`
+      `framework '${framework}' is not supported by '${component.title.toLowerCase()}'.`
     );
     process.exit(1);
   }
@@ -384,6 +487,19 @@ async function resolveTemplateResolution(component, config, options) {
         options,
         component.slug
       );
+      if (type === "blueprint" && selectedPath) {
+        const blueprintDeps = resolveDependencies(
+          component,
+          framework,
+          config.database?.type,
+          config.database?.orm
+        );
+        return {
+          templatePath: selectedPath,
+          additionalRuntimeDeps: blueprintDeps.runtime,
+          additionalDevDeps: blueprintDeps.dev
+        };
+      }
       break;
     case "tooling":
       selectedPath = templateConfig[architecture];
@@ -394,11 +510,15 @@ async function resolveTemplateResolution(component, config, options) {
   }
   if (!selectedPath) {
     logger.error(
-      `Architecture "${architecture}" is not supported for ${type} "${component.slug}".`
+      `architecture '${architecture}' is not supported for ${type} '${component.slug}'.`
     );
     process.exit(1);
   }
-  return { templatePath: selectedPath, additionalRuntimeDeps: [] };
+  return {
+    templatePath: selectedPath,
+    additionalRuntimeDeps: [],
+    additionalDevDeps: []
+  };
 }
 function resolveDatabaseTemplate(templateConfig, config, architecture, options, slug) {
   const dbType = config.database?.type;
@@ -449,7 +569,8 @@ async function resolveAlgorithmChoice(component, architecture) {
   }
   return {
     templatePath: selectedTemplate,
-    additionalRuntimeDeps: algoConfig.dependencies?.runtime ?? []
+    additionalRuntimeDeps: algoConfig.dependencies?.runtime ?? [],
+    additionalDevDeps: algoConfig.dependencies?.dev ?? []
   };
 }
 async function runPostInstallHooks(componentName, type, component) {
@@ -466,16 +587,36 @@ async function runPostInstallHooks(componentName, type, component) {
     updateEnvExample(component.env, process.cwd());
   }
 }
+function resolveDependencies(blueprint, framework, db, orm) {
+  const sets = blueprint.dependencies;
+  const relevantKeys = [
+    "common",
+    `stack:${framework}`,
+    `db:${db}`,
+    `orm:${orm}`
+  ];
+  return relevantKeys.reduce(
+    (acc, key) => {
+      const set = sets[key];
+      if (set) {
+        acc.runtime.push(...set.runtime || []);
+        acc.dev.push(...set.dev || []);
+      }
+      return acc;
+    },
+    { runtime: [], dev: [] }
+  );
+}
 
 // src/commands/init.ts
-import fs8 from "fs-extra";
-import path11 from "path";
+import fs9 from "fs-extra";
+import path12 from "path";
 import prompts2 from "prompts";
 import { execa as execa3 } from "execa";
 async function init(foundation) {
   const cwd = process.cwd();
-  const configPath = path11.join(cwd, SERVERCN_CONFIG_FILE);
-  if (await fs8.pathExists(configPath) && !foundation) {
+  const configPath = path12.join(cwd, SERVERCN_CONFIG_FILE);
+  if (await fs9.pathExists(configPath) && !foundation) {
     logger.warn("servercn is already initialized in this project.");
     logger.info("you can now run: servercn add <component>");
     process.exit(1);
@@ -507,29 +648,29 @@ async function init(foundation) {
       {
         type: "text",
         name: "root",
-        message: "Project root directory",
+        message: "project root directory",
         initial: ".",
         format: (val) => val.trim() || "."
       },
       {
         type: "select",
         name: "architecture",
-        message: "Select architecture",
+        message: "select architecture",
         choices: [
-          { title: "MVC (controllers, services, models)", value: "mvc" },
-          { title: "Feature-based (domain-driven modules)", value: "feature" }
+          { title: "mvc (controllers, services, models)", value: "mvc" },
+          { title: "feature (modules, shared)", value: "feature" }
         ]
       },
       {
         type: "confirm",
         name: "initGit",
-        message: "Initialize git repository?",
+        message: "initialize git repository?",
         initial: true
       }
     ]);
-    const rootPath2 = path11.resolve(cwd, response2.root);
-    await fs8.ensureDir(rootPath2);
-    if (!fs8.pathExistsSync(rootPath2)) {
+    const rootPath2 = path12.resolve(cwd, response2.root);
+    await fs9.ensureDir(rootPath2);
+    if (!fs9.pathExistsSync(rootPath2)) {
       logger.error(`Failed to create project directory: ${rootPath2}`);
       process.exit(1);
     }
@@ -543,7 +684,10 @@ async function init(foundation) {
     }
     logger.info(`initializing with foundation: ${foundation}`);
     try {
-      const component = await getRegistryComponent(foundation, "foundation");
+      const component = await getRegistryComponent(
+        foundation,
+        "foundation"
+      );
       const config2 = {
         version: "1.0.0",
         project: {
@@ -598,40 +742,40 @@ async function init(foundation) {
           "subject-case": [2, "always", ["lower-case"]]
         }
       };
-      await fs8.writeJson(path11.join(rootPath2, SERVERCN_CONFIG_FILE), config2, {
+      await fs9.writeJson(path12.join(rootPath2, SERVERCN_CONFIG_FILE), config2, {
         spaces: 2
       });
-      await fs8.writeJson(path11.join(rootPath2, ".prettierrc"), prettierConfig, {
+      await fs9.writeJson(path12.join(rootPath2, ".prettierrc"), prettierConfig, {
         spaces: 2
       });
-      await fs8.writeFile(
-        path11.join(rootPath2, ".prettierignore"),
+      await fs9.writeFile(
+        path12.join(rootPath2, ".prettierignore"),
         `build
 dist
 .env
 node_modules`
       );
-      await fs8.writeFile(
-        path11.join(rootPath2, ".gitignore"),
+      await fs9.writeFile(
+        path12.join(rootPath2, ".gitignore"),
         `build
 dist
 .env
 node_modules`
       );
-      await fs8.writeJson(path11.join(rootPath2, "tsconfig.json"), tsConfig, {
+      await fs9.writeJson(path12.join(rootPath2, "tsconfig.json"), tsConfig, {
         spaces: 2
       });
-      await fs8.writeFile(
-        path11.join(rootPath2, "commitlint.config.ts"),
+      await fs9.writeFile(
+        path12.join(rootPath2, "commitlint.config.ts"),
         `export default ${JSON.stringify(commitlintConfig, null, 2)}`
       );
-      const templatePathRelative = component.templates?.express?.[response2.architecture];
+      const templatePathRelative = component.templates.express[response2.architecture];
       if (!templatePathRelative) {
         throw new Error(
           `template not found for ${foundation.toLowerCase()} (express/${response2.architecture})`
         );
       }
-      const templateDir = path11.resolve(paths.templates(), templatePathRelative);
+      const templateDir = path12.resolve(paths.templates(), templatePathRelative);
       await copyTemplate({
         templateDir,
         targetDir: rootPath2,
@@ -639,8 +783,8 @@ node_modules`
         conflict: "overwrite"
       });
       await installDependencies({
-        runtime: component.dependencies?.runtime,
-        dev: component.dependencies?.dev,
+        runtime: component.dependencies.runtime,
+        dev: component.dependencies.dev,
         cwd: rootPath2
       });
       logger.success(`servercn initialized with ${foundation}.`);
@@ -740,10 +884,10 @@ node_modules`
     logger.warn("initialization cancelled.");
     return;
   }
-  const rootPath = path11.resolve(cwd, response.root);
-  const srcPath = path11.resolve(rootPath, response.srcDir);
-  await fs8.ensureDir(rootPath);
-  await fs8.ensureDir(srcPath);
+  const rootPath = path12.resolve(cwd, response.root);
+  const srcPath = path12.resolve(rootPath, response.srcDir);
+  await fs9.ensureDir(rootPath);
+  await fs9.ensureDir(srcPath);
   const config = {
     version: "1.0.0",
     project: {
@@ -767,7 +911,7 @@ node_modules`
       createdBy: "servercn@1.0.0"
     }
   };
-  await fs8.writeJson(path11.join(rootPath, SERVERCN_CONFIG_FILE), config, {
+  await fs9.writeJson(path12.join(rootPath, SERVERCN_CONFIG_FILE), config, {
     spaces: 2
   });
   logger.success("servercn initialized successfully.");
@@ -781,93 +925,6 @@ node_modules`
   logger.muted(
     "ex: npx servercn add jwt-utils error-handler http-status-codes"
   );
-}
-
-// src/lib/registry-list.ts
-import fs9 from "fs-extra";
-import path12 from "path";
-async function loadRegistry(type) {
-  const registryDir = paths.registry(type);
-  const files = await fs9.readdir(registryDir);
-  const components = [];
-  for (const file of files) {
-    let nestedFiles = [];
-    if (!file.endsWith(".json")) {
-      nestedFiles = await fs9.readdir(path12.join(registryDir, file));
-      for (const nestedFile of nestedFiles) {
-        if (!nestedFile.endsWith(".json")) continue;
-        const fullPath = path12.join(registryDir, file, nestedFile);
-        const data = await fs9.readJSON(fullPath);
-        components.push(data);
-      }
-    } else {
-      const fullPath = path12.join(registryDir, file);
-      const data = await fs9.readJSON(fullPath);
-      components.push(data);
-    }
-  }
-  return components;
-}
-
-// src/lib/group-by-category.ts
-function groupByCategory(components) {
-  return components.reduce((acc, c) => {
-    const category = c.type ?? "uncategorized";
-    acc[category] ??= [];
-    acc[category].push(c);
-    return acc;
-  }, {});
-}
-
-// src/commands/list.ts
-async function renderGrouppedRegistries(type, logs) {
-  const components = await loadRegistry(type);
-  const groupedComponents = groupByCategory(components);
-  let i = 1;
-  for (const category of Object.keys(groupedComponents).sort()) {
-    logger.info(`
-${category.toLowerCase()}s`);
-    const items = groupedComponents[category].sort(
-      (a, b) => a.title.localeCompare(b.title)
-    );
-    for (const c of items) {
-      logger.log(`${i++}. ${c.title.toLowerCase()}: ${c.slug}`);
-    }
-    logger.break();
-    logs && logs.map((log) => logger.muted(log));
-  }
-}
-async function list() {
-  const componentLogs = [
-    "to add components run: npx servercn add <component-name>",
-    "ex: npx servercn add http-status-codes",
-    "ex: npx servercn add jwt-utils rbac verify-auth-middleware",
-    `for more info, visit: ${env.SERVERCN_URL}/components`
-  ];
-  const foundationLogs = [
-    "to add foundation run: npx servercn init <foundation-name>",
-    "ex: npx servercn init express-server",
-    "ex: npx servercn init drizzle-mysql-starter",
-    "ex: npx servercn init drizzle-pg-starter",
-    `for more info, visit: ${env.SERVERCN_URL}/foundations`
-  ];
-  const blueprintLogs = [
-    "to add blueprint run: npx servercn add blueprint <blueprint-name>",
-    "ex: npx servercn add blueprint stateless-auth",
-    `for more info, visit: ${env.SERVERCN_URL}/blueprints`
-  ];
-  const schemaLogs = [
-    "to add schema run: npx servercn add schema <schema-name>",
-    "ex: npx servercn add schema auth",
-    "ex: npx servercn add schema auth/user",
-    "ex: npx servercn add schema auth/otp",
-    "ex: npx servercn add schema auth/session",
-    `for more info, visit: ${env.SERVERCN_URL}/schemas`
-  ];
-  await renderGrouppedRegistries("component", componentLogs);
-  await renderGrouppedRegistries("foundation", foundationLogs);
-  await renderGrouppedRegistries("blueprint", blueprintLogs);
-  await renderGrouppedRegistries("schema", schemaLogs);
 }
 
 // src/cli.ts

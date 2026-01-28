@@ -24,14 +24,16 @@ export async function installDependencies({
     logger.section("runtime dependencies");
     await run(getInstallArgs(pm, runtime, false));
     logger.success(
-      `${runtime.length} runtime dependencies installed successfully`
+      `installed ${runtime.length} ${runtime.length > 1 ? "dependencies" : "dependency"}`
     );
   }
 
   if (dev.length) {
     logger.section("dev dependencies");
     await run(getInstallArgs(pm, dev, true));
-    logger.success(`${dev.length} dev dependencies installed successfully`);
+    logger.success(
+      `installed ${dev.length} ${dev.length > 1 ? "dependencies" : "dependency"}`
+    );
   }
 }
 

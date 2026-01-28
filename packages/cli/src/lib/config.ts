@@ -1,10 +1,10 @@
 import fs from "fs-extra";
 import path from "node:path";
 import { logger } from "../utils/logger";
-import type { ServerCNConfig } from "../types";
+import type { DatabaseConfig, IServerCNConfig } from "../types";
 import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
 
-export async function getServerCNConfig(): Promise<ServerCNConfig> {
+export async function getServerCNConfig(): Promise<IServerCNConfig> {
   const cwd = process.cwd();
   const configPath = path.resolve(cwd, SERVERCN_CONFIG_FILE);
 
@@ -16,7 +16,7 @@ export async function getServerCNConfig(): Promise<ServerCNConfig> {
   return fs.readJSON(configPath);
 }
 
-export function getDatabaseConfig(foundation: string) {
+export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
   switch (foundation) {
     case "express-server":
     case "mongoose-starter":

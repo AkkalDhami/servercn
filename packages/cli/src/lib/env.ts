@@ -31,7 +31,6 @@ export function updateEnvExample(envKeys: string[] = [], cwd = process.cwd()) {
 
   fs.writeFileSync(envExamplePath, content, "utf8");
 
-  logger.section("Environment");
   logger.log(`updated .env.example`);
-  logger.log(`configure environment variables in .env file.`);
+  logger.info(`configure your environment variables in .env file.`);
 }

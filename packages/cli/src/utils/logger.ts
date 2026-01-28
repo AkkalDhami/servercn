@@ -11,7 +11,7 @@ export const logger = {
   success: (msg: string) =>
     console.log("\n" + kleur.green("✔ success! " + msg)),
   skip: (msg: string) => console.log(kleur.yellow("↺ skip: " + msg)),
-  error: (msg: string) => console.log(kleur.red("✖ " + msg)),
+  error: (msg: string) => console.log(kleur.red(msg)),
   muted: (msg: string) => console.log(kleur.dim(msg)),
   warn: (msg: string) => console.log(kleur.yellow("⚠ " + msg)),
   overwritten: (msg: string) =>
