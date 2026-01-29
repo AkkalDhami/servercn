@@ -45,10 +45,35 @@
           }
         }
       }
+    }
+  },
+  "dependencies": {
+    "common": {
+      "runtime": [],
+      "dev": []
     },
-    "dependencies": {
+    "stack:express": {
       "runtime": ["express"],
-      "dev": ["drizzle-kit", "@types/express"]
+      "dev": ["@types/express"]
+    },
+    "db:mysql": {
+      "runtime": ["mysql2"],
+      "dev": []
+    },
+
+    "db:postgresql": {
+      "runtime": ["pg"],
+      "dev": ["@types/pg"]
+    },
+
+    "orm:mongoose": {
+      "runtime": ["mongoose"],
+      "dev": []
+    },
+
+    "orm:drizzle": {
+      "runtime": ["drizzle-orm"],
+      "dev": ["drizzle-kit"]
     }
   }
 }
