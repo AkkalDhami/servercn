@@ -2,6 +2,1115 @@
 title: Drizzle MySQL Starter | Foundation
 description: The Drizzle MySQL Starter Foundation is the core starting block provided by servercn.
 command: npx servercn init drizzle-mysql-starter
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                CORS_ORIGIN: string;
+                DATABASE_URL: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+                DATABASE_URL: process.env.DATABASE_URL || ""
+              };
+
+              export default env;
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: status-codes.ts
+            content: |
+              export const STATUS_CODES = {
+                // 2xx Success
+                OK: 200,
+                CREATED: 201,
+                ACCEPTED: 202,
+                NO_CONTENT: 204,
+
+                // 3xx Redirection
+                MOVED_PERMANENTLY: 301,
+                FOUND: 302,
+                NOT_MODIFIED: 304,
+
+                // 4xx Client Errors
+                BAD_REQUEST: 400,
+                UNAUTHORIZED: 401,
+                FORBIDDEN: 403,
+                NOT_FOUND: 404,
+                CONFLICT: 409,
+                UNPROCESSABLE_ENTITY: 422,
+                TOO_MANY_REQUESTS: 429,
+
+                // 5xx Server Errors
+                INTERNAL_SERVER_ERROR: 500,
+                NOT_IMPLEMENTED: 501,
+                BAD_GATEWAY: 502,
+                SERVICE_UNAVAILABLE: 503,
+                GATEWAY_TIMEOUT: 504
+              } as const;
+
+              export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+      - type: folder
+        name: controllers
+        children:
+          - type: file
+            name: health.controller.ts
+            content: |
+              import { Request, Response } from "express";
+              import { ApiResponse } from "../utils/api-response";
+              import { AsyncHandler } from "../utils/async-handler";
+
+              /**
+              * Basic health check endpoint
+              * GET /api/health
+              */
+              export const healthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  return ApiResponse.Success(res, "Service is healthy", {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime()
+                  });
+                }
+              );
+
+              /**
+              * Detailed health check with system information
+              * GET /api/health/detailed
+              */
+              export const detailedHealthCheck = AsyncHandler(
+                async (_req: Request, res: Response) => {
+                  const healthData = {
+                    status: "healthy",
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime(),
+                    environment: process.env.NODE_ENV || "development",
+                    version: process.env.npm_package_version || "1.0.0",
+                    memory: {
+                      used:
+                        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /
+                        100,
+                      total:
+                        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /
+                        100,
+                      unit: "MB"
+                    },
+                    cpu: {
+                      usage: process.cpuUsage()
+                    }
+                  };
+
+                  return ApiResponse.Success(res, "Service is healthy", healthData);
+                }
+              );
+
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: migrations
+          
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
+
+                  export const usersTable = mysqlTable("users", {
+                    id: serial().primaryKey(),
+                    name: varchar({ length: 255 }).notNull(),
+                    email: varchar({ length: 255 }).notNull().unique(),
+                    password: varchar("password", { length: 255 }).notNull()
+                  });
+
+          - type: file
+            name: index.ts
+            content: |
+              //? Export all schemas from schemas directory
+
+              export * from "./schemas/user.schema";
+
+      - type: folder
+        name: middlewares
+        children:
+          - type: file
+            name: error-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import env from "../configs/env";
+
+              import { ApiError } from "../utils/api-error";
+              import { logger } from "../utils/logger";
+
+              export const errorHandler = (
+                err: Error,
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => {
+                let statusCode = 500;
+                let message = "Internal server error";
+
+                if (err instanceof ApiError) {
+                  statusCode = err.statusCode;
+                  message = err.message;
+                }
+
+                logger.error(
+                  err,
+                  `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                );
+
+                const response = {
+                  success: false,
+                  message,
+                  ...(env.NODE_ENV === "development" && { stack: err.stack })
+                };
+
+                res.status(statusCode).json(response);
+              };
+
+          - type: file
+            name: not-found-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+              import { ApiError } from "../utils/api-error";
+
+              export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+                next(new ApiError(404, `Not Found - ${req.originalUrl}`));
+              };
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: health.routes.ts
+            content: |
+              import { Router } from "express";
+              import {
+                healthCheck,
+                detailedHealthCheck
+              } from "../controllers/health.controller";
+
+              const router = Router();
+
+              router.get("/", healthCheck);
+              router.get("/detailed", detailedHealthCheck);
+
+              export default router;
+
+      - type: folder
+        name: utils
+        children:
+          - type: file
+            name: api-error.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+              export class ApiError extends Error {
+                public readonly statusCode: StatusCode;
+                public readonly isOperational: boolean;
+                public readonly errors?: unknown;
+
+                constructor(
+                  statusCode: StatusCode,
+                  message: string,
+                  errors?: unknown,
+                  isOperational = true
+                ) {
+                  super(message);
+                  this.name = "ApiError";
+                  this.statusCode = statusCode;
+                  this.errors = errors;
+                  this.isOperational = isOperational;
+
+                  Error.captureStackTrace(this, this.constructor);
+                }
+
+                static badRequest(message = "Bad Request", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static unauthorized(message = "Unauthorized") {
+                  return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                }
+
+                static forbidden(message = "Forbidden") {
+                  return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                }
+
+                static notFound(message = "Not Found") {
+                  return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                }
+
+                static conflict(message = "Conflict") {
+                  return new ApiError(STATUS_CODES.CONFLICT, message);
+                }
+
+                static validation(message = "Validation failed", errors?: unknown) {
+                  return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                }
+
+                static notImplemented(message = "Not Implemented") {
+                  return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                }
+
+                static badGateway(message = "Bad Gateway") {
+                  return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                }
+
+                static serviceUnavailable(message = "Service Unavailable") {
+                  return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                }
+
+                static tooManyRequests(message = "Too Many Requests") {
+                  return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                }
+
+                static server(message = "Internal Server Error") {
+                  return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                }
+              }
+
+              /*
+              * Usage:
+              * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+              * throw ApiError.badRequest("Bad request");
+              */
+
+          - type: file
+            name: api-response.ts
+            content: |
+              import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+              import type { Response } from "express";
+
+              type ApiResponseParams<T> = {
+                success: boolean;
+                message: string;
+                statusCode: StatusCode;
+                data?: T | null;
+                errors?: unknown;
+              };
+
+              export class ApiResponse<T = unknown> {
+                public readonly success: boolean;
+                public readonly message: string;
+                public readonly statusCode: StatusCode;
+                public readonly data?: T | null;
+                public readonly errors?: unknown;
+
+                constructor({
+                  success,
+                  message,
+                  statusCode,
+                  data = null,
+                  errors
+                }: ApiResponseParams<T>) {
+                  this.success = success;
+                  this.message = message;
+                  this.statusCode = statusCode;
+                  this.data = data;
+                  this.errors = errors;
+                }
+
+                send(res: Response): Response {
+                  return res.status(this.statusCode).json({
+                    success: this.success,
+                    message: this.message,
+                    statusCode: this.statusCode,
+                    ...(this.data !== undefined && { data: this.data }),
+                    ...(this.errors !== undefined && { errors: this.errors })
+                  });
+                }
+
+                static Success<T>(
+                  res: Response,
+                  message: string,
+                  data?: T,
+                  statusCode: StatusCode = STATUS_CODES.OK
+                ): Response {
+                  return new ApiResponse<T>({
+                    success: true,
+                    message,
+                    data,
+                    statusCode
+                  }).send(res);
+                }
+
+                static ok<T>(res: Response, message = "OK", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                }
+
+                static created<T>(res: Response, message = "Created", data?: T) {
+                  return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                }
+              }
+
+              /*
+              * Usage:
+              * ApiResponse.ok(res, "OK", data);
+              * ApiResponse.created(res, "Created", data);
+              */
+
+          - type: file
+            name: async-handler.ts
+            content: |
+              import { Request, Response, NextFunction } from "express";
+
+              export type AsyncRouteHandler = (
+                req: Request,
+                res: Response,
+                next: NextFunction
+              ) => Promise<unknown>;
+
+              export function AsyncHandler(fn: AsyncRouteHandler) {
+                return function (req: Request, res: Response, next: NextFunction) {
+                  Promise.resolve(fn(req, res, next)).catch(next);
+                };
+              }
+
+          - type: file
+            name: logger.ts
+            content: |
+              import pino from "pino";
+              import env from "../configs/env";
+
+              export const logger = pino({
+                level: env.LOG_LEVEL,
+                transport:
+                  env.NODE_ENV !== "production"
+                    ? {
+                        target: "pino-pretty",
+                        options: {
+                          colorize: true,
+                          translateTime: "yyyy-mm-dd HH:MM:ss",
+                          ignore: "pid,hostname"
+                        }
+                      }
+                    : undefined
+              });
+
+          - type: file
+            name: shutdown.ts
+            content: |
+              import { Server } from "http";
+              import { logger } from "./logger";
+
+              export const configureGracefulShutdown = (server: Server) => {
+                const signals = ["SIGTERM", "SIGINT"];
+
+                signals.forEach(signal => {
+                  process.on(signal, () => {
+                    logger.info(`\n${signal} signal received. Shutting down gracefully...`);
+
+                    server.close(err => {
+                      if (err) {
+                        logger.error(err, "Error during server close");
+                        process.exit(1);
+                      }
+
+                      logger.info("HTTP server closed.");
+                      process.exit(0);
+                    });
+
+                    // Force shutdown after 10 seconds
+                    setTimeout(() => {
+                      logger.error(
+                        "Could not close connections in time, forcefully shutting down"
+                      );
+                      process.exit(1);
+                    }, 10000);
+                  });
+                });
+              };
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          import cors from "cors";
+          import helmet from "helmet";
+          import cookieParser from "cookie-parser";
+          import morgan from "morgan";
+          import { notFoundHandler } from "./middlewares/not-found-handler";
+          import { errorHandler } from "./middlewares/error-handler";
+          import healthRoutes from "./routes/health.routes";
+          import env from "./configs/env";
+
+          const app: Express = express();
+
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          app.use(
+            cors({
+              origin: env.CORS_ORIGIN,
+              credentials: true
+            })
+          );
+          app.use(helmet());
+          app.use(cookieParser());
+          app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+          // Routes
+
+          app.get("/", (req: Request, res: Response) => {
+            res.redirect("/api/health");
+          });
+
+          app.use("/api/health", healthRoutes);
+
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+
+          // Global error handler (should be last)
+          app.use(errorHandler);
+
+          export default app;
+
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import env from "./configs/env";
+          import logger from "./utils/logger";
+          import { gracefulShutdown } from "./utils/shutdown";
+
+          const server = app.listen(env.PORT, () => {
+            logger.info(`Server is running on http://localhost:${env.PORT}`);
+          });
+
+          gracefulShutdown(server);
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT='1111'
+      NODE_ENV='development'
+      CORS_ORIGIN='http://localhost:1111'
+      LOG_LEVEL='info'
+      DATABASE_URL='mysql://root:root@localhost:3306/my_drizzle_app'
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      import env from "./src/configs/env";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules"]
+      }
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: configs
+        children:
+          - type: file
+            name: env.ts
+            content: |
+              import "dotenv/config";
+
+              interface Config {
+                PORT: number;
+                NODE_ENV: string;
+                LOG_LEVEL: string;
+                CORS_ORIGIN: string;  
+                DATABASE_URL: string;
+              }
+
+              const env: Config = {
+                PORT: Number(process.env.PORT) || 3000,
+                NODE_ENV: process.env.NODE_ENV || "development",
+                LOG_LEVEL: process.env.LOG_LEVEL || "info",
+                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+                DATABASE_URL: process.env.DATABASE_URL || ""
+              };
+
+              export default env;
+
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: migrations
+          
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import { mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
+
+                  export const usersTable = mysqlTable("users", {
+                    id: serial().primaryKey(),
+                    name: varchar({ length: 255 }).notNull(),
+                    email: varchar({ length: 255 }).notNull().unique(),
+                    password: varchar("password", { length: 255 }).notNull()
+                  });
+
+          - type: file
+            name: index.ts
+            content: |
+              //? Export all schemas from schemas directory
+
+              export * from "./schemas/user.schema";
+
+
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: health
+            children:
+              - type: file
+                name: health.controller.ts
+                content: |
+                  import { Request, Response } from "express";
+                  import { ApiResponse } from "../../shared/utils/api-response";
+                  import { AsyncHandler } from "../../shared/utils/async-handler";
+
+                  /**
+                  * Basic health check endpoint
+                  * GET /api/health
+                  */
+                  export const healthCheck = AsyncHandler(
+                    async (_req: Request, res: Response) => {
+                      return ApiResponse.Success(res, "Service is healthy", {
+                        status: "healthy",
+                        timestamp: new Date().toISOString(),
+                        uptime: process.uptime()
+                      });
+                    }
+                  );
+
+                  /**
+                  * Detailed health check with system information
+                  * GET /api/health/detailed
+                  */
+                  export const detailedHealthCheck = AsyncHandler(
+                    async (_req: Request, res: Response) => {
+                      const healthData = {
+                        status: "healthy",
+                        timestamp: new Date().toISOString(),
+                        uptime: process.uptime(),
+                        environment: process.env.NODE_ENV || "development",
+                        version: process.env.npm_package_version || "1.0.0",
+                        memory: {
+                          used:
+                            Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /
+                            100,
+                          total:
+                            Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /
+                            100,
+                          unit: "MB"
+                        },
+                        cpu: {
+                          usage: process.cpuUsage()
+                        }
+                      };
+
+                      return ApiResponse.Success(res, "Service is healthy", healthData);
+                    }
+                  );
+
+              - type: file
+                name: health.routes.ts
+                content: |
+                  import { Router } from "express";
+                  import { healthCheck, detailedHealthCheck } from "./health.controller";
+
+                  const router = Router();
+
+                  router.get("/", healthCheck);
+                  router.get("/detailed", detailedHealthCheck);
+
+                  export default router;
+
+      - type: folder
+        name: routes
+        children:
+          - type: file
+            name: index.ts
+            content: |
+              import { Router } from "express";
+              import HealthRouter from "../modules/health/health.routes";
+
+              const router = Router();
+
+              router.use("/health", HealthRouter);
+
+              export default router;
+
+      - type: folder
+        name: shared
+        children:
+          - type: folder
+            name: constants
+            children:
+              - type: file
+                name: status-codes.ts
+                content: |
+                  export const STATUS_CODES = {
+                    // 2xx Success
+                    OK: 200,
+                    CREATED: 201,
+                    ACCEPTED: 202,
+                    NO_CONTENT: 204,
+
+                    // 3xx Redirection
+                    MOVED_PERMANENTLY: 301,
+                    FOUND: 302,
+                    NOT_MODIFIED: 304,
+
+                    // 4xx Client Errors
+                    BAD_REQUEST: 400,
+                    UNAUTHORIZED: 401,
+                    FORBIDDEN: 403,
+                    NOT_FOUND: 404,
+                    CONFLICT: 409,
+                    UNPROCESSABLE_ENTITY: 422,
+                    TOO_MANY_REQUESTS: 429,
+
+                    // 5xx Server Errors
+                    INTERNAL_SERVER_ERROR: 500,
+                    NOT_IMPLEMENTED: 501,
+                    BAD_GATEWAY: 502,
+                    SERVICE_UNAVAILABLE: 503,
+                    GATEWAY_TIMEOUT: 504
+                  } as const;
+
+                  export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+
+          - type: folder
+            name: errors
+            children:
+              - type: file
+                name: api-error.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+
+                  export class ApiError extends Error {
+                    public readonly statusCode: StatusCode;
+                    public readonly isOperational: boolean;
+                    public readonly errors?: unknown;
+
+                    constructor(
+                      statusCode: StatusCode,
+                      message: string,
+                      errors?: unknown,
+                      isOperational = true
+                    ) {
+                      super(message);
+                      this.name = "ApiError";
+                      this.statusCode = statusCode;
+                      this.errors = errors;
+                      this.isOperational = isOperational;
+
+                      Error.captureStackTrace(this, this.constructor);
+                    }
+
+                    static badRequest(message = "Bad Request", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static unauthorized(message = "Unauthorized") {
+                      return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+                    }
+
+                    static forbidden(message = "Forbidden") {
+                      return new ApiError(STATUS_CODES.FORBIDDEN, message);
+                    }
+
+                    static notFound(message = "Not Found") {
+                      return new ApiError(STATUS_CODES.NOT_FOUND, message);
+                    }
+
+                    static conflict(message = "Conflict") {
+                      return new ApiError(STATUS_CODES.CONFLICT, message);
+                    }
+
+                    static validation(message = "Validation failed", errors?: unknown) {
+                      return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+                    }
+
+                    static notImplemented(message = "Not Implemented") {
+                      return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);
+                    }
+
+                    static badGateway(message = "Bad Gateway") {
+                      return new ApiError(STATUS_CODES.BAD_GATEWAY, message);
+                    }
+
+                    static serviceUnavailable(message = "Service Unavailable") {
+                      return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);
+                    }
+
+                    static tooManyRequests(message = "Too Many Requests") {
+                      return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);
+                    }
+
+                    static server(message = "Internal Server Error") {
+                      return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+                    }
+                  }
+
+                  /*
+                  * Usage:
+                  * throw new ApiError(STATUS_CODES.NOT_FOUND, "Not found");
+                  * throw ApiError.badRequest("Bad request");
+                  */
+
+          - type: folder
+            name: middlewares
+            children:
+              - type: file
+                name: error-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import env from "../../configs/env";
+
+                  import { ApiError } from "../errors/api-error";
+                  import { logger } from "../utils/logger";
+
+                  export const errorHandler = (
+                    err: Error,
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    let statusCode = 500;
+                    let message = "Internal server error";
+
+                    if (err instanceof ApiError) {
+                      statusCode = err.statusCode;
+                      message = err.message;
+                    }
+
+                    logger.error(
+                      err,
+                      `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
+                    );
+
+                    const response = {
+                      success: false,
+                      message,
+                      ...(env.NODE_ENV === "development" && { stack: err.stack })
+                    };
+
+                    res.status(statusCode).json(response);
+                  };
+
+              - type: file
+                name: not-found-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+                  import { ApiError } from "../errors/api-error";
+
+                  export const notFoundHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => {
+                    throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
+                  };
+
+          - type: folder
+            name: utils
+            children:
+              - type: file
+                name: api-response.ts
+                content: |
+                  import { STATUS_CODES, StatusCode } from "../constants/status-codes";
+                  import type { Response } from "express";
+
+                  type ApiResponseParams<T> = {
+                    success: boolean;
+                    message: string;
+                    statusCode: StatusCode;
+                    data?: T | null;
+                    errors?: unknown;
+                  };
+
+                  export class ApiResponse<T = unknown> {
+                    public readonly success: boolean;
+                    public readonly message: string;
+                    public readonly statusCode: StatusCode;
+                    public readonly data?: T | null;
+                    public readonly errors?: unknown;
+
+                    constructor({
+                      success,
+                      message,
+                      statusCode,
+                      data = null,
+                      errors
+                    }: ApiResponseParams<T>) {
+                      this.success = success;
+                      this.message = message;
+                      this.statusCode = statusCode;
+                      this.data = data;
+                      this.errors = errors;
+                    }
+
+                    send(res: Response): Response {
+                      return res.status(this.statusCode).json({
+                        success: this.success,
+                        message: this.message,
+                        statusCode: this.statusCode,
+                        ...(this.data !== undefined && { data: this.data }),
+                        ...(this.errors !== undefined && { errors: this.errors })
+                      });
+                    }
+
+                    static Success<T>(
+                      res: Response,
+                      message: string,
+                      data?: T,
+                      statusCode: StatusCode = STATUS_CODES.OK
+                    ): Response {
+                      return new ApiResponse<T>({
+                        success: true,
+                        message,
+                        data,
+                        statusCode
+                      }).send(res);
+                    }
+
+                    static ok<T>(res: Response, message = "OK", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.OK);
+                    }
+
+                    static created<T>(res: Response, message = "Created", data?: T) {
+                      return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
+                    }
+                  }
+
+              - type: file
+                name: async-handler.ts
+                content: |
+                  import { Request, Response, NextFunction } from "express";
+
+                  export type AsyncRouteHandler = (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction
+                  ) => Promise<unknown>;
+
+                  export function AsyncHandler(fn: AsyncRouteHandler) {
+                    return function (req: Request, res: Response, next: NextFunction) {
+                      Promise.resolve(fn(req, res, next)).catch(next);
+                    };
+                  }
+
+              - type: file
+                name: logger.ts
+                content: |
+                  import pino from "pino";
+                  import env from "../../configs/env";
+
+                  export const logger = pino({
+                    level: env.LOG_LEVEL,
+                    transport:
+                      env.NODE_ENV !== "production"
+                        ? {
+                            target: "pino-pretty",
+                            options: {
+                              colorize: true,
+                              translateTime: "yyyy-mm-dd HH:MM:ss",
+                              ignore: "pid,hostname"
+                            }
+                          }
+                        : undefined
+                  });
+
+              - type: file
+                name: shutdown.ts
+                content: |
+                  import { Server } from "http";
+                  import { logger } from "./logger";
+
+                  export const configureGracefulShutdown = (server: Server) => {
+                    const signals = ["SIGTERM", "SIGINT"];
+
+                    signals.forEach(signal => {
+                      process.on(signal, () => {
+                        logger.info(`\n${signal} signal received. Shutting down gracefully...`);
+
+                        server.close(err => {
+                          if (err) {
+                            logger.error(err, "Error during server close");
+                            process.exit(1);
+                          }
+
+                          logger.info("HTTP server closed.");
+                          process.exit(0);
+                        });
+
+                        // Force shutdown after 10 seconds
+                        setTimeout(() => {
+                          logger.error(
+                            "Could not close connections in time, forcefully shutting down"
+                          );
+                          process.exit(1);
+                        }, 10000);
+                      });
+                    });
+                  };
+
+      - type: file
+        name: app.ts
+        content: |
+          import express, { Express, Request, Response } from "express";
+          import "dotenv/config";
+          import cors from "cors";
+          import helmet from "helmet";
+          import cookieParser from "cookie-parser";
+          import morgan from "morgan";
+
+          import Routes from "./routes/index";
+
+          import { errorHandler } from "./shared/middlewares/error-handler";
+          import { notFoundHandler } from "./shared/middlewares/not-found-handler";
+          import env from "./configs/env";
+
+          const app: Express = express();
+
+          app.use(express.json());
+          app.use(express.urlencoded({ extended: true }));
+          app.use(
+            cors({
+              origin: env.CORS_ORIGIN,
+              credentials: true
+            })
+          );
+          app.use(helmet());
+          app.use(cookieParser());
+          app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+          // Routes
+
+          app.get("/", (req: Request, res: Response) => {
+            res.redirect("/api/health");
+          });
+
+          app.use("/api", Routes);
+
+          // Not found handler (should be after routes)
+          app.use(notFoundHandler);
+
+          // Global error handler (should be last)
+          app.use(errorHandler);
+
+          export default app;
+
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import env from "./configs/env";
+          import logger from "./shared/utils/logger";
+          import { gracefulShutdown } from "./shared/utils/shutdown";
+
+          const server = app.listen(env.PORT, () => {
+            logger.info(`Server is running on http://localhost:${env.PORT}`);
+          });
+
+          gracefulShutdown(server);
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT='1111'
+      NODE_ENV='development'
+      CORS_ORIGIN='http://localhost:1111'
+      LOG_LEVEL='info'
+      DATABASE_URL='mysql://root:root@localhost:3306/my_drizzle_app'
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      import env from "./src/configs/env";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+  - type: file
+    name: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2021",
+          "module": "es2022",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "outDir": "dist",
+          "rootDir": "src"
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules"]
+      }
 ---
 
 # Drizzle MySQL Starter
@@ -148,36 +1257,6 @@ This keeps responsibilities separated:
 - Express handles HTTP
 - Drizzle handles data
 
-## Why This Is a Starter (Not an ORM Wrapper)
-
-This setup intentionally avoids:
-
-- Custom query builders
-- Repository patterns by default
-- Magic decorators
-
-You write SQL‑like queries with **full type safety**.
-
-## When to Use Drizzle MySQL Starter
-
-Use this starter when:
-
-- You want type‑safe MySQL access
-- You prefer explicit schema control
-- You want predictable migrations
-- You are building production APIs
-
-## Extending the Starter
-
-Once initialized, you can add:
-
-- Relations and joins
-- Soft deletes
-- Indexes and constraints
-- Transaction helpers
-- TTL or archival strategies
-
-Each extension builds on the same explicit schema foundation.
 
 ## Summary
 

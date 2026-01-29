@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "npm run build -ws",
+    "dev": "npm run dev -ws",
     "lint": "eslint .",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write",

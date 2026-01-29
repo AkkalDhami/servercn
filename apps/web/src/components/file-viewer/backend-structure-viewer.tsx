@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import type { FileNode } from "./file-tree";
-import { Separator } from "../ui/separator";
+import { Separator } from "@/components/ui/separator";
+
 import FileTree from "./file-tree";
 import FileViewer from "./file-viewer";
 import { cn } from "@/lib/utils";
@@ -44,8 +45,6 @@ export default function BackendStructureViewer({
       </div>
     );
   }
-
-  console.log({ bg });
 
   return (
     <div
