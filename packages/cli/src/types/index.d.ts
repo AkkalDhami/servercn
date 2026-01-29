@@ -111,3 +111,10 @@ export interface IFoundation extends IRegistryCommon {
   templates: Record<FrameworkType, ArchitectureSet>;
   dependencies: DependencySet;
 }
+
+export interface ISchema extends IRegistryCommon {
+  templates: Record<FrameworkType, TemplateSet>;
+  dependencies: Record<string, DependencySet>;
+}
+
+export type RegistryItem = IComponent | IBlueprint | IFoundation | ISchema;

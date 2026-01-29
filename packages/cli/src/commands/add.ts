@@ -18,8 +18,10 @@ import type {
   FrameworkType,
   IBlueprint,
   IComponent,
+  ISchema,
   IServerCNConfig,
   OrmType,
+  RegistryItem,
   RegistryType
 } from "../types";
 
@@ -31,7 +33,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
   const type: RegistryType = options.type ?? "component";
 
-  let component: IBlueprint | IComponent;
+  let component: RegistryItem;
   if (type === "blueprint") {
     component = await getRegistryComponent(componentName, type);
   } else {
@@ -61,7 +63,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const templateDir = path.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
 
-  logger.section("scaffolding component files");
+  logger.section("📁 scaffolding component files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -121,6 +123,28 @@ async function resolveTemplateResolution(
 
   switch (type) {
     case "schema":
+      selectedPath = resolveDatabaseTemplate(
+        templateConfig,
+        config,
+        architecture,
+        options,
+        component.slug
+      );
+
+      if (selectedPath) {
+        const schemaDeps = resolveDependencies(
+          component as ISchema,
+          framework,
+          config.database?.type as DatabaseType,
+          config.database?.orm as OrmType
+        );
+        return {
+          templatePath: selectedPath,
+          additionalRuntimeDeps: schemaDeps.runtime,
+          additionalDevDeps: schemaDeps.dev
+        };
+      }
+      break;
     case "blueprint":
       selectedPath = resolveDatabaseTemplate(
         templateConfig,
@@ -274,12 +298,12 @@ async function runPostInstallHooks(
 }
 
 function resolveDependencies(
-  blueprint: IBlueprint,
+  component: IBlueprint | ISchema,
   framework: FrameworkType,
   db: DatabaseType,
   orm: OrmType
 ): DependencySet {
-  const sets = blueprint.dependencies;
+  const sets = component.dependencies;
 
   const relevantKeys = [
     "common",

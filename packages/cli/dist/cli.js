@@ -435,7 +435,7 @@ async function add(componentName, options = {}) {
   const { templatePath, additionalRuntimeDeps, additionalDevDeps } = await resolveTemplateResolution(component, config, options);
   const templateDir = path11.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
-  logger.section("scaffolding component files");
+  logger.section("\u{1F4C1} scaffolding component files");
   await copyTemplate({
     templateDir,
     targetDir,
@@ -479,6 +479,27 @@ async function resolveTemplateResolution(component, config, options) {
   let selectedPath;
   switch (type) {
     case "schema":
+      selectedPath = resolveDatabaseTemplate(
+        templateConfig,
+        config,
+        architecture,
+        options,
+        component.slug
+      );
+      if (selectedPath) {
+        const schemaDeps = resolveDependencies(
+          component,
+          framework,
+          config.database?.type,
+          config.database?.orm
+        );
+        return {
+          templatePath: selectedPath,
+          additionalRuntimeDeps: schemaDeps.runtime,
+          additionalDevDeps: schemaDeps.dev
+        };
+      }
+      break;
     case "blueprint":
       selectedPath = resolveDatabaseTemplate(
         templateConfig,
@@ -587,8 +608,8 @@ async function runPostInstallHooks(componentName, type, component) {
     updateEnvExample(component.env, process.cwd());
   }
 }
-function resolveDependencies(blueprint, framework, db, orm) {
-  const sets = blueprint.dependencies;
+function resolveDependencies(component, framework, db, orm) {
+  const sets = component.dependencies;
   const relevantKeys = [
     "common",
     `stack:${framework}`,
