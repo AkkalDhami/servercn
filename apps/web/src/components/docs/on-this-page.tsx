@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import GithubSlugger from "github-slugger";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 type Heading = {
   id: string;
@@ -82,7 +82,7 @@ export function OnThisPage() {
           <li key={h.id} style={{ paddingLeft: `${(h.level - 2) * 16}px` }}>
             <a
               href={`#${h.id}`}
-              className={clsx(
+              className={cn(
                 "block transition-colors",
                 activeId === h.id
                   ? "text-foreground font-medium"

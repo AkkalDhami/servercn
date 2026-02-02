@@ -19,7 +19,6 @@
       "status": "stable",
       "docs": "/docs/installation"
     },
-
     {
       "slug": "jwt-utils",
       "title": "JWT Utilities",
@@ -93,19 +92,27 @@
       "docs": "/docs/components/logger"
     },
     {
-      "slug": "file-upload",
-      "title": "File Upload",
+      "slug": "file-upload-cloudinary",
+      "title": "File Upload (Cloudinary)",
       "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
       "type": "component",
       "status": "stable",
-      "docs": "/docs/components/file-upload"
+      "docs": "/docs/components/file-upload-cloudinary"
+    },
+    {
+      "slug": "file-upload-imagekit",
+      "title": "File Upload (ImageKit)",
+      "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using ImageKit as the storage provider.",
+      "type": "component",
+      "status": "stable",
+      "docs": "/docs/components/file-upload-imagekit"
     },
     {
       "slug": "email-service",
       "title": "Email Service",
       "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
       "type": "component",
-      "status": "experimental",
+      "status": "stable",
       "docs": "/docs/components/email-service"
     },
     {
@@ -244,7 +251,6 @@
       "status": "stable",
       "docs": "/docs/components/background-jobs"
     },
-
     {
       "slug": "express-server",
       "title": "Basic Express Server",
@@ -277,7 +283,6 @@
       "status": "stable",
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
-
     {
       "slug": "eslint",
       "title": "ESLint",
@@ -318,7 +323,6 @@
       "status": "stable",
       "docs": "/docs/tooling/commitlint"
     },
-
     {
       "slug": "typescript",
       "title": "TypeScript",
@@ -327,13 +331,12 @@
       "status": "stable",
       "docs": "/docs/tooling/typescript"
     },
-
     {
       "slug": "stateless-auth",
       "title": "Stateless Authentication",
       "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",
       "type": "blueprint",
-      "status": "experimental",
+      "status": "stable",
       "docs": "/docs/blueprints/stateless-auth",
       "meta": {
         "databases": [
@@ -352,7 +355,6 @@
         ]
       }
     },
-
     {
       "slug": "auth",
       "title": "Authentication",

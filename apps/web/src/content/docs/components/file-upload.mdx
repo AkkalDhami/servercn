@@ -1,6 +1,6 @@
 ---
-title: File Upload (Cloudinary)
-description: The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.
+title: File Upload (Cloudinary & ImageKit)
+description: The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary or ImageKit as the storage provider.
 
 command: npx servercn add file-upload
 
@@ -22,6 +22,8 @@ mvc_structure:
                 CLOUDINARY_CLOUD_NAME: string;
                 CLOUDINARY_API_KEY: string;
                 CLOUDINARY_API_SECRET: string;
+
+                IMAGEKIT_PRIVATE_KEY: string;
               }
 
               const env: Config = {
@@ -31,7 +33,9 @@ mvc_structure:
 
                 CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
                 CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
-                CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!
+                CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
+
+                IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!
               };
 
               export default env;
@@ -51,6 +55,20 @@ mvc_structure:
               });
 
               export default cloudinary;
+
+          - type: file
+            name: imagekit.ts
+            content: |
+              // ImageKit Configuration
+
+              import ImageKit from '@imagekit/nodejs';
+              import env from './env';
+
+              const imagekitClient = new ImageKit({
+                privateKey: env.IMAGEKIT_PRIVATE_KEY,
+              });
+
+              export default imagekitClient;
 
       - type: folder
         name: constants
@@ -313,6 +331,59 @@ mvc_structure:
                 });
               };
 
+          - type: file
+            name: imagekit.service.ts
+            content: |
+              import imagekitClient from "../configs/imagekit";
+              import { toFile } from "@imagekit/nodejs";
+
+              export interface UploadOptions {
+                folder: string;
+                fileName?: string;
+              }
+
+              export interface ImageKitUploadResult {
+                url: string;
+                fileId: string;
+                size: number;
+              }
+
+              export const uploadToImageKit = async (
+                buffer: Buffer,
+                options: UploadOptions
+              ): Promise<ImageKitUploadResult> => {
+                try {
+                  const fileName = options.fileName || `file-${Date.now()}`;
+                  const file = await toFile(buffer, fileName);
+
+                  const result = await imagekitClient.files.upload({
+                    file: file,
+                    fileName: fileName,
+                    folder: options.folder || "uploads"
+                  });
+
+                  return {
+                    url: result.url || "",
+                    fileId: result.fileId || "",
+                    size: result.size || 0
+                  };
+                } catch (error) {
+                  throw error;
+                }
+              };
+
+              export const deleteFileFromImageKit = async (
+                fileIds: string[]
+              ): Promise<void> => {
+                try {
+                  await Promise.all(
+                    fileIds.map(fileId => imagekitClient.files.delete(fileId))
+                  );
+                } catch (error) {
+                  throw error;
+                }
+              };
+
       - type: folder
         name: utils
         children:
@@ -548,9 +619,13 @@ mvc_structure:
       NODE_ENV="development"
       LOG_LEVEL="info"
 
+      # Cloudinary Configuration
       CLOUDINARY_CLOUD_NAME="your-cloud-name"
       CLOUDINARY_API_KEY="your-api-key"
       CLOUDINARY_API_SECRET="your-api-secret"
+
+      # ImageKit Configuration
+      IMAGEKIT_PRIVATE_KEY="your-imagekit-private-key"
 
   - type: file
     name: tsconfig.json
@@ -591,6 +666,8 @@ feature_structure:
                     CLOUDINARY_CLOUD_NAME: string;
                     CLOUDINARY_API_KEY: string;
                     CLOUDINARY_API_SECRET: string;
+
+                    IMAGEKIT_PRIVATE_KEY: string;
                   }
 
                   const env: Config = {
@@ -600,7 +677,9 @@ feature_structure:
 
                     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
                     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
-                    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!
+                    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!,
+
+                    IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!
                   };
 
                   export default env;
@@ -620,6 +699,20 @@ feature_structure:
                   });
 
                   export default cloudinary;
+
+              - type: file
+                name: imagekit.ts
+                content: |
+                  // ImageKit Configuration
+
+                  import ImageKit from '@imagekit/nodejs';
+                  import env from './env';
+
+                  const imagekitClient = new ImageKit({
+                    privateKey: env.IMAGEKIT_PRIVATE_KEY,
+                  });
+
+                  export default imagekitClient;
 
           - type: folder
             name: constants
@@ -1057,6 +1150,59 @@ feature_structure:
                     });
                   }
 
+              - type: file
+                name: imagekit.service.ts
+                content: |
+                  import imagekitClient from "../../shared/configs/imagekit";
+                  import { toFile } from "@imagekit/nodejs";
+
+                  export interface UploadOptions {
+                    folder: string;
+                    fileName?: string;
+                  }
+
+                  export interface ImageKitUploadResult {
+                    url: string;
+                    fileId: string;
+                    size: number;
+                  }
+
+                  export const uploadToImageKit = async (
+                    buffer: Buffer,
+                    options: UploadOptions
+                  ): Promise<ImageKitUploadResult> => {
+                    try {
+                      const fileName = options.fileName || `file-${Date.now()}`;
+                      const file = await toFile(buffer, fileName);
+
+                      const result = await imagekitClient.files.upload({
+                        file: file,
+                        fileName: fileName,
+                        folder: options.folder || "uploads"
+                      });
+
+                      return {
+                        url: result.url || "",
+                        fileId: result.fileId || "",
+                        size: result.size || 0
+                      };
+                    } catch (error) {
+                      throw error;
+                    }
+                  };
+
+                  export const deleteFileFromImageKit = async (
+                    fileIds: string[]
+                  ): Promise<void> => {
+                    try {
+                      await Promise.all(
+                        fileIds.map(fileId => imagekitClient.files.delete(fileId))
+                      );
+                    } catch (error) {
+                      throw error;
+                    }
+                  };
+
       - type: folder
         name: routes
         children:
@@ -1109,9 +1255,13 @@ feature_structure:
       NODE_ENV="development"
       LOG_LEVEL="info"
 
+      # Cloudinary Configuration
       CLOUDINARY_CLOUD_NAME="your-cloud-name"
       CLOUDINARY_API_KEY="your-api-key"
       CLOUDINARY_API_SECRET="your-api-secret"
+
+      # ImageKit Configuration
+      IMAGEKIT_PRIVATE_KEY="your-imagekit-private-key"
 
   - type: file
     name: tsconfig.json
@@ -1132,15 +1282,15 @@ feature_structure:
       }
 ---
 
-# File Upload (Cloudinary)
+# File Upload (Cloudinary & ImageKit)
 
-The **File Upload** component provides a standardized way to handle file uploads in ServerCN using **Cloudinary** as the storage provider.
+The **File Upload** component provides a standardized way to handle file uploads in ServerCN using **Cloudinary** or **ImageKit** as the storage provider.
 
-It abstracts common concerns such as multipart handling, Cloudinary configuration, and secure uploads, while integrating cleanly with the rest of the ServerCN backend utilities.
+It abstracts common concerns such as multipart handling, storage provider configuration, and secure uploads, while integrating cleanly with the rest of the ServerCN backend utilities.
 
 ## Features
 
-- Cloudinary-backed file storage
+- **Cloudinary** or **ImageKit** backed file storage
 - Supports images, videos, and raw files
 - Secure server-side uploads
 - Express-compatible middleware
@@ -1202,18 +1352,33 @@ Documentation:
 
 ## Prerequisites
 
-You must have a Cloudinary account. Click [here](https://cloudinary.com) if you don't have.
+You must have either a **Cloudinary** or **ImageKit** account:
+
+- **Cloudinary**: Click [here](https://cloudinary.com) if you don't have an account
+- **ImageKit**: Click [here](https://imagekit.io) if you don't have an account
 
 Define the following environment variables:
 
+**For Cloudinary:**
 ```bash
 PORT="8000"
 NODE_ENV="development"
 LOG_LEVEL="info"
 
+# Cloudinary Configuration
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-api-key"
 CLOUDINARY_API_SECRET="your-api-secret"
+```
+
+**For ImageKit:**
+```bash
+PORT="8000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+
+# ImageKit Configuration
+IMAGEKIT_PRIVATE_KEY="your-imagekit-private-key"
 ```
 
 Ensure the following configuration are defined:
@@ -1222,6 +1387,7 @@ Ensure the following configuration are defined:
 
 **Feature:** <Code children="src/shared/configs/env.ts" />
 
+**For Cloudinary:**
 ```ts
 interface Config {
   PORT: number;
@@ -1246,9 +1412,34 @@ const env: Config = {
 export default env;
 ```
 
+**For ImageKit:**
+```ts
+interface Config {
+  PORT: number;
+  NODE_ENV: string;
+  LOG_LEVEL: string;
+
+  IMAGEKIT_PRIVATE_KEY: string;
+}
+
+const env: Config = {
+  PORT: Number(process.env.PORT) || 3000,
+  NODE_ENV: process.env.NODE_ENV || "development",
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
+
+  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!
+};
+
+export default env;
+```
+
 ## Basic Implementation
 
-### 1. Cloudinary Configuration
+### 1. Storage Provider Configuration
+
+#### Cloudinary Configuration
+
+Create a Cloudinary configuration file:
 
 Create a Cloudinary configuration file:
 
@@ -1267,6 +1458,25 @@ cloudinary.config({
 });
 
 export default cloudinary;
+```
+
+#### ImageKit Configuration
+
+Create an ImageKit configuration file:
+
+**MVC:** <Code children="src/configs/imagekit.ts" />
+
+**Feature:** <Code children="src/shared/configs/imagekit.ts" />
+
+```ts
+import ImageKit from '@imagekit/nodejs';
+import env from './env';
+
+const imagekitClient = new ImageKit({
+  privateKey: env.IMAGEKIT_PRIVATE_KEY,
+});
+
+export default imagekitClient;
 ```
 
 ### 2. Upload Middleware
@@ -1310,18 +1520,18 @@ const upload = multer({
 export default upload;
 ```
 
-### 3. Cloudinary Services
+### 3. Storage Provider Services
 
-Services for uploading files to Cloudinary and delete files from cloudinary.
+#### Cloudinary Services
+
+Services for uploading files to Cloudinary and deleting files from Cloudinary.
 
 **MVC:** <Code children="src/services/cloudinary.service.ts" /> or
 
 <Code children="src/utils/cloudinary.ts" /> or
 <Code children="src/helpers/cloudinary.ts" />
 
-**Feature:** <Code children="src/modules/upload/cloudinary.service.ts" /> or
-
-<Code children="src/modules/upload/upload.service.ts" />
+**Feature:** <Code children="src/modules/upload/upload.service.ts" /> (Cloudinary implementation)
 
 ```ts
 import { DeleteApiResponse } from "cloudinary";
@@ -1378,9 +1588,76 @@ export const deleteFileFromCloudinary = (
 };
 ```
 
+#### ImageKit Services
+
+Services for uploading files to ImageKit and deleting files from ImageKit.
+
+**MVC:** <Code children="src/services/imagekit.service.ts" /> or
+
+<Code children="src/utils/imagekit.ts" /> or
+<Code children="src/helpers/imagekit.ts" />
+
+**Feature:** <Code children="src/modules/upload/imagekit.service.ts" /> or
+
+<Code children="src/modules/upload/upload.service.ts" /> (ImageKit implementation)
+
+```ts
+import imagekitClient from "../configs/imagekit";
+import { toFile } from "@imagekit/nodejs";
+
+export interface UploadOptions {
+  folder: string;
+  fileName?: string;
+}
+
+export interface ImageKitUploadResult {
+  url: string;
+  fileId: string;
+  size: number;
+}
+
+export const uploadToImageKit = async (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<ImageKitUploadResult> => {
+  try {
+    const fileName = options.fileName || `file-${Date.now()}`;
+    const file = await toFile(buffer, fileName);
+
+    const result = await imagekitClient.files.upload({
+      file: file,
+      fileName: fileName,
+      folder: options.folder || "uploads"
+    });
+
+    return {
+      url: result.url || "",
+      fileId: result.fileId || "",
+      size: result.size || 0
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteFileFromImageKit = async (
+  fileIds: string[]
+): Promise<void> => {
+  try {
+    await Promise.all(
+      fileIds.map(fileId => imagekitClient.files.delete(fileId))
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+```
+
 ## Usage Example
 
 ### 1. Setup controllers
+
+#### Cloudinary Implementation
 
 **MVC:** <Code children="src/controllers/upload.controller.ts" />
 
@@ -1511,6 +1788,139 @@ export const deleteFile = AsyncHandler(
 );
 ```
 
+#### ImageKit Implementation
+
+**MVC:** <Code children="src/controllers/upload.controller.ts" />
+
+```ts
+import { Request, Response, NextFunction } from "express";
+
+import {
+  ImageKitUploadResult,
+  deleteFileFromImageKit,
+  uploadToImageKit
+} from "../services/imagekit.service";
+
+import { ApiError } from "../utils/api-error";
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToImageKit(req.file.buffer, {
+      folder: "uploads/files",
+      fileName: req.file.originalname
+    });
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: ImageKitUploadResult[] = await Promise.all(
+      files.map(async file => {
+        return await uploadToImageKit(file.buffer, {
+          folder: "uploads/images",
+          fileName: file.originalname
+        });
+      })
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { fileIds }: { fileIds: string[] } = req.body;
+
+    if (!fileIds || fileIds.length === 0) {
+      return next(ApiError.badRequest("File IDs are required"));
+    }
+
+    await deleteFileFromImageKit(fileIds);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+**Feature:** <Code children="src/modules/upload/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+
+import { ApiResponse } from "../../shared/utils/api-response";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { ApiError } from "../../shared/errors/api-error";
+import {
+  deleteFileFromImageKit,
+  ImageKitUploadResult,
+  uploadToImageKit
+} from "./upload.service";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToImageKit(req.file.buffer, {
+      folder: "uploads/files",
+      fileName: req.file.originalname
+    });
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: ImageKitUploadResult[] = await Promise.all(
+      files.map(async file => {
+        return await uploadToImageKit(file.buffer, {
+          folder: "uploads/images",
+          fileName: file.originalname
+        });
+      })
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { fileIds }: { fileIds: string[] } = req.body;
+
+    if (!fileIds || fileIds.length === 0) {
+      return next(ApiError.badRequest("File IDs are required"));
+    }
+
+    await deleteFileFromImageKit(fileIds);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
 ### 2. Setup routes
 
 **MVC:** <Code children="src/routes/upload.routes.ts" />
@@ -1592,5 +2002,6 @@ app.listen(PORT, () => {
 - Enforce file size limits
 - Validate MIME types when required
 - Use private folders for sensitive uploads
-- Never expose Cloudinary secrets to the client
+- Never expose storage provider secrets (Cloudinary API keys/secrets or ImageKit private keys) to the client
 - Prefer authenticated routes for uploads
+- Use environment variables for all sensitive configuration
