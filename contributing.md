@@ -1,6 +1,6 @@
 # Contributing to ServerCN
 
-First off, thank you for considering contributing to ServerCN! It's people like you that make ServerCN such a great tool for the community.
+First off all, thank you for considering contributing to ServerCN! It's people like you that make ServerCN such a great tool for the community.
 
 ## 🛠️ Getting Started
 
@@ -13,23 +13,26 @@ First off, thank you for considering contributing to ServerCN! It's people like 
 
 1. **Fork the repository** on GitHub.
 2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/servercn.git
-   cd servercn
-   ```
+
+```bash
+git clone https://github.com/YOUR_USERNAME/servercn.git
+cd servercn
+```
+
 3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+
+```bash
+npm install
+```
 
 ## 🏗️ Project Structure
 
 This project is a monorepo managed with **npm workspaces**.
 
 - `apps/web`: The documentation website (Next.js).
-- `packages/cli`: The core CLI tool source code.
-- `packages/registry`: The registry of components and templates.
-- `packages/templates`: Boilerplate code specific to different architectures/stacks.
+- `packages/cli/src`: The core CLI tool source code.
+- `packages/cli/registry`: The registry of components and templates.
+- `packages/cli/templates`: Boilerplate code specific to different architectures/stacks.
 
 ## 💻 Development Workflow
 
@@ -43,6 +46,9 @@ npm run build:cli
 
 # Link the CLI globally to test 'servercn' command
 npm run link:cli
+
+# Run development server
+npm run dev:app
 ```
 
 Now you can run `servercn` in any terminal to test your changes.
@@ -63,8 +69,8 @@ npm run dev
 
 Components are located in `packages/registry`.
 
-- **Definition**: Update the JSON definition in `packages/registry/components/`.
-- **Code**: Update the actual source code templates in `packages/templates/`.
+- **Definition**: Update the JSON definition in `packages/cli/registry/components/`.
+- **Code**: Update the actual source code templates in `packages/cli/templates/`.
 
 ### 4. Running Scripts from Root
 
@@ -72,32 +78,33 @@ We have configured several helper scripts in the root `package.json`:
 
 - `npm run build`: Build all workspaces.
 - `npm run lint`: Lint all files.
-- `npm run format`: Format code with Prettier.
+- `npm run format:fix`: Format code with Prettier.
 
 ## 🚀 Submitting Changes
 
 1. **Create a Branch**:
 
-   ```bash
-   git checkout -b feature/my-new-feature
-   # or
-   git checkout -b fix/bug-description
-   ```
+```bash
+git checkout -b feature/my-new-feature
+# or
+git checkout -b fix/bug-description
+```
+
 
 2. **Make your changes**. Please ensure your code follows the existing style (we use Prettier).
 
 3. **Commit your changes**:
    We prefer clear, descriptive commit messages.
 
-   ```bash
-   git commit -m "feat(cli): add support for new component type"
-   ```
+```bash
+git commit -m "feat(cli): add support for new component type"
+```
 
 4. **Push to your fork**:
 
-   ```bash
-   git push origin feature/my-new-feature
-   ```
+```bash
+git push origin feature/my-new-feature
+```
 
 5. **Open a Pull Request**:
    - Go to the original repository.
@@ -108,10 +115,10 @@ We have configured several helper scripts in the root `package.json`:
 
 If you are contributing a new component:
 
-1. Create the component definition in `packages/registry/components/<name>.json`.
-2. Implement the component logic in `packages/templates/components/<name>/`.
+1. Create the component definition in `packages/cli/registry/components/<name>.json`.
+2. Implement the component logic in `packages/cli/templates/components/<name>/`.
 3. Ensure it follows the project's architecture (Express/MVC standards).
-4. Add documentation in `apps/web/src/content/docs/components/<name>.mdx` (optional but recommended).
+4. Add documentation in `apps/web/src/content/docs/components/<name>.mdx` 
 
 ## 📄 License
 

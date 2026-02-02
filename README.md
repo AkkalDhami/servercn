@@ -140,7 +140,7 @@ npx servercn add health-check
 View all available components that you can add to your project.
 
 ```bash
-servercn list
+npx servercn list
 ```
 
 ## 🏗️ Project Structure
@@ -156,7 +156,8 @@ src/
 ├── routes/         # API routes definitions
 ├── services/       # Business logic layer
 ├── utils/          # Helper functions and classes
-└── app.ts          # Application entry point
+└── app.ts          # App entry point
+└── server.ts       # Server entry point
 ```
 
 ## 💻 Tech Stack

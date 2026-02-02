@@ -8,13 +8,12 @@
   ],
   "scripts": {
     "build": "npm run build -ws",
-    "dev": "npm run dev -ws",
+    "dev:app": "npm run dev -ws",
     "lint": "eslint .",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write",
     "build:cli": "npm run build -w packages/cli",
     "link:cli": "npm link -w packages/cli",
-    "generate:mdx": "npm run generate -w packages/cli",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -46,6 +45,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@imagekit/nodejs": "^7.2.2",
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "change-case": "^5.4.4",
@@ -68,6 +68,7 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pino": "^10.1.0",
+    "resend": "^6.9.1",
     "servercn": "^1.0.0",
     "source-map-support": "^0.5.21",
     "swagger-ui-express": "^5.0.1",
