@@ -275,7 +275,7 @@ async function installDependencies({
     logger.section("dev dependencies");
     await run(getInstallArgs(pm, dev, true));
     logger.success(
-      `installed ${dev.length} ${dev.length > 1 ? "dependencies" : "dependency"}`
+      `installed ${dev.length} ${dev.length > 1 ? "devDependencies" : "devDependency"}`
     );
   }
 }
