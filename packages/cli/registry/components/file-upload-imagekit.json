@@ -1,0 +1,25 @@
+{
+  "title": "File Upload Imagekit",
+  "slug": "file-upload-imagekit",
+  "type": "component",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "templates": {
+    "express": {
+      "mvc": "components/file-upload-imagekit/express/mvc",
+      "feature": "components/file-upload-imagekit/express/feature"
+    }
+  },
+  "dependencies": {
+    "runtime": [
+      "express",
+      "pino",
+      "pino-pretty",
+      "dotenv",
+      "multer",
+      "@imagekit/nodejs"
+    ],
+    "dev": ["@types/multer", "@types/express"]
+  },
+  "env": ["IMAGEKIT_PRIVATE_KEY"]
+}
