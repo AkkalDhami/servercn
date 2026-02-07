@@ -483,6 +483,13 @@ const html = `
   <h1>Reset Your Password</h1>
   <p>Click <a href="https://example.com/reset">here</a> to reset your password.</p>
 `;
+
+await sendEmailWithResend({
+  email: "john.doe@example.com",
+  subject: "Reset Your Password",
+  html,
+  from: "ServerCN <servercn@example.com>"
+});
 ```
 
 

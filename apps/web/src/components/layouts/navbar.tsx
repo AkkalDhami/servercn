@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Logo from "./logo";
 import ThemeToggle from "./theme-toggle";
 import Link from "next/link";

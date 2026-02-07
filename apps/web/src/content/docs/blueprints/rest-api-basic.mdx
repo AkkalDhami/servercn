@@ -40,16 +40,19 @@ URLs should represent resources, not actions. Use nouns instead of verbs.
 
 Always use HTTP methods semantically to improve clarity and consistency. Each HTTP method has a clear meaning:
 
-```
-| Code | Meaning      |
-| ---- | ------------ |
-| 200  | OK           |
-| 201  | Created      |
-| 400  | Bad Request  |
-| 401  | Unauthorized |
-| 403  | Forbidden    |
-| 404  | Not Found    |
-| 500  | Server Error |
+```bash
+| Code | Meaning           |
+|------|-------------------|
+| 200  | OK                |
+| 201  | Created           |
+| 204  | No Content        |
+| 400  | Bad Request       |
+| 401  | Unauthorized      |
+| 403  | Forbidden         |
+| 404  | Not Found         |
+| 409  | Conflict          |
+| 429  | Too Many Requests |
+| 500  | Server Error      |
 ```
 
 <Note
@@ -77,7 +80,7 @@ Responses should follow a consistent format. Consistency makes APIs easier to co
 
 Always version your API to handle breaking changes gracefully.
 
-```
+```bash
 /api/v1/users
 /api/v2/users
 ```
@@ -211,17 +214,19 @@ app.delete("/api/users/:id", (req, res) => {
 
 Using the correct status code is crucial for a REST API to communicate clearly with the client.
 
-```
-| Code | Status | Description |
-| :--- | :--- | :--- |
-| **200** | OK | Request succeeded. |
-| **201** | Created | Resource successfully created (usually after POST). |
-| **204** | No Content | Action succeeded but no content returned (usually after DELETE). |
-| **400** | Bad Request | Client sent invalid data (e.g., missing fields). |
-| **401** | Unauthorized | Authentication failed or missing (e.g., invalid token). |
-| **403** | Forbidden | Authenticated but not authorized to perform action. |
-| **404** | Not Found | Resource does not exist. |
-| **500** | Internal Server Error | Something went wrong on the server side. |
+```bash
+| Code | Meaning           |
+|------|-------------------|
+| 200  | OK                |
+| 201  | Created           |
+| 204  | No Content        |
+| 400  | Bad Request       |
+| 401  | Unauthorized      |
+| 403  | Forbidden         |
+| 404  | Not Found         |
+| 409  | Conflict          |
+| 429  | Too Many Requests |
+| 500  | Server Error      |
 ```
 
 ```ts

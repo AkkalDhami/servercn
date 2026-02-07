@@ -5,8 +5,8 @@ import BackendStructureViewer from "@/components/file-viewer/backend-structure-v
 
 import { FileNode } from "../file-viewer/file-tree";
 import InstallComponentCommands from "../command/install-component-command";
-import { Heading } from "../ui/heading";
-import { SubHeading } from "../ui/sub-heading";
+import { Heading } from "@/components/ui/heading";
+import { SubHeading } from "@/components/ui/sub-heading";
 export default function GoogleOAuthSection() {
   return (
     <section

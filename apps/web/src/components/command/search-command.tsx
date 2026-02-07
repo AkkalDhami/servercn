@@ -11,8 +11,8 @@ import {
   CommandList,
   CommandSeparator
 } from "@/components/ui/command";
-import { Button } from "../ui/button";
-import { Kbd } from "../ui/kbd";
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 
 import Link from "next/link";
 import { Route } from "next";
@@ -93,6 +93,15 @@ export default function SearchCommand({
                 onClick={() => setOpen(!open)}>
                 <FaGithub className="size-2.5 cursor-pointer" />
                 Github @akkaldhami
+              </Link>
+            </CommandItem>
+            <CommandItem asChild className="mb-0.5">
+              <Link
+                href="https://github.com/akkaldhami/servercn"
+                target="_blank"
+                onClick={() => setOpen(!open)}>
+                <FaGithub className="size-2.5 cursor-pointer" />
+                ServerCN Github
               </Link>
             </CommandItem>
           </CommandGroup>

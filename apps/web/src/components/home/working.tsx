@@ -1,6 +1,10 @@
-import { Heading } from "../ui/heading";
-import { SubHeading } from "../ui/sub-heading";
-import { AnimatedSpan, Terminal, TypingAnimation } from "../ui/terminal";
+import { Heading } from "@/components/ui/heading";
+import { SubHeading } from "@/components/ui/sub-heading";
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation
+} from "@/components/ui/terminal";
 
 export default function Working() {
   return (

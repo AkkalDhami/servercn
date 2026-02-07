@@ -2,9 +2,9 @@
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedGroup } from "../ui/animated-group";
+import { AnimatedGroup } from "@/components/ui/animated-group";
 import { FaGithub } from "react-icons/fa";
-import { HeaderBadge } from "../ui/header-badge";
+import { HeaderBadge } from "@/components/ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";

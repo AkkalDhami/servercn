@@ -1,6 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { AnimatedSpan, Terminal, TypingAnimation } from "../ui/terminal";
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation
+} from "@/components/ui/terminal";
 
 const files = [
   "src/app.ts",

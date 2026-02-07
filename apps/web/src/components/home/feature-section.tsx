@@ -12,8 +12,8 @@ import {
   Puzzle,
   Layers
 } from "lucide-react";
-import { Heading } from "../ui/heading";
-import { SubHeading } from "../ui/sub-heading";
+import { Heading } from "@/components/ui/heading";
+import { SubHeading } from "@/components/ui/sub-heading";
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -132,13 +132,6 @@ export function FeatureCard({ item }: { item: IFeature }) {
         "hover:bg-card-hover bg-background border-hover relative rounded-xl border p-6",
         item.className
       )}>
-      <div
-        aria-hidden
-        className="absolute inset-0 isolate z-0 opacity-50 contain-strict dark:opacity-100">
-        <div className="bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,--theme(--color-foreground/.06)_0,hsla(0,0%,55%,.02)_50%,--theme(--color-foreground/.01)_80%)] absolute top-0 left-0 h-320 w-140 -translate-y-87.5 -rotate-45 rounded-full" />
-        <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 [translate:5%_-50%] -rotate-45 rounded-full" />
-        <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 -translate-y-87.5 -rotate-45 rounded-full" />
-      </div>
       <div className="relative">
         <item.icon className="text-muted-foreground size-10" />
         <h3 className="mt-4 font-semibold">{item.title}</h3>
