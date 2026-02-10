@@ -1,7 +1,6 @@
 import { loadRegistry } from "../lib/registry-list";
 import { groupByCategory } from "../lib/group-by-category";
 import { logger } from "../utils/logger";
-import { env } from "../configs/env";
 import type { RegistryType } from "../types";
 import {
   blueprintLogs,

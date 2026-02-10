@@ -119,7 +119,8 @@ import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
 function getServercnRoot() {
-  return path2.resolve(__dirname, "../");
+  console.log({ path: path2.resolve(__dirname, "../../") });
+  return path2.resolve(__dirname, "../../");
 }
 var paths = {
   root: getServercnRoot(),
@@ -274,7 +275,9 @@ async function getRegistryComponent(name, type) {
   const filePath = path4.join(registryPath, `${name}.json`);
   if (!await fs3.pathExists(filePath)) {
     logger.break();
-    logger.error("Something went wrong. Please check the error below for more details.");
+    logger.error(
+      "Something went wrong. Please check the error below for more details."
+    );
     logger.error(`
 ${capitalize(type)} '${name}' not found!`);
     logger.error("\nCheck if the item name is correct.");
@@ -328,10 +331,14 @@ async function installDependencies({
       stdio: "inherit"
     });
   };
-  result?.succeed(`Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`);
+  result?.succeed(
+    `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
+  );
   await run(getInstallArgs(pm, runtime, false));
   await run(getInstallArgs(pm, dev, true));
-  result?.succeed(`Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`);
+  result?.succeed(
+    `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
+  );
 }
 function getInstallArgs(pm, packages, isDev) {
   switch (pm) {
@@ -483,6 +490,7 @@ async function add(componentName, options = {}) {
   }
   const { templatePath, additionalRuntimeDeps, additionalDevDeps } = await resolveTemplateResolution(component, config, options);
   const templateDir = path11.resolve(paths.templates(), templatePath);
+  console.log(paths);
   const targetDir = resolveTargetDir(".");
   const result = spinner("Scaffolding Component Files")?.start();
   await copyTemplate({
@@ -509,9 +517,11 @@ async function add(componentName, options = {}) {
     cwd: process.cwd()
   });
   await runPostInstallHooks(componentName, type, component);
-  logger.success(`
+  logger.success(
+    `
 ${capitalize(type)}: ${component.slug} added successfully
-`);
+`
+  );
 }
 async function resolveTemplateResolution(component, config, options) {
   const type = component.type;
@@ -692,7 +702,9 @@ async function init(foundation) {
   const configPath = path12.join(cwd, SERVERCN_CONFIG_FILE);
   if (await fs9.pathExists(configPath) && !foundation) {
     logger.warn(`${APP_NAME} is already initialized in this project.`);
-    logger.info("You can now add components: npx servercn add <component-name>");
+    logger.info(
+      "You can now add components: npx servercn add <component-name>"
+    );
     process.exit(1);
   }
   const tsConfig = {
@@ -845,7 +857,7 @@ node_modules`
       );
       const templatePathRelative = component.templates.express[response2.architecture];
       if (!templatePathRelative) {
-        throw new Error(
+        logger.error(
           `Template not found for ${foundation.toLowerCase()} (express/${response2.architecture})`
         );
       }

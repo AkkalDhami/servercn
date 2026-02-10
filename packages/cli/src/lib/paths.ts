@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
  * dist/utils → dist → package root
  */
 export function getServercnRoot() {
-  return path.resolve(__dirname, "../");
+  return path.resolve(__dirname, "../../");
 }
 
 export const paths = {

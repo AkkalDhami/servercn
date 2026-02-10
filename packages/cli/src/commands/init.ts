@@ -195,7 +195,7 @@ export async function init(foundation?: string) {
         component.templates.express[response.architecture as "mvc" | "feature"];
 
       if (!templatePathRelative) {
-        throw new Error(
+        logger.error(
           `Template not found for ${foundation.toLowerCase()} (express/${response.architecture})`
         );
       }
