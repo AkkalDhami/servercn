@@ -1061,7 +1061,7 @@ src/
 
 ### 2. Feature Architecture (Scalable)
 
-For larger applications, the **Feature Architecture** (also known as domain-driven or modular) is recommended. This structure co-locates all files related to a specific feature (e.g., `user`, `auth`) into a single module folder.
+For larger applications, the **Feature Architecture** (also known as domain-driven or modular) is recommended. This structure co-locates all files related to a specific feature (e.g., **user**, **auth**) into a single module folder.
 
 ```
 src/
@@ -1112,11 +1112,11 @@ All API responses follow a predictable structure, making frontend integration se
 
 ### Fast-Fail Environment Validation
 
-Environment variables are validated at startup using **Zod**. If a required variable (like `PORT` or `DATABASE_URL`) is missing, the server will log a clear error and exit immediately, preventing runtime crashes.
+Environment variables are validated at startup using **Zod**. If a required variable (like **PORT** or **DATABASE_URL**) is missing, the server will log a clear error and exit immediately, preventing runtime crashes.
 
 ### Graceful Shutdown
 
-The foundation includes logic to handle `SIGINT` and `SIGTERM` signals, ensuring that active requests are completed and database connections are closed properly before the process exits.
+The foundation includes logic to handle **SIGINT** and **SIGTERM** signals, ensuring that active requests are completed and database connections are closed properly before the process exits.
 
 ## Extending the Foundation
 
@@ -1126,7 +1126,7 @@ The Express Server Foundation is cumulative. Once initialized, you can easily ad
 - **Auth Components**: JWT Utilities, OAuth, RBAC
 - **Utility Components**: Logger, File Upload, Email Service
 
-Each component you add with `servercn add` will automatically align with your chosen architecture.
+Each component you add with **servercn add** will automatically align with your chosen architecture.
 
 ## Summary
 

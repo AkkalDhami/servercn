@@ -45,7 +45,7 @@ The authentication flow follows these steps:
 
 1.  **Login**: User provides credentials. The server validates them and generates an **Access Token** and a **Refresh Token**.
 2.  **Storage**: Both tokens are sent to the client via **HTTP-only cookies**. The Refresh Token is also hashed and stored in the database.
-3.  **Authentication**: For protected routes, the `verifyAuthentication` middleware checks the Access Token.
+3.  **Authentication**: For protected routes, the <Code children="verifyAuthentication" /> middleware checks the Access Token.
 4.  **Token Refresh**: If the Access Token is expired, the middleware automatically uses the Refresh Token to:
     - Verify the Refresh Token.
     - Check if it exists in the database and is not revoked.
@@ -60,7 +60,7 @@ This blueprint supports three primary database setups:
 
 ### 1. MongoDB with Mongoose
 
-Uses Mongoose schemas to define `User` and `RefreshToken` models. It leverages Mongoose's built-in validation and middleware hooks.
+Uses Mongoose schemas to define <Code children="User" /> and <Code children="RefreshToken" /> models. It leverages Mongoose's built-in validation and middleware hooks.
 
 ### 2. MySQL with Drizzle
 
@@ -78,7 +78,7 @@ This is one of the most critical security features. If a malicious actor steals 
 
 ### Secure Cookies
 
-By using `httpOnly: true` and `secure: true` (in production), we ensure that tokens cannot be accessed via client-side JavaScript, mitigating XSS risks.
+By using <Code children="httpOnly: true" /> and <Code children="secure: true" /> (in production), we ensure that tokens cannot be accessed via client-side JavaScript, mitigating XSS risks.
 
 ```typescript
 res.cookie("accessToken", token, {
@@ -89,13 +89,12 @@ res.cookie("accessToken", token, {
 });
 ```
 
----
 
 ## Usage Example
 
 ### Protecting a Route
 
-Simply apply the `verifyAuthentication` middleware to any route you want to protect.
+Simply apply the <Code children="verifyAuthentication" /> middleware to any route you want to protect.
 
 ```typescript
 import { Router } from "express";
@@ -112,7 +111,7 @@ export default router;
 
 ### Accessing User Data
 
-Once authenticated, the user information is available on `req.user`.
+Once authenticated, the user information is available on <Code children="req.user" />.
 
 ```typescript
 export const getProfile = (req: Request, res: Response) => {
@@ -121,11 +120,9 @@ export const getProfile = (req: Request, res: Response) => {
 };
 ```
 
----
-
 ## Environment Variables
 
-Make sure to set the following environment variables in your `.env` file:
+Make sure to set the following environment variables in your <Code children=".env" /> file:
 
 ```bash
 PORT='9000'

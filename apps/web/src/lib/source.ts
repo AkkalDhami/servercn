@@ -1,5 +1,6 @@
 import { IRegistryItems, ItemType } from "@/@types/registry";
 import registry from "@/data/registry.json";
+import { GITHUB_URL } from "./constants";
 
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
   "installation",
@@ -93,4 +94,8 @@ export function getTypeItems(type: ItemType): IRegistryItems[] {
       type: item.type
     }));
   return items.length > 0 ? (items as IRegistryItems[]) : [];
+}
+
+export function getGithubUrl(slug: string) {
+  return `${GITHUB_URL}/tree/main/apps/web/src/content/docs/${slug}`;
 }
