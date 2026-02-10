@@ -29,7 +29,7 @@ export default function ArchitectureTabs({
   return (
     <div
       className={cn(
-        "bg-background text-muted-primary my-6 w-full max-w-[800px] overflow-auto rounded-md border",
+        "bg-background text-muted-primary my-6 w-full overflow-auto rounded-md border sm:max-w-200",
         className
       )}>
       <div className="bg-background grid grid-cols-2 gap-3">

@@ -33,7 +33,7 @@ export default async function PackageManagerTabs({
     <Tabs
       defaultValue="npm"
       className={cn(
-        "dark:code-theme my-6 max-w-[900px] overflow-auto rounded-md border-0"
+        "dark:code-theme xsm:max-w[360px] my-6 max-w-[320px] overflow-auto rounded-md border-0 sm:max-w-200"
       )}
       style={{ backgroundColor: bg }}>
       <TabsList
@@ -50,7 +50,7 @@ export default async function PackageManagerTabs({
             style={{ backgroundColor: bg }}>
             <Image
               src={`/${managersIcons[m as keyof typeof managersIcons]}`}
-              className={cn("size-3.5")}
+              className={cn("hidden size-3.5 sm:block")}
               width={20}
               height={20}
               alt={m}

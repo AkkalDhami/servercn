@@ -35,7 +35,12 @@ export const mdxComponents: MDXComponents = {
   p: props => (
     <p className="text-muted-primary mt-4 mb-3 leading-7" {...props} />
   ),
-  code: props => <code className="bg-muted rounded px-1.5 py-0.5" {...props} />,
+  code: props => (
+    <code
+      className="thin-scrollbar max-h-120 max-w-[472.5px] overflow-x-auto rounded-md px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
+      {...props}
+    />
+  ),
   a: props => (
     <a
       target="_blank"
@@ -48,5 +53,6 @@ export const mdxComponents: MDXComponents = {
   ),
   ol: props => (
     <ol className="text-muted-primary list-decimal space-y-3 pl-2" {...props} />
-  )
+  ),
+  strong: props => <strong className="text-primary" {...props} />
 };

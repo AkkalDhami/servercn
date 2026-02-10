@@ -28,10 +28,10 @@ export default function BackendStructureViewer({
     return (
       <div
         className={cn(
-          "flex h-130 w-full max-w-[800px] overflow-auto",
+          "thin-scrollbar flex h-130 w-full max-w-75 overflow-auto md:max-w-200",
           className
         )}>
-        <div className="w-full max-w-[calc(100%-17rem)] overflow-auto p-4">
+        <div className="thin-scrollbar w-full max-w-[calc(100%-17rem)] overflow-auto p-4">
           <FileViewer content={activeFile?.content} />
         </div>
         <Separator orientation="vertical" className="bg-neutral-500/20" />
@@ -66,7 +66,7 @@ export default function BackendStructureViewer({
 
       <Separator orientation="vertical" className="bg-neutral-500/20" />
 
-      <div className="w-full max-w-[calc(100%-17rem)] overflow-auto">
+      <div className="thin-scrollbar w-full max-w-[calc(100%-17rem)] overflow-auto">
         <FileViewer content={activeFile?.content} />
       </div>
     </div>

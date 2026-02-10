@@ -210,6 +210,15 @@
   --shadow-tertiary: 0 2px 10px rgb(255, 255, 255, 0.12);
 }
 
+@theme {
+  --breakpoint-xsl: 272.5px;
+  --breakpoint-xsm: 350px;
+  --breakpoint-xs: 420px;
+  --breakpoint-sml: 500px;
+  --breakpoint-smm: 560px;
+  --breakpoint-sml: 600px;
+  --breakpoint-sm: 620px;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -238,7 +247,8 @@ body {
   width: 0;
 }
 
-.thin-scrollbar {
+.thin-scrollbar,
+pre {
   scrollbar-width: thin;
 }
 
@@ -246,10 +256,19 @@ body {
   scrollbar-width: thin;
 }
 
-[data-rehype-pretty-code-figure] {
-  /* max-width: 800px; */
-  /* width: 100%; */
-  position: relative;
+code {
+  counter-reset: line;
+}
+
+code > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+
+  display: inline-block;
+  width: 1rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: gray;
 }
 
 @media (prefers-color-scheme: dark) {

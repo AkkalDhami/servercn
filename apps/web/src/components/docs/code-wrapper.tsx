@@ -19,7 +19,7 @@ export function CodeWrapper({
   }
 
   return (
-    <div className="relative rounded-md bg-transparent">
+    <div className="relative rounded-md bg-transparent pr-8">
       <CopyButton
         handleCopy={copy}
         copied={copied}

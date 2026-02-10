@@ -26,7 +26,8 @@ import {
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
-import { FaGithub } from "react-icons/fa";
+import { FaDiscord, FaGithub } from "react-icons/fa";
+import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
 export default function SearchCommand({
   className,
   size
@@ -88,7 +89,7 @@ export default function SearchCommand({
           <CommandGroup heading="Links">
             <CommandItem asChild forceMount className="mb-0.5">
               <Link
-                href="https://github.com/akkaldhami"
+                href={BASE_GITHUB_URL}
                 target="_blank"
                 onClick={() => setOpen(!open)}>
                 <FaGithub className="size-2.5 cursor-pointer" />
@@ -97,11 +98,20 @@ export default function SearchCommand({
             </CommandItem>
             <CommandItem asChild className="mb-0.5">
               <Link
-                href="https://github.com/akkaldhami/servercn"
+                href={GITHUB_URL}
                 target="_blank"
                 onClick={() => setOpen(!open)}>
                 <FaGithub className="size-2.5 cursor-pointer" />
                 ServerCN Github
+              </Link>
+            </CommandItem>
+            <CommandItem asChild className="mb-0.5">
+              <Link
+                href={DISCORD_URL}
+                target="_blank"
+                onClick={() => setOpen(!open)}>
+                <FaDiscord className="size-2.5 cursor-pointer" />
+                Discord Server
               </Link>
             </CommandItem>
           </CommandGroup>
@@ -113,7 +123,7 @@ export default function SearchCommand({
                     href={item.url as Route}
                     onClick={() => setOpen(!open)}
                     className="mb-0.5 w-full cursor-pointer">
-                    <CircleArrowRight className="text-muted-secondary size-2.5" />{" "}
+                    <CircleIcon className="text-muted-secondary size-2.5" />{" "}
                     {item.title}
                   </Link>
                 </CommandItem>
@@ -128,7 +138,7 @@ export default function SearchCommand({
                     href={item.url as Route}
                     onClick={() => setOpen(!open)}
                     className="mb-0.5 w-full cursor-pointer">
-                    <CircleCheckBig className="text-muted-secondary size-2.5" />{" "}
+                    <CircleIcon className="text-muted-secondary size-2.5" />{" "}
                     {item.title}
                   </Link>
                 </CommandItem>
@@ -143,7 +153,7 @@ export default function SearchCommand({
                     href={item.url as Route}
                     onClick={() => setOpen(!open)}
                     className="mb-0.5 w-full cursor-pointer">
-                    <CircleChevronRight className="text-muted-secondary size-2.5" />{" "}
+                    <CircleIcon className="text-muted-secondary size-2.5" />{" "}
                     {item.title}
                   </Link>
                 </CommandItem>
@@ -173,7 +183,7 @@ export default function SearchCommand({
                     href={item.url as Route}
                     onClick={() => setOpen(!open)}
                     className="mb-0.5 w-full cursor-pointer">
-                    <CircleDashed className="text-muted-secondary size-2.5" />{" "}
+                    <CircleIcon className="text-muted-secondary size-2.5" />{" "}
                     {item.title}
                   </Link>
                 </CommandItem>
@@ -188,7 +198,7 @@ export default function SearchCommand({
                     href={item.url as Route}
                     onClick={() => setOpen(!open)}
                     className="cursor-pointer pl-4 capitalize">
-                    <CircleChevronRight className="text-muted-secondary mb-1 size-2.5" />{" "}
+                    <CircleIcon className="text-muted-secondary mb-1 size-2.5" />
                     {item.title}
                   </Link>
                 </CommandItem>

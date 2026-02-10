@@ -107,7 +107,6 @@ const getPrettyCodeOptions = (theme: string) => ({
   keepBackground: true,
   defaultLang: "plaintext",
   grid: true,
-  lineNumbers: true,
   defaultLanguage: "ts"
 });
 
@@ -162,9 +161,8 @@ export default async function DocsPage({
 
   const cookieStore = await cookies();
   const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
-
   return (
-    <div className="flex w-full max-w-5xl gap-8 px-3 sm:p-0">
+    <div className="flex w-full max-w-5xl gap-8 sm:p-0 sm:px-3">
       <div id="docs-content" className="flex-1">
         <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
           <MDXRemote

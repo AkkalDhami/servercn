@@ -27,20 +27,19 @@ export function Pre({
   }
 
   return (
-    <div className="group relative w-full max-w-[800px]">
-      <CopyButton
-        handleCopy={copy}
-        copied={copied}
-        className="absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md py-2 transition-all"
-      />
+    <div className="thin-scrollbar relative max-w-[472.5px] overflow-x-auto sm:w-full sm:max-w-200">
       <pre
         ref={ref}
         {...props}
-        className={cn(
-          "bg-editor thin-scrollbar mt-4 max-h-120 w-full overflow-auto rounded-lg p-4 font-mono leading-relaxed",
-          className
-        )}
-        style={{ backgroundColor: bg }}>
+        className={cn("thin-scrollbar relative my-2 rounded-md", className)}
+        style={{
+          backgroundColor: bg
+        }}>
+        <CopyButton
+          handleCopy={copy}
+          copied={copied}
+          className="absolute right-4 bottom-3 z-20 flex items-center justify-center py-2 transition-all hover:text-white"
+        />
         {children}
       </pre>
     </div>
