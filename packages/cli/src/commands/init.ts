@@ -3,7 +3,11 @@ import path from "path";
 import prompts from "prompts";
 import { execa } from "execa";
 import { logger } from "../utils/logger";
-import { SERVERCN_CONFIG_FILE } from "../constants/app-constants";
+import {
+  APP_NAME,
+  LATEST_VERSION,
+  SERVERCN_CONFIG_FILE
+} from "../constants/app-constants";
 import { getRegistryComponent } from "../lib/registry";
 import { copyTemplate } from "../lib/copy";
 import { installDependencies } from "../lib/install-deps";
@@ -16,8 +20,10 @@ export async function init(foundation?: string) {
   const configPath = path.join(cwd, SERVERCN_CONFIG_FILE);
 
   if ((await fs.pathExists(configPath)) && !foundation) {
-    logger.warn("servercn is already initialized in this project.");
-    logger.info("you can now run: servercn add <component>");
+    logger.warn(`${APP_NAME} is already initialized in this project.`);
+    logger.info(
+      "You can now add components: npx servercn add <component-name>"
+    );
     process.exit(1);
   }
 
@@ -49,14 +55,14 @@ export async function init(foundation?: string) {
       {
         type: "text",
         name: "root",
-        message: "project root directory",
+        message: "Project root directory",
         initial: ".",
         format: val => val.trim() || "."
       },
       {
         type: "select",
         name: "architecture",
-        message: "select architecture",
+        message: "Select architecture",
         choices: [
           { title: "mvc (controllers, services, models)", value: "mvc" },
           { title: "feature (modules, shared)", value: "feature" }
@@ -65,7 +71,7 @@ export async function init(foundation?: string) {
       {
         type: "confirm",
         name: "initGit",
-        message: "initialize git repository?",
+        message: "Initialize git repository?",
         initial: true
       }
     ]);
@@ -82,9 +88,9 @@ export async function init(foundation?: string) {
     if (response.initGit) {
       try {
         await execa("git", ["init"], { cwd: rootPath });
-        logger.info("initialized git repository.");
+        logger.info("Initialized git repository.");
       } catch (error) {
-        logger.warn("failed to initialize git repository. is git installed?");
+        logger.warn("Failed to initialize git repository. is git installed?");
       }
     }
 
@@ -190,7 +196,7 @@ export async function init(foundation?: string) {
 
       if (!templatePathRelative) {
         throw new Error(
-          `template not found for ${foundation.toLowerCase()} (express/${response.architecture})`
+          `Template not found for ${foundation.toLowerCase()} (express/${response.architecture})`
         );
       }
 
@@ -209,9 +215,9 @@ export async function init(foundation?: string) {
         cwd: rootPath
       });
 
-      logger.success(`servercn initialized with ${foundation}.`);
-      logger.info("configure environment variables in .env file.");
-      logger.log("run the following commands:");
+      logger.success(`${APP_NAME} initialized with ${foundation}.`);
+      logger.info("Configure environment variables in .env file.");
+      logger.log("Run the following commands:");
 
       if (response.root === ".") {
         logger.muted(`1. npm run dev\n`);
@@ -222,7 +228,7 @@ export async function init(foundation?: string) {
 
       return;
     } catch (error) {
-      logger.error(`failed to initialize foundation: ${error}`);
+      logger.error(`Failed to initialize foundation: ${error}`);
       process.exit(1);
     }
   }
@@ -231,47 +237,47 @@ export async function init(foundation?: string) {
     {
       type: "text",
       name: "root",
-      message: "project root directory",
+      message: "Project root directory",
       initial: ".",
       format: val => val.trim() || "."
     },
     {
       type: "text",
       name: "srcDir",
-      message: "source directory",
+      message: "Source directory",
       initial: "src",
       format: val => val.trim() || "src"
     },
     {
       type: "select",
       name: "architecture",
-      message: "select architecture",
+      message: "Select architecture",
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
         { title: "Feature-based (domain-driven modules)", value: "feature" }
-      ] as const
+      ]
     },
     {
       type: "select",
       name: "language",
-      message: "programming language",
+      message: "Programming language",
       choices: [
         {
           title: "typescript (recommended)",
           value: "typescript"
         }
-      ] as const
+      ]
     },
     {
       type: "select",
       name: "framework",
-      message: "backend framework",
+      message: "Backend framework",
       choices: [{ title: "express", value: "express" }]
     },
     {
       type: "select",
       name: "databaseType",
-      message: "select database",
+      message: "Select database",
       choices: [
         {
           title: "mongodb",
@@ -285,28 +291,28 @@ export async function init(foundation?: string) {
           title: "mysql",
           value: "mysql"
         }
-      ] as const
+      ]
     },
     {
       type: prev => (prev === "mongodb" ? "select" : null),
       name: "orm",
-      message: "mongodb library",
+      message: "Mongodb library",
       choices: [{ title: "mongoose", value: "mongoose" }]
     },
     {
       type: (_prev, values) =>
         ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
       name: "orm",
-      message: "orm / query builder",
+      message: "Orm / query builder",
       choices: [
         { title: "drizzle", value: "drizzle" }
         // { title: "prisma", value: "prisma" }
-      ] as const
+      ]
     }
   ]);
 
   if (!response.architecture) {
-    logger.warn("initialization cancelled.");
+    logger.warn("Initialization cancelled.");
     return;
   }
 
@@ -344,7 +350,7 @@ export async function init(foundation?: string) {
 
     meta: {
       createdAt: new Date().toISOString(),
-      createdBy: "servercn@1.0.0"
+      createdBy: `servercn@${LATEST_VERSION}`
     }
   };
 
@@ -352,13 +358,9 @@ export async function init(foundation?: string) {
     spaces: 2
   });
 
-  // await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
-  //   spaces: 2
-  // });
+  logger.success(`\n${APP_NAME} initialized successfully.`);
 
-  logger.success("servercn initialized successfully.");
-
-  logger.log("you may now add components by running:");
+  logger.log("You may now add components by running:");
   if (response.root === ".") {
     logger.muted("1. npx servercn add <component>");
   } else {

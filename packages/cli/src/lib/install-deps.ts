@@ -2,6 +2,7 @@ import { execa } from "execa";
 import { detectPackageManager } from "./detect";
 import { logger } from "../utils/logger";
 import type { InstallOptions } from "../types";
+import { spinner } from "../utils/spinner";
 
 export async function installDependencies({
   runtime = [],
@@ -12,29 +13,29 @@ export async function installDependencies({
 
   const pm = detectPackageManager();
 
+  const result = spinner("Installing Dependencies")?.start();
   const run = async (args: string[]) => {
-    logger.info(`installing dependencies: ${args.join(" ")}`);
     await execa(pm, args, {
       cwd,
       stdio: "inherit"
     });
   };
 
-  if (runtime.length) {
-    logger.section("runtime dependencies");
-    await run(getInstallArgs(pm, runtime, false));
-    logger.success(
-      `installed ${runtime.length} ${runtime.length > 1 ? "dependencies" : "dependency"}`
-    );
-  }
+  result?.succeed(
+    `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
+  );
+  await run(getInstallArgs(pm, runtime, false));
+  // logger.success(
+  //   `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
+  // );
 
-  if (dev.length) {
-    logger.section("dev dependencies");
-    await run(getInstallArgs(pm, dev, true));
-    logger.success(
-      `installed ${dev.length} ${dev.length > 1 ? "devDependencies" : "devDependency"}`
-    );
-  }
+  await run(getInstallArgs(pm, dev, true));
+  result?.succeed(
+    `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
+  );
+  // logger.success(
+  //   `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
+  // );
 }
 
 function getInstallArgs(

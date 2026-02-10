@@ -24,6 +24,8 @@ import type {
   RegistryItem,
   RegistryType
 } from "../types";
+import { capitalize } from "../utils/capitalize";
+import { spinner } from "../utils/spinner";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   if (!componentName) {
@@ -45,14 +47,14 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
   if (!component.stacks.includes(config.stack.framework)) {
     logger.error(
-      `${type} '${componentName}' does not support '${config.stack.framework}'.`
+      `${capitalize(type)} '${componentName}' does not support '${config.stack.framework}'.`
     );
     process.exit(1);
   }
 
   if (!component.architectures.includes(config.stack.architecture)) {
     logger.error(
-      `${type} '${componentName}' does not support '${config.stack.architecture}'.`
+      `${capitalize(type)} '${componentName}' does not support '${config.stack.architecture}'.`
     );
     process.exit(1);
   }
@@ -63,7 +65,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const templateDir = path.resolve(paths.templates(), templatePath);
   const targetDir = resolveTargetDir(".");
 
-  logger.section("📁 scaffolding component files");
+  const result = spinner("Scaffolding Component Files")?.start();
   await copyTemplate({
     templateDir,
     targetDir,
@@ -71,6 +73,8 @@ export async function add(componentName: string, options: AddOptions = {}) {
     conflict: options.force ? "overwrite" : "skip",
     dryRun: options.dryRun
   });
+
+  result.succeed("Scaffolding Component Files Successfully!");
 
   ensurePackageJson(process.cwd());
   ensureTsConfig(process.cwd());
@@ -92,7 +96,9 @@ export async function add(componentName: string, options: AddOptions = {}) {
 
   await runPostInstallHooks(componentName, type, component);
 
-  logger.success(`${type}: ${component.slug} added successfully\n`);
+  logger.success(
+    `\n${capitalize(type)}: ${component.slug} added successfully\n`
+  );
 }
 
 async function resolveTemplateResolution(
@@ -114,7 +120,7 @@ async function resolveTemplateResolution(
   const templateConfig = component.templates?.[framework];
   if (!templateConfig) {
     logger.error(
-      `framework '${framework}' is not supported by '${component.title.toLowerCase()}'.`
+      `Framework '${framework}' is not supported by '${component.title.toLowerCase()}'.`
     );
     process.exit(1);
   }
@@ -155,12 +161,14 @@ async function resolveTemplateResolution(
       );
 
       if (type === "blueprint" && selectedPath) {
+        const result = spinner("Installing Dependencies").start();
         const blueprintDeps = resolveDependencies(
           component as IBlueprint,
           framework,
           config.database?.type as DatabaseType,
           config.database?.orm as OrmType
         );
+        result.succeed();
         return {
           templatePath: selectedPath,
           additionalRuntimeDeps: blueprintDeps.runtime,
@@ -183,7 +191,7 @@ async function resolveTemplateResolution(
 
   if (!selectedPath) {
     logger.error(
-      `architecture '${architecture}' is not supported for ${type} '${component.slug}'.`
+      `Architecture '${architecture}' is not supported for ${type} '${component.slug}'.`
     );
     process.exit(1);
   }

@@ -45,7 +45,7 @@ export async function copyTemplate({
 
     if (exists) {
       if (conflict === "skip") {
-        logger.skip(`${relativeDestPath} (already exists)`);
+        logger.warn(`Skip: ${relativeDestPath} (already exists)`);
         continue;
       }
       if (conflict === "error") {
@@ -74,7 +74,7 @@ export async function copyTemplate({
     }
 
     exists
-      ? logger.overwritten(relativeDestPath)
-      : logger.created(relativeDestPath);
+      ? logger.warn(`Skip: ${relativeDestPath}`)
+      : logger.created(`Create: ${relativeDestPath}`);
   }
 }

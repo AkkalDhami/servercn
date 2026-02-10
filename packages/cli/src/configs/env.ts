@@ -1,9 +1,8 @@
 import { z } from "zod";
 import "dotenv/config";
+
 const envSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "test", "production"])
-    .default("development"),
+  NODE_ENV: z.string().default("development"),
   SERVERCN_SILENT: z.string().default("true"),
   LOG_LEVEL: z.string().default("info"),
   SERVERCN_URL: z.string().default("https://servercn.vercel.app")
