@@ -2,12 +2,12 @@
 
 ServerCN is a component registry for building production-ready Node.js backends by composition.
 
-`servercn` helps you scaffold and install **production-ready backend components**
-(logging, auth, validation, error handling, etc.) into an existing project —`similar in spirit to`shadcn/ui`, but for **backend infrastructure**.
+`servercn` helps you scaffold and install **backend components**
+(logging, auth, validation, error handling, etc.) into an existing project —`similar in spirit to `shadcn/ui`, but for **backend infrastructure**.
 
 Visit [ServerCN](https://servercn.vercel.app) for more information.
 
-[GitHub](https://github.com/akkaldhami/servercn)
+[GitHub Link](https://github.com/akkaldhami/servercn)
 
 ---
 
