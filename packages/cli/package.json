@@ -1,6 +1,6 @@
 {
-  "name": "servercn",
-  "version": "1.0.1",
+  "name": "@aavashdhami/servercn",
+  "version": "1.0.0",
   "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
@@ -25,7 +25,10 @@
     "api",
     "server"
   ],
-  "author": "akkal-dhami",
+  "author": {
+    "name": "akkal-dhami",
+    "url": "https://x.com/AavashDhami2127"
+  },
   "license": "MIT",
   "files": [
     "dist",
@@ -33,6 +36,11 @@
     "templates",
     "README.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AkkalDhami/servercn.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "dependencies": {
     "@inquirer/prompts": "^8.1.0",
@@ -41,6 +49,7 @@
     "execa": "^9.6.1",
     "fs-extra": "^11.3.3",
     "kleur": "^3.0.3",
+    "ora": "^9.3.0",
     "pino": "^10.1.0",
     "pino-http": "^11.0.0",
     "pino-pretty": "^13.1.3",
