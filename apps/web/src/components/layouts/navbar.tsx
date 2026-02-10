@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { MenuIcon, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { GITHUB_URL } from "@/lib/constants";
 
 const links = siteConfig.navItems;
 
@@ -78,7 +79,7 @@ export default function Navbar() {
               size="icon"
               className="hidden md:flex"
               variant="secondary">
-              <Link href="https://github.com/akkaldhami" target="_blank">
+              <Link href={GITHUB_URL} target="_blank">
                 <FaGithub className="size-4" />
               </Link>
             </Button>

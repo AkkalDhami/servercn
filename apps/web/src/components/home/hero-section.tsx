@@ -8,6 +8,7 @@ import { HeaderBadge } from "@/components/ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
+import { GITHUB_URL } from "@/lib/constants";
 
 export default function HeroSection() {
   return (
@@ -86,7 +87,7 @@ export default function HeroSection() {
                   "h-10 px-2 sm:h-12 sm:px-8"
                 )}>
                 <Link
-                  href="https://github.com/akkaldhami/servercn"
+                  href={GITHUB_URL}
                   target="_blank"
                   className="flex items-center">
                   <FaGithub className="size-5" />

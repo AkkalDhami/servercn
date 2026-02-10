@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Route } from "next";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { GiCrossedAxes } from "react-icons/gi";
+import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
 type FooterLink = {
   title: string;
   href: string;
@@ -71,17 +72,25 @@ export default function Footer() {
               Built with <Weapon /> by
               <Link
                 className="hover:text-foreground underline"
-                href="https://github.com/akkaldhami"
+                href={BASE_GITHUB_URL}
                 target="_blank">
                 Akkal Dhami
               </Link>
             </div>
-            <Link
-              className="hover:text-foreground underline"
-              href="https://github.com/akkaldhami/servercn"
-              target="_blank">
-              Github
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                className="hover:text-foreground underline"
+                href={GITHUB_URL}
+                target="_blank">
+                Github
+              </Link>
+              <Link
+                className="hover:text-foreground underline"
+                href={DISCORD_URL}
+                target="_blank">
+                Discord
+              </Link>
+            </div>
           </div>
         </div>
       </div>
