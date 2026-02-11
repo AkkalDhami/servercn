@@ -584,6 +584,7 @@ To see the complete database design, including the User schema from the Auth Dom
 
 [Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
 
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
 
 ## 1. User Schema
 
@@ -903,3 +904,5 @@ export default defineConfig({
   before use.
 - <Code children="strict: true" /> helps catch schema issues early during
   migration generation.
+
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />

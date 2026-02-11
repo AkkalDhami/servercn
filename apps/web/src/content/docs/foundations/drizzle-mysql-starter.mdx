@@ -10,27 +10,51 @@ mvc_structure:
         name: configs
         children:
           - type: file
+            name: db.ts
+            content: |
+              import { drizzle } from "drizzle-orm/mysql2";
+              import env from "./env";
+
+              const db = drizzle(env.DATABASE_URL!, {
+                logger: env.NODE_ENV === "development"
+              });
+
+              export default db;
+
+          - type: file
             name: env.ts
             content: |
               import "dotenv/config";
+              import { z } from "zod";
 
-              interface Config {
-                PORT: number;
-                NODE_ENV: string;
-                LOG_LEVEL: string;
-                CORS_ORIGIN: string;
-                DATABASE_URL: string;
+              export const envSchema = z.object({
+                NODE_ENV: z
+                  .enum(["development", "test", "production"])
+                  .default("development"),
+
+                PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+                DATABASE_URL: z.url(),
+
+                LOG_LEVEL: z
+                  .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+                  .default("info")
+              });
+
+              export type Env = z.infer<typeof envSchema>;
+
+              const result = envSchema.safeParse(process.env);
+
+              if (!result.success) {
+                console.error("❌ Invalid environment configuration");
+                console.error(z.prettifyError(result.error));
+                process.exit(1);
               }
 
-              const env: Config = {
-                PORT: Number(process.env.PORT) || 3000,
-                NODE_ENV: process.env.NODE_ENV || "development",
-                LOG_LEVEL: process.env.LOG_LEVEL || "info",
-                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
-                DATABASE_URL: process.env.DATABASE_URL || ""
-              };
+              export const env: Readonly<Env> = Object.freeze(result.data);
 
               export default env;
+
 
       - type: folder
         name: constants
@@ -552,30 +576,20 @@ feature_structure:
     name: src
     children:
       - type: folder
-        name: configs
+        name: db
         children:
           - type: file
-            name: env.ts
+            name: db.ts
             content: |
               import "dotenv/config";
+              import { drizzle } from "drizzle-orm/mysql2";
+              import env from "../shared/configs/env";
 
-              interface Config {
-                PORT: number;
-                NODE_ENV: string;
-                LOG_LEVEL: string;
-                CORS_ORIGIN: string;  
-                DATABASE_URL: string;
-              }
+              const db = drizzle(env.DATABASE_URL!, {
+                logger: env.NODE_ENV === "development"
+              });
 
-              const env: Config = {
-                PORT: Number(process.env.PORT) || 3000,
-                NODE_ENV: process.env.NODE_ENV || "development",
-                LOG_LEVEL: process.env.LOG_LEVEL || "info",
-                CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
-                DATABASE_URL: process.env.DATABASE_URL || ""
-              };
-
-              export default env;
+              export default db;
 
       - type: folder
         name: drizzle
@@ -604,7 +618,6 @@ feature_structure:
               //? Export all schemas from schemas directory
 
               export * from "./schemas/user.schema";
-
 
       - type: folder
         name: modules
@@ -694,6 +707,43 @@ feature_structure:
       - type: folder
         name: shared
         children:
+          - type: folder
+            name: configs
+            children:
+              - type: file
+                name: env.ts
+                content: |
+                  import "dotenv/config";
+                  import { z } from "zod";
+
+                  export const envSchema = z.object({
+                    NODE_ENV: z
+                      .enum(["development", "test", "production"])
+                      .default("development"),
+
+                    PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+                    DATABASE_URL: z.url(),
+
+                    LOG_LEVEL: z
+                      .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+                      .default("info")
+                  });
+
+                  export type Env = z.infer<typeof envSchema>;
+
+                  const result = envSchema.safeParse(process.env);
+
+                  if (!result.success) {
+                    console.error("❌ Invalid environment configuration");
+                    console.error(z.prettifyError(result.error));
+                    process.exit(1);
+                  }
+
+                  export const env: Readonly<Env> = Object.freeze(result.data);
+
+                  export default env;
+
           - type: folder
             name: constants
             children:
@@ -1021,7 +1071,7 @@ feature_structure:
 
           import { errorHandler } from "./shared/middlewares/error-handler";
           import { notFoundHandler } from "./shared/middlewares/not-found-handler";
-          import env from "./configs/env";
+          import env from "./shared/configs/env";
 
           const app: Express = express();
 
@@ -1057,7 +1107,7 @@ feature_structure:
         name: server.ts
         content: |
           import app from "./app";
-          import env from "./configs/env";
+          import env from "./shared/configs/env";
           import logger from "./shared/utils/logger";
           import { gracefulShutdown } from "./shared/utils/shutdown";
 
@@ -1185,7 +1235,7 @@ The server fails fast if required database variables are missing.
 
 Schemas are written using Drizzle’s SQL‑first, type‑safe API.
 
-<Code children="src/drizzle/schema.ts" />
+<Code children="src/drizzle/schemas/user.schema.ts" />
 
 ```ts
 import { mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
@@ -1212,7 +1262,9 @@ Schemas are:
 import { drizzle } from "drizzle-orm/mysql2";
 import env from "./env";
 
-const db = drizzle(env.DATABASE_URL!);
+const db = drizzle(env.DATABASE_URL!, {
+  logger: env.NODE_ENV === "development"
+});
 
 export default db;
 ```
@@ -1250,7 +1302,6 @@ The Drizzle MySQL Starter is designed to layer cleanly on top of:
 
 - Express Server Foundation
 - Request validation (Zod)
-- Auth and RBAC blocks
 
 This keeps responsibilities separated:
 

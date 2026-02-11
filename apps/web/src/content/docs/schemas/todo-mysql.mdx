@@ -116,6 +116,7 @@ To see the complete database design, including the User schema from the Auth Dom
 
 [Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
 
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
 
 ## Todo Schema
 
@@ -189,3 +190,6 @@ export const todosRelations = relations(todos, ({ one }) => ({
 - **Relational Integrity**: Consistent foreign key relationships with cascading deletes.
 - **Type Safety**: Full TypeScript support when performing CRUD operations.
 - **Optimized IDs**: Uses CHAR(36) to store UUIDs efficiently in MySQL.
+
+
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />

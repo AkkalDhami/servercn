@@ -115,6 +115,8 @@ To see the complete database design, including the User schema from the Auth Dom
 
 [Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
 
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
+
 ## Todo Schema
 
 The **Todo Schema** defines the structure of your tasks in PostgreSQL.
@@ -196,3 +198,6 @@ const userWithTodos = await db.query.users.findMany({
 - **Strict Data Types**: Uses appropriate types like `uuid` for IDs and `timestamp with time zone` for dates.
 - **Type Safety**: Infer models directly from the schema definition.
 - **Blazing Fast**: Optimized with indexes for user-specific lookups.
+
+
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
