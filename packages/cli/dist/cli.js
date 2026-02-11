@@ -119,7 +119,6 @@ import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
 function getServercnRoot() {
-  console.log({ path: path2.resolve(__dirname, "../../") });
   return path2.resolve(__dirname, "../../");
 }
 var paths = {
@@ -324,7 +323,14 @@ async function installDependencies({
 }) {
   if (!runtime.length && !dev.length) return;
   const pm = detectPackageManager();
-  const result = spinner("Installing Dependencies")?.start();
+  logger.log("\nInstalling Dependencies:");
+  runtime.forEach((dep) => logger.info(`- ${dep}`));
+  logger.log("\nInstalling devDependencies:");
+  dev.forEach((dep) => logger.info(`- ${dep}`));
+  logger.break();
+  const result = spinner("Installing Dependencies")?.start(
+    "Installing Dependencies"
+  );
   const run = async (args) => {
     await execa(pm, args, {
       cwd,
@@ -337,7 +343,7 @@ async function installDependencies({
   await run(getInstallArgs(pm, runtime, false));
   await run(getInstallArgs(pm, dev, true));
   result?.succeed(
-    `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
+    `Installed ${dev.length} ${dev.length > 1 ? "devDependencies" : "devDependency"}`
   );
 }
 function getInstallArgs(pm, packages, isDev) {
@@ -490,7 +496,6 @@ async function add(componentName, options = {}) {
   }
   const { templatePath, additionalRuntimeDeps, additionalDevDeps } = await resolveTemplateResolution(component, config, options);
   const templateDir = path11.resolve(paths.templates(), templatePath);
-  console.log(paths);
   const targetDir = resolveTargetDir(".");
   const result = spinner("Scaffolding Component Files")?.start();
   await copyTemplate({

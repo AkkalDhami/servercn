@@ -30,9 +30,9 @@ npm install
 This project is a monorepo managed with **npm workspaces**.
 
 - `apps/web`: The documentation website (Next.js).
-- `packages/cli/src`: The core CLI tool source code.
-- `packages/cli/registry`: The registry of components and templates.
-- `packages/cli/templates`: Boilerplate code specific to different architectures/stacks.
+- `packages/cli`: The core CLI tool source code.
+- `packages/registry`: The registry of components and templates.
+- `packages/templates`: Boilerplate code specific to different architectures/stacks.
 
 ## 💻 Development Workflow
 
@@ -69,8 +69,8 @@ npm run dev
 
 Components are located in `packages/registry`.
 
-- **Definition**: Update the JSON definition in `packages/cli/registry/components/`.
-- **Code**: Update the actual source code templates in `packages/cli/templates/`.
+- **Definition**: Update the JSON definition in `packages/registry/`.
+- **Code**: Update the actual source code templates in `packages/templates/`.
 
 ### 4. Running Scripts from Root
 
@@ -115,8 +115,8 @@ git push origin feature/my-new-feature
 
 If you are contributing a new component:
 
-1. Create the component definition in `packages/cli/registry/components/<name>.json`.
-2. Implement the component logic in `packages/cli/templates/components/<name>/`.
+1. Create the component definition in `packages/registry/components/<name>.json`.
+2. Implement the component logic in `packages/templates/components/<name>/`.
 3. Ensure it follows the project's architecture (Express/MVC standards).
 4. Add documentation in `apps/web/src/content/docs/components/<name>.mdx` 
 

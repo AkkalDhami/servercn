@@ -58,7 +58,6 @@ servercn add auth
 servercn add logger
 ```
 
-
 ## Components
 
 - ### API Error Handler
@@ -133,7 +132,7 @@ npx servercn add github-google-oauth
 npx servercn add health-check
 ```
 
-### And more.......
+### And more
 
 ### 3. List Components
 
@@ -147,7 +146,7 @@ npx servercn list
 
 The generated code follows a clean, MVC-inspired architecture designed for scalability:
 
-```
+```bash
 src/
 ├── config/         # Environment variables and configuration
 ├── controllers/    # Request handlers
