@@ -62,7 +62,6 @@ export async function add(componentName: string, options: AddOptions = {}) {
     await resolveTemplateResolution(component, config, options);
 
   const templateDir = path.resolve(paths.templates(), templatePath);
-  console.log(paths);
   const targetDir = resolveTargetDir(".");
 
   const result = spinner("Scaffolding Component Files")?.start();

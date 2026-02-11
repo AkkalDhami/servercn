@@ -13,7 +13,15 @@ export async function installDependencies({
 
   const pm = detectPackageManager();
 
+  logger.log("\nInstalling Dependencies:");
+  runtime.forEach(dep => logger.info(`- ${dep}`));
+
+  logger.log("\nInstalling devDependencies:");
+  dev.forEach(dep => logger.info(`- ${dep}`));
+
+  logger.break();
   const result = spinner("Installing Dependencies")?.start();
+
   const run = async (args: string[]) => {
     await execa(pm, args, {
       cwd,
@@ -25,17 +33,11 @@ export async function installDependencies({
     `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
   );
   await run(getInstallArgs(pm, runtime, false));
-  // logger.success(
-  //   `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
-  // );
 
   await run(getInstallArgs(pm, dev, true));
   result?.succeed(
-    `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
+    `Installed ${dev.length} ${dev.length > 1 ? "devDependencies" : "devDependency"}`
   );
-  // logger.success(
-  //   `Installed ${dev.length} ${dev.length > 1 ? "DevDependencies" : "DevDependency"}`
-  // );
 }
 
 function getInstallArgs(

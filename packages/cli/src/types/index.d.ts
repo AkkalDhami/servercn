@@ -16,7 +16,7 @@ export type OrmType = (typeof OrmList)[number];
 export type FrameworkType = (typeof FrameworkList)[number];
 export type RuntimeType = (typeof RuntimeList)[number];
 export type LanguageType = (typeof LanguageList)[number];
-
+export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 export interface AddOptions {
   type?: RegistryType;
   stack?: StackConfig;
