@@ -4,9 +4,10 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --watch ./src --exec tsx src/server.ts",
+    "dev": "tsx --watch src/server.ts",
     "build": "tsc",
-    "start": "node ./dist/server.js",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write"
   },
