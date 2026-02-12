@@ -24,10 +24,8 @@
     ],
     "dev": [
       "typescript",
-      "ts-node",
       "tsx",
       "dotenv",
-      "nodemon",
       "@types/node",
       "@types/express",
       "morgan",

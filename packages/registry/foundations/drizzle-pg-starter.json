@@ -27,8 +27,6 @@
       "typescript",
       "tsx",
       "dotenv",
-      "nodemon",
-      "ts-node",
       "@types/node",
       "@types/express",
       "@types/pg",

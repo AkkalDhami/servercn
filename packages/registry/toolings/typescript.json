@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["typescript", "@types/node", "tsx", "ts-node", "nodemon"]
+    "dev": ["typescript", "@types/node", "tsx"]
   }
 }
