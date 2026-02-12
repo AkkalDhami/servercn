@@ -31,7 +31,7 @@ const timestamps = {
 export const otps = pgTable(
   "otps",
   {
-    id: int("id").primaryKey().autoincrement(),
+    id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
     nextResendAllowedAt: timestamp("next_resend_allowed_at", {
