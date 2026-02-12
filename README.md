@@ -13,7 +13,6 @@ The goal of servercn is similar to shadcn/ui for frontends: instead of hiding lo
 ---
 
 ![ServerCN Components](./apps/web/public/assets/hero.png)
-![ServerCN Error Response](./apps/web/public/assets/error.png)
 
 ## 🚀 Key Features
 
