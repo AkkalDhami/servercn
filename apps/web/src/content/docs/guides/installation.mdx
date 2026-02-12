@@ -142,7 +142,7 @@ ServerCN supports **MongoDB** using the **Mongoose ODM**. When you choose this o
 For **MySQL**, ServerCN uses **Drizzle ORM**. This setup provides:
 
 - Fully type-safe schemas using Drizzle's TypeScript-first approach.
-- Migration scripts and configuration for `drizzle-kit`.
+- Migration scripts and configuration for <Code children="drizzle-kit" />.
 - Efficient relational data modeling with Drizzle's declarative syntax.
 
 ### PostgreSQL with Drizzle
@@ -178,10 +178,10 @@ To see all available components, foundations, blueprints, schemas.
 
 After initialization, your project structure will look like this:
 
-```
+```bash
 my-backend/
-├── src/                    # Source directory
-├── servercn.config.json          # ServerCN configuration
+├── src/                   # Source directory
+├── servercn.config.json   # ServerCN configuration
 ├── package.json           # Node.js dependencies
 └── tsconfig.json          # TypeScript configuration
 ```
@@ -190,9 +190,9 @@ my-backend/
 
 When using MVC architecture, components are organized as:
 
-```
+```bash
 src/
-├── configs/               # Configuration files
+├── configs/              # Configuration files
 ├── constants/            # Constants and enums
 ├── controllers/          # Route controllers
 ├── middlewares/          # Express middlewares
@@ -207,7 +207,7 @@ src/
 
 When using feature-based architecture, components are organized as:
 
-```
+```bash
 src/
 ├── shared/               # Shared code
 │   ├── configs/

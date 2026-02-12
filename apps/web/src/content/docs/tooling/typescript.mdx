@@ -106,23 +106,35 @@ Add the following scripts to your <Code children="package.json" />:
 ```json
 {
   "scripts": {
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "dev": "nodemon --watch ./src --exec tsx src/server.ts",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
   }
 }
 ```
+#### Using Nodemon (Optional)
 
-## nodemon.json
-
-<Code children="nodemon.json" />
+If you prefer nodemon, add a <Code children="nodemon.json" /> file:
 
 ```json
 {
   "watch": ["src"],
-  "ext": "ts,js,json",
-  "ignore": ["node_modules"],
-  "exec": "ts-node src/server.ts"
+  "ext": "ts",
+  "exec": "tsx src/server.ts"
+}
+```
+
+Then update your scripts:
+
+```json
+{
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  }
 }
 ```
 

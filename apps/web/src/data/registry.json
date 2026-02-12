@@ -133,7 +133,7 @@
     },
     {
       "slug": "health-check",
-      "title": "Health Check",
+      "title": "Health Check Endpoint",
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
       "status": "stable",

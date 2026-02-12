@@ -30,7 +30,7 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   h4: props => (
-    <h4 className="mt-4 mb-4 text-sm font-medium tracking-tight" {...props} />
+    <h4 className="mt-4 mb-4 text-lg font-medium tracking-tight" {...props} />
   ),
   p: props => (
     <p className="text-muted-primary mt-4 mb-3 leading-7" {...props} />

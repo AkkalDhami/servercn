@@ -1,61 +1,51 @@
 ---
 title: Introduction
-description: ServerCN is a component-based backend development system for Node.js and TypeScript.
+description: ServerCN is a component-based backend system for Node.js and TypeScript.
 ---
 
 # Introduction
 
-**ServerCN** is a revolutionary approach to backend development. It's not a framework; it's a **component-based development system** designed to help you build scalable, maintainable, and production-ready Node.js backends with the same modularity you enjoy in modern frontend development.
+**ServerCN** is a component-based system for building backend applications with Node.js and TypeScript.
 
-Instead of installing a monolithic framework that dictates your project structure, ServerCN provides a set of high-quality, decoupled components that you can "add" to your project. These components are then yours to own, modify, and extend.
+It’s not a framework.  
+It’s a way to compose your backend using reusable, copy-pasteable components that you fully own.
 
-## The Vision
+Instead of relying on heavy abstractions, ServerCN lets you add only what you need—auth, validation, error handling, and more—directly into your codebase.
 
-Modern web development has moved towards atomic design and component-driven architectures for the frontend. However, backend development often remains stuck in monolithic or overly-abstracted frameworks.
+## Philosophy
 
-ServerCN brings the **shadcn/ui** philosophy to the backend:
+ServerCN brings the **shadcn/ui** approach to the backend:
 
-- **No Hidden Abstractions**: You own the code. It lives in your repository.
-- **Architecture Aware**: Whether you use MVC, Feature-based, ServerCN adapts to you.
-- **Developer First**: Built with TypeScript for the best developer experience.
+- Own your code — no hidden runtime dependencies.
+- Add features as components, not packages.
+- Adapt to your architecture, not the other way around.
 
 ## Why ServerCN?
 
-Building a production-ready backend involves reinventing the wheel for common tasks:
+Backend projects often struggle with structure and consistency as they grow. ServerCN provides:
 
-- How do I handle global errors?
-- What's the best way to structure JWT authentication?
-- How should I validate incoming requests?
-- How do I keep my folder structure clean as the project grows?
+- Proven backend patterns
+- Clean and scalable folder structure
+- TypeScript-first components
+- CLI-driven component installation
 
-ServerCN answers these questions by providing **battle-tested patterns** as copy-pasteable (via CLI) components.
+You get production-ready building blocks without losing control.
 
 ## Core Principles
 
-### 1. Open Source & Open Code
+- **Open Code** — Components are copied into your project.
+- **Composable** — Build features by combining small modules.
+- **Architecture Agnostic** — Works with Express, Fastify, Next.js, and more.
+- **AI-Friendly** — Explicit, predictable code that works well with AI tools.
 
-When you add a component using ServerCN, the source code is copied directly into your project. There are no runtime dependencies on a "ServerCN Core" library. This means you can debug, customize, and refactor the code as if you wrote it yourself.
+## What ServerCN is Not
 
-### 2. Composition over Inheritance
+- Not a framework
+- Not an ORM
+- Not a black box
 
-ServerCN encourages building features by composing small, focused tools. Need auth? Add the <Code children="auth" /> component. Need better error handling? Add the <Code children="error-handler" />. They work together seamlessly without being tightly coupled.
-
-### 3. Architecture Agnostic
-
-ServerCN doesn't care if you're building a simple Express app or a complex microservices architecture. Our CLI is smart enough to detect your project structure and place files where they belong according to YOUR conventions.
-
-### 4. AI Optimized
-
-Because the code is explicit and follows consistent patterns, it is highly readable for AI coding assistants. This makes it easier to use tools like Copilot or ChatGPT to generate new features that match your existing codebase.
-
-## What ServerCN is NOT
-
-To understand ServerCN, it's important to know what it isn't:
-
-- **Not a Framework**: It doesn't "run" your app. You still use Express, Fastify, or even Next.js API routes.
-- **Not an ORM**: It works alongside ORMs like Prisma, Drizzle, or Mongoose rather than replacing them.
-- **Not a Black Box**: There is no magic happening behind <Code children="node_modules" />.
+It complements your existing stack instead of replacing it.
 
 ## Next Steps
 
-Ready to build better backends? Head over to the [Installation guide](/docs/installation) to get started with your first ServerCN project.
+Start with the [Installation guide](/docs/installation) and build your first ServerCN-powered backend.
