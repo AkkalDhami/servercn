@@ -9,7 +9,8 @@
   "scripts": {
     "build": "npm run build -ws",
     "dev": "npm run dev -ws",
-    "dev:app": "npm run dev -ws",
+    "dev:app": "npm run dev -w apps/web",
+    "dev:cli": "npm run dev -w packages/cli",
     "lint": "eslint .",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write",
