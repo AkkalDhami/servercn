@@ -1,0 +1,60 @@
+{
+  "title": "Todo",
+  "slug": "todo",
+  "type": "schema",
+  "domain": "todo",
+  "stacks": ["express"],
+  "architectures": ["mvc", "feature"],
+  "databases": ["mysql", "postgresql", "mongodb"],
+  "templates": {
+    "express": {
+      "mysql": {
+        "drizzle": {
+          "mvc": "schemas/todo/todo/express/mysql/drizzle/mvc",
+          "feature": "schemas/todo/todo/express/mysql/drizzle/feature"
+        }
+      },
+      "postgresql": {
+        "drizzle": {
+          "mvc": "schemas/todo/todo/express/postgresql/drizzle/mvc",
+          "feature": "schemas/todo/todo/express/postgresql/drizzle/feature"
+        }
+      },
+      "mongodb": {
+        "mongoose": {
+          "mvc": "schemas/todo/todo/express/mongodb/mongoose/mvc",
+          "feature": "schemas/todo/todo/express/mongodb/mongoose/feature"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "common": {
+      "runtime": [],
+      "dev": []
+    },
+    "stack:express": {
+      "runtime": ["express"],
+      "dev": ["@types/express"]
+    },
+    "db:mysql": {
+      "runtime": ["mysql2"],
+      "dev": []
+    },
+
+    "db:postgresql": {
+      "runtime": ["pg"],
+      "dev": ["@types/pg"]
+    },
+
+    "orm:mongoose": {
+      "runtime": ["mongoose"],
+      "dev": []
+    },
+
+    "orm:drizzle": {
+      "runtime": ["drizzle-orm"],
+      "dev": ["drizzle-kit"]
+    }
+  }
+}
