@@ -5,17 +5,17 @@ import { add } from "@/src/commands/add";
 import { init } from "@/src/commands/init";
 import { list } from "@/src/commands/list";
 import type { RegistryType } from "./types";
+import { LATEST_VERSION } from "./constants/app-constants";
 
 const program = new Command();
 
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
-
 async function main() {
   program
     .name("servercn")
     .description("Backend components for Node.js")
-    .version("0.0.1");
+    .version(LATEST_VERSION, "-v, --version", "display the version number");
 
   program
     .command("init [foundation]")

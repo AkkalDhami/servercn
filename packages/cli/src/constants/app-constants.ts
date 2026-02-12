@@ -1,7 +1,11 @@
+// @ts-ignore
+import packageJson from "../../package.json";
+
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 
 export const APP_NAME = "ServerCN";
-export const LATEST_VERSION = "1.0.0";
+
+export const LATEST_VERSION = packageJson.version || "1.0.0";
 
 export const RuntimeList = ["node"] as const;
 

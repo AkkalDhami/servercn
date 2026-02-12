@@ -9,8 +9,8 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": false,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
+      "*": ["./src/*"],
       "@/*": ["./*"],
       "@/src/*": ["./src/*"]
     }

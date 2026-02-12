@@ -103,7 +103,7 @@ export async function init(foundation?: string) {
       );
 
       const config: IServerCNConfig = {
-        version: "1.0.0",
+        version: LATEST_VERSION,
 
         project: {
           root: response.root,
@@ -124,7 +124,7 @@ export async function init(foundation?: string) {
 
         meta: {
           createdAt: new Date().toISOString(),
-          createdBy: "servercn@1.0.0"
+          createdBy: `servercn@${LATEST_VERSION}`
         }
       };
 
@@ -323,7 +323,7 @@ export async function init(foundation?: string) {
   await fs.ensureDir(srcPath);
 
   const config = {
-    version: "1.0.0",
+    version: LATEST_VERSION,
 
     project: {
       root: response.root,

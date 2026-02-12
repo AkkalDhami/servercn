@@ -8,7 +8,9 @@
     "servercn": "dist/cli.js"
   },
   "scripts": {
+    "dev": "tsup --watch",
     "build": "tsup",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -26,7 +28,8 @@
     "server"
   ],
   "author": {
-    "name": "akkal-dhami",
+    "name": "Akkal Dhami",
+    "github": "https://github.com//AkkalDhami",
     "url": "https://x.com/AavashDhami2127"
   },
   "license": "MIT",
