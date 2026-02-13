@@ -1,5 +1,5 @@
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { RegistryType } from "../types";
 
 const __filename = fileURLToPath(import.meta.url);

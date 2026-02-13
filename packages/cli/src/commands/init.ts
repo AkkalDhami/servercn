@@ -41,7 +41,6 @@ export async function init(foundation?: string) {
       alwaysStrict: true,
       useUnknownInCatchVariables: true,
       forceConsistentCasingInFileNames: true,
-      baseUrl: ".",
       paths: {
         "@/*": ["./*"]
       }

@@ -1,8 +1,7 @@
-import fs from "fs";
+import fs from "node:fs";
 import path from "path";
 import { execSync } from "child_process";
 import { logger } from "../utils/logger";
-
 export function ensurePackageJson(dir: string) {
   const pkgPath = path.join(dir, "package.json");
 
@@ -21,19 +20,26 @@ export function ensureTsConfig(dir: string) {
 
   if (fs.existsSync(tsconfigPath)) return;
 
-  const tsconfig = {
+  const tsConfig = {
     compilerOptions: {
       target: "ES2021",
-      module: "NodeNext",
-      moduleResolution: "NodeNext",
+      module: "es2022",
+      moduleResolution: "bundler",
       strict: true,
       esModuleInterop: true,
       skipLibCheck: true,
       outDir: "dist",
-      rootDir: "src"
+      rootDir: "src",
+      sourceMap: true,
+      alwaysStrict: true,
+      useUnknownInCatchVariables: true,
+      forceConsistentCasingInFileNames: true,
+      paths: {
+        "@/*": ["./*"]
+      }
     },
-    include: ["src"]
+    include: ["src/**/*"],
+    exclude: ["node_modules"]
   };
-
-  fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
+  fs.writeFileSync(tsconfigPath, JSON.stringify(tsConfig, null, 2));
 }
