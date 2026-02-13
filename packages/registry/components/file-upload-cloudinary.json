@@ -1,13 +1,13 @@
 {
-  "title": "File Upload",
-  "slug": "file-upload",
+  "title": "File Upload Cloudinary",
+  "slug": "file-upload-cloudinary",
   "type": "component",
   "stacks": ["express"],
   "architectures": ["mvc", "feature"],
   "templates": {
     "express": {
-      "mvc": "components/file-upload/express/mvc",
-      "feature": "components/file-upload/express/feature"
+      "mvc": "components/file-upload-cloudinary/express/mvc",
+      "feature": "components/file-upload-cloudinary/express/feature"
     }
   },
   "dependencies": {
