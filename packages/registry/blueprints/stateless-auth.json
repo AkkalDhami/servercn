@@ -44,7 +44,9 @@
         "pino",
         "pino-pretty",
         "zod",
-        "source-map-support"
+        "source-map-support",
+        "swagger-autogen",
+        "swagger-ui-express"
       ],
       "dev": [
         "@commitlint/cli",
@@ -64,13 +66,12 @@
         "@types/passport-google-oauth20",
         "dotenv",
         "morgan",
-        "nodemon",
         "prettier",
         "tsc-alias",
-        "ts-node",
         "tsx",
         "typescript",
-        "@types/source-map-support"
+        "@types/source-map-support",
+        "@types/swagger-ui-express"
       ]
     },
 
@@ -85,27 +86,13 @@
     },
 
     "db:mysql": {
-      "runtime": [
-        "mysql2",
-        "ejs",
-        "node-cron",
-        "redis",
-        "swagger-autogen",
-        "swagger-ui-express"
-      ],
-      "dev": ["@types/ejs", "@types/swagger-ui-express"]
+      "runtime": ["mysql2", "ejs", "node-cron", "redis"],
+      "dev": ["@types/ejs"]
     },
 
     "db:postgresql": {
-      "runtime": [
-        "pg",
-        "ejs",
-        "node-cron",
-        "redis",
-        "swagger-autogen",
-        "swagger-ui-express"
-      ],
-      "dev": ["@types/ejs", "@types/swagger-ui-express"]
+      "runtime": ["pg", "ejs", "node-cron", "redis"],
+      "dev": ["@types/ejs"]
     },
 
     "orm:mongoose": {
