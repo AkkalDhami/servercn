@@ -36,6 +36,7 @@
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/source-map-support": "^0.5.10",
+    "@types/swagger-ui-express": "^4.1.8",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9.0.0",
     "husky": "^9.1.7",
@@ -73,6 +74,7 @@
     "resend": "^6.9.1",
     "servercn": "^1.0.0",
     "source-map-support": "^0.5.21",
+    "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
