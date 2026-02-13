@@ -7,9 +7,8 @@ import { notFoundHandler } from "./middlewares/not-found-handler";
 import { errorHandler } from "./middlewares/error-handler";
 import Routes from "./routes/index";
 import { startRefreshTokenCleanupJob } from "./cron/cleanup-refresh-tokens.cron";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./docs/swagger.json";
 import { rateLimiter } from "./middlewares/rate-limiter";
+import { setupSwagger } from "./configs/swagger";
 
 const app: Express = express();
 
@@ -33,13 +32,13 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api", Routes);
 
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Start refresh token cleanup job
 startRefreshTokenCleanupJob();
 
-app.get(["/docs-json", "/api-docs-json"], (req: Request, res: Response) => {
-  res.json(swaggerDocument);
-});
+// Initialize Swagger
+setupSwagger(app);
 
+// Apply global rate limiter middleware
 app.use(rateLimiter);
 
 // Not found handler (should be after routes)

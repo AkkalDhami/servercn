@@ -1,12 +1,14 @@
 import swaggerAutoGen from "swagger-autogen";
 
+import env from "./src/shared/configs/env";
+
 const doc = {
   info: {
     title: "Stateless Auth API",
     description: "Stateless Auth API",
     version: "1.0.0"
   },
-  host: "localhost:8000",
+  host: `localhost:${env.PORT}`,
   schemes: ["http"]
 };
 

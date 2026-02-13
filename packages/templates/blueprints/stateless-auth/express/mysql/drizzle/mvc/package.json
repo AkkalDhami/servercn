@@ -1,13 +1,14 @@
 {
-  "name": "servercn-express-app",
+  "name": "servercn-stateless-auth",
   "version": "1.0.0",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --watch ./src --exec tsx src/server.ts",
-    "build": "tsc && tsc-alias",
-    "start": "node ./dist/server.js",
-    "docs": "node swagger.js",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "docs": "node swagger.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
