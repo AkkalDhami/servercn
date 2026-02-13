@@ -12,7 +12,6 @@
     "alwaysStrict": true,
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@/src/*": ["./src/*"]

@@ -9,6 +9,7 @@ import { configureSecurityHeaders } from "./middlewares/security-header";
 import Routes from "./routes/index";
 
 import "./configs/passport";
+import { setupSwagger } from "./configs/swagger";
 
 const app: Express = express();
 
@@ -26,6 +27,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api", Routes);
+
+setupSwagger(app);
 
 //? Not-found-handler (should be after routes)
 app.use(notFoundHandler);
