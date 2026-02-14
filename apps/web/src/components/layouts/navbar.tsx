@@ -14,6 +14,8 @@ import { MenuIcon, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GITHUB_URL } from "@/lib/constants";
+import { StickyBanner } from "./sticky-banner";
+import Code from "../docs/custom-code";
 
 const links = siteConfig.navItems;
 
@@ -37,6 +39,17 @@ export default function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="bg-background fixed top-0 left-0 z-40 w-full">
+        <StickyBanner className="min-h-10 bg-linear-to-b from-neutral-900 to-neutral-800">
+          <p className="mx-0 max-w-[90%] text-white drop-shadow-md">
+            <strong>npx servercn init</strong> is not supported. Use{" "}
+            <strong>npx @aavashdhami/servercn init</strong> instead.
+          </p>
+          <p className="mx-0 max-w-[90%] text-white drop-shadow-md">
+            <strong>servercn</strong> is not supported. Use{" "}
+            <strong>@aavashdhami/servercn</strong> instead.
+          </p>
+        </StickyBanner>
+
         <nav className="mx-auto flex max-w-368 items-center justify-between px-4 py-2 md:py-3">
           <Logo />
 

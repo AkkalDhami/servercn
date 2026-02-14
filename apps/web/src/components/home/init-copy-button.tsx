@@ -19,7 +19,7 @@ export default function InitCopyButton() {
   return (
     <div
       onClick={handleCopy}
-      className="group bg-background relative flex w-60 cursor-pointer items-center gap-5 rounded-md px-3 py-1 text-center font-mono">
+      className="group bg-background relative flex w-90 cursor-pointer items-center gap-5 rounded-md px-3 py-1 text-center font-mono">
       <div className="text-primary">
         <span
           className={cn(
@@ -36,7 +36,7 @@ export default function InitCopyButton() {
             "group-hover:text-accent-foreground duration-200",
             copied && "text-accent-foreground"
           )}>
-          npx servercn init
+          npx @aavashdhami/servercn init
         </span>
       </div>
       <CopyButton

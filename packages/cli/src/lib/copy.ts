@@ -13,7 +13,7 @@ export async function copyTemplate({
   dryRun = false
 }: CopyOptions) {
   if (!(await fs.pathExists(templateDir))) {
-    logger.error(`template not found: ${templateDir}`);
+    logger.error(`Template not found: ${templateDir}`);
     process.exit(1);
   }
 
@@ -49,7 +49,7 @@ export async function copyTemplate({
         continue;
       }
       if (conflict === "error") {
-        throw new Error(`file already exists: ${relativeDestPath}`);
+        throw new Error(`File already exists: ${relativeDestPath}`);
       }
     }
 
@@ -75,6 +75,6 @@ export async function copyTemplate({
 
     exists
       ? logger.warn(`Skip: ${relativeDestPath}`)
-      : logger.created(`Create: ${relativeDestPath}`);
+      : logger.created(`${relativeDestPath}`);
   }
 }

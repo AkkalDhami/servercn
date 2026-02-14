@@ -16,13 +16,7 @@ import { Kbd } from "@/components/ui/kbd";
 
 import Link from "next/link";
 import { Route } from "next";
-import {
-  CircleArrowRight,
-  CircleCheckBig,
-  CircleChevronRight,
-  CircleDashed,
-  CircleIcon
-} from "lucide-react";
+import { CircleIcon } from "lucide-react";
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
@@ -39,7 +33,7 @@ export default function SearchCommand({
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen(open => !open);
       }
@@ -76,7 +70,7 @@ export default function SearchCommand({
         </div>
 
         <Kbd className="group-hover:text-accent-foreground text-muted-foreground text-sm font-medium duration-300">
-          ⌘ + J
+          ⌘ + K
         </Kbd>
       </Button>
       <CommandDialog
