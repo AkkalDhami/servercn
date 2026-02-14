@@ -1348,12 +1348,6 @@ export default app;
 
 This response is formated by <Code children="ApiResponse" /> component.
 
-## Limitations
-
-- **Stateless by Default**: This implementation is configured for stateless authentication (`session: false`). It is designed for REST APIs that use JWTs, not for traditional server-side rendered applications using cookies/sessions.
-- **No Automatic Persistence**: The component retrieves user profile data from Google but **does not** automatically save it to your database. You must implement the logic to find, create, or update the user in your database within the controller.
-- **Token Generation**: While it handles the Google OAuth flow, it does not generate your application's access or refresh tokens. You need to implement your own token generation logic (e.g., using `jsonwebtoken`) after a successful Google login.
-
 ## Common Issues
 
 ### "redirect_uri_mismatch"

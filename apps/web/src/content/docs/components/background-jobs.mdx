@@ -171,6 +171,7 @@ app.listen(PORT, () => {
 
 ## Cron Syntax Refresher
 
+```bash
 | Schedule               | Syntax       |
 | :--------------------- | :----------- |
 | Every minute           | `* * * * *`  |
@@ -178,12 +179,54 @@ app.listen(PORT, () => {
 | Every day at midnight  | `0 0 * * *`  |
 | Every Sunday at noon   | `0 12 * * 0` |
 | Every 1st of the month | `0 0 1 * *`  |
+```
 
 ## Real-World Examples
 
 Here are some common scenarios where background jobs are used in production-grade Express applications.
 
-### 1. Daily Database Cleanup
+### 1. Expired Refresh Tokens Cleanup
+
+<Code children="src/cron/cleanup-refresh-tokens.cron.ts"/> or <Code children="src/jobs/cleanup-refresh-tokens.job.ts"/>
+
+```ts
+import cron from "node-cron";
+import { lt, or, eq } from "drizzle-orm";
+import { refreshTokens } from "../drizzle";
+import db from "../configs/db";
+import { logger } from "../utils/logger";
+
+export function startRefreshTokenCleanupJob() {
+  cron.schedule(
+    "0 2 * * *", // daily at 2 am
+    async () => {
+      try {
+        const now = new Date();
+
+        const [result] = await db
+          .delete(refreshTokens)
+          .where(
+            or(
+              lt(refreshTokens.expiresAt, now),
+              eq(refreshTokens.isRevoked, true)
+            )
+          );
+
+        logger.info(
+          `Refresh token cleanup completed. Deleted ${result.affectedRows} records`
+        );
+      } catch (error) {
+        logger.error(error, "Refresh token cleanup failed");
+      }
+    },
+    {
+      timezone: "Asia/Kathmandu"
+    }
+  );
+}
+```
+
+### 2. Daily Database Cleanup
 
 Remove unverified users who haven't verified their email within 24 hours.
 
@@ -210,7 +253,7 @@ export const cleanupUnverifiedUsers = cron.schedule("0 0 * * *", async () => {
 });
 ```
 
-### 2. System Health Heartbeat
+### 3. System Health Heartbeat
 
 Send a heartbeat or log system performance metrics every 15 minutes.
 
@@ -232,7 +275,7 @@ export const systemMonitorJob = cron.schedule("*/15 * * * *", () => {
 });
 ```
 
-### 3. Syncing Exchange Rates
+### 4. Syncing Exchange Rates
 
 Fetch and cache currency exchange rates from an external API every hour.
 
@@ -259,7 +302,7 @@ export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
 
 ### 1. Error Handling
 
-Always wrap your job logic in `try-catch` blocks to prevent an error in one job from crashing your entire Node.js process.
+Always wrap your job logic in **try-catch** blocks to prevent an error in one job from crashing your entire Node.js process.
 
 ### 2. Logging
 

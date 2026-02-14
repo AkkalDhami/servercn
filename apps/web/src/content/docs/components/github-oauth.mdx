@@ -952,8 +952,8 @@ Documentation:
 1. Go to your [GitHub Settings](https://github.com/settings/profile)
 2. Developer settings -> OAuth Apps -> New OAuth App
 3. Fill in the required information
-4. Set **Homepage URL** to `http://localhost:9000` (or your production URL)
-5. Set **Authorization callback URL** to `http://localhost:9000/api/auth/github/callback` (or your production URL)
+4. Set **Homepage URL** to <Code children="http://localhost:9000"/> (or your production URL)
+5. Set **Authorization callback URL** to <Code children="http://localhost:9000/api/auth/github/callback"/> (or your production URL)
 6. Register application
 7. Generate a **Client Secret**
 8. Copy the **Client ID** and **Client Secret**
@@ -1285,12 +1285,6 @@ export default app;
 ```
 
 This response is formated by <Code children="ApiResponse" /> component.
-
-## Limitations
-
-- **Stateless by Default**: This implementation is configured for stateless authentication (`session: false`). It is designed for REST APIs that use JWTs, not for traditional server-side rendered applications using cookies/sessions.
-- **No Automatic Persistence**: The component retrieves user profile data from GitHub but **does not** automatically save it to your database. You must implement the logic to find, create, or update the user in your database within the controller.
-- **Token Generation**: While it handles the GitHub OAuth flow, it does not generate your application's access or refresh tokens. You need to implement your own token generation logic (e.g., using `jsonwebtoken`) after a successful GitHub login.
 
 ## Common Issues
 

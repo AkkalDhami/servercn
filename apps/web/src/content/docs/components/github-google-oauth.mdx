@@ -1060,14 +1060,14 @@ This component requires additional ServerCN components.
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
 2. Create/Select a project -> Enable **Google+ API**
 3. Create Credentials -> OAuth Client ID -> Web Application
-4. Authorized Redirect URI: `http://localhost:3000/api/auth/google/callback`
+4. Authorized Redirect URI: <Code children="http://localhost:3000/api/auth/google/callback" />
 5. Copy **Client ID** and **Client Secret**
 
 ### GitHub OAuth Setup
 
 1. Go to [GitHub Settings > Developer settings](https://github.com/settings/profile)
 2. New OAuth App
-3. Authorization callback URL: `http://localhost:3000/api/auth/github/callback`
+3. Authorization callback URL: <Code children="http://localhost:3000/api/auth/github/callback" />
 4. Copy **Client ID** and **Client Secret**
 
 ### Environment Variables
@@ -1083,22 +1083,6 @@ GITHUB_CLIENT_ID="your-github-client-id"
 GITHUB_CLIENT_SECRET="your-github-client-secret"
 GITHUB_REDIRECT_URI="your-github-redirect-uri"
 ```
-
-## Basic Implementation
-
-### 1. MVC Structure
-
-(See `mvc_structure` blocks below for file details)
-
-### 2. Feature Structure
-
-(See `feature_structure` blocks below for file details)
-
-## Limitations & Common Issues
-
-- **Stateless**: Uses `session: false`.
-- **Manual Persistence**: You must implement the database saving logic.
-- **Redirect URI Mismatch**: Ensure strict matching with provider settings.
 
 ## Related Components
 

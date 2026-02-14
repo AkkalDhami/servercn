@@ -86,9 +86,6 @@ mvc_structure:
   - type: file
     name: .env.example
     content: |
-      # Environment variables
-      # See https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables
-
       # Node environment
       NODE_ENV=development
 
@@ -220,9 +217,6 @@ feature_structure:
   - type: file
     name: .env.example
     content: |
-      # Environment variables
-      # See https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables
-
       # Node environment
       NODE_ENV=development
 
@@ -278,7 +272,7 @@ To ensure your application has all the required environment variables with the c
 
 - **Type Safety**: Automatic TypeScript types for your environment variables.
 - **Fail Fast**: The application will not start if any required environment variable is missing or invalid.
-- **Centralized Access**: Access all environment variables through a single, validated `env` object.
+- **Centralized Access**: Access all environment variables through a single, validated <Code children="env"/> object.
 - **Default Values**: Easily provide default values for optional environment variables.
 
 ## Installation Guide
@@ -289,7 +283,7 @@ Install the component using the ServerCN CLI:
 
 ## Basic Implementation
 
-Create a file named `src/configs/env.ts` (or similar) and add the following code:
+Create a file named <Code children="src/configs/env.ts"/>  (or similar) and add the following code:
 
 ```ts
 import "dotenv/config";
@@ -366,7 +360,7 @@ export default env;
 
 ## Usage
 
-You can now import the `env` object anywhere in your application and get full type safety and auto-completion.
+You can now import the <Code children="env"/> object anywhere in your application and get full type safety and auto-completion.
 
 ```ts
 import env from "./configs/env";
@@ -379,13 +373,13 @@ console.log(env.NODE_ENV); // Typed as "development" | "test" | "production"
 
 Using Zod for environment validation provides several benefits:
 
-1. **Validation**: It ensures that environment variables like `PORT` are actually strings/numbers as expected.
+1. **Validation**: It ensures that environment variables like **PORT** are actually strings/numbers as expected.
 2. **Transformation**: You can transform strings into other types (e.g., parsing a string to a boolean or number).
 3. **Error Reporting**: If an environment variable is missing or wrong, Zod provides detailed error messages.
 
 ## Example .env file
 
-Make sure to create a `.env` file in your root directory:
+Make sure to create a <Code children=".env"/> file in your root directory:
 
 ```bash
 PORT=9000
