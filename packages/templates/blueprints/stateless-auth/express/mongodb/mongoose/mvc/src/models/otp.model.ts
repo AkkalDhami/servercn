@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { OTPType } from "../types/user";
-import { OTP_MAX_ATTEMPTS, OTP_TYPES } from "../constants/auth";
+import { OTP_EXPIRES_IN, OTP_MAX_ATTEMPTS, OTP_TYPES } from "../constants/auth";
 
 //? otp interface
 export interface IOtp extends Document {
@@ -43,8 +43,7 @@ const otpSchema = new Schema<IOtp>(
     },
     expiresAt: {
       type: Date,
-      required: [true, "Expiration time is required"],
-      index: { expires: 0 } // TTL index - MongoDB auto-deletes expired docs
+      required: [true, "Expiration time is required"]
     },
     isUsed: {
       type: Boolean,
@@ -69,7 +68,10 @@ const otpSchema = new Schema<IOtp>(
 
 // Performance Indexes
 otpSchema.index({ email: 1, type: 1 }); // Quick lookup by email and type
-otpSchema.index({ expiresAt: 1 }); // TTL index for auto-cleanup
+otpSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: OTP_EXPIRES_IN / 1000 } // 5 minutes
+);
 
 const Otp: Model<IOtp> =
   mongoose.models.Otp || mongoose.model<IOtp>("Otp", otpSchema);

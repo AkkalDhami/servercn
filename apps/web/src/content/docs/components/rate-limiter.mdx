@@ -60,8 +60,8 @@ mvc_structure:
               export const rateLimiter = rateLimit({
                 windowMs: 15 * 60 * 1000, // 15 minutes
                 max: 100, // Limit each IP to 100 requests per window
-                standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-                legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+                standardHeaders: true, // Return rate limit info in the <COde children="RateLimit-*" /> headers
+                legacyHeaders: false, // Disable the <COde children="X-RateLimit-*" /> headers
                 message: {
                   success: false,
                   message:
@@ -464,8 +464,8 @@ Documentation: [Global Error Handler](/docs/components/global-error-handler)
 The rate limiter can be customized to fit your application's needs:
 
 - **windowMs**: The timeframe for which requests are checked (in milliseconds).
-- **max**: The maximum number of connections to allow during the `windowMs` before returning a 429 error.
-- **standardHeaders**: Enables the `RateLimit-*` headers in the response.
+- **max**: The maximum number of connections to allow during the <Code children="windowMs" /> before returning a 429 error.
+- **standardHeaders**: Enables the <Code children="RateLimit-*" /> headers in the response.
 - **handler**: A custom function to execute when the limit is reached. In ServerCN, we use it to forward the error to our global error handler.
 
 ## Basic Implementation
@@ -605,7 +605,7 @@ export const changePasswordLimiter = rateLimit({
 
 ### Global Rate Limiting
 
-Apply the rate limiter globally in your main `app.ts` file to protect all routes by default.
+Apply the rate limiter globally in your main <Code children="app.ts" /> file to protect all routes by default.
 
 <Code children="src/app.ts" />
 
@@ -672,12 +672,12 @@ export const redisRateLimiter = rateLimit({
 
 ## Best Practices
 
-1.  **Trust Proxy**: If your app is behind a reverse proxy (like Nginx, Heroku, Cloudflare), you must enable `trust proxy` in Express to get the real IP address.
+1.  **Trust Proxy**: If your app is behind a reverse proxy (like Nginx, Heroku, Cloudflare), you must enable **trust proxy** in Express to get the real IP address.
     ```ts
     app.set("trust proxy", 1);
     ```
-2.  **Informative Errors**: Always use the `handler` option to return a structured error message using `ApiError`.
-3.  **Exemptions**: If you have internal services or webhooks that should never be throttled, use the `skip` option:
+2.  **Informative Errors**: Always use the **handler** option to return a structured error message using **ApiError**.
+3.  **Exemptions**: If you have internal services or webhooks that should never be throttled, use the **skip** option:
     ```ts
     skip: (req) => req.ip === "127.0.0.1",
     ```

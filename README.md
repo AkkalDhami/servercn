@@ -8,8 +8,6 @@
 
 **ServerCN** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
 
-The goal of servercn is similar to shadcn/ui for frontends: instead of hiding logic behind heavy abstractions, it gives you copy‑friendly, understandable, and extensible backend building blocks that you fully own.
-
 ---
 
 ![ServerCN Components](./apps/web/public/assets/hero.png)
@@ -47,14 +45,14 @@ npx servercn init
 Add specific modules to your existing project. This allows for incremental adoption.
 
 ```bash
-servercn add [component-name]
+mpx servercn add [component-name]
 ```
 
 Examples:
 
 ```bash
-servercn add auth
-servercn add logger
+npx servercn add logger-pino
+npx servercn add logger-winston
 ```
 
 ## Components
