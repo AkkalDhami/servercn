@@ -61,11 +61,11 @@ export default function ComponentsPage() {
           <ComponentCard key={component.slug} component={component} />
         ))}
       </div>
-      {/* verwsion details and totoal components count */}
+
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total components:{" "}
-          {components.length} | Stable components: {stableComponents.length}
+          Total components: {components.length} | Stable components:{" "}
+          {stableComponents.length}
         </p>
       </div>
     </Container>

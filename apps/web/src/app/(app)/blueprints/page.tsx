@@ -61,8 +61,7 @@ export default function BlueprintsPage() {
 
       <div className="mt-6 flex items-center justify-end">
         <p className="text-muted-foreground text-sm">
-          Version: {registry.version.version} | Total blueprints:{" "}
-          {blueprints.length}
+          Total blueprints: {blueprints.length}
         </p>
       </div>
     </Container>

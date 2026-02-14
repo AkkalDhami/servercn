@@ -1,7 +1,7 @@
 {
   "name": "ServerCN",
-  "homepage": "https://servercn.com",
-  "author": "akkaldhami",
+  "homepage": "https://servercn.vercel.app",
+  "author": "Akkal Dhami",
   "items": [
     {
       "slug": "introduction",
@@ -409,9 +409,5 @@
         "relations": true
       }
     }
-  ],
-  "version": {
-    "version": "1.0.0",
-    "lastUpdated": "2026-01-10"
-  }
+  ]
 }
