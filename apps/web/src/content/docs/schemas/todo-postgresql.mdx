@@ -18,34 +18,156 @@ mvc_structure:
                 content: |
                   import {
                     boolean,
-                    pgTable,
                     text,
-                    timestamp,
-                    uuid,
                     varchar,
-                    index
+                    char,
+                    index,
+                    serial,
+                    pgTable
                   } from "drizzle-orm/pg-core";
                   import { users } from "./user.schema";
+                  import { relations } from "drizzle-orm";
+                  import { timestamps } from "./schema.helper";
 
-                  export const todos = pgTable("todos", {
-                    id: uuid("id").primaryKey().defaultRandom(),
-                    userId: uuid("user_id")
-                      .notNull()
-                      .references(() => users.id, { onDelete: "cascade" }),
-                    title: varchar("title", { length: 255 }).notNull(),
-                    description: text("description"),
-                    completed: boolean("completed").notNull().default(false),
-                    createdAt: timestamp("created_at").notNull().defaultNow(),
-                    updatedAt: timestamp("updated_at")
-                      .notNull()
-                      .defaultNow()
-                  }, (table) => [
-                    index("todo_user_id_idx").on(table.userId),
-                    index("todo_completed_idx").on(table.completed)
-                  ]);
+                  export const todos = pgTable(
+                    "todos",
+                    {
+                      id: serial().primaryKey(),
+                      userId: char("user_id", { length: 36 })
+                        .notNull()
+                        .references(() => users.id, { onDelete: "cascade" }),
+                      title: varchar("title", { length: 255 }).notNull(),
+
+                      description: text("description"),
+                      completed: boolean("completed").notNull().default(false),
+
+                      ...timestamps
+                    },
+                    table => [
+                      index("todo_user_id_idx").on(table.userId),
+                      index("todo_completed_idx").on(table.completed)
+                    ]
+                  );
+
+                  //? Relations between
+                  //? ii. todo and users.
+                  //? (many-to-one)
+                  export const todosRelations = relations(todos, ({ one }) => ({
+                    user: one(users, {
+                      fields: [todos.userId],
+                      references: [users.id]
+                    })
+                  }));
 
                   export type Todo = typeof todos.$inferSelect;
                   export type NewTodo = typeof todos.$inferInsert;
+ 
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    integer,
+                    json,
+                    uniqueIndex,
+                    index,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { todos } from "./todo.schema";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const roleEnum = pgEnum("role", ["user", "admin"]);
+                  export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+                  export const users = pgTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: roleEnum("role").default("user").notNull(),
+
+                      provider: providerEnum("provider").default("local").notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  //? Relations between:
+                  //? user and todos.
+                  //? (One-to-Many)
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    todos: many(todos)
+                  }));
+
+                  //? User type
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/todo.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "postgresql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
 
 feature_structure:
   - type: folder
@@ -62,34 +184,157 @@ feature_structure:
                 content: |
                   import {
                     boolean,
-                    pgTable,
                     text,
-                    timestamp,
-                    uuid,
                     varchar,
-                    index
+                    char,
+                    index,
+                    serial,
+                    pgTable
                   } from "drizzle-orm/pg-core";
                   import { users } from "./user.schema";
+                  import { relations } from "drizzle-orm";
+                  import { timestamps } from "./schema.helper";
 
-                  export const todos = pgTable("todos", {
-                    id: uuid("id").primaryKey().defaultRandom(),
-                    userId: uuid("user_id")
-                      .notNull()
-                      .references(() => users.id, { onDelete: "cascade" }),
-                    title: varchar("title", { length: 255 }).notNull(),
-                    description: text("description"),
-                    completed: boolean("completed").notNull().default(false),
-                    createdAt: timestamp("created_at").notNull().defaultNow(),
-                    updatedAt: timestamp("updated_at")
-                      .notNull()
-                      .defaultNow()
-                  }, (table) => [
-                    index("todo_user_id_idx").on(table.userId),
-                    index("todo_completed_idx").on(table.completed)
-                  ]);
+                  export const todos = pgTable(
+                    "todos",
+                    {
+                      id: serial().primaryKey(),
+                      userId: char("user_id", { length: 36 })
+                        .notNull()
+                        .references(() => users.id, { onDelete: "cascade" }),
+                      title: varchar("title", { length: 255 }).notNull(),
+
+                      description: text("description"),
+                      completed: boolean("completed").notNull().default(false),
+
+                      ...timestamps
+                    },
+                    table => [
+                      index("todo_user_id_idx").on(table.userId),
+                      index("todo_completed_idx").on(table.completed)
+                    ]
+                  );
+
+                  //? Relations between
+                  //? ii. todo and users.
+                  //? (many-to-one)
+                  export const todosRelations = relations(todos, ({ one }) => ({
+                    user: one(users, {
+                      fields: [todos.userId],
+                      references: [users.id]
+                    })
+                  }));
 
                   export type Todo = typeof todos.$inferSelect;
                   export type NewTodo = typeof todos.$inferInsert;
+ 
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    integer,
+                    json,
+                    uniqueIndex,
+                    index,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { todos } from "./todo.schema";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const roleEnum = pgEnum("role", ["user", "admin"]);
+                  export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+                  export const users = pgTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: roleEnum("role").default("user").notNull(),
+
+                      provider: providerEnum("provider").default("local").notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  //? Relations between:
+                  //? user and todos.
+                  //? (One-to-Many)
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    todos: many(todos)
+                  }));
+
+                  //? User type
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/todo.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "postgresql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
 ---
 
 # Todo (PostgreSQL)
@@ -117,87 +362,216 @@ To see the complete database design, including the User schema from the Auth Dom
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
 
-## Todo Schema
+## 1. User Schema
+
+The **User Schema** is the core component for storing user identity, credentials, and profile information.
+
+**File Path:** <Code children="src/drizzle/schemas/user.schema.ts"/>
+
+```ts
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  integer,
+  json,
+  uniqueIndex,
+  index,
+  pgEnum
+} from "drizzle-orm/pg-core";
+import { timestamps } from "./schema.helper";
+import { relations } from "drizzle-orm";
+import { todos } from "./todo.schema";
+
+export interface IAvatar {
+  public_id?: string;
+  url: string;
+  size?: number;
+}
+
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }),
+    role: roleEnum("role").default("user").notNull(),
+
+    provider: providerEnum("provider").default("local").notNull(),
+    providerId: varchar("provider_id", { length: 255 }),
+
+    avatar: json("avatar").$type<IAvatar>(),
+
+    isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+    lastLoginAt: timestamp("last_login_at"),
+    failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+    lockUntil: timestamp("lock_until"),
+
+    isDeleted: boolean("is_deleted").default(false).notNull(),
+    deletedAt: timestamp("deleted_at"),
+    reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+    ...timestamps
+  },
+  table => [
+    uniqueIndex("email_idx").on(table.email),
+    index("role_idx").on(table.role),
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
+);
+
+//? Relations between:
+//? user and todos.
+//? (One-to-Many)
+export const usersRelations = relations(users, ({ many }) => ({
+  todos: many(todos)
+}));
+
+//? User type
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+## 2. Todo Schema
 
 The **Todo Schema** defines the structure of your tasks in PostgreSQL.
 
-**MVC Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>  
-**Feature Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>
+**File Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>  
 
 ```ts
 import {
   boolean,
-  pgTable,
   text,
-  timestamp,
-  uuid,
   varchar,
-  index
+  char,
+  index,
+  serial,
+  pgTable
 } from "drizzle-orm/pg-core";
 import { users } from "./user.schema";
+import { relations } from "drizzle-orm";
+import { timestamps } from "./schema.helper";
 
-/**
- * Todos Table Definition
- * Defines the structure and constraints for the todos table
- */
-export const todos = pgTable("todos", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
-  completed: boolean("completed").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow()
-}, (table) => [
-  index("todo_user_id_idx").on(table.userId),
-  index("todo_completed_idx").on(table.completed),
-  index("todo_created_at_idx").on(table.createdAt)
-]);
+export const todos = pgTable(
+  "todos",
+  {
+    id: serial().primaryKey(),
+    userId: char("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
 
-/**
- * Type Inference
- * Export types for use in your application services
- */
+    description: text("description"),
+    completed: boolean("completed").notNull().default(false),
+
+    ...timestamps
+  },
+  table => [
+    index("todo_user_id_idx").on(table.userId),
+    index("todo_completed_idx").on(table.completed)
+  ]
+);
+
+//? Relations between
+//? ii. todo and users.
+//? (many-to-one)
+export const todosRelations = relations(todos, ({ one }) => ({
+  user: one(users, {
+    fields: [todos.userId],
+    references: [users.id]
+  })
+}));
+
 export type Todo = typeof todos.$inferSelect;
 export type NewTodo = typeof todos.$inferInsert;
 ```
 
-## Relational Intelligence
+**Installation:**
 
-Drizzle allows you to define explicit relations for easier querying:
+<PackageManagerTabs command="npx servercn add schema todo/todo" />
 
+## 3. schema.helper.ts
+
+<Code>src/drizzle/schemas/schema.helper.ts</Code>
+
+```ts
+import { timestamp } from "drizzle-orm/pg-core";
+
+export const timestamps = {
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull()
+};
+```
+
+## 4. Export all schemas
+
+<Code>ssrc/drizzle/index.ts</Code>
+
+```ts
+export * from "./schemas/user.schema";
+export * from "./schemas/todo.schema";
+```
+
+## 5. drizzle.config.ts
+
+<Code>drizzle.config.ts</Code>
+
+```ts
+import { Config, defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  out: "./src/drizzle/migrations",
+  schema: "./src/drizzle/index.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!
+  },
+  verbose: true,
+  strict: true
+}) satisfies Config;
+```
+
+## Relational Design
+
+Explicit relations make data fetching much simpler and more expressive:
+
+<Code>src/drizzle/schemas/user.schema.ts</Code>
+```ts
+import { relations } from "drizzle-orm";
+import { todos } from "./todo.schema";
+
+//? Relations between
+//? ii. user and todos.
+//? (One-to-Many)
+export const usersRelations = relations(users, ({ many }) => ({
+  todos: many(todos)
+}));
+```
+<br/>
+
+<Code>src/drizzle/schemas/todo.schema.ts</Code>
 ```ts
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 
+//? Relations between
+//? ii. todo and users.
+//? (many-to-one)
 export const todosRelations = relations(todos, ({ one }) => ({
   user: one(users, {
     fields: [todos.userId],
-    references: [users.id],
-  }),
+    references: [users.id]
+  })
 }));
 ```
-
-Usage in your application:
-
-```ts
-const userWithTodos = await db.query.users.findMany({
-  with: {
-    todos: true,
-  },
-});
-```
-
-## Key Benefits
-
-- **Foreign Key Constraints**: Automatically handles cascading deletes when a user is removed.
-- **Strict Data Types**: Uses appropriate types like `uuid` for IDs and `timestamp with time zone` for dates.
-- **Type Safety**: Infer models directly from the schema definition.
-- **Blazing Fast**: Optimized with indexes for user-specific lookups.
-
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />

@@ -48,12 +48,12 @@ The **Todo Model** is the core component for storing task information.
 
 **Key Fields:**
 
-- `userId`: Reference to the user who owns the task.
-- `title`: The title of the task (required).
-- `description`: Optional detailed description of the task.
-- `completed`: Boolean flag indicating if the task is finished.
-- `createdAt`: When the task was created.
-- `updatedAt`: When the task was last updated.
+- <Code children="userId" />: Reference to the user who owns the task.
+- <Code children="title" />: The title of the task (required).
+- <Code children="description" />: Optional detailed description of the task.
+- <Code children="completed" />: Boolean flag indicating if the task is finished.
+- <Code children="createdAt" />: When the task was created.
+- <Code children="updatedAt" />: When the task was last updated.
 
 **View Documentation: [MongoDB](/docs/schemas/todo-mongodb) | [PostgreSQL](/docs/schemas/todo-postgresql) | [MySQL](/docs/schemas/todo-mysql)**
 
@@ -64,7 +64,8 @@ The Todo schema is designed to work seamlessly with the [Auth Domain](/docs/sche
 - One **Todo** belongs to exactly one **User**.
 
 ### Integration with Auth
-This schema assumes you have the **Auth Domain** installed. The `userId` field acts as a foreign key (PostgreSQL/MySQL) or reference (MongoDB) to the `User` model. This allows you to:
+This schema assumes you have the **Auth Domain** installed. The   
+<Code children="userId" /> field acts as a foreign key (PostgreSQL/MySQL) or reference (MongoDB) to the <Code children="User" /> model. This allows you to:
 - Enforce data ownership.
 - Fetch todos for a specific authenticated user.
 - Automatically delete todos when a user account is deleted (Cascading).

@@ -55,6 +55,120 @@ mvc_structure:
                 mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
 
               export default Todo;
+          - type: file
+            name: user.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              export interface IAvatar {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IAvatar;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date | null;
+                reActivateAvailableAt?: Date | null;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null
+                  },
+                  provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                  },
+                  providerId: {
+                    type: String,
+                    default: null
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                  },
+                  avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                  },
+                  lastLoginAt: {
+                    type: Date
+                  },
+                  failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                  },
+                  lockUntil: {
+                    type: Date
+                  },
+                  isDeleted: {
+                    type: Boolean,
+                    default: false
+                  },
+                  deletedAt: {
+                    type: Date,
+                    default: null
+                  },
+                  reActivateAvailableAt: {
+                    type: Date,
+                    default: null
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+              userSchema.index({ role: 1 });
+              userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+              const User: Model<IUser> =
+                mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+              export default User;
 
 feature_structure:
   - type: folder
@@ -111,6 +225,125 @@ feature_structure:
                     mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
 
                   export default Todo;
+
+          - type: folder
+            name: auth
+            children:
+              - type: file
+                name: user.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password?: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
+                    lastLoginAt?: Date;
+                    failedLoginAttempts: number;
+                    lockUntil?: Date;
+                    avatar?: IAvatar;
+
+                    provider: "local" | "google" | "github";
+                    providerId?: string;
+
+                    isDeleted: boolean;
+                    deletedAt?: Date | null;
+                    reActivateAvailableAt?: Date | null;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null
+                      },
+                      provider: {
+                        type: String,
+                        enum: ["local", "google", "github"],
+                        default: "local"
+                      },
+                      providerId: {
+                        type: String,
+                        default: null
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user"
+                      },
+                      avatar: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false
+                      },
+                      lastLoginAt: {
+                        type: Date
+                      },
+                      failedLoginAttempts: {
+                        type: Number,
+                        required: true,
+                        default: 0
+                      },
+                      lockUntil: {
+                        type: Date
+                      },
+                      isDeleted: {
+                        type: Boolean,
+                        default: false
+                      },
+                      deletedAt: {
+                        type: Date,
+                        default: null
+                      },
+                      reActivateAvailableAt: {
+                        type: Date,
+                        default: null
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  // Performance Indexes
+                  userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+                  userSchema.index({ role: 1 });
+                  userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+                  const User: Model<IUser> =
+                    mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                  export default User;
+
 ---
 
 # Todo (MongoDB)
@@ -136,9 +369,9 @@ To see the complete database design, including the User schema from the Auth Dom
 [Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
 
 
-## Todo Schema
+## Todo Model
 
-The **Todo Schema** stores individual task information and maintains a reference to the user who created it.
+The **Todo Model** stores individual task information and maintains a reference to the user who created it.
 
 **MVC Path:** <Code children="src/models/todo.model.ts"/>  
 **Feature Path:** <Code children="src/modules/todo/todo.model.ts"/>
@@ -204,9 +437,132 @@ const Todo: Model<ITodo> =
 export default Todo;
 ```
 
+**Installation:**
+
+<PackageManagerTabs command="npx servercn add schema todo/todo" />
+
+## User Model
+
+**MVC Path:** <Code children="src/models/user.model.ts"/>  
+**Feature Path:** <Code children="src/modules/auth/user.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IAvatar {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IAvatar;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null
+    },
+    reActivateAvailableAt: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
 ## Relationship Reference
 
-The `userId` field uses a reference to the `User` model. When querying todos, you can easily populate user information:
+The <Code children="userId" /> field uses a reference to the <Code children="User" /> model. When querying todos, you can easily populate user information:
 
 ```ts
 const userTodos = await Todo.find({ userId: req.user._id })
@@ -219,4 +575,4 @@ const userTodos = await Todo.find({ userId: req.user._id })
 - **Strict Validation**: Ensures all todos have a user and a title.
 - **Auto-Timestamps**: Leverages Mongoose's built-in timestamp support.
 - **Optimized Queries**: Includes indexes for common access patterns.
-- **MLean Ready**: Compatible with `.lean()` for faster read operations.
+- **MLean Ready**: Compatible with <Code children=".lean()" /> for faster read operations.
