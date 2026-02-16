@@ -378,7 +378,6 @@
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "useCases": ["cms", "content-platform"],
         "relations": true
       }
     },
@@ -405,7 +404,32 @@
           }
         ],
         "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "useCases": ["task-management", "productivity-app"],
+        "relations": true
+      }
+    },
+    {
+      "slug": "banking-app",
+      "title": "Banking App",
+      "description": "A production-ready Banking schema with support for MongoDB, PostgreSQL, and MySQL.",
+      "type": "schema",
+      "status": "stable",
+      "docs": "/docs/schemas/banking-app",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "banking-app-mongodb"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "banking-app-postgresql"
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "banking-app-mysql"
+          }
+        ],
+        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
         "relations": true
       }
     }

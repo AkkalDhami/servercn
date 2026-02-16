@@ -6,7 +6,7 @@ command: npx servercn add tooling lint-staged
 
 # Lint-Staged
 
-Lint-Staged allows you to run linters against staged git files and don't let 💩 slip into your code base!
+Lint-Staged runs linters only on staged Git files, ensuring that bad code never makes it into your repository—without slowing down your workflow.
 
 [Lint-Staged Official Docs](https://github.com/lint-staged/lint-staged)
 
@@ -18,25 +18,78 @@ Install Lint-Staged using the ServerCN CLI:
 
 ## Configuration
 
-The component adds a <Code children="lint-staged" /> configuration to your <Code children="package.json" /> or creates a <Code children=".lintstagedrc" /> file.
+The ServerCN setup automatically adds a <Code children="lint-staged" />  configuration to your <Code children="package.json" /> or generates a dedicated <Code children=".lintstagedrc.json" /> file.
 
-### Example Configuration
+You can customize this configuration to match your project’s structure and tooling.
+
+#### Basic Example (TypeScript)
+<Code children="package.json" />
 
 ```json
 {
-  "src/**/*.ts": [
-    "eslint --fix",
-    "prettier --write"
-  ]
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  },
+}
+```
+#### Express + TypeScript Example
+<Code children="package.json" />
+
+```json
+{
+  "lint-staged":{
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "src/**/*.json": [
+      "prettier --write"
+    ]
+  }
+}
+```
+
+#### With Type Checking (Strict)e
+<Code children="package.json" />
+
+```json
+{
+  "lint-staged":{
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
+  }
+}
+```
+_**⚠️ Use this with caution on large projects, as type checking may slow down commits.**_
+
+## Using a Separate Config File
+
+Instead of <Code children="package.json" />, you can define your rules in <Code children=".lintstagedrc.json" />:
+
+<Code children=".lintstagedrc.json" />
+
+```json
+{
+  "*.{js,ts}": [ "eslint --fix", "prettier --write" ],
+  "*.{json,md,yml}": "prettier --write"
 }
 ```
 
 ## How It Works
 
-1. You stage your changes with `git add`.
-2. You run `git commit`.
-3. Husky triggers the `pre-commit` hook.
-4. `lint-staged` runs defined commands only on the files that are about to be committed.
+1. You stage your changes with <Code>git add</Code>.
+2. You run <Code>git commit</Code>.
+3. Husky triggers the <Code>pre-commit</Code> hook.
+4. <Code>lint-staged</Code> runs defined commands only on the files that are about to be committed.
 5. If everything passes, the commit is successful.
 
 ## Features
@@ -48,4 +101,4 @@ The component adds a <Code children="lint-staged" /> configuration to your <Code
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />
+<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />

@@ -18,26 +18,26 @@ Install Husky using the ServerCN CLI:
 
 ## Usage
 
-Husky is typically used to run scripts like linting, testing, or formatting before you commit code.
+Husky is commonly used to run tasks like linting, testing, or formatting before code is committed. This ensures that only valid, well-formatted code enters your repository.
 
-Pre-commit Hook
+## Pre-commit Hook
 
-The component sets up a <Code children="pre-commit" /> hook that often runs <Code children="lint-staged" />.
+By default, this setup configures a <Code children="pre-commit" />  Git hook that runs <Code children="npm test" />.
 
-<Code children=".husky/pre-commit" />
+**File:** <Code children=".husky/pre-commit" />
 
-```
+```bash
 npx lint-staged
 ```
+
+This hook executes automatically every time you attempt to create a commit.
 
 ## Benefits
 
 - **Enforce Quality**: Prevents bad code from being committed.
 - **Automate Workflows**: Link Git events to your development scripts.
 - **Team Consistency**: Ensures all contributors follow the same Git hook rules.
-- **Easy Management**: No need to manually configure files in `.git/hooks`.
-
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling typescript commitlint husky eslint prettier" />
+<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
