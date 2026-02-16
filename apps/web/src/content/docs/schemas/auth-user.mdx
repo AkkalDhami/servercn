@@ -114,7 +114,7 @@ mvc_structure:
               );
 
               // Performance Indexes
-              userSchema.index({ email: 1 });
+              
               userSchema.index({ provider: 1, providerId: 1 });
               userSchema.index({ role: 1 });
               userSchema.index({ isDeleted: 1 });
@@ -237,7 +237,7 @@ feature_structure:
                   );
 
                   // Performance Indexes
-                  userSchema.index({ email: 1 });
+                  
                   userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
                   userSchema.index({ role: 1 });
                   userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
@@ -344,7 +344,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // Indexes
-userSchema.index({ email: 1 });
+
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", userSchema);
@@ -462,7 +462,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // Performance Indexes
-userSchema.index({ email: 1 });
+
 userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries

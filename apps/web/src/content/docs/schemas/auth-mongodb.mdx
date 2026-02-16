@@ -116,7 +116,7 @@ mvc_structure:
               );
 
               // Performance Indexes
-              userSchema.index({ email: 1 });
+              
               userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
               userSchema.index({ role: 1 });
               userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
@@ -499,7 +499,7 @@ feature_structure:
                   );
 
                   // Performance Indexes
-                  userSchema.index({ email: 1 });
+                  
                   userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
                   userSchema.index({ role: 1 });
                   userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
@@ -901,7 +901,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // Performance Indexes
-userSchema.index({ email: 1 });
+
 userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
@@ -1102,8 +1102,8 @@ export default Session;
 
 The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
 
-**MVC Path:** `src/models/refresh-token.model.ts`  
-**Feature Path:** `src/modules/auth/refresh-token.model.ts`
+**MVC Path:** <Code children="src/models/refresh-token.model.ts" />  
+**Feature Path:** <Code children="src/modules/auth/refresh-token.model.ts" />
 
 ```ts
 import mongoose, { Document, Model, Schema } from "mongoose";

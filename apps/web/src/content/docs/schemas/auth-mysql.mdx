@@ -575,7 +575,6 @@ To see the complete database design, including the User schema from the Auth Dom
 
 [Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
 
-
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
 
 ## 1. User Schema
@@ -757,8 +756,7 @@ export type NewOtp = typeof otps.$inferInsert;
 
 The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
-**File Path:** `src/drizzle/schemas/session.schema.ts`
-
+**File Path:** <Code children="src/drizzle/schemas/session.schema.ts" />
 ```ts
 import {
   mysqlTable,
@@ -816,7 +814,7 @@ export type NewSession = typeof sessions.$inferInsert;
 
 The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
 
-**File Path:** `src/drizzle/schemas/refresh-token.schema.ts`
+**File Path:** <Code children="src/drizzle/schemas/refresh-token.schema.ts" />
 
 ```ts
 import {
