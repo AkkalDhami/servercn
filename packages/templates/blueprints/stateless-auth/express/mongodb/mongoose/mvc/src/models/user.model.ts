@@ -101,7 +101,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // Performance Indexes
-userSchema.index({ email: 1 });
+
 userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
