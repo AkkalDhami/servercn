@@ -1,0 +1,579 @@
+---
+title:  Banking | MongoDB (Mongoose) | Schema
+description: A detailed look at the MongoDB schema for a modern banking application.
+command: npx servercn add schema banking-app
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: account.model.ts
+            content: | 
+                import { Schema, model, Types } from "mongoose";
+                import {
+                ACCOUNT_CURRENCIES,
+                ACCOUNT_STATUS,
+                ACCOUNT_TYPES
+                } from "../constants/account";
+                import { AccountCurrency, AccountStatus, AccountType } from "../types/account";
+
+                export interface IAccount {
+                    _id: Types.ObjectId;
+                    userId: Types.ObjectId;
+                    type: AccountType;
+                    currency: AccountCurrency;
+                    status: AccountStatus;
+
+                    systemAccount: boolean;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                }
+
+                const AccountSchema = new Schema<IAccount>(
+                {
+                    userId: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: true,
+                        index: true
+                    },
+                    type: {
+                        type: String,
+                        enum: ACCOUNT_TYPES,
+                        required: true
+                    },
+                    currency: {
+                    type: String,
+                    enum: ACCOUNT_CURRENCIES,
+                    default: "NPR"
+                    },
+                    status: {
+                    type: String,
+                    enum: ACCOUNT_STATUS,
+                    default: "active",
+                    index: true
+                    },
+                    systemAccount: {
+                    type: Boolean,
+                    default: false,
+                    select: false,
+                    immutable: true
+                    }
+                },
+                { timestamps: true }
+                );
+
+                const Account = model<IAccount>("Account", AccountSchema);
+
+                export default Account;
+
+ 
+          - type: file
+            name: ledger.model.ts
+            content: |  
+          - type: file
+            name: transaction.model.ts
+            content: |  
+          - type: file
+            name: user.model.ts
+            content: |
+                import mongoose, { Document, Model, Schema } from "mongoose";
+
+                export interface IAvatar {
+                public_id: string;
+                url: string;
+                size: number;
+                }
+
+                export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IAvatar;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date | null;
+                reActivateAvailableAt?: Date | null;
+
+                createdAt: Date;
+                updatedAt: Date;
+                }
+
+                const userSchema = new Schema<IUser>(
+                {
+                    name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                    },
+                    email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                    },
+                    password: {
+                    type: String,
+                    select: false,
+                    default: null
+                    },
+                    provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                    },
+                    providerId: {
+                    type: String,
+                    default: null
+                    },
+                    role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                    },
+                    avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                    },
+                    isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                    },
+                    lastLoginAt: {
+                    type: Date
+                    },
+                    failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                    },
+                    lockUntil: {
+                    type: Date
+                    },
+                    isDeleted: {
+                    type: Boolean,
+                    default: false
+                    },
+                    deletedAt: {
+                    type: Date,
+                    default: null
+                    },
+                    reActivateAvailableAt: {
+                    type: Date,
+                    default: null
+                    }
+                },
+                {
+                    timestamps: true
+                }
+                );
+
+                // Performance Indexes
+                userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+                userSchema.index({ role: 1 });
+                userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+                const User: Model<IUser> =
+                mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                export default User;
+
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: auth.ts
+            content: |
+              export const OTP_MAX_ATTEMPTS = 5;
+
+              export const OTP_TYPES = [
+                "signin",
+                "email-verification",
+                "password-reset",
+                "password-change"
+              ] as const;
+
+              export const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute
+
+              export const LOGIN_MAX_ATTEMPTS = 5 as const;
+
+              export const OTP_CODE_LENGTH = 6 as const;
+
+              export const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes
+
+              export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+              export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
+
+              export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+              export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+
+---
+
+# Banking App (MongoDB)
+
+This document outlines the MongoDB database schema for a sample banking application. The schema is designed to be efficient, scalable, and easy to understand. We use Mongoose for defining our data models.
+
+The core of our application revolves around four main collections: <Code>User</Code>, <Code>Account</Code>, <Code>Transaction</Code> and <Code>Ledger</Code>.
+
+## Installation Guide
+
+To add these schemas to your project, run:
+
+<PackageManagerTabs command="npx servercn add schema banking-app" />
+
+## 1. User Schema
+
+The <Code>User</Code> schema stores essential information about the customer. This includes personal details and security credentials.
+
+**MVC Path:** <Code>src/models/user.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/auth/user.model.ts</Code>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IAvatar {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IAvatar;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null
+    },
+    reActivateAvailableAt: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+## 2. Account Schema
+
+The <Code>Account</Code> schema stores user bank accounts (e.g., savings, current). A user can own multiple accounts with different types, currencies, and statuses.
+
+
+**MVC Path:** <Code>src/models/account.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/account/account.model.ts</Code>
+
+```ts
+import { Schema, model, Types } from "mongoose";
+import {
+  ACCOUNT_CURRENCIES,
+  ACCOUNT_STATUS,
+  ACCOUNT_TYPES
+} from "../constants/account";
+import { AccountCurrency, AccountStatus, AccountType } from "../types/account";
+
+export interface IAccount {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  type: AccountType;
+  currency: AccountCurrency;
+  status: AccountStatus;
+
+  systemAccount: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AccountSchema = new Schema<IAccount>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    type: {
+      type: String,
+      enum: ACCOUNT_TYPES,
+      required: true
+    },
+    currency: {
+      type: String,
+      enum: ACCOUNT_CURRENCIES,
+      default: "NPR"
+    },
+    status: {
+      type: String,
+      enum: ACCOUNT_STATUS,
+      default: "active",
+      index: true
+    },
+    systemAccount: {
+      type: Boolean,
+      default: false,
+      select: false,
+      immutable: true
+    }
+  },
+  { timestamps: true }
+);
+
+const Account = model<IAccount>("Account", AccountSchema);
+
+export default Account;
+```
+
+## 3. Transaction Schema
+
+The <Code>Transaction</Code> schema records money movements between accounts, including transfers, deposits, and withdrawals.
+
+**MVC Path:** <Code>src/models/transaction.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/transaction/transaction.model.ts</Code>
+
+```ts
+import { Schema, model, Types } from "mongoose";
+import { TRANSACTION_STATUS } from "../constants/account";
+import { TransactionStatus } from "../types/account";
+
+export interface ITransaction {
+  _id: Types.ObjectId;
+
+  fromAccountId: Types.ObjectId;
+  toAccountId: Types.ObjectId;
+
+  amount: number;
+  status: TransactionStatus;
+  idempotencyKey: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const TransactionSchema = new Schema<ITransaction>(
+  {
+    fromAccountId: {
+      type: Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+      index: true
+    },
+    toAccountId: {
+      type: Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+      index: true
+    },
+    amount: {
+      type: Number,
+      required: true
+    },
+    status: {
+      type: String,
+      enum: TRANSACTION_STATUS,
+      default: "pending"
+    },
+    idempotencyKey: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    }
+  },
+  { timestamps: true }
+);
+
+const Transaction = model<ITransaction>("Transaction", TransactionSchema);
+
+export default Transaction;
+```
+
+## 5. Ledger Schema
+
+The <Code>Ledger</Code> schema records all financial movements such as deposits, withdrawals, and transfers. Each entry represents a finalized financial event.
+
+<Note text="Ledger entries are immutable.
+All update and delete operations are blocked to preserve audit integrity."/>
+
+#### Path
+- **MVC:** <Code>src/models/ledger.model.ts</Code>
+- **Feature:** <Code>src/modules/ledger/ledger.model.ts</Code>
+
+```ts
+import { Schema, model, Types } from "mongoose";
+import { LedgerEntryType } from "../types/account";
+import { LEDGER_ENTRY_TYPES } from "../constants/account";
+import { ApiError } from "../utils/api-error";
+
+export interface ILedger {
+  _id: Types.ObjectId;
+
+  accountId: Types.ObjectId;
+  transactionId: Types.ObjectId;
+  entryType: LedgerEntryType;
+  amount: number;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const LedgerSchema = new Schema<ILedger>(
+  {
+    accountId: {
+      type: Schema.Types.ObjectId,
+      ref: "Account",
+      index: true,
+      immutable: true
+    },
+    transactionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Transaction",
+      index: true,
+      immutable: true
+    },
+    entryType: {
+      type: String,
+      enum: LEDGER_ENTRY_TYPES,
+      required: true,
+      immutable: true
+    },
+    amount: {
+      type: Number,
+      required: true,
+      immutable: true
+    }
+  },
+  { timestamps: true }
+);
+
+function preventLedgerUpdate() {
+  return ApiError.badRequest("Ledger cannot be updated");
+}
+
+//? Pre hooks to prevent ledger update
+LedgerSchema.pre("findOneAndDelete", preventLedgerUpdate);
+LedgerSchema.pre("findOneAndReplace", preventLedgerUpdate);
+LedgerSchema.pre("findOneAndUpdate", preventLedgerUpdate);
+LedgerSchema.pre("updateOne", preventLedgerUpdate);
+LedgerSchema.pre("updateMany", preventLedgerUpdate);
+LedgerSchema.pre("deleteMany", preventLedgerUpdate);
+LedgerSchema.pre("deleteOne", preventLedgerUpdate);
+
+export const Ledger = model<ILedger>("Ledger", LedgerSchema);
+```
+
+**Notes:**
+
+- Ledger entries are immutable
+- All update and delete operations are blocked to preserve audit integrity
