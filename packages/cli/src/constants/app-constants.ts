@@ -1,5 +1,5 @@
 // @ts-ignore
-import packageJson from "../../package.json";
+import packageJson from "@/../package.json";
 
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 

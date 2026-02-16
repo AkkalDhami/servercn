@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { add } from "@/src/commands/add";
-import { init } from "@/src/commands/init";
-import { list } from "@/src/commands/list";
-import type { RegistryType } from "./types";
-import { LATEST_VERSION } from "./constants/app-constants";
+import { add } from "@/commands/add";
+import { init } from "@/commands/init";
+import { list } from "@/commands/list";
+import type { RegistryType } from "@/types";
+import { LATEST_VERSION } from "@/constants/app-constants";
 
 const program = new Command();
 

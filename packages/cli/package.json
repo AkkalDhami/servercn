@@ -11,7 +11,8 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "pub:release": "npm build && npm publish --access public"
   },
   "keywords": [
     "servercn",

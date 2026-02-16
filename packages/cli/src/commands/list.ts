@@ -1,15 +1,15 @@
-import { loadRegistry } from "../lib/registry-list";
-import { groupByCategory } from "../lib/group-by-category";
-import { logger } from "../utils/logger";
-import type { RegistryType } from "../types";
+import { loadRegistry } from "@/lib/registry-list";
+import { groupByCategory } from "@/lib/group-by-category";
+import { logger } from "@/utils/logger";
+import type { RegistryType } from "@/types";
 import {
   blueprintLogs,
   componentLogs,
   foundationLogs,
   schemaLogs,
   toolingLogs
-} from "../utils/log";
-import { capitalize } from "../utils/capitalize";
+} from "@/utils/log";
+import { capitalize } from "@/utils/capitalize";
 
 export async function renderGrouppedRegistries(
   type: RegistryType,

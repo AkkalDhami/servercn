@@ -1,11 +1,11 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 import { paths } from "./paths";
-import type { RegistryType } from "../types";
-import { renderGrouppedRegistries } from "../commands/list";
-import { capitalize } from "../utils/capitalize";
-import { logInfo } from "../utils/log";
+import type { RegistryType } from "@/types";
+import { renderGrouppedRegistries } from "@/commands/list";
+import { capitalize } from "@/utils/capitalize";
+import { logInfo } from "@/utils/log";
 
 export async function getRegistryComponent(name: string, type: RegistryType) {
   const registryPath = paths.registry(type);

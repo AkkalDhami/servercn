@@ -1,8 +1,8 @@
 import { execa } from "execa";
 import { detectPackageManager } from "./detect";
-import { logger } from "../utils/logger";
-import type { InstallOptions } from "../types";
-import { spinner } from "../utils/spinner";
+import { logger } from "@/utils/logger";
+import type { InstallOptions } from "@/types";
+import { spinner } from "@/utils/spinner";
 
 export async function installDependencies({
   runtime = [],

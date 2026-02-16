@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "../utils/logger";
-import type { CopyOptions } from "../types";
+import { logger } from "@/utils/logger";
+import type { CopyOptions } from "@/types";
 
 export type ConflictStrategy = "skip" | "overwrite" | "error";
 

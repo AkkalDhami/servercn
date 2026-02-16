@@ -10,9 +10,7 @@
     "isolatedModules": false,
     "resolveJsonModule": true,
     "paths": {
-      "*": ["./src/*"],
-      "@/*": ["./*"],
-      "@/src/*": ["./src/*"]
+      "@/*": ["./src/*", "./*"]
     }
   },
   "include": ["src"],

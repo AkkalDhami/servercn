@@ -1,16 +1,16 @@
 import path from "node:path";
 import prompts from "prompts";
 import { execa } from "execa";
-import { copyTemplate } from "../lib/copy";
-import { getRegistryComponent } from "../lib/registry";
-import { resolveTargetDir } from "../lib/architecture";
-import { installDependencies } from "../lib/install-deps";
-import { updateEnvExample } from "../lib/env";
-import { ensurePackageJson, ensureTsConfig } from "../lib/package";
-import { logger } from "../utils/logger";
-import { assertInitialized } from "../lib/assert-initialized";
-import { getServerCNConfig } from "../lib/config";
-import { paths } from "../lib/paths";
+import { copyTemplate } from "@/lib/copy";
+import { getRegistryComponent } from "@/lib/registry";
+import { resolveTargetDir } from "@/lib/architecture";
+import { installDependencies } from "@/lib/install-deps";
+import { updateEnvExample } from "@/lib/env";
+import { ensurePackageJson, ensureTsConfig } from "@/lib/package";
+import { logger } from "@/utils/logger";
+import { assertInitialized } from "@/lib/assert-initialized";
+import { getServerCNConfig } from "@/lib/config";
+import { paths } from "@/lib/paths";
 import type {
   AddOptions,
   DatabaseType,
@@ -22,9 +22,9 @@ import type {
   OrmType,
   RegistryItem,
   RegistryType
-} from "../types";
-import { capitalize } from "../utils/capitalize";
-import { spinner } from "../utils/spinner";
+} from "@/types";
+import { capitalize } from "@/utils/capitalize";
+import { spinner } from "@/utils/spinner";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   if (!componentName) {

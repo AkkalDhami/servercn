@@ -2,18 +2,18 @@ import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
 import { execa } from "execa";
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 import {
   APP_NAME,
   LATEST_VERSION,
   SERVERCN_CONFIG_FILE
-} from "../constants/app-constants";
-import { getRegistryComponent } from "../lib/registry";
-import { copyTemplate } from "../lib/copy";
-import { installDependencies } from "../lib/install-deps";
-import { getDatabaseConfig } from "../lib/config";
-import { paths } from "../lib/paths";
-import type { IFoundation, IServerCNConfig } from "../types";
+} from "@/constants/app-constants";
+import { getRegistryComponent } from "@/lib/registry";
+import { copyTemplate } from "@/lib/copy";
+import { installDependencies } from "@/lib/install-deps";
+import { getDatabaseConfig } from "@/lib/config";
+import { paths } from "@/lib/paths";
+import type { IFoundation, IServerCNConfig } from "@/types";
 
 export async function init(foundation?: string) {
   const cwd = process.cwd();

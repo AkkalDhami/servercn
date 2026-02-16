@@ -6,8 +6,8 @@ import type {
   FrameworkList,
   RuntimeList,
   LanguageList
-} from "../constants/app-constants";
-import { ConflictStrategy } from "../lib/copy";
+} from "@/constants/app-constants";
+import { ConflictStrategy } from "@/lib/copy";
 
 export type Architecture = (typeof ArchitectureList)[number];
 export type DatabaseType = (typeof DatabaseList)[number];

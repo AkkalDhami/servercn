@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 
 export function updateEnvExample(envKeys: string[] = [], cwd = process.cwd()) {
   if (!envKeys.length) return;

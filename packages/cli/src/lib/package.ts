@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "path";
 import { execSync } from "child_process";
-import { logger } from "../utils/logger";
+import { logger } from "@/utils/logger";
 export function ensurePackageJson(dir: string) {
   const pkgPath = path.join(dir, "package.json");
 

@@ -1,6 +1,6 @@
-import { env } from "../configs/env";
-import { APP_NAME } from "../constants/app-constants";
-import type { RegistryType } from "../types";
+import { env } from "@/configs/env";
+import { APP_NAME } from "@/constants/app-constants";
+import type { RegistryType } from "@/types";
 
 export const componentLogs = [
   `To Add ${APP_NAME} Component Run: npx servercn add <component-name>`,
