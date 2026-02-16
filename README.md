@@ -45,7 +45,7 @@ npx servercn init
 Add specific modules to your existing project. This allows for incremental adoption.
 
 ```bash
-mpx servercn add [component-name]
+npx servercn add [component-name]
 ```
 
 Examples:
@@ -105,7 +105,7 @@ npx servercn add logger-winston
 npx servercn add rate-limiter
 ```
 
-- ### Github OAuth
+- ### GitHub OAuth
 
 ```bash
 npx servercn add github-oauth
@@ -117,7 +117,7 @@ npx servercn add github-oauth
 npx servercn add google-oauth
 ```
 
-- ### Github and Google OAuth
+- ### GitHub and Google OAuth
 
 ```bash
 npx servercn add github-google-oauth
