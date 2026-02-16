@@ -3,7 +3,6 @@ import {
   mysqlTable,
   text,
   varchar,
-  char,
   index,
   int
 } from "drizzle-orm/mysql-core";
@@ -15,7 +14,7 @@ export const todos = mysqlTable(
   "todos",
   {
     id: int("id").primaryKey().autoincrement(),
-    userId: char("user_id", { length: 36 })
+    userId: int("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
 

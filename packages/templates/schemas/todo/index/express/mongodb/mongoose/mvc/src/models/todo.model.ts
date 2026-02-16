@@ -1,9 +1,5 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-/**
- * Todo Interface
- * Defines the structure of a Todo document
- */
 export interface ITodo extends Document {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
@@ -16,9 +12,6 @@ export interface ITodo extends Document {
   updatedAt: Date;
 }
 
-/**
- * Todo Schema definition
- */
 const todoSchema = new Schema<ITodo>(
   {
     userId: {

@@ -22,8 +22,8 @@ export interface IUser extends Document {
   providerId?: string;
 
   isDeleted: boolean;
-  deletedAt?: Date;
-  reActivateAvailableAt?: Date;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
 
   createdAt: Date;
   updatedAt: Date;
@@ -87,10 +87,12 @@ const userSchema = new Schema<IUser>(
       default: false
     },
     deletedAt: {
-      type: Date
+      type: Date,
+      default: null
     },
     reActivateAvailableAt: {
-      type: Date
+      type: Date,
+      default: null
     }
   },
   {
@@ -99,7 +101,6 @@ const userSchema = new Schema<IUser>(
 );
 
 // Performance Indexes
-
 userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
 userSchema.index({ role: 1 });
 userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
