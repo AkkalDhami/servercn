@@ -6,8 +6,8 @@
   "architectures": ["mvc", "feature"],
   "templates": {
     "express": {
-      "mvc": "components/env/express/mvc",
-      "feature": "components/env/express/feature"
+      "mvc": "components/env-config/express/mvc",
+      "feature": "components/env-config/express/feature"
     }
   },
   "dependencies": {
