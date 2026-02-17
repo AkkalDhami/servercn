@@ -54,7 +54,7 @@ export interface IServerCNConfig {
   project: {
     root: string;
     srcDir: string;
-    type: string;
+    type: "backend" | "fullstack";
   };
   stack: StackConfig;
   database: null | DatabaseConfig;

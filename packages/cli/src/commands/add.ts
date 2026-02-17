@@ -60,7 +60,7 @@ export async function add(componentName: string, options: AddOptions = {}) {
   const { templatePath, additionalRuntimeDeps, additionalDevDeps } =
     await resolveTemplateResolution(component, config, options);
 
-  const templateDir = path.resolve(paths.templates(), templatePath);
+  // const templateDir = path.resolve(paths.templates(), templatePath);
   const targetDir = paths.targets(".");
 
   logger.break();

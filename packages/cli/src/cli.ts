@@ -15,25 +15,30 @@ process.on("SIGTERM", () => process.exit(0));
 async function main() {
   program
     .name("servercn")
-    .description("Backend components for Node.js")
-    .version(LATEST_VERSION, "-v, --version", "display the version number");
+    .description("Scaffold and manage backend components for Node.js projects")
+    .version(LATEST_VERSION, "-v, --version", "output the current version");
 
   program
     .command("init [foundation]")
-    .description("Initialize ServerCN in your project")
+    .description("Initialize ServerCN in the current project")
+    .option("-f, --force", "Overwrite existing files if they exist")
     .action(init);
 
   program
     .command("list")
-    .description("List available ServerCN components")
+    .description("Show all available ServerCN components")
     .action(list);
 
   program
     .command("add <components...>")
-    .description("Add a backend component")
-    .option("--arch <arch>", "Architecture (mvc | feature)", "mvc")
-    .option("--variant <variant>", "Variant (advanced | minimal)", "advanced")
-    .option("-f, --force", "Overwrite existing files")
+    .description("Add one or more backend components to your project")
+    .option("--arch <arch>", "Project architecture: mvc or feature", "mvc")
+    .option(
+      "--variant <variant>",
+      "Component variant: advanced or minimal",
+      "advanced"
+    )
+    .option("-f, --force", "Force overwrite existing files")
     .action(async (components: string[], options) => {
       let type: RegistryType = "component";
       let items = components;
