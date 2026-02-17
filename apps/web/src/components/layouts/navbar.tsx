@@ -15,7 +15,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GITHUB_URL } from "@/lib/constants";
 import { StickyBanner } from "./sticky-banner";
-import Code from "../docs/custom-code";
 
 const links = siteConfig.navItems;
 

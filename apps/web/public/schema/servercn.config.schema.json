@@ -6,6 +6,10 @@
   "required": ["version", "project", "stack", "meta"],
 
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON schema for ServerCN config"
+    },
     "version": {
       "type": "string",
       "description": "Current version of ServerCN config",
