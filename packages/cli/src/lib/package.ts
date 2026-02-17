@@ -2,12 +2,13 @@ import fs from "node:fs";
 import path from "path";
 import { execSync } from "child_process";
 import { logger } from "@/utils/logger";
+
 export function ensurePackageJson(dir: string) {
   const pkgPath = path.join(dir, "package.json");
 
   if (fs.existsSync(pkgPath)) return;
 
-  logger.info("initializing package.json");
+  logger.info("Initializing package.json");
 
   execSync("npm init -y", {
     cwd: dir,
@@ -35,7 +36,7 @@ export function ensureTsConfig(dir: string) {
       useUnknownInCatchVariables: true,
       forceConsistentCasingInFileNames: true,
       paths: {
-        "@/*": ["./*"]
+        "@/*": ["./src/*"]
       }
     },
     include: ["src/**/*"],

@@ -6,8 +6,7 @@ import type {
   FrameworkList,
   RuntimeList,
   LanguageList
-} from "@/constants/app-constants";
-import { ConflictStrategy } from "@/lib/copy";
+} from "@/constants/app.constants";
 
 export type Architecture = (typeof ArchitectureList)[number];
 export type DatabaseType = (typeof DatabaseList)[number];
@@ -17,12 +16,15 @@ export type FrameworkType = (typeof FrameworkList)[number];
 export type RuntimeType = (typeof RuntimeList)[number];
 export type LanguageType = (typeof LanguageList)[number];
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+
+export type ConflictStrategy = "skip" | "overwrite" | "error";
+
 export interface AddOptions {
   type?: RegistryType;
   stack?: StackConfig;
   arch?: Architecture;
   dryRun?: boolean;
-  force?: ConflictStrategy;
+  force?: boolean;
   variant?: string;
 }
 
@@ -47,20 +49,15 @@ export interface DatabaseConfig {
 }
 
 export interface IServerCNConfig {
+  $schema: string;
   version: string;
-
   project: {
     root: string;
     srcDir: string;
     type: string;
   };
-
   stack: StackConfig;
-
   database: null | DatabaseConfig;
-
-  overrides: Record<string, string>;
-
   meta: {
     createdAt: string;
     createdBy: string;
