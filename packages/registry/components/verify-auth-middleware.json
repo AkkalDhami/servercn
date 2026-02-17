@@ -11,8 +11,8 @@
     }
   },
   "dependencies": {
-    "runtime": ["express", "dotenv", "winston", "winston-daily-rotate-file"],
-    "dev": ["@types/express"],
-    "peer": []
-  }
+    "runtime": ["express", "dotenv", "pino", "pino-pretty", "pino-http"],
+    "dev": ["@types/express"]
+  },
+  "env": ["PORT", "LOG_LEVEL", "NODE_ENV"]
 }
