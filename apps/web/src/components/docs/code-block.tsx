@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 const getHighlighter = (theme: string) =>
   getSingletonHighlighter({
     themes: [theme],
-    langs: ["bash", "ts"]
+    langs: ["bash", "ts", "js", "json"]
   });
 
 export async function CodeBlock({

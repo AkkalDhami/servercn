@@ -38,7 +38,9 @@ export function Pre({
         <CopyButton
           handleCopy={copy}
           copied={copied}
-          className="absolute right-4 bottom-3 z-20 flex items-center justify-center py-2 transition-all"
+          className={cn(
+            "absolute right-4 bottom-3 z-20 flex items-center justify-center py-2 transition-all"
+          )}
         />
         {children}
       </pre>

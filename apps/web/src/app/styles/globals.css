@@ -271,6 +271,12 @@ code > [data-line]::before {
   color: gray;
 }
 
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
 @media (prefers-color-scheme: dark) {
   code[data-theme*=" "],
   code[data-theme*=" "] span {
@@ -278,7 +284,6 @@ code > [data-line]::before {
     background-color: var(--shiki-dark-bg);
   }
 }
-
 h2,
 h3 {
   scroll-margin-top: 80px;

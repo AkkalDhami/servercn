@@ -23,7 +23,7 @@ export function CodeWrapper({
       <CopyButton
         handleCopy={copy}
         copied={copied}
-        className="absolute top-1/2 right-2 z-10 w-auto -translate-y-1/2 cursor-pointer bg-transparent p-1.5 text-xs"
+        className="absolute right-3 bottom-3 z-10 w-auto cursor-pointer bg-transparent p-1.5 text-xs"
       />
       {children}
     </div>

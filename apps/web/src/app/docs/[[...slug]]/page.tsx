@@ -16,12 +16,11 @@ import { Metadata, Route } from "next";
 import { findNeighbour, RESTRICTED_FOLDER_STRUCTURE_PAGES } from "@/lib/source";
 import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-
 import registry from "@/data/registry.json";
 import { IRegistryItems } from "@/@types/registry";
 
 export const revalidate = false;
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 
 const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
@@ -99,17 +98,6 @@ export async function generateMetadata(props: {
   };
 }
 
-const getPrettyCodeOptions = (theme: string) => ({
-  theme: {
-    dark: theme,
-    light: "github-dark-high-contrast"
-  },
-  keepBackground: true,
-  defaultLang: "plaintext",
-  grid: true,
-  defaultLanguage: "ts"
-});
-
 function getDocPath(slug?: string[]) {
   if (!slug || slug.length === 0 || slug[0] === "introduction") {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
@@ -170,7 +158,18 @@ export default async function DocsPage({
             components={mdxComponents}
             options={{
               mdxOptions: {
-                rehypePlugins: [[rehypePrettyCode, getPrettyCodeOptions(theme)]]
+                rehypePlugins: [
+                  [
+                    rehypePrettyCode,
+                    {
+                      theme: theme || "vesper",
+                      defaultLang: {
+                        block: "plaintext",
+                        inline: "plaintext"
+                      }
+                    }
+                  ]
+                ]
               }
             }}
           />

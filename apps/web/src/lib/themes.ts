@@ -34,11 +34,6 @@ export const CODE_THEMES: ITheme[] = [
     value: "laserwave"
   },
   {
-    label: "Vitesse Light",
-    value: "vitesse-light",
-    light: true
-  },
-  {
     label: "Vitesse Dark",
     value: "vitesse-dark"
   },
@@ -152,7 +147,6 @@ export const THEME_PRIMARY_BG = {
   dracula: "#282a36",
   houston: "#17191e",
   laserwave: "#27212e",
-  "vitesse-light": "#ffffff",
   "vitesse-dark": "#121212",
   "vitesse-black": "#000000",
   vesper: "#101010",
