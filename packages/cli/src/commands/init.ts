@@ -2,22 +2,21 @@ import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
 import { execa } from "execa";
-import { logger } from "@/utils/logger";
-import {
-  APP_NAME,
-  LATEST_VERSION,
-  SERVERCN_CONFIG_FILE,
-  SERVERCN_URL
-} from "@/constants/app.constants";
-import { getRegistryComponent } from "@/lib/registry";
-import { copyTemplate } from "@/lib/copy";
-import { installDependencies } from "@/lib/install-deps";
-import { getDatabaseConfig } from "@/lib/config";
-import { paths } from "@/lib/paths";
-import type { IFoundation, IServerCNConfig } from "@/types";
 import ora from "ora";
+import { logger } from "@/utils/logger";
+import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
+import { getRegistryComponent } from "@/lib/registry";
+import { cloneRegistryTemplate } from "@/lib/copy";
+import { installDependencies } from "@/lib/install-deps";
+import type { AddOptions, IFoundation } from "@/types";
+import { tsConfig } from "@/configs/ts.config";
+import { commitlintConfig } from "@/configs/commitlint.config";
+import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
+import { servercnConfig } from "@/configs/servercn.config";
+import { gitignore } from "@/configs/gitignore.config";
+import { getDatabaseConfig } from "@/lib/config";
 
-export async function init(foundation?: string) {
+export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
   const configPath = path.join(cwd, SERVERCN_CONFIG_FILE);
 
@@ -28,28 +27,6 @@ export async function init(foundation?: string) {
     );
     process.exit(1);
   }
-
-  const tsConfig = {
-    compilerOptions: {
-      target: "ES2021",
-      module: "es2022",
-      moduleResolution: "bundler",
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true,
-      outDir: "dist",
-      rootDir: "src",
-      sourceMap: true,
-      alwaysStrict: true,
-      useUnknownInCatchVariables: true,
-      forceConsistentCasingInFileNames: true,
-      paths: {
-        "@/*": ["./*"]
-      }
-    },
-    include: ["src/**/*"],
-    exclude: ["node_modules"]
-  };
 
   if (foundation) {
     const response = await prompts([
@@ -105,71 +82,26 @@ export async function init(foundation?: string) {
         "foundation"
       );
 
-      const config: IServerCNConfig = {
-        $schema: `${SERVERCN_URL}/schema/servercn.config.schema.json`,
-        version: LATEST_VERSION,
-
-        project: {
-          root: response.root,
-          srcDir: "src",
-          type: "backend"
-        },
-
-        stack: {
-          runtime: "node",
-          language: "typescript",
-          framework: "express",
-          architecture: response.architecture
-        },
-
-        database: getDatabaseConfig(foundation),
-
-        meta: {
-          createdAt: new Date().toISOString(),
-          createdBy: `servercn@${LATEST_VERSION}`
+      await fs.writeJson(
+        path.join(rootPath, SERVERCN_CONFIG_FILE),
+        servercnConfig({
+          project: {
+            root: rootPath,
+            srcDir: "src",
+            type: "backend"
+          },
+          stack: {
+            runtime: "node",
+            language: "typescript",
+            framework: "express",
+            architecture: response.architecture
+          },
+          database: getDatabaseConfig(foundation)
+        }),
+        {
+          spaces: 2
         }
-      };
-
-      const prettierConfig = {
-        singleQuote: false,
-        semi: true,
-        tabWidth: 2,
-        trailingComma: "none",
-        bracketSameLine: false,
-        arrowParens: "avoid",
-        endOfLine: "lf"
-      };
-
-      const commitlintConfig = {
-        extends: ["@commitlint/config-conventional"],
-        rules: {
-          "type-enum": [
-            2,
-            "always",
-            [
-              "feat",
-              "fix",
-              "docs",
-              "style",
-              "refactor",
-              "test",
-              "chore",
-              "ci",
-              "perf",
-              "build",
-              "release",
-              "workflow",
-              "security"
-            ]
-          ],
-
-          "subject-case": [2, "always", ["lower-case"]]
-        }
-      };
-
-      await fs.writeJson(path.join(rootPath, SERVERCN_CONFIG_FILE), config, {
-        spaces: 2
-      });
+      );
 
       await fs.writeJson(path.join(rootPath, ".prettierrc"), prettierConfig, {
         spaces: 2
@@ -177,12 +109,10 @@ export async function init(foundation?: string) {
 
       await fs.writeFile(
         path.join(rootPath, ".prettierignore"),
-        `build\ndist\n.env\nnode_modules`
+        prettierIgnore
       );
-      await fs.writeFile(
-        path.join(rootPath, ".gitignore"),
-        `build\ndist\n.env\nnode_modules`
-      );
+
+      await fs.writeFile(path.join(rootPath, ".gitignore"), gitignore);
 
       await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
         spaces: 2
@@ -198,17 +128,23 @@ export async function init(foundation?: string) {
 
       if (!templatePathRelative) {
         logger.error(
-          `Template not found for ${foundation.toLowerCase()} (express/${response.architecture})`
+          `Template not found for ${foundation.toLowerCase()} (${response.architecture})`
         );
       }
 
-      const templateDir = path.resolve(paths.templates(), templatePathRelative);
+      // const templateDir = path.resolve(paths.templates(), templatePathRelative);
 
-      await copyTemplate({
-        templateDir,
+      // await copyTemplate({
+      //   templateDir,
+      //   targetDir: rootPath,
+      //   componentName: foundation,
+      //   conflict: "overwrite"
+      // });
+
+      await cloneRegistryTemplate({
         targetDir: rootPath,
-        componentName: foundation,
-        conflict: "overwrite"
+        templateDir: templatePathRelative,
+        force: options.force
       });
 
       await installDependencies({
@@ -340,41 +276,29 @@ export async function init(foundation?: string) {
   await fs.ensureDir(rootPath);
   await fs.ensureDir(srcPath);
 
-  const config = {
-    version: LATEST_VERSION,
-
-    project: {
-      root: response.root,
-      srcDir: response.srcDir,
-      type: "backend"
-    },
-
-    stack: {
-      runtime: "node",
-      language: response.language,
-      framework: response.framework,
-      architecture: response.architecture
-    },
-
-    database:
-      response.databaseType === "none"
-        ? null
-        : {
-            type: response.databaseType,
-            orm: response.orm
-          },
-
-    overrides: {},
-
-    meta: {
-      createdAt: new Date().toISOString(),
-      createdBy: `servercn@${LATEST_VERSION}`
+  await fs.writeJson(
+    path.join(rootPath, SERVERCN_CONFIG_FILE),
+    servercnConfig({
+      project: {
+        root: response.root,
+        srcDir: response.srcDir,
+        type: "backend"
+      },
+      stack: {
+        runtime: "node",
+        language: response.language,
+        framework: response.framework,
+        architecture: response.architecture
+      },
+      database: {
+        type: response.databaseType,
+        orm: response.orm
+      }
+    }),
+    {
+      spaces: 2
     }
-  };
-
-  await fs.writeJson(path.join(rootPath, SERVERCN_CONFIG_FILE), config, {
-    spaces: 2
-  });
+  );
 
   logger.success(`\n${APP_NAME} initialized successfully.`);
   logger.break();
