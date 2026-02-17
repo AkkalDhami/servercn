@@ -1,0 +1,21 @@
+export const tsConfig = {
+  compilerOptions: {
+    target: "ES2021",
+    module: "es2022",
+    moduleResolution: "bundler",
+    strict: true,
+    esModuleInterop: true,
+    skipLibCheck: true,
+    outDir: "dist",
+    rootDir: "src",
+    sourceMap: true,
+    alwaysStrict: true,
+    useUnknownInCatchVariables: true,
+    forceConsistentCasingInFileNames: true,
+    paths: {
+      "@/*": ["./*"],
+    },
+  },
+  include: ["src/**/*"],
+  exclude: ["node_modules"],
+};
