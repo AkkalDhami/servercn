@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "generatedAt": "2026-02-17T00:00:00Z",
+  "schemas": [
+    {
+      "name": "servercn.config",
+      "slug": "servercn-config",
+      "version": "1.0.0",
+      "description": "ServerCN project configuration schema",
+      "url": "https://servercn.vercel.app/schema/servercn.config.schema.json",
+      "type": "project",
+      "createdAt": "2026-02-11T14:37:44Z"
+    },
+    {
+      "name": "registry",
+      "slug": "registry",
+      "version": "1.0.0",
+      "description": "Registry index schema for ServerCN components",
+      "url": "https://servercn.vercel.app/schema/registry.schema.json",
+      "type": "registry",
+      "createdAt": "2026-02-11T14:37:44Z"
+    },
+    {
+      "name": "component",
+      "slug": "component",
+      "version": "1.0.0",
+      "description": "Schema for individual ServerCN components",
+      "url": "https://servercn.vercel.app/schema/component.schema.json",
+      "type": "component",
+      "createdAt": "2026-02-11T14:37:44Z"
+    },
+    {
+      "name": "blueprint",
+      "slug": "blueprint",
+      "version": "1.0.0",
+      "description": "Schema for blueprint components",
+      "url": "https://servercn.vercel.app/schema/blueprint.schema.json",
+      "type": "blueprint",
+      "createdAt": "2026-02-11T14:37:44Z"
+    },
+    {
+      "name": "foundation",
+      "slug": "foundation",
+      "version": "1.0.0",
+      "description": "Schema for foundation components",
+      "url": "https://servercn.vercel.app/schema/foundation.schema.json",
+      "type": "foundation",
+      "createdAt": "2026-02-11T14:37:44Z"
+    }
+  ]
+}
