@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { logger } from "@/utils/logger";
-import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app-constants";
+import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 import { env } from "@/configs/env";
 
 export async function assertInitialized() {
