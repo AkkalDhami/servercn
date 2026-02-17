@@ -306,9 +306,11 @@ async function runPostInstallHooks(
     }
   }
 
-  if (component.env?.length) {
-    updateEnvExample(component.env, process.cwd());
-    await updateEnvVars(component.env);
+  const filterEnvs = component.env?.filter((env: string) => env !== "");
+
+  if (filterEnvs?.length > 0) {
+    updateEnvExample(filterEnvs, process.cwd());
+    await updateEnvVars(filterEnvs);
   }
 }
 
