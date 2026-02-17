@@ -1,5 +1,5 @@
 import { env } from "@/configs/env";
-import { APP_NAME } from "@/constants/app-constants";
+import { APP_NAME } from "@/constants/app.constants";
 import type { RegistryType } from "@/types";
 
 export const componentLogs = [

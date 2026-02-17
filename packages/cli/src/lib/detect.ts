@@ -8,7 +8,3 @@ export function detectPackageManager(cwd = process.cwd()): PackageManager {
   if (fs.existsSync(path.join(cwd, "bun.lockb"))) return "bun";
   return "npm";
 }
-
-export function detectLanguage() {
-  return fs.existsSync("tsconfig.json") ? "ts" : "js";
-}

@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import path from "node:path";
 import { logger } from "@/utils/logger";
 import type { DatabaseConfig, IServerCNConfig } from "@/types";
-import { SERVERCN_CONFIG_FILE } from "@/constants/app-constants";
+import { SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 
 export async function getServerCNConfig(): Promise<IServerCNConfig> {
   const cwd = process.cwd();

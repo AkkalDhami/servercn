@@ -1,5 +1,8 @@
-// @ts-ignore
-import packageJson from "@/../package.json";
+import packageJson from "../../package.json";
+
+export const GITHUB_BASE_URL = "gh:AkkalDhami/servercn/packages/templates";
+
+export const SERVERCN_URL = "https://servercn.vercel.app";
 
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 
