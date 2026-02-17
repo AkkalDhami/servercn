@@ -6,14 +6,16 @@ import { logger } from "@/utils/logger";
 import {
   APP_NAME,
   LATEST_VERSION,
-  SERVERCN_CONFIG_FILE
-} from "@/constants/app-constants";
+  SERVERCN_CONFIG_FILE,
+  SERVERCN_URL
+} from "@/constants/app.constants";
 import { getRegistryComponent } from "@/lib/registry";
 import { copyTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
 import { getDatabaseConfig } from "@/lib/config";
 import { paths } from "@/lib/paths";
 import type { IFoundation, IServerCNConfig } from "@/types";
+import ora from "ora";
 
 export async function init(foundation?: string) {
   const cwd = process.cwd();
@@ -63,15 +65,15 @@ export async function init(foundation?: string) {
         name: "architecture",
         message: "Select architecture",
         choices: [
-          { title: "mvc (controllers, services, models)", value: "mvc" },
-          { title: "feature (modules, shared)", value: "feature" }
+          { title: "MVC (controllers, services, models)", value: "mvc" },
+          { title: "Feature (modules, shared)", value: "feature" }
         ]
       },
       {
         type: "confirm",
         name: "initGit",
         message: "Initialize git repository?",
-        initial: true
+        initial: false
       }
     ]);
 
@@ -93,8 +95,10 @@ export async function init(foundation?: string) {
       }
     }
 
-    logger.info(`initializing with foundation: ${foundation}`);
-
+    logger.info();
+    const spinner = ora(
+      `Initializing project with foundation: ${foundation}`
+    ).start();
     try {
       const component: IFoundation = await getRegistryComponent(
         foundation,
@@ -102,6 +106,7 @@ export async function init(foundation?: string) {
       );
 
       const config: IServerCNConfig = {
+        $schema: `${SERVERCN_URL}/schema/servercn.config.schema.json`,
         version: LATEST_VERSION,
 
         project: {
@@ -118,8 +123,6 @@ export async function init(foundation?: string) {
         },
 
         database: getDatabaseConfig(foundation),
-
-        overrides: {},
 
         meta: {
           createdAt: new Date().toISOString(),
@@ -214,6 +217,7 @@ export async function init(foundation?: string) {
         cwd: rootPath
       });
 
+      spinner.succeed(`${APP_NAME} initialized with ${foundation}.`);
       logger.success(`${APP_NAME} initialized with ${foundation}.`);
       logger.info("Configure environment variables in .env file.");
       logger.log("Run the following commands:");
@@ -227,6 +231,7 @@ export async function init(foundation?: string) {
 
       return;
     } catch (error) {
+      fs.removeSync(rootPath);
       logger.error(`Failed to initialize foundation: ${error}`);
       process.exit(1);
     }
@@ -253,7 +258,7 @@ export async function init(foundation?: string) {
       message: "Select architecture",
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
-        { title: "Feature-based (domain-driven modules)", value: "feature" }
+        { title: "Feature-based (modules, shared)", value: "feature" }
       ]
     },
     {
@@ -262,7 +267,7 @@ export async function init(foundation?: string) {
       message: "Programming language",
       choices: [
         {
-          title: "typescript (recommended)",
+          title: "Typescript (recommended)",
           value: "typescript"
         }
       ]
@@ -271,7 +276,7 @@ export async function init(foundation?: string) {
       type: "select",
       name: "framework",
       message: "Backend framework",
-      choices: [{ title: "express", value: "express" }]
+      choices: [{ title: "Express.js", value: "express" }]
     },
     {
       type: "select",
@@ -279,15 +284,15 @@ export async function init(foundation?: string) {
       message: "Select database",
       choices: [
         {
-          title: "mongodb",
+          title: "Mongodb",
           value: "mongodb"
         },
         {
-          title: "postgresql",
+          title: "PostgreSQL",
           value: "postgresql"
         },
         {
-          title: "mysql",
+          title: "MySQL",
           value: "mysql"
         }
       ]
@@ -304,19 +309,33 @@ export async function init(foundation?: string) {
       name: "orm",
       message: "Orm / query builder",
       choices: [
-        { title: "drizzle", value: "drizzle" }
+        { title: "Drizzle", value: "drizzle" }
         // { title: "prisma", value: "prisma" }
       ]
     }
   ]);
 
-  if (!response.architecture) {
+  if (
+    !response.architecture ||
+    !response.databaseType ||
+    !response.framework ||
+    !response.language ||
+    !response.orm ||
+    !response.root
+  ) {
     logger.warn("Initialization cancelled.");
     return;
   }
 
   const rootPath = path.resolve(cwd, response.root);
   const srcPath = path.resolve(rootPath, response.srcDir);
+
+  if (fs.pathExistsSync(rootPath)) {
+    logger.break();
+    logger.error(`Cannot create '${response.root}' — file already exists!`);
+    logger.break();
+    process.exit(1);
+  }
 
   await fs.ensureDir(rootPath);
   await fs.ensureDir(srcPath);
@@ -358,6 +377,7 @@ export async function init(foundation?: string) {
   });
 
   logger.success(`\n${APP_NAME} initialized successfully.`);
+  logger.break();
 
   logger.log("You may now add components by running:");
   if (response.root === ".") {
@@ -369,4 +389,5 @@ export async function init(foundation?: string) {
   logger.muted(
     "ex: npx servercn add jwt-utils error-handler http-status-codes"
   );
+  logger.break();
 }

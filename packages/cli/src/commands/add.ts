@@ -1,11 +1,9 @@
 import path from "node:path";
 import prompts from "prompts";
 import { execa } from "execa";
-import { copyTemplate } from "@/lib/copy";
+import { cloneRegistryTemplate } from "@/lib/copy";
 import { getRegistryComponent } from "@/lib/registry";
-import { resolveTargetDir } from "@/lib/architecture";
 import { installDependencies } from "@/lib/install-deps";
-import { updateEnvExample } from "@/lib/env";
 import { ensurePackageJson, ensureTsConfig } from "@/lib/package";
 import { logger } from "@/utils/logger";
 import { assertInitialized } from "@/lib/assert-initialized";
@@ -25,6 +23,7 @@ import type {
 } from "@/types";
 import { capitalize } from "@/utils/capitalize";
 import { spinner } from "@/utils/spinner";
+import { updateEnvExample, updateEnvVars } from "@/utils/update-env-vars";
 
 export async function add(componentName: string, options: AddOptions = {}) {
   if (!componentName) {
@@ -62,18 +61,26 @@ export async function add(componentName: string, options: AddOptions = {}) {
     await resolveTemplateResolution(component, config, options);
 
   const templateDir = path.resolve(paths.templates(), templatePath);
-  const targetDir = resolveTargetDir(".");
+  const targetDir = paths.targets(".");
 
-  const result = spinner("Scaffolding Component Files")?.start();
-  await copyTemplate({
-    templateDir,
-    targetDir,
-    componentName,
-    conflict: options.force ? "overwrite" : "skip",
-    dryRun: options.dryRun
+  logger.break();
+  const result = spinner("Scaffolding files...")?.start();
+  // await copyTemplate({
+  //   templateDir,
+  //   targetDir,
+  //   componentName,
+  //   conflict: options.force ? "overwrite" : "skip",
+  //   dryRun: options.dryRun
+  // });
+
+  await cloneRegistryTemplate({
+    targetDir: targetDir,
+    templateDir: templatePath,
+    force: options.force
   });
 
-  result.succeed("Scaffolding Component Files Successfully!");
+  logger.break();
+  result.succeed("Scaffolding files successfully!");
 
   ensurePackageJson(process.cwd());
   ensureTsConfig(process.cwd());
@@ -301,6 +308,7 @@ async function runPostInstallHooks(
 
   if (component.env?.length) {
     updateEnvExample(component.env, process.cwd());
+    await updateEnvVars(component.env);
   }
 }
 

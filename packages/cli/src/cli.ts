@@ -5,7 +5,7 @@ import { add } from "@/commands/add";
 import { init } from "@/commands/init";
 import { list } from "@/commands/list";
 import type { RegistryType } from "@/types";
-import { LATEST_VERSION } from "@/constants/app-constants";
+import { LATEST_VERSION } from "@/constants/app.constants";
 
 const program = new Command();
 
