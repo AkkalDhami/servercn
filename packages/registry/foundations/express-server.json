@@ -1,42 +1,45 @@
 {
-  "title": "Express Server",
+  "$schema": "http://localhost:3000/schema/foundation.schema.json",
   "slug": "express-server",
-  "type": "foundation",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "foundations/express-server/mvc",
-      "feature": "foundations/express-server/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "foundations/express-server/mvc",
+            "feature": "foundations/express-server/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "pino",
+              "pino-pretty",
+              "source-map-support",
+              "zod"
+            ],
+            "dev": [
+              "@types/express",
+              "typescript",
+              "dotenv",
+              "tsx",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN"]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": [
-      "express",
-      "cors",
-      "helmet",
-      "cookie-parser",
-      "pino-pretty",
-      "pino",
-      "source-map-support",
-      "zod"
-    ],
-    "dev": [
-      "@types/express",
-      "typescript",
-      "dotenv",
-      "tsx",
-      "morgan",
-      "@types/cors",
-      "@types/helmet",
-      "@types/morgan",
-      "@types/cookie-parser",
-      "prettier",
-      "@commitlint/cli",
-      "@commitlint/config-conventional",
-      "@types/source-map-support",
-      "lint-staged"
-    ]
-  },
-  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN"]
+  }
 }
