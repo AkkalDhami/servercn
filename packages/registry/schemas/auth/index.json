@@ -1,45 +1,63 @@
 {
-  "title": "Auth",
+  "$schema": "http://localhost:3000/schema/schema.registry.json",
   "slug": "auth",
-  "type": "schema",
-  "domain": "auth",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "databases": ["mysql", "postgresql", "mongodb"],
-  "templates": {
-    "express": {
-      "mysql": {
-        "drizzle": {
-          "mvc": "schemas/auth/index/express/mysql/drizzle/mvc",
-          "feature": "schemas/auth/index/express/mysql/drizzle/feature"
-        }
-      },
-      "postgresql": {
-        "drizzle": {
-          "mvc": "schemas/auth/index/express/postgresql/drizzle/mvc",
-          "feature": "schemas/auth/index/express/postgresql/drizzle/feature"
-        }
-      },
-      "mongodb": {
-        "mongoose": {
-          "mvc": "schemas/auth/index/express/mongodb/mongoose/mvc",
-          "feature": "schemas/auth/index/express/mongodb/mongoose/feature"
+
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "mvc": "auth/index/mysql/drizzle/mvc",
+                    "feature": "auth/index/mysql/drizzle/feature"
+                  }
+                }
+              }
+            },
+
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "mvc": "auth/index/postgresql/drizzle/mvc",
+                    "feature": "auth/index/postgresql/drizzle/feature"
+                  }
+                }
+              }
+            },
+
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "mvc": "auth/index/mongodb/mongoose/mvc",
+                    "feature": "auth/index/mongodb/mongoose/feature"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
   },
+
   "dependencies": {
     "common": {
       "runtime": [],
       "dev": []
     },
+
     "stack:express": {
       "runtime": ["express"],
       "dev": ["@types/express"]
     },
+
     "db:mysql": {
-      "runtime": ["mysql2"],
-      "dev": []
+      "runtime": ["mysql2"]
     },
 
     "db:postgresql": {
@@ -47,14 +65,13 @@
       "dev": ["@types/pg"]
     },
 
-    "orm:mongoose": {
-      "runtime": ["mongoose"],
-      "dev": []
-    },
-
     "orm:drizzle": {
       "runtime": ["drizzle-orm"],
       "dev": ["drizzle-kit"]
+    },
+
+    "orm:mongoose": {
+      "runtime": ["mongoose"]
     }
   }
 }
