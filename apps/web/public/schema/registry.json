@@ -1,52 +1,36 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "version": "1.0.0",
-  "generatedAt": "2026-02-17T00:00:00Z",
   "schemas": [
     {
-      "name": "servercn.config",
-      "slug": "servercn-config",
-      "version": "1.0.0",
-      "description": "ServerCN project configuration schema",
-      "url": "https://servercn.vercel.app/schema/servercn.config.schema.json",
-      "type": "project",
-      "createdAt": "2026-02-11T14:37:44Z"
+      "name": "registry:servercn.config",
+      "description": "Configuration schema for a ServerCN project",
+      "url": "https://servercn.vercel.app/schema/servercn.config.schema.json"
     },
     {
-      "name": "registry",
-      "slug": "registry",
-      "version": "1.0.0",
-      "description": "Registry index schema for ServerCN components",
-      "url": "https://servercn.vercel.app/schema/registry.schema.json",
-      "type": "registry",
-      "createdAt": "2026-02-11T14:37:44Z"
+      "name": "registry:component",
+      "description": "Registry schema that defines individual ServerCN components",
+      "url": "https://servercn.vercel.app/schema/component.schema.json"
     },
     {
-      "name": "component",
-      "slug": "component",
-      "version": "1.0.0",
-      "description": "Schema for individual ServerCN components",
-      "url": "https://servercn.vercel.app/schema/component.schema.json",
-      "type": "component",
-      "createdAt": "2026-02-11T14:37:44Z"
+      "name": "registry:blueprint",
+      "description": "Registry schema that defines ServerCN blueprints",
+      "url": "https://servercn.vercel.app/schema/blueprint.schema.json"
     },
     {
-      "name": "blueprint",
-      "slug": "blueprint",
-      "version": "1.0.0",
-      "description": "Schema for blueprint components",
-      "url": "https://servercn.vercel.app/schema/blueprint.schema.json",
-      "type": "blueprint",
-      "createdAt": "2026-02-11T14:37:44Z"
+      "name": "registry:foundation",
+      "description": "Registry schema that defines ServerCN project foundations",
+      "url": "https://servercn.vercel.app/schema/foundation.schema.json"
     },
     {
-      "name": "foundation",
-      "slug": "foundation",
-      "version": "1.0.0",
-      "description": "Schema for foundation components",
-      "url": "https://servercn.vercel.app/schema/foundation.schema.json",
-      "type": "foundation",
-      "createdAt": "2026-02-11T14:37:44Z"
+      "name": "registry:tooling",
+      "description": "Registry schema that defines ServerCN development tooling",
+      "url": "https://servercn.vercel.app/schema/tooling.schema.json"
+    },
+    {
+      "name": "registry:schema",
+      "description": "Registry schema that defines database and domain schemas",
+      "url": "https://servercn.vercel.app/schema/schema.schema.json"
     }
   ]
 }

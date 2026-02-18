@@ -1,45 +1,50 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ServerCN Config",
-  "description": "Configuration file for ServerCN projects",
+  "description": "Advanced configuration schema for ServerCN projects",
   "type": "object",
   "required": ["version", "project", "stack", "meta"],
+  "additionalProperties": false,
 
   "properties": {
     "$schema": {
       "type": "string",
-      "description": "JSON schema for ServerCN config"
+      "description": "JSON schema reference"
     },
+
     "version": {
       "type": "string",
-      "description": "Current version of ServerCN config",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version of config"
     },
 
     "project": {
       "type": "object",
       "required": ["root", "srcDir", "type"],
+      "additionalProperties": false,
       "properties": {
         "root": {
           "type": "string",
+          "default": ".",
           "description": "Project root directory"
         },
         "srcDir": {
           "type": "string",
+          "default": "src",
           "description": "Source directory"
         },
         "type": {
           "type": "string",
           "enum": ["backend", "fullstack"],
-          "description": "Type of project"
+          "description": "Project type"
         }
-      },
-      "additionalProperties": false
+      }
     },
 
     "stack": {
       "type": "object",
       "required": ["runtime", "language", "framework", "architecture"],
+      "additionalProperties": false,
       "properties": {
         "runtime": {
           "type": "string",
@@ -49,57 +54,164 @@
         "language": {
           "type": "string",
           "enum": ["typescript"],
+          "default": "typescript",
           "description": "Programming language"
         },
         "framework": {
           "type": "string",
-          "enum": ["express", "nest", "fastify", "hono"],
-          "description": "Framework used in project"
+          "description": "Backend framework"
         },
         "architecture": {
           "type": "string",
-          "enum": ["mvc", "feature"],
-          "description": "Project architecture pattern"
+          "description": "Project architecture"
         }
       },
-      "additionalProperties": false
+
+      "allOf": [
+        {
+          "if": {
+            "properties": { "runtime": { "const": "node" } }
+          },
+          "then": {
+            "properties": {
+              "framework": {
+                "enum": ["express", "nest", "fastify"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "runtime": { "const": "deno" } }
+          },
+          "then": {
+            "properties": {
+              "framework": {
+                "enum": ["hono"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "runtime": { "const": "bun" } }
+          },
+          "then": {
+            "properties": {
+              "framework": {
+                "enum": ["hono", "express"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "framework": { "const": "nest" } }
+          },
+          "then": {
+            "properties": {
+              "architecture": {
+                "enum": ["feature"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "framework": { "enum": ["express", "fastify", "hono"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "architecture": {
+                "enum": ["mvc", "feature"]
+              }
+            }
+          }
+        }
+      ]
     },
 
     "database": {
-      "type": ["object", "null"],
-      "required": ["type", "orm"],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["mongodb", "postgresql", "mysql"],
-          "description": "Database type"
-        },
-        "orm": {
-          "type": "string",
-          "enum": ["mongoose", "drizzle", "none"],
-          "description": "ORM used for database"
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["type", "orm"],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["mongodb", "postgresql", "mysql"],
+              "description": "Database type"
+            },
+            "orm": {
+              "type": "string",
+              "description": "ORM for selected database"
+            }
+          },
+
+          "allOf": [
+            {
+              "if": {
+                "properties": { "type": { "const": "mongodb" } }
+              },
+              "then": {
+                "properties": {
+                  "orm": {
+                    "enum": ["mongoose"]
+                  }
+                }
+              }
+            },
+
+            {
+              "if": {
+                "properties": { "type": { "const": "postgresql" } }
+              },
+              "then": {
+                "properties": {
+                  "orm": {
+                    "enum": ["drizzle"]
+                  }
+                }
+              }
+            },
+
+            {
+              "if": {
+                "properties": { "type": { "const": "mysql" } }
+              },
+              "then": {
+                "properties": {
+                  "orm": {
+                    "enum": ["drizzle"]
+                  }
+                }
+              }
+            }
+          ]
         }
-      },
-      "additionalProperties": false
+      ]
     },
 
     "meta": {
       "type": "object",
       "required": ["createdAt", "createdBy"],
+      "additionalProperties": false,
       "properties": {
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "description": "Creation timestamp"
+          "description": "ISO timestamp"
         },
         "createdBy": {
           "type": "string",
-          "description": "Generated by ServerCN version"
+          "pattern": "^servercn@\\d+\\.\\d+\\.\\d+$",
+          "description": "CLI version used to create project"
         }
-      },
-      "additionalProperties": false
+      }
     }
-  },
-
-  "additionalProperties": false
+  }
 }
