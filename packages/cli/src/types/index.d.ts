@@ -18,7 +18,6 @@ export type LanguageType = (typeof LanguageList)[number];
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
 export type ConflictStrategy = "skip" | "overwrite" | "error";
-
 export interface AddOptions {
   type?: RegistryType;
   stack?: StackConfig;
@@ -26,7 +25,6 @@ export interface AddOptions {
   force?: boolean;
   variant?: string;
 }
-
 export interface CopyOptions {
   templateDir: string;
   targetDir: string;
@@ -41,12 +39,10 @@ export type StackConfig = {
   framework: FrameworkType;
   architecture: Architecture;
 };
-
 export interface DatabaseConfig {
   type: DatabaseType;
   orm: OrmType;
 }
-
 export interface IServerCNConfig {
   $schema: string;
   version: string;
@@ -70,76 +66,119 @@ export type InstallOptions = {
 };
 
 export type DependencySet = {
-  runtime: string[];
-  dev: string[];
+  runtime?: string[];
+  dev?: string[];
 };
 
 export type ArchitectureSet = {
-  mvc: string;
-  feature: string;
+  mvc?: string;
+  feature?: string;
 };
+
+export type EnvSet = string[];
 
 export type DatabaseTemplate = Record<OrmType, ArchitectureSet>;
 
 export type TemplateSet = Record<DatabaseType, DatabaseTemplate>;
-
 export interface IRegistryCommon {
+  $schema?: string;
   slug: string;
 }
+
+//? registry:component
 export interface SelectPrompt {
   type: "select";
   message: string;
   key: string;
 }
 
-export interface ComponentVariant {
-  label: string;
-  templates: Record<FrameworkType, ArchitectureSet>;
+export interface SimpleFramework {
+  templates: ArchitectureSet;
   dependencies?: DependencySet;
-  env?: string[];
-}
+  env?: EnvSet;
 
-export interface VariantComponent extends IRegistryCommon {
-  slug: string;
-
-  prompt: SelectPrompt;
-  variants: Record<string, ComponentVariant>;
-
-  //! forbidden for variant-based components
-  templates?: never;
-  dependencies?: never;
-}
-
-export interface SimpleComponent extends IRegistryCommon {
-  slug: string;
-
-  templates: Record<FrameworkType, ArchitectureSet>;
-  dependencies?: DependencySet;
-
-  //! forbidden for simple components
+  // forbidden
   prompt?: never;
   variants?: never;
 }
 
-export type RegistryComponent = VariantComponent | SimpleComponent;
+export interface FrameworkVariant {
+  label: string;
+  templates: ArchitectureSet;
+  dependencies?: DependencySet;
+  env?: EnvSet;
+}
 
-export interface IBlueprint extends IRegistryCommon {
-  templates: Record<FrameworkType, TemplateSet>;
+export interface VariantFramework {
+  prompt: SelectPrompt;
+  variants: Record<string, FrameworkVariant>;
+
+  // forbidden
+  templates?: never;
+  dependencies?: never;
+  env?: never;
+}
+
+export type FrameworkConfig = SimpleFramework | VariantFramework;
+
+export interface NodeRuntime {
+  frameworks: {
+    express?: FrameworkConfig;
+    nest?: FrameworkConfig;
+  };
+}
+
+export interface RegistryComponent extends IRegistryCommon {
+  runtimes: {
+    node: NodeRuntime;
+  };
+}
+
+//? registry:foundation
+export interface FoundationFramework {
+  templates: ArchitectureSet;
+  dependencies?: DependencySet;
+  env?: EnvSet;
+}
+
+export interface NodeFoundationRuntime {
+  frameworks: {
+    express?: FoundationFramework;
+    nest?: FoundationFramework;
+  };
+}
+
+export interface RegistryFoundation extends IRegistryCommon {
+  runtimes: {
+    node: NodeFoundationRuntime;
+  };
+}
+
+//? registry:schema
+
+export interface SchemaOrm {
+  templates: ArchitectureSet;
+}
+export interface SchemaDatabase {
+  orms: Record<OrmType, SchemaOrm>;
+}
+
+export interface SchemaFramework {
+  databases: Record<DatabaseType, SchemaDatabase>;
+}
+export interface NodeSchemaRuntime {
+  frameworks: {
+    express?: SchemaFramework;
+    nest?: SchemaFramework;
+  };
+}
+
+export interface RegistrySchema extends IRegistryCommon {
+  runtimes: {
+    node: NodeSchemaRuntime;
+  };
+
   dependencies: Record<string, DependencySet>;
 }
 
-export interface IFoundation extends IRegistryCommon {
-  templates: Record<FrameworkType, ArchitectureSet>;
-  dependencies: DependencySet;
-}
-
-export interface ISchema extends IRegistryCommon {
-  templates: Record<FrameworkType, TemplateSet>;
-  dependencies: Record<string, DependencySet>;
-}
-
-export type RegistryItem =
-  | RegistryComponent
-  | IBlueprint
-  | IFoundation
-  | ISchema;
+export type RegistryItem = RegistryComponent | RegistryFoundation;
