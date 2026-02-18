@@ -3,11 +3,10 @@ import path from "path";
 import { logger } from "@/utils/logger";
 import { paths } from "./paths";
 import type { RegistryType } from "@/types";
-import { renderGrouppedRegistries } from "@/commands/list";
 import { capitalize } from "@/utils/capitalize";
-import { logInfo } from "@/utils/log";
+import { getRegistryLists } from "@/commands/list/list.handlers";
 
-export async function getRegistryComponent(name: string, type: RegistryType) {
+export async function getRegistry(name: string, type: RegistryType) {
   const registryPath = paths.registry(type);
   const filePath = path.join(registryPath, `${name}.json`);
 
@@ -18,7 +17,9 @@ export async function getRegistryComponent(name: string, type: RegistryType) {
     );
     logger.error(`\n${capitalize(type)} '${name}' not found!`);
     logger.error("\nCheck if the item name is correct.");
-    await renderGrouppedRegistries(type, logInfo(type));
+
+    await getRegistryLists(type);
+
     process.exit(1);
   }
 

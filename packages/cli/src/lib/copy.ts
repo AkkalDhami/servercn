@@ -13,11 +13,6 @@ export async function copyTemplate({
   conflict = "skip",
   dryRun = false
 }: CopyOptions) {
-  if (!(await fs.pathExists(templateDir))) {
-    logger.error(`Template not found: ${templateDir}`);
-    process.exit(1);
-  }
-
   await fs.ensureDir(targetDir);
 
   const entries = await fs.readdir(templateDir, { withFileTypes: true });
@@ -25,9 +20,9 @@ export async function copyTemplate({
   for (const entry of entries) {
     const srcPath = path.join(templateDir, entry.name);
 
-    let rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
+    const rawName = entry.name === "_gitignore" ? ".gitignore" : entry.name;
 
-    let finalName = rawName;
+    const finalName = rawName;
     const destPath = path.join(targetDir, finalName);
     const relativeDestPath = path.relative(process.cwd(), destPath);
 
@@ -69,7 +64,7 @@ export async function copyTemplate({
     if (isBinary) {
       await fs.copyFile(srcPath, destPath);
     } else {
-      let content = buffer.toString("utf8");
+      const content = buffer.toString("utf8");
 
       await fs.writeFile(destPath, content);
     }
@@ -98,7 +93,7 @@ async function mergeDirectory({
     const destPath = path.join(destDir, entry.name);
 
     if (entry.isDirectory()) {
-      // ✅ directories are never a conflict
+      //directories are never a conflict
       await mergeDirectory({
         srcDir: srcPath,
         destDir: destPath,
@@ -139,17 +134,22 @@ export async function cloneRegistryTemplate({
 
   try {
     const templateSource = `${GITHUB_BASE_URL}/${templateDir}`;
+    // console.log({ targetDir, templateDir, templateSource });
 
-    await downloadTemplate(templateSource, {
-      dir: tempDir,
+    const s = await downloadTemplate(templateSource, {
+      dir: targetPath,
       force: true
     });
+
+    // console.log({ s });
 
     await mergeDirectory({
       srcDir: tempDir,
       destDir: targetPath,
       force
     });
+  } catch (e) {
+    throw new Error("Repository not found on GitHub");
   } finally {
     await fs.remove(tempDir);
   }

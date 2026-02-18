@@ -23,7 +23,6 @@ export interface AddOptions {
   type?: RegistryType;
   stack?: StackConfig;
   arch?: Architecture;
-  dryRun?: boolean;
   force?: boolean;
   variant?: string;
 }
@@ -85,19 +84,44 @@ export type DatabaseTemplate = Record<OrmType, ArchitectureSet>;
 export type TemplateSet = Record<DatabaseType, DatabaseTemplate>;
 
 export interface IRegistryCommon {
-  title: string;
   slug: string;
-  type: RegistryType;
-  stacks: Array<FrameworkList>;
-  architectures: Array<Architecture>;
-  env?: Array<string>;
+}
+export interface SelectPrompt {
+  type: "select";
+  message: string;
+  key: string;
 }
 
-export interface IComponent extends IRegistryCommon {
+export interface ComponentVariant {
+  label: string;
   templates: Record<FrameworkType, ArchitectureSet>;
-  dependencies: DependencySet;
-  algorithms?: Record<string, DependencySet>;
+  dependencies?: DependencySet;
+  env?: string[];
 }
+
+export interface VariantComponent extends IRegistryCommon {
+  slug: string;
+
+  prompt: SelectPrompt;
+  variants: Record<string, ComponentVariant>;
+
+  //! forbidden for variant-based components
+  templates?: never;
+  dependencies?: never;
+}
+
+export interface SimpleComponent extends IRegistryCommon {
+  slug: string;
+
+  templates: Record<FrameworkType, ArchitectureSet>;
+  dependencies?: DependencySet;
+
+  //! forbidden for simple components
+  prompt?: never;
+  variants?: never;
+}
+
+export type RegistryComponent = VariantComponent | SimpleComponent;
 
 export interface IBlueprint extends IRegistryCommon {
   templates: Record<FrameworkType, TemplateSet>;
@@ -114,4 +138,8 @@ export interface ISchema extends IRegistryCommon {
   dependencies: Record<string, DependencySet>;
 }
 
-export type RegistryItem = IComponent | IBlueprint | IFoundation | ISchema;
+export type RegistryItem =
+  | RegistryComponent
+  | IBlueprint
+  | IFoundation
+  | ISchema;
