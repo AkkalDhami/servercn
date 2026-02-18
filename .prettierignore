@@ -6,5 +6,4 @@ dist
 .env
 **/*.mdx
 **/*.md
-
 coverage
