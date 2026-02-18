@@ -1,46 +1,55 @@
 {
-  "title": "Drizzle MySQL Starter",
+  "$schema": "http://localhost:3000/schema/foundation.registry.json",
   "slug": "drizzle-mysql-starter",
-  "type": "foundation",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "foundations/drizzle-mysql-starter/mvc",
-      "feature": "foundations/drizzle-mysql-starter/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "drizzle-mysql-starter/mvc",
+            "feature": "drizzle-mysql-starter/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "drizzle-orm",
+              "mysql2",
+              "pino-pretty",
+              "pino",
+              "source-map-support",
+              "zod"
+            ],
+            "dev": [
+              "typescript",
+              "dotenv",
+              "tsx",
+              "@types/node",
+              "@types/express",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "drizzle-kit",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": [
-      "express",
-      "cors",
-      "helmet",
-      "cookie-parser",
-      "drizzle-orm",
-      "mysql2",
-      "pino-pretty",
-      "pino",
-      "source-map-support",
-      "zod"
-    ],
-    "dev": [
-      "typescript",
-      "dotenv",
-      "tsx",
-      "@types/node",
-      "@types/express",
-      "morgan",
-      "@types/cors",
-      "@types/helmet",
-      "@types/morgan",
-      "@types/cookie-parser",
-      "drizzle-kit",
-      "prettier",
-      "@commitlint/cli",
-      "@commitlint/config-conventional",
-      "@types/source-map-support",
-      "lint-staged"
-    ]
-  },
-  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]
+  }
 }
