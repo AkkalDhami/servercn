@@ -1,47 +1,56 @@
 {
-  "title": "Drizzle PostgreSQL Starter",
+  "$schema": "http://localhost:3000/schema/foundation.schema.json",
   "slug": "drizzle-pg-starter",
-  "type": "foundation",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "foundations/drizzle-pg-starter/mvc",
-      "feature": "foundations/drizzle-pg-starter/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "foundations/drizzle-pg-starter/mvc",
+            "feature": "foundations/drizzle-pg-starter/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "drizzle-orm",
+              "pg",
+              "pino-pretty",
+              "pino",
+              "source-map-support",
+              "zod"
+            ],
+            "dev": [
+              "typescript",
+              "tsx",
+              "dotenv",
+              "@types/node",
+              "@types/express",
+              "@types/pg",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "drizzle-kit",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": [
-      "express",
-      "cors",
-      "helmet",
-      "cookie-parser",
-      "drizzle-orm",
-      "pg",
-      "pino-pretty",
-      "pino",
-      "source-map-support",
-      "zod"
-    ],
-    "dev": [
-      "typescript",
-      "tsx",
-      "dotenv",
-      "@types/node",
-      "@types/express",
-      "@types/pg",
-      "morgan",
-      "@types/cors",
-      "@types/helmet",
-      "@types/morgan",
-      "@types/cookie-parser",
-      "drizzle-kit",
-      "prettier",
-      "@commitlint/cli",
-      "@commitlint/config-conventional",
-      "@types/source-map-support",
-      "lint-staged"
-    ]
-  },
-  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]
+  }
 }
