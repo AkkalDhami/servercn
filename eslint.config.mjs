@@ -17,7 +17,12 @@ const eslintConfig = defineConfig([
     ".source/**",
     "**/__index__.tsx",
     "commitlint.config.ts"
-  ])
+  ]),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-expressions": "off",
+    }
+  }
 ]);
 
 export default eslintConfig;
