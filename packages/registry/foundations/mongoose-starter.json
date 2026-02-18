@@ -1,44 +1,52 @@
 {
-  "title": "Mongoose Starter",
   "slug": "mongoose-starter",
-  "type": "foundation",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "foundations/mongoose-starter/mvc",
-      "feature": "foundations/mongoose-starter/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "foundations/mongoose-starter/mvc",
+            "feature": "foundations/mongoose-starter/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "mongoose",
+              "pino-pretty",
+              "pino",
+              "source-map-support",
+              "zod"
+            ],
+            "dev": [
+              "typescript",
+              "tsx",
+              "dotenv",
+              "@types/node",
+              "@types/express",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": [
-      "express",
-      "cors",
-      "helmet",
-      "cookie-parser",
-      "mongoose",
-      "pino-pretty",
-      "pino",
-      "source-map-support",
-      "zod"
-    ],
-    "dev": [
-      "typescript",
-      "tsx",
-      "dotenv",
-      "@types/node",
-      "@types/express",
-      "morgan",
-      "@types/cors",
-      "@types/helmet",
-      "@types/morgan",
-      "@types/cookie-parser",
-      "prettier",
-      "@commitlint/cli",
-      "@commitlint/config-conventional",
-      "@types/source-map-support",
-      "lint-staged"
-    ]
-  },
-  "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN", "DATABASE_URL"]
+  }
 }
