@@ -1,25 +1,48 @@
 {
-  "title": "Email Service",
+  "$schema": "http://localhost:3000/schema/component.registry.json",
   "slug": "email-service",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/email-service/express/mvc",
-      "feature": "components/email-service/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "prompt": {
+            "type": "select",
+            "message": "Select an email provider",
+            "key": "provider"
+          },
+          "variants": {
+            "nodemailer": {
+              "label": "Nodemailer (SMTP)",
+              "templates": {
+                "mvc": "email-service/nodemailer/mvc",
+                "feature": "email-service/nodemailer/feature"
+              },
+              "dependencies": {
+                "runtime": ["nodemailer"],
+                "dev": ["@types/nodemailer"]
+              },
+              "env": [
+                "SMTP_HOST",
+                "SMTP_PORT",
+                "SMTP_USER",
+                "SMTP_PASS",
+                "EMAIL_FROM"
+              ]
+            },
+            "resend": {
+              "label": "Resend",
+              "templates": {
+                "mvc": "email-service/resend/mvc",
+                "feature": "email-service/resend/feature"
+              },
+              "dependencies": {
+                "runtime": ["resend"]
+              },
+              "env": ["RESEND_API_KEY", "EMAIL_FROM"]
+            }
+          }
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["zod", "dotenv", "nodemailer", "resend"],
-    "dev": ["@types/nodemailer"]
-  },
-  "env": [
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USER",
-    "SMTP_PASS",
-    "EMAIL_FROM",
-    "RESEND_API_KEY"
-  ]
+  }
 }

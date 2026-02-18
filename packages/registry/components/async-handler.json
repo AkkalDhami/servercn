@@ -1,17 +1,21 @@
 {
-  "title": "Async handler",
+  "$schema": "http://localhost:3000/schema/component.registry.json",
   "slug": "async-handler",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/async-handler/express/mvc",
-      "feature": "components/async-handler/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "async-handler/mvc",
+            "feature": "async-handler/feature"
+          },
+          "dependencies": {
+            "runtime": ["express"],
+            "dev": ["@types/express"]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express"],
-    "dev": ["@types/express"]
   }
 }
