@@ -19,7 +19,12 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "**/*": "npx prettier --write --ignore-unknown"
+    "*.{ts,tsx,js,jsx}": [
+      "npx eslint --fix"
+    ],
+    "*.{json,css}": [
+      "npx prettier --write"
+    ]
   },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
