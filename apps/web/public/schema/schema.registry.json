@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ServerCN Registry Schema",
+  "description": "Validates ServerCN registry:schema entries (runtime → framework → database → orm → architecture).",
+  "type": "object",
+
+  "required": ["slug", "runtimes", "dependencies"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case schema identifier"
+    },
+
+    "runtimes": {
+      "type": "object",
+      "required": ["node"],
+      "additionalProperties": false,
+
+      "properties": {
+        "node": { "$ref": "#/$defs/nodeRuntime" }
+      }
+    },
+
+    "dependencies": {
+      "type": "object",
+      "description": "Dependency sets keyed by capability (stack, db, orm)",
+      "additionalProperties": {
+        "$ref": "#/$defs/dependencySet"
+      }
+    }
+  },
+
+  "$defs": {
+    "nodeRuntime": {
+      "type": "object",
+      "required": ["frameworks"],
+      "additionalProperties": false,
+
+      "properties": {
+        "frameworks": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+
+          "properties": {
+            "express": { "$ref": "#/$defs/framework" },
+            "nest": { "$ref": "#/$defs/framework" }
+          }
+        }
+      }
+    },
+
+    "framework": {
+      "type": "object",
+      "required": ["databases"],
+      "additionalProperties": false,
+
+      "properties": {
+        "databases": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/database"
+          }
+        }
+      }
+    },
+
+    "database": {
+      "type": "object",
+      "required": ["orms"],
+      "additionalProperties": false,
+
+      "properties": {
+        "orms": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/orm"
+          }
+        }
+      }
+    },
+
+    "orm": {
+      "type": "object",
+      "required": ["templates"],
+      "additionalProperties": false,
+
+      "properties": {
+        "templates": { "$ref": "#/$defs/templates" }
+      }
+    },
+
+    "templates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+
+      "properties": {
+        "mvc": {
+          "type": "string",
+          "description": "MVC architecture template path"
+        },
+        "feature": {
+          "type": "string",
+          "description": "Feature-based architecture template path"
+        }
+      }
+    },
+
+    "dependencySet": {
+      "type": "object",
+      "additionalProperties": false,
+
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dev": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
