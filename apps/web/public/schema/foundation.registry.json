@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ServerCN Registry Foundation Schema",
+  "description": "Schema for ServerCN foundations. Foundations are opinionated starters with runtime-based framework templates.",
+  "type": "object",
+
+  "required": ["$schema", "slug", "runtimes"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "Schema reference URI"
+    },
+
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case identifier for the foundation"
+    },
+
+    "runtimes": {
+      "type": "object",
+      "description": "Supported runtimes",
+      "additionalProperties": false,
+      "required": ["node"],
+
+      "properties": {
+        "node": { "$ref": "#/$defs/nodeRuntime" }
+      }
+    }
+  },
+
+  "$defs": {
+    "nodeRuntime": {
+      "type": "object",
+      "required": ["frameworks"],
+      "additionalProperties": false,
+
+      "properties": {
+        "frameworks": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+
+          "properties": {
+            "express": { "$ref": "#/$defs/framework" },
+            "nest": { "$ref": "#/$defs/framework" }
+          }
+        }
+      }
+    },
+
+    "framework": {
+      "type": "object",
+      "description": "Framework-specific foundation configuration",
+      "required": ["templates"],
+      "additionalProperties": false,
+
+      "properties": {
+        "templates": { "$ref": "#/$defs/templates" },
+        "dependencies": { "$ref": "#/$defs/dependencies" },
+        "env": { "$ref": "#/$defs/env" }
+      }
+    },
+
+    "templates": {
+      "type": "object",
+      "description": "Architecture-specific template paths",
+      "minProperties": 1,
+      "additionalProperties": false,
+
+      "properties": {
+        "mvc": { "type": "string" },
+        "feature": { "type": "string" }
+      }
+    },
+
+    "dependencies": {
+      "type": "object",
+      "description": "NPM dependencies required by the foundation",
+      "additionalProperties": false,
+
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dev": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "env": {
+      "type": "array",
+      "description": "Environment variables required by the foundation",
+      "items": { "type": "string" }
+    }
+  }
+}
