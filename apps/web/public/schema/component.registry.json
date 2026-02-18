@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ServerCN Registry Component Schema",
+  "type": "object",
+  "description": "Validates ServerCN components supporting both simple and variant-based framework definitions.",
+  "required": ["$schema", "slug", "runtimes"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+
+    "runtimes": {
+      "type": "object",
+      "required": ["node"],
+      "additionalProperties": false,
+      "properties": {
+        "node": { "$ref": "#/$defs/nodeRuntime" }
+      }
+    }
+  },
+
+  "$defs": {
+    "nodeRuntime": {
+      "type": "object",
+      "required": ["frameworks"],
+      "additionalProperties": false,
+      "properties": {
+        "frameworks": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "properties": {
+            "express": { "$ref": "#/$defs/framework" },
+            "nest": { "$ref": "#/$defs/framework" }
+          }
+        }
+      }
+    },
+    "framework": {
+      "oneOf": [
+        { "$ref": "#/$defs/simpleFramework" },
+        { "$ref": "#/$defs/variantFramework" }
+      ]
+    },
+
+    "simpleFramework": {
+      "type": "object",
+      "required": ["templates"],
+      "additionalProperties": false,
+      "properties": {
+        "templates": { "$ref": "#/$defs/templates" },
+        "dependencies": { "$ref": "#/$defs/dependencies" },
+        "env": { "$ref": "#/$defs/env" }
+      },
+      "not": {
+        "anyOf": [{ "required": ["prompt"] }, { "required": ["variants"] }]
+      }
+    },
+
+    "variantFramework": {
+      "type": "object",
+      "required": ["prompt", "variants"],
+      "additionalProperties": false,
+      "properties": {
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "variants": { "$ref": "#/$defs/variants" }
+      },
+      "not": {
+        "required": ["templates"]
+      }
+    },
+
+    "prompt": {
+      "type": "object",
+      "required": ["type", "message", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "select" },
+        "message": { "type": "string" },
+        "key": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        }
+      }
+    },
+
+    "variants": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["label", "templates"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "templates": { "$ref": "#/$defs/templates" },
+          "dependencies": { "$ref": "#/$defs/dependencies" },
+          "env": { "$ref": "#/$defs/env" }
+        }
+      }
+    },
+
+    "templates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "mvc": { "type": "string" },
+        "feature": { "type": "string" }
+      }
+    },
+
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dev": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "env": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$"
+      }
+    }
+  }
+}
