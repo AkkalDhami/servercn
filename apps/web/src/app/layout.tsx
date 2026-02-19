@@ -53,11 +53,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={fontVariables}>
       <body
         className={`selection:bg-primary selection:text-primary-foreground mx-auto max-w-387.5 scroll-smooth antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ScrollToTopButton />
           <Navbar />
 
