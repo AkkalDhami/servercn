@@ -9,7 +9,7 @@ export async function getServerCNConfig(): Promise<IServerCNConfig> {
   const configPath = path.resolve(cwd, SERVERCN_CONFIG_FILE);
 
   if (!(await fs.pathExists(configPath))) {
-    logger.warn("ServerCN is not initialized. Run `servercn init` first.");
+    logger.warn("ServerCN is not initialized. Run `npx servercn init` first.");
     process.exit(1);
   }
 
@@ -20,15 +20,20 @@ export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
   switch (foundation) {
     case "express-server":
     case "mongoose-starter":
-      return { type: "mongodb", orm: "mongoose" };
+      return {
+        type: "mongodb",
+        orm: "mongoose"
+      };
     case "drizzle-mysql-starter":
-      return { type: "mysql", orm: "drizzle" };
+      return {
+        type: "mysql",
+        orm: "drizzle"
+      };
     case "drizzle-pg-starter":
-      return { type: "postgresql", orm: "drizzle" };
-    case "prisma-mongo-starter":
-      return { type: "mongodb", orm: "prisma" };
-    case "prisma-pg-starter":
-      return { type: "postgresql", orm: "prisma" };
+      return {
+        type: "postgresql",
+        orm: "drizzle"
+      };
     default:
       return null;
   }

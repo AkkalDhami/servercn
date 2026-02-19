@@ -1,8 +1,11 @@
 import fs from "fs-extra";
 import path from "path";
 import { logger } from "@/utils/logger";
-import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
-import { env } from "@/configs/env.config";
+import {
+  APP_NAME,
+  SERVERCN_CONFIG_FILE,
+  SERVERCN_URL
+} from "@/constants/app.constants";
 
 export async function assertInitialized() {
   const configPath = path.resolve(process.cwd(), SERVERCN_CONFIG_FILE);
@@ -20,7 +23,7 @@ export async function assertInitialized() {
     );
 
     logger.muted(
-      `Visit ${env.SERVERCN_URL}/docs/installation for more information`
+      `Visit ${SERVERCN_URL}/docs/installation for more information`
     );
     process.exit(1);
   }

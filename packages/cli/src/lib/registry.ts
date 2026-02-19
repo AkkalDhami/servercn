@@ -2,14 +2,24 @@ import fs from "fs-extra";
 import path from "path";
 import { logger } from "@/utils/logger";
 import { paths } from "./paths";
-import type { RegistryType } from "@/types";
+import type { RegistryMap } from "@/types";
 import { capitalize } from "@/utils/capitalize";
 import { getRegistryLists } from "@/commands/list/list.handlers";
 
-export async function getRegistry(name: string, type: RegistryType) {
+export async function getRegistry<T extends keyof RegistryMap>(
+  name: string,
+  type: T
+): Promise<RegistryMap[T]> {
+  // implementation
   const registryPath = paths.registry(type);
-  const filePath = path.join(registryPath, `${name}.json`);
 
+  const registryItemName = name.includes("/")
+    ? name.split("/").shift() || name
+    : name;
+
+  const filePath = path.join(registryPath, `${registryItemName}.json`);
+
+  // console.log({ registryItemName })
   if (!(await fs.pathExists(filePath))) {
     logger.break();
     logger.error(

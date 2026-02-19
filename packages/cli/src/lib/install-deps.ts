@@ -9,7 +9,7 @@ export async function installDependencies({
   dev = [],
   cwd
 }: InstallOptions) {
-  if (!runtime.length && !dev.length) return;
+  if (runtime.length < 1 && dev.length < 1) return;
 
   const pm = detectPackageManager();
 
