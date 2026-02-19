@@ -8,6 +8,16 @@ export type listOptionType = {
   json?: boolean;
 };
 
+type listOverviewType = {
+  command: string;
+  types: {
+    type: RegistryType;
+    shortcut: "cp" | "bp" | "tl" | "sc" | "fd";
+    total: number;
+    command: string;
+  }[];
+};
+
 function padStart(num: number = 0) {
   return num.toString().padStart(2, "0");
 }
@@ -18,23 +28,23 @@ export async function listOverview(options: listOptionType) {
   const foundations = await loadRegistry("foundation");
   const toolings = await loadRegistry("tooling");
   const schemas = await loadRegistry("schema");
-  const data = {
+  const data: listOverviewType = {
     command: "npx servercn list <type>",
     types: [
       {
-        type: "components",
+        type: "component",
         shortcut: "cp",
         total: components.length,
         command: "npx servercn list cp"
       },
       {
-        type: "blueprints",
+        type: "blueprint",
         shortcut: "bp",
         total: blueprints.length,
         command: "npx servercn list bp"
       },
       {
-        type: "foundations",
+        type: "foundation",
         shortcut: "fd",
         total: foundations.length,
         command: "npx servercn list fd"
@@ -46,7 +56,7 @@ export async function listOverview(options: listOptionType) {
         command: "npx servercn list tl"
       },
       {
-        type: "schemas",
+        type: "schema",
         shortcut: "sc",
         total: schemas.length,
         command: "npx servercn list sc"
@@ -73,54 +83,51 @@ export async function listOverview(options: listOptionType) {
 │ Foundations  │   fd     │  ${padStart(foundations.length)}   │ npx servercn list fd  │
 │ Tooling      │   tl     │  ${padStart(toolings.length)}   │ npx servercn list tl  │
 │ Schemas      │   sc     │  ${padStart(schemas.length)}   │ npx servercn list sc  │
-───────────────────────────────────────────────────────────`)}`);
+───────────────────────────────────────────────────────────`)}`
+  );
   logger.log(`
  Explore:
  npx servercn list <type | shortcut>
+ npx servercn list <type | shortcut> --json
 
  Examples:
  npx servercn list components
  npx servercn list cp
+ npx servercn ls fd
  npx servercn list schemas
+ npx servercn ls sc --json
 `);
 }
 
 type listRegistryDataType = {
   type: RegistryType;
+  command: string;
   total: number;
   items: {
     name: string;
     command: string;
-    frameworks: string[];
-    variants?: string[];
   }[];
 };
 
-// shortcut: "cp" | "fd" | "bp" | "tl" | "sc";
 export async function listComponents(options: listOptionType) {
-  logger.break();
-  logger.info("Available Components");
   const components: RegistryComponent[] = await loadRegistry("component");
   const data = {
     type: "component",
+    command: `npx servercn add <component-name>`,
     total: components.length,
     items: components.map(c => ({
       name: c.slug,
-      command: `npx servercn add ${c.slug}`,
-      frameworks: [...Object.keys(c.templates || {})],
-      ...(Object.keys(c.variants || {}).length > 0 && {
-        variants: [...Object.keys(c.variants || {})]
-      })
+      command: `npx servercn add ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
   if (options?.json) {
-    logger.break();
     process.stdout.write(JSON.stringify(data, null, 2));
-    logger.break();
     return;
   }
 
+  logger.break();
+  logger.info("Available Components");
   components.map((c, i) => {
     logger.log(` ${i + 1}. ${c.slug}`);
   });
@@ -140,14 +147,11 @@ export async function listFoundations(options: listOptionType) {
 
   const data = {
     type: "foundation",
+    command: `npx servercn init <foundation-name>`,
     total: foundations.length,
     items: foundations.map(c => ({
       name: c.slug,
-      command: `npx servercn init ${c.slug}`,
-      frameworks: [...Object.keys(c.templates || {})],
-      ...(Object.keys(c.variants || {}).length > 0 && {
-        variants: [...Object.keys(c.variants || {})]
-      })
+      command: `npx servercn init ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -180,14 +184,11 @@ export async function listTooling(options: listOptionType) {
 
   const data = {
     type: "tooling",
+    command: `npx servercn add tooling <tooling-name>`,
     total: toolings.length,
     items: toolings.map(c => ({
       name: c.slug,
-      command: `npx servercn add tooling ${c.slug}`,
-      frameworks: [...Object.keys(c.templates || {})],
-      ...(Object.keys(c.variants || {}).length > 0 && {
-        variants: [...Object.keys(c.variants || {})]
-      })
+      command: `npx servercn add tooling ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -217,17 +218,13 @@ export async function listSchemas(options: listOptionType) {
   logger.info("Available Schemas");
 
   const schemas = await loadRegistry("schema");
-
   const data = {
     type: "schema",
+    command: `npx servercn add schema <schema-name>`,
     total: schemas.length,
     items: schemas.map(c => ({
       name: c.slug,
-      command: `npx servercn add schema ${c.slug}`,
-      frameworks: [...Object.keys(c.templates || {})],
-      ...(Object.keys(c.templates || {}).length > 0 && {
-        variants: [...Object.keys(c.templates || {})]
-      })
+      command: `npx servercn add schema ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -258,14 +255,11 @@ export async function listBlueprints(options: listOptionType) {
 
   const data = {
     type: "blueprint",
+    command: `npx servercn add blueprint <blueprint-name>`,
     total: blueprints.length,
     items: blueprints.map(c => ({
       name: c.slug,
-      command: `npx servercn add blueprint ${c.slug}`,
-      frameworks: [...Object.keys(c.templates || {})],
-      ...(Object.keys(c.variants || {}).length > 0 && {
-        variants: [...Object.keys(c.variants || {})]
-      })
+      command: `npx servercn add blueprint ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
