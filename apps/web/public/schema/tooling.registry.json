@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ServerCN Tooling Registry Schema",
+  "description": "Validates ServerCN tooling registry entries (runtime-agnostic tools like eslint, prettier, husky, commitlint).",
+  "type": "object",
+
+  "required": ["slug", "templates", "dependencies"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case tooling identifier"
+    },
+
+    "templates": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Tooling template variants (e.g., base, typescript, monorepo)",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "type": "string",
+          "description": "Relative path to template directory"
+        }
+      }
+    },
+
+    "dependencies": {
+      "$ref": "#/$defs/dependencySet"
+    }
+  },
+
+  "$defs": {
+    "dependencySet": {
+      "type": "object",
+      "additionalProperties": false,
+
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Packages required in dependencies"
+        },
+        "dev": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Packages required in devDependencies"
+        }
+      }
+    }
+  }
+}
