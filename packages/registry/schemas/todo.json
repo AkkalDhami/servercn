@@ -1,0 +1,94 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/schema.registry.json",
+  "slug": "todo",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "todo/index/mysql/drizzle/mvc",
+                      "feature": "todo/index/mysql/drizzle/feature"
+                    },
+                    "todo": {
+                      "mvc": "todo/todo/mysql/drizzle/mvc",
+                      "feature": "todo/todo/mysql/drizzle/feature"
+                    }
+                  }
+                }
+              }
+            },
+
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "todo/index/postgresql/drizzle/mvc",
+                      "feature": "todo/index/postgresql/drizzle/feature"
+                    },
+                    "todo": {
+                      "mvc": "todo/todo/postgresql/drizzle/mvc",
+                      "feature": "todo/todo/postgresql/drizzle/feature"
+                    }
+                  }
+                }
+              }
+            },
+
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "index": {
+                      "mvc": "todo/index/mongodb/mongoose/mvc",
+                      "feature": "todo/index/mongodb/mongoose/feature"
+                    },
+                    "todo": {
+                      "mvc": "todo/todo/mongodb/mongoose/mvc",
+                      "feature": "todo/todo/mongodb/mongoose/feature"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "dependencies": {
+    "common": {
+      "runtime": [],
+      "dev": []
+    },
+
+    "stack:express": {
+      "runtime": ["express"],
+      "dev": ["@types/express"]
+    },
+
+    "db:mysql": {
+      "runtime": ["mysql2"]
+    },
+
+    "db:postgresql": {
+      "runtime": ["pg"],
+      "dev": ["@types/pg"]
+    },
+
+    "orm:drizzle": {
+      "runtime": ["drizzle-orm"],
+      "dev": ["drizzle-kit"]
+    },
+
+    "orm:mongoose": {
+      "runtime": ["mongoose"]
+    }
+  }
+}
