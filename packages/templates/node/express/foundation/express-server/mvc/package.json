@@ -1,0 +1,16 @@
+{
+  "name": "my-express-app",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
