@@ -277,6 +277,11 @@ code[data-theme*=" "] span {
   background-color: var(--shiki-light-bg);
 }
 
+[data-highlighted-line] {
+  background-color: var(--muted);
+  border: 1px solid var(--sidebar-border);
+}
+
 @media (prefers-color-scheme: dark) {
   code[data-theme*=" "],
   code[data-theme*=" "] span {
