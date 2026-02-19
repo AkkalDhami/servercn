@@ -1,14 +1,8 @@
 {
-  "title": "Husky",
+  "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "husky",
-  "type": "tooling",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
   "templates": {
-    "express": {
-      "mvc": "toolings/husky/express/common",
-      "feature": "toolings/husky/express/common"
-    }
+    "base": "base/husky"
   },
   "dependencies": {
     "runtime": [],

@@ -1,14 +1,8 @@
 {
-  "title": "Lint-Staged",
+  "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "lint-staged",
-  "type": "tooling",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
   "templates": {
-    "express": {
-      "mvc": "toolings/lint-staged/express/common",
-      "feature": "toolings/lint-staged/express/common"
-    }
+    "base": "base/lint-staged"
   },
   "dependencies": {
     "runtime": [],

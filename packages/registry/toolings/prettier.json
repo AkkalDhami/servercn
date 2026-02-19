@@ -1,14 +1,8 @@
 {
-  "title": "Prettier",
+  "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "prettier",
-  "type": "tooling",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
   "templates": {
-    "express": {
-      "mvc": "toolings/prettier/express/common",
-      "feature": "toolings/prettier/express/common"
-    }
+    "base": "base/prettier"
   },
   "dependencies": {
     "runtime": [],

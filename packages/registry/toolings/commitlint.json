@@ -1,14 +1,8 @@
 {
-  "title": "Commitlint",
+  "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "commitlint",
-  "type": "tooling",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
   "templates": {
-    "express": {
-      "mvc": "toolings/commitlint/express/common",
-      "feature": "toolings/commitlint/express/common"
-    }
+    "base": "base/commitlint"
   },
   "dependencies": {
     "runtime": [],

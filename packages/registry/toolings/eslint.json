@@ -1,14 +1,8 @@
 {
-  "title": "ESLint",
+  "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "eslint",
-  "type": "tooling",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
   "templates": {
-    "express": {
-      "mvc": "toolings/eslint/express/common",
-      "feature": "toolings/eslint/express/common"
-    }
+    "base": "base/eslint"
   },
   "dependencies": {
     "runtime": [],
