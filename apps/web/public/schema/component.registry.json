@@ -70,25 +70,15 @@
       "required": ["prompt", "variants"],
       "additionalProperties": false,
       "properties": {
-        "prompt": { "$ref": "#/$defs/prompt" },
-        "variants": { "$ref": "#/$defs/variants" }
+        "prompt": {
+          "type": "string"
+        },
+        "variants": {
+          "$ref": "#/$defs/variants"
+        }
       },
       "not": {
         "required": ["templates"]
-      }
-    },
-
-    "prompt": {
-      "type": "object",
-      "required": ["type", "message", "key"],
-      "additionalProperties": false,
-      "properties": {
-        "type": { "const": "select" },
-        "message": { "type": "string" },
-        "key": {
-          "type": "string",
-          "pattern": "^[a-zA-Z0-9_-]+$"
-        }
       }
     },
 
