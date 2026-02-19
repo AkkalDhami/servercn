@@ -149,10 +149,10 @@ export interface RegistryFoundation extends IRegistryCommon {
 }
 
 //? registry:schema
-
 export interface SchemaOrm {
-  templates: ArchitectureSet;
+  templates: Record<string, ArchitectureSet>;
 }
+
 export interface SchemaDatabase {
   orms: Record<OrmType, SchemaOrm>;
 }
@@ -174,4 +174,31 @@ export interface RegistrySchema extends IRegistryCommon {
   dependencies: Record<string, DependencySet>;
 }
 
-export type RegistryItem = RegistryComponent | RegistryFoundation;
+//? registry:tooling
+export interface RegistryTooling extends IRegistryCommon {
+  templates: Record<string, string>,
+  dependencies?: DependencySet;
+}
+
+//? registry:blueprint
+export interface RegistryBlueprint extends IRegistryCommon {
+  runtimes: {
+    node: NodeSchemaRuntime;
+  };
+  dependencies: Record<string, DependencySet>;
+}
+
+export interface RegistryMap {
+  component: RegistryComponent;
+  foundation: RegistryFoundation;
+  schema: RegistrySchema;
+  blueprint: RegistryBlueprint;
+  tooling: RegistryTooling;
+}
+
+export type RegistryItem = RegistryMap[keyof RegistryMap];
+export type RuntimeRegistryItem =
+  | RegistryComponent
+  | RegistryBlueprint
+
+// | RegistrySchema
