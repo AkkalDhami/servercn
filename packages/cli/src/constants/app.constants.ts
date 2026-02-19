@@ -25,7 +25,6 @@ export const OrmList = ["mongoose", "drizzle", "prisma"] as const;
 export const RegistryTypeList = [
   "component",
   "blueprint",
-  "guide",
   "schema",
   "foundation",
   "tooling"

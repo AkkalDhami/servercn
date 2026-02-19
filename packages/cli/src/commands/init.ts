@@ -5,7 +5,7 @@ import { execa } from "execa";
 import ora from "ora";
 import { logger } from "@/utils/logger";
 import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
-import { getRegistryComponent } from "@/lib/registry";
+import { getRegistry } from "@/lib/registry";
 import { cloneRegistryTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
 import type { AddOptions, IFoundation } from "@/types";
@@ -77,7 +77,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       `Initializing project with foundation: ${foundation}`
     ).start();
     try {
-      const component: IFoundation = await getRegistryComponent(
+      const component: IFoundation = await getRegistry(
         foundation,
         "foundation"
       );
