@@ -5,11 +5,7 @@
     "node": {
       "frameworks": {
         "express": {
-          "prompt": {
-            "type": "select",
-            "message": "Select an email provider",
-            "key": "provider"
-          },
+          "prompt": "Select an email provider",
           "variants": {
             "nodemailer": {
               "label": "Nodemailer (SMTP)",
