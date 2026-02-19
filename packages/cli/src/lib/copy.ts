@@ -9,7 +9,7 @@ import { GITHUB_BASE_URL } from "@/constants/app.constants";
 export async function copyTemplate({
   templateDir,
   targetDir,
-  componentName,
+  registryItemName,
   conflict = "skip",
   dryRun = false
 }: CopyOptions) {
@@ -30,7 +30,7 @@ export async function copyTemplate({
       await copyTemplate({
         templateDir: srcPath,
         targetDir: destPath,
-        componentName,
+        registryItemName,
         conflict,
         dryRun
       });
