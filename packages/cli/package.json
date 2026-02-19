@@ -1,6 +1,6 @@
 {
   "name": "servercn-cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
@@ -24,9 +24,7 @@
     "nodejs",
     "scaffold",
     "boilerplate",
-    "component",
-    "api",
-    "server"
+    "component"
   ],
   "author": {
     "name": "Akkal Dhami",
@@ -36,8 +34,6 @@
   "license": "MIT",
   "files": [
     "dist",
-    "registry",
-    "templates",
     "README.md"
   ],
   "repository": {

@@ -13,13 +13,13 @@ export async function assertInitialized() {
   if (!(await fs.pathExists(configPath))) {
     logger.error(`${APP_NAME} is not initialized in this project.`);
     logger.info("Run the following command first:");
-    logger.log("=> npx servercn init");
-    logger.muted("For express server: npx servercn init express-server");
+    logger.log("=> npx servercn-cli init");
+    logger.muted("For express server: npx servercn-cli init express-server");
     logger.muted(
-      "For (drizzle + mysql) starter: npx servercn init drizzle-mysql-starter"
+      "For (drizzle + mysql) starter: npx servercn-cli init drizzle-mysql-starter"
     );
     logger.muted(
-      "For (drizzle + postgresql) starter: npx servercn init drizzle-pg-starter"
+      "For (drizzle + postgresql) starter: npx servercn-cli init drizzle-pg-starter"
     );
 
     logger.muted(
