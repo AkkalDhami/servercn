@@ -77,7 +77,7 @@ function validateInput(name: string) {
 //? Stack Validation
 function validateStack(config: IServerCNConfig) {
   if (!config.stack.runtime || !config.stack.framework) {
-    logger.error("Stack configuration is missing. Run `npx servercn init` first.");
+    logger.error("Stack configuration is missing. Run `npx servercn-cli init` first.");
     process.exit(1);
   }
 }
@@ -122,7 +122,7 @@ async function scaffoldFiles(
   templatePath: string,
   options: AddOptions
 ) {
-  const IS_TESTING = true;
+  const IS_TESTING = false;
   const targetDir = paths.targets(".");
 
   const spin = spinner("Scaffolding files...")?.start();

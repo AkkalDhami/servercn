@@ -29,37 +29,37 @@ export async function listOverview(options: listOptionType) {
   const toolings = await loadRegistry("tooling");
   const schemas = await loadRegistry("schema");
   const data: listOverviewType = {
-    command: "npx servercn list <type>",
+    command: "npx servercn-cli list <type>",
     types: [
       {
         type: "component",
         shortcut: "cp",
         total: components.length,
-        command: "npx servercn list cp"
+        command: "npx servercn-cli list cp"
       },
       {
         type: "blueprint",
         shortcut: "bp",
         total: blueprints.length,
-        command: "npx servercn list bp"
+        command: "npx servercn-cli list bp"
       },
       {
         type: "foundation",
         shortcut: "fd",
         total: foundations.length,
-        command: "npx servercn list fd"
+        command: "npx servercn-cli list fd"
       },
       {
         type: "tooling",
         shortcut: "tl",
         total: toolings.length,
-        command: "npx servercn list tl"
+        command: "npx servercn-cli list tl"
       },
       {
         type: "schema",
         shortcut: "sc",
         total: schemas.length,
-        command: "npx servercn list sc"
+        command: "npx servercn-cli list sc"
       }
     ]
   };
@@ -78,24 +78,24 @@ export async function listOverview(options: listOptionType) {
 ───────────────────────────────────────────────────────────
 │ Type         │ Shortcut │ Total │ Command               │
 ───────────────────────────────────────────────────────────
-│ Components   │   cp     │  ${padStart(components.length)}   │ npx servercn list cp  │ 
-│ Blueprints   │   bp     │  ${padStart(blueprints.length)}   │ npx servercn list bp  │
-│ Foundations  │   fd     │  ${padStart(foundations.length)}   │ npx servercn list fd  │
-│ Tooling      │   tl     │  ${padStart(toolings.length)}   │ npx servercn list tl  │
-│ Schemas      │   sc     │  ${padStart(schemas.length)}   │ npx servercn list sc  │
+│ Components   │   cp     │  ${padStart(components.length)}   │ npx servercn-cli list cp  │ 
+│ Blueprints   │   bp     │  ${padStart(blueprints.length)}   │ npx servercn-cli list bp  │
+│ Foundations  │   fd     │  ${padStart(foundations.length)}   │ npx servercn-cli list fd  │
+│ Tooling      │   tl     │  ${padStart(toolings.length)}   │ npx servercn-cli list tl  │
+│ Schemas      │   sc     │  ${padStart(schemas.length)}   │ npx servercn-cli list sc  │
 ───────────────────────────────────────────────────────────`)}`
   );
   logger.log(`
  Explore:
- npx servercn list <type | shortcut>
- npx servercn list <type | shortcut> --json
+ npx servercn-cli list <type | shortcut>
+ npx servercn-cli list <type | shortcut> --json
 
  Examples:
- npx servercn list components
- npx servercn list cp
- npx servercn ls fd
- npx servercn list schemas
- npx servercn ls sc --json
+ npx servercn-cli list components
+ npx servercn-cli list cp
+ npx servercn-cli ls fd
+ npx servercn-cli list schemas
+ npx servercn-cli ls sc --json
 `);
 }
 
@@ -113,11 +113,11 @@ export async function listComponents(options: listOptionType) {
   const components: RegistryComponent[] = await loadRegistry("component");
   const data = {
     type: "component",
-    command: `npx servercn add <component-name>`,
+    command: `npx servercn-cli add <component-name>`,
     total: components.length,
     items: components.map(c => ({
       name: c.slug,
-      command: `npx servercn add ${c.slug}`
+      command: `npx servercn-cli add ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -133,9 +133,9 @@ export async function listComponents(options: listOptionType) {
   });
   logger.break();
   logger.info(`Usage:`);
-  logger.muted(` Run: npx servercn add <component-name>`);
-  logger.muted(` Ex: npx servercn add email-service`);
-  logger.muted(` Ex: npx servercn add async-handler jwt-utils`);
+  logger.muted(` Run: npx servercn-cli add <component-name>`);
+  logger.muted(` Ex: npx servercn-cli add email-service`);
+  logger.muted(` Ex: npx servercn-cli add async-handler jwt-utils`);
   logger.log(` Learn more: ${SERVERCN_URL}/components`);
   logger.break();
 }
@@ -147,11 +147,11 @@ export async function listFoundations(options: listOptionType) {
 
   const data = {
     type: "foundation",
-    command: `npx servercn init <foundation-name>`,
+    command: `npx servercn-cli init <foundation-name>`,
     total: foundations.length,
     items: foundations.map(c => ({
       name: c.slug,
-      command: `npx servercn init ${c.slug}`
+      command: `npx servercn-cli init ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -167,11 +167,11 @@ export async function listFoundations(options: listOptionType) {
   });
   logger.break();
   logger.info(`Usage:`);
-  logger.muted(` Run: npx servercn init <foundation-name>`);
-  logger.muted(` Ex: npx servercn init express-server`);
-  logger.muted(` Ex: npx servercn init drizzle-mysql-starter`);
-  logger.muted(` Ex: npx servercn init drizzle-pg-starter`);
-  logger.muted(` Ex: npx servercn init mongoose-starter`);
+  logger.muted(` Run: npx servercn-cli init <foundation-name>`);
+  logger.muted(` Ex: npx servercn-cli init express-server`);
+  logger.muted(` Ex: npx servercn-cli init drizzle-mysql-starter`);
+  logger.muted(` Ex: npx servercn-cli init drizzle-pg-starter`);
+  logger.muted(` Ex: npx servercn-cli init mongoose-starter`);
   logger.log(` Learn more: ${SERVERCN_URL}/foundations`);
   logger.break();
 }
@@ -184,11 +184,11 @@ export async function listTooling(options: listOptionType) {
 
   const data = {
     type: "tooling",
-    command: `npx servercn add tooling <tooling-name>`,
+    command: `npx servercn-cli add tooling <tooling-name>`,
     total: toolings.length,
     items: toolings.map(c => ({
       name: c.slug,
-      command: `npx servercn add tooling ${c.slug}`
+      command: `npx servercn-cli add tooling ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -204,11 +204,11 @@ export async function listTooling(options: listOptionType) {
   });
   logger.break();
   logger.info(`Usage:`);
-  logger.muted(` Run: npx servercn add tooling <tooling-name>`);
-  logger.muted(` Ex: npx servercn add tooling commitlint`);
-  logger.muted(` Ex: npx servercn add tooling prettier`);
-  logger.muted(` Ex: npx servercn add tooling lint-staged`);
-  logger.muted(` Ex: npx servercn add tooling eslint husky typescript `);
+  logger.muted(` Run: npx servercn-cli add tooling <tooling-name>`);
+  logger.muted(` Ex: npx servercn-cli add tooling commitlint`);
+  logger.muted(` Ex: npx servercn-cli add tooling prettier`);
+  logger.muted(` Ex: npx servercn-cli add tooling lint-staged`);
+  logger.muted(` Ex: npx servercn-cli add tooling eslint husky typescript `);
   logger.log(` Learn more: ${SERVERCN_URL}/docs`);
   logger.break();
 }
@@ -220,11 +220,11 @@ export async function listSchemas(options: listOptionType) {
   const schemas = await loadRegistry("schema");
   const data = {
     type: "schema",
-    command: `npx servercn add schema <schema-name>`,
+    command: `npx servercn-cli add schema <schema-name>`,
     total: schemas.length,
     items: schemas.map(c => ({
       name: c.slug,
-      command: `npx servercn add schema ${c.slug}`
+      command: `npx servercn-cli add schema ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -240,9 +240,9 @@ export async function listSchemas(options: listOptionType) {
   });
   logger.break();
   logger.info(`Usage:`);
-  logger.muted(` Run: npx servercn add schema <schema-name>`);
-  logger.muted(` Ex: npx servercn add schema auth`);
-  logger.muted(` Ex: npx servercn add schema auth/user`);
+  logger.muted(` Run: npx servercn-cli add schema <schema-name>`);
+  logger.muted(` Ex: npx servercn-cli add schema auth`);
+  logger.muted(` Ex: npx servercn-cli add schema auth/user`);
   logger.log(` Learn more: ${SERVERCN_URL}/schemas`);
   logger.break();
 }
@@ -255,11 +255,11 @@ export async function listBlueprints(options: listOptionType) {
 
   const data = {
     type: "blueprint",
-    command: `npx servercn add blueprint <blueprint-name>`,
+    command: `npx servercn-cli add blueprint <blueprint-name>`,
     total: blueprints.length,
     items: blueprints.map(c => ({
       name: c.slug,
-      command: `npx servercn add blueprint ${c.slug}`
+      command: `npx servercn-cli add blueprint ${c.slug}`
     }))
   } satisfies listRegistryDataType;
 
@@ -275,8 +275,8 @@ export async function listBlueprints(options: listOptionType) {
   });
   logger.break();
   logger.info(`Usage:`);
-  logger.muted(` Run: npx servercn add blueprint <blueprint-name>`);
-  logger.muted(` Ex: npx servercn add blueprint stateless-auth`);
+  logger.muted(` Run: npx servercn-cli add blueprint <blueprint-name>`);
+  logger.muted(` Ex: npx servercn-cli add blueprint stateless-auth`);
   logger.log(` Learn more: ${SERVERCN_URL}/blueprints`);
   logger.break();
 }
