@@ -28,7 +28,7 @@ export interface AddOptions {
 export interface CopyOptions {
   templateDir: string;
   targetDir: string;
-  componentName: string;
+  registryItemName: string;
   conflict?: ConflictStrategy;
   dryRun?: boolean;
 }
@@ -86,12 +86,6 @@ export interface IRegistryCommon {
 }
 
 //? registry:component
-export interface SelectPrompt {
-  type: "select";
-  message: string;
-  key: string;
-}
-
 export interface SimpleFramework {
   templates: ArchitectureSet;
   dependencies?: DependencySet;
@@ -110,7 +104,7 @@ export interface FrameworkVariant {
 }
 
 export interface VariantFramework {
-  prompt: SelectPrompt;
+  prompt: string;
   variants: Record<string, FrameworkVariant>;
 
   // forbidden
@@ -119,7 +113,7 @@ export interface VariantFramework {
   env?: never;
 }
 
-export type FrameworkConfig = SimpleFramework | VariantFramework;
+export type FrameworkConfig = VariantFramework | SimpleFramework;
 
 export interface NodeRuntime {
   frameworks: {
@@ -177,7 +171,6 @@ export interface RegistrySchema extends IRegistryCommon {
   runtimes: {
     node: NodeSchemaRuntime;
   };
-
   dependencies: Record<string, DependencySet>;
 }
 
