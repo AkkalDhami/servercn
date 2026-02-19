@@ -13,14 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "node_modules/**",
-    "cli/**",
+    // "cli/**",
     ".source/**",
     "**/__index__.tsx",
     "commitlint.config.ts"
   ]),
   {
     rules: {
-      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unused-expressions": "off"
     }
   }
 ]);

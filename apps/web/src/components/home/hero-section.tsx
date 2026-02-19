@@ -21,7 +21,9 @@ export default function HeroSection() {
             transition={{ duration: 0.5 }}
             className="hidden justify-center sm:flex">
             <HeaderBadge className="px-0 py-1 pl-3 text-sm">
-              <Link href={"/docs"} className="flex items-center gap-2">
+              <Link
+                href={"/docs/installation"}
+                className="flex items-center gap-2">
                 <span>Build backends by composition, not boilerplate</span>
                 <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
                   <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
