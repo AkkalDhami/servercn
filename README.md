@@ -37,7 +37,7 @@ ServerCN allows you to quickly add the following components to your project:
 Start a new project with a recommended, production-ready structure.
 
 ```bash
-npx servercn init
+npx servercn-cli init
 ```
 
 ### 2. Add Components
@@ -45,14 +45,14 @@ npx servercn init
 Add specific modules to your existing project. This allows for incremental adoption.
 
 ```bash
-npx servercn add [component-name]
+npx servercn-cli add [component-name]
 ```
 
 Examples:
 
 ```bash
-npx servercn add logger-pino
-npx servercn add logger-winston
+npx servercn-cli add logger-pino
+npx servercn-cli add logger-winston
 ```
 
 ## Components
@@ -60,73 +60,73 @@ npx servercn add logger-winston
 - ### API Error Handler
 
 ```bash
-npx servercn add error-handler
+npx servercn-cli add error-handler
 ```
 
 - ### API Response Formatter
 
 ```bash
-npx servercn add response-formatter
+npx servercn-cli add response-formatter
 ```
 
 - ### Async Handler
 
 ```bash
-npx servercn add async-handler
+npx servercn-cli add async-handler
 ```
 
 - ### File Upload Cloudinary
 
 ```bash
-npx servercn add file-upload
+npx servercn-cli add file-upload
 ```
 
 - ### JWT Utils
 
 ```bash
-npx servercn add jwt-utils
+npx servercn-cli add jwt-utils
 ```
 
 - ### Logger Pino
 
 ```bash
-npx servercn add logger-pino
+npx servercn-cli add logger-pino
 ```
 
 - ### Logger Winston
 
 ```bash
-npx servercn add logger-winston
+npx servercn-cli add logger-winston
 ```
 
 - ### Rate Limiter
 
 ```bash
-npx servercn add rate-limiter
+npx servercn-cli add rate-limiter
 ```
 
 - ### GitHub OAuth
 
 ```bash
-npx servercn add github-oauth
+npx servercn-cli add github-oauth
 ```
 
 - ### Google OAuth
 
 ```bash
-npx servercn add google-oauth
+npx servercn-cli add google-oauth
 ```
 
 - ### GitHub and Google OAuth
 
 ```bash
-npx servercn add github-google-oauth
+npx servercn-cli add github-google-oauth
 ```
 
 - ### Health Check
 
 ```bash
-npx servercn add health-check
+npx servercn-cli add health-check
 ```
 
 ### And more
@@ -136,7 +136,7 @@ npx servercn add health-check
 View all available components that you can add to your project.
 
 ```bash
-npx servercn list
+npx servercn-cli list
 ```
 
 ## 🏗️ Project Structure
