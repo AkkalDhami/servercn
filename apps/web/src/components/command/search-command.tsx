@@ -21,7 +21,8 @@ import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
+import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL, X_URL } from "@/lib/constants";
+import { FaXTwitter } from "react-icons/fa6";
 export default function SearchCommand({
   className,
   size
@@ -80,13 +81,13 @@ export default function SearchCommand({
         <CommandInput placeholder="Search documentation..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Links">
+          <CommandGroup heading="SOCIAL LINKS">
             <CommandItem asChild forceMount className="mb-0.5">
               <Link
                 href={BASE_GITHUB_URL}
                 target="_blank"
                 onClick={() => setOpen(!open)}>
-                <FaGithub className="size-2.5 cursor-pointer" />
+                <FaGithub className="size-2.5 text-primary cursor-pointer" />
                 Github @akkaldhami
               </Link>
             </CommandItem>
@@ -95,8 +96,14 @@ export default function SearchCommand({
                 href={GITHUB_URL}
                 target="_blank"
                 onClick={() => setOpen(!open)}>
-                <FaGithub className="size-2.5 cursor-pointer" />
+                <FaGithub className="size-2. text-primary cursor-pointer" />
                 ServerCN Github
+              </Link>
+            </CommandItem>
+            <CommandItem asChild className="mb-0.5">
+              <Link href={X_URL} target="_blank" onClick={() => setOpen(!open)}>
+                <FaXTwitter className="size-2. text-primary cursor-pointer" />
+                @AavashDhami2127
               </Link>
             </CommandItem>
             <CommandItem asChild className="mb-0.5">
@@ -104,7 +111,7 @@ export default function SearchCommand({
                 href={DISCORD_URL}
                 target="_blank"
                 onClick={() => setOpen(!open)}>
-                <FaDiscord className="size-2.5 cursor-pointer" />
+                <FaDiscord className="size-2. text-primary cursor-pointer" />
                 Discord Server
               </Link>
             </CommandItem>
