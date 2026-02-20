@@ -30,7 +30,7 @@ export default function InstallComponentCommands({
     <div className={cn("h-full", className)}>
       <Terminal className="mx-auto h-full min-h-140 min-w-xl text-sm sm:text-lg">
         <TypingAnimation className="text-sm sm:text-lg">
-          &gt; npx servercn add google-oauth
+          &gt; npx servercn-cli add google-oauth
         </TypingAnimation>
 
         {files.map((file, index) => (
