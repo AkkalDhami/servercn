@@ -67,7 +67,7 @@ export class OtpService {
     );
     const nextResendAllowedAt = new Date(Date.now() + NEXT_OTP_DELAY);
 
-    let html = `<p>Your OTP for ${otpType}: ${otp.code}</p>`;
+    const html = `<p>Your OTP for ${otpType}: ${otp.code}</p>`;
     await sendEmail({
       email,
       subject: subject,
