@@ -1,7 +1,7 @@
 ---
 title: Email Service
 description: Production-ready email service for sending emails in ServerCN using nodemailer with support for multiple providers (Gmail, SMTP, SendGrid, etc.).
-command: npx servercn add email-service
+command: npx servercn-cli add email-service
 
 mvc_structure:
   - type: folder
@@ -319,7 +319,7 @@ The **Email Service** component provides a production-ready solution for sending
 
 Install this component using the following command:
 
-<PackageManagerTabs command="npx servercn add email-service" />
+<PackageManagerTabs command="npx servercn-cli add email-service" />
 
 ## Prerequisites
 
@@ -353,7 +353,9 @@ RESEND_API_KEY="your-resend-api-key"
 
 ## Basic Implementation
 
-### 1. NodeMailer Implementation
+### 1. NodeMailer
+
+#### 1. Add nodemailer configuration
 
 **MVC Path:** <Code children="src/configs/nodemailer.ts" />
 
@@ -386,20 +388,7 @@ export function getTransporter() {
 }
 ```
 
-### 2. Resend Implementation
-
-**MVC Path:** <Code children="src/configs/resend.ts" />
-
-**Feature Path:** <Code children="src/shared/configs/resend.ts" />
-
-```ts
-import { Resend } from "resend";
-import env from "./env";
-
-export const resend = new Resend(env.RESEND_API_KEY);
-```
-
-### 3. Send Email Function
+#### 2. Send Email Function
 
 **MVC Path:** <Code children="src/utils/send-mail.ts" />
 
@@ -409,7 +398,6 @@ export const resend = new Resend(env.RESEND_API_KEY);
 import env from "../configs/env";
 import { getTransporter } from "../configs/nodemailer";
 import { ApiError } from "./api-error";
-import { resend } from "../configs/resend";
 
 type sendMail = {
   from?: string;
@@ -438,8 +426,43 @@ export async function sendEmail({
       throw ApiError.badRequest("Failed to send email");
     });
 }
+```
 
-export async function sendEmailWithResend({
+### 2. Resend 
+
+#### 1. Resend configuration
+
+**MVC Path:** <Code children="src/configs/resend.ts" />
+
+**Feature Path:** <Code children="src/shared/configs/resend.ts" />
+
+```ts
+import { Resend } from "resend";
+import env from "./env";
+
+export const resend = new Resend(env.RESEND_API_KEY);
+```
+
+#### 2. Send Email Function
+
+**MVC Path:** <Code children="src/utils/send-mail.ts" />
+
+**Feature Path:** <Code children="src/shared/utils/send-mail.ts" />
+
+```ts
+import env from "../configs/env";
+import { resend } from "../configs/resend";
+import { ApiError } from "./api-error";
+
+type sendMail = {
+  from?: string;
+  subject: string;
+  data: Record<string, any>;
+  email: string;
+  html: string;
+};
+
+export async function sendEmail({
   from,
   email,
   subject,
@@ -478,13 +501,13 @@ await sendEmail({
 ### 2. Send Email with Resend
 
 ```ts
-import { sendEmailWithResend } from "../utils/send-mail";
+import { sendEmail } from "../utils/send-mail";
 const html = `
   <h1>Reset Your Password</h1>
   <p>Click <a href="https://example.com/reset">here</a> to reset your password.</p>
 `;
 
-await sendEmailWithResend({
+await sendEmail({
   email: "john.doe@example.com",
   subject: "Reset Your Password",
   html,

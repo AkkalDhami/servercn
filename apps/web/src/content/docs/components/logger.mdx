@@ -1,7 +1,7 @@
 ---
 title: Logger
 description: Structured and configurable logging for Node.js applications using Winston or Pino.
-command: npx servercn add logger-pino
+command: npx servercn-cli add logger-pino
 
 mvc_structure:
   - type: folder
@@ -237,9 +237,9 @@ Both approaches follow the same philosophy:
 
 Install the component using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add logger-pino" />
+<PackageManagerTabs command="npx servercn-cli add logger-pino" />
 
-<PackageManagerTabs command="npx servercn add logger-winston" />
+<PackageManagerTabs command="npx servercn-cli add logger-winston" />
 
 ## Choosing a Logger
 
@@ -413,7 +413,7 @@ authLogger.error({ userId }, "Invalid credentials");
 
 **Winston Installation**
 
-<PackageManagerTabs command="npx servercn add logger-winston" />
+<PackageManagerTabs command="npx servercn-cli add logger-winston" />
 
 ### 2. Pino Logger ✅
 
@@ -544,4 +544,4 @@ authLogger.error({ userId }, "Invalid credentials");
 
 **Pino Installation**
 
-<PackageManagerTabs command="npx servercn add logger-pino" />
+<PackageManagerTabs command="npx servercn-cli add logger-pino" />

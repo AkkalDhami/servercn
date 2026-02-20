@@ -1,7 +1,7 @@
 ---
 title: Rate Limiter
 description: Protect your API from brute-force attacks and abuse by limiting the number of requests a user can make within a specific timeframe.
-command: npx servercn add rate-limiter
+command: npx servercn-cli add rate-limiter
 mvc_structure:
   - type: folder
     name: src
@@ -182,7 +182,7 @@ mvc_structure:
               /**
               * Make sure global error handler is set up to handle ApiError
               * If you don't have a global error handler, you can install:
-              * npx servercn add global-error-handler
+              * npx servercn-cli add global-error-handler
               */
 
       - type: folder
@@ -419,7 +419,7 @@ feature_structure:
                   /**
                   * Make sure global error handler is set up to handle ApiError
                   * If you don't have a global error handler, you can install:
-                  * npx servercn add global-error-handler
+                  * npx servercn-cli add global-error-handler
                   */
 ---
 
@@ -439,25 +439,25 @@ This component requires additional ServerCN components.
 
 - **HTTP Status Codes:**
 
-<PackageManagerTabs command="npx servercn add http-status-codes" />
+<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
 
 Documentation: [HTTP Status Codes](/docs/components/http-status-codes)
 
 - **API Error Handler:**
 
-<PackageManagerTabs command="npx servercn add error-handler" />
+<PackageManagerTabs command="npx servercn-cli add error-handler" />
 
 Documentation: [API Error Handler](/docs/components/error-handler)
 
 - **Global Error Handler:**
 
-<PackageManagerTabs command="npx servercn add global-error-handler" />
+<PackageManagerTabs command="npx servercn-cli add global-error-handler" />
 
 Documentation: [Global Error Handler](/docs/components/global-error-handler)
 
 ### 2. Install this component
 
-<PackageManagerTabs command="npx servercn add rate-limiter" />
+<PackageManagerTabs command="npx servercn-cli add rate-limiter" />
 
 ## Configuration Options
 

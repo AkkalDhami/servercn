@@ -1,7 +1,7 @@
 ---
 title: Husky
 description: A robust Husky configuration for TypeScript and Express.js projects.
-command: npx servercn add tooling husky
+command: npx servercn-cli add tooling husky
 ---
 
 # Husky
@@ -14,7 +14,17 @@ Husky is a tool that allows you to easily manage Git hooks. Git hooks are script
 
 Install Husky using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling husky" />
+<PackageManagerTabs command="npx servercn-cli add tooling husky" />
+
+## Scripts
+
+```json {3}
+{
+  "scripts": {
+    "prepare": "husky"
+  }
+}
+```
 
 ## Usage
 
@@ -40,4 +50,4 @@ This hook executes automatically every time you attempt to create a commit.
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />

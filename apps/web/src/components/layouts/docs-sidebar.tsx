@@ -117,7 +117,7 @@ export default function DocsSidebar({
                                     {subActive && (
                                       <motion.span
                                         layoutId="nested-sidebar-indicator"
-                                        className="bg-primary absolute top-0 -left-[17px] h-full w-px"
+                                        className="bg-primary absolute top-0 -left-4.25 h-full w-px"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{

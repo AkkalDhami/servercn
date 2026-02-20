@@ -1,7 +1,7 @@
 ---
 title: Auth | Session | Schema
 description: The Auth Session schema manages user sessions, supporting multiple active devices, IP tracking, and automatic expiration.
-command: npx servercn add schema auth/session
+command: npx servercn-cli add schema auth/session
 
 mvc_structure:
   - type: folder
@@ -180,7 +180,7 @@ The **Auth Session** model tracks active user sessions across different devices 
 
 To add the Auth Session schema to your project, run the following command:
 
-<PackageManagerTabs command="npx servercn add schema auth/session" />
+<PackageManagerTabs command="npx servercn-cli add schema auth/session" />
 
 This command generates the Session schema based on your existing <Code children={'servercn.config.json'} /> configuration.
 

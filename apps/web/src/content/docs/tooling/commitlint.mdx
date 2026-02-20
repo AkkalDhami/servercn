@@ -1,7 +1,7 @@
 ---
 title: Commitlint
 description: A production-ready Commitlint configuration for TypeScript and Express.js projects, with clear rules and enforced Git commit standards.
-command: npx servercn add tooling commitlint
+command: npx servercn-cli add tooling commitlint
 ---
 
 # Commitlint
@@ -22,7 +22,7 @@ This component is designed for **TypeScript + Express.js** backends but works fo
 
 Install Commitlint using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling commitlint" />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint" />
 
 This command automatically:
 
@@ -147,12 +147,7 @@ BREAKING CHANGE: old refresh tokens are now invalidated on use
 
 Commitlint is most effective when enforced via Git hooks. ServerCN is designed to work seamlessly with **Husky**.
 
-### Commit Message Hook
-
-```bash
-# .husky/commit-msg
-npx --no -- commitlint --edit "$1"
-```
+<PackageManagerTabs command="npx servercn-cli add tooling husky" />
 
 This ensures:
 
@@ -182,4 +177,4 @@ This makes it suitable for **production-grade backend systems** and **team-based
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />
