@@ -8,6 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  --color-highlight: var(--highlight);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
@@ -73,6 +74,7 @@
   --background: #fcfcfc;
   --foreground: #000000;
   --card: #ffffff;
+  --highlight: #ededed;
   --card-foreground: #000000;
   --popover: #fcfcfc;
   --popover-foreground: #000000;
@@ -146,6 +148,7 @@
   --background: #000000;
   --foreground: #ffffff;
   --card: #090909;
+  --highlight: #333;
   --card-foreground: #ffffff;
   --popover: #121212;
   --popover-foreground: #ffffff;
@@ -278,8 +281,7 @@ code[data-theme*=" "] span {
 }
 
 [data-highlighted-line] {
-  background-color: var(--muted);
-  border: 1px solid var(--sidebar-border);
+  background-color: var(--highlight);
 }
 
 @media (prefers-color-scheme: dark) {
