@@ -48,15 +48,15 @@ async function main() {
         let type: RegistryType = "component";
         let items = components;
 
-        if (components[0] === "schema") {
+        if (["schema", "sc"].includes(components[0])) {
           type = "schema";
           items = components.slice(1).map(item => {
             return item;
           });
-        } else if (components[0] === "blueprint") {
+        } else if (["blueprint", "bp"].includes(components[0])) {
           type = "blueprint";
           items = components.slice(1);
-        } else if (components[0] === "tooling") {
+        } else if (["tooling", "tl"].includes(components[0])) {
           type = "tooling";
           items = components.slice(1);
         }

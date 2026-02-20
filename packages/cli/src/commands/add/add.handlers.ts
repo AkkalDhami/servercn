@@ -40,35 +40,34 @@ export async function resolveTemplateResolution({
   const runtime = config.stack.runtime;
   let selectedPath: string | undefined;
   if (type === "tooling") {
-    console.log({ type, registryItemName });
-    selectedPath = `${registryItemName}`
-  } else {
-
-    if (component?.runtimes[runtime].frameworks[framework]?.variants) {
-      return resolvePromptVariants({
-        component,
-        runtime: runtime,
-        architecture,
-        framework,
-        type
-      });
-    }
-    const templateConfig = component.runtimes[runtime].frameworks[framework];
-    const haveTemplates = templateConfig?.templates;
-    if (!templateConfig) {
-      logger.break();
-      logger.error(
-        `Unsupported framework '${framework}' for component '${component.slug}'.`
-      );
-      logger.error(
-        `This ${type}: '${component.slug}' does not provide templates for the selected framework.`
-      );
-      logger.error(
-        `Please choose one of the supported frameworks and try again.`
-      );
-      logger.break();
-      process.exit(1);
-    }
+      console.log({ type, registryItemName });
+      selectedPath = `${registryItemName}`
+    } else if (component.type === "component" || component.type === "blueprint" || component.type === "foundation" || component.type === "schema") {
+      if (component?.runtimes[runtime].frameworks[framework]?.variants) {
+        return resolvePromptVariants({
+          component,
+          runtime: runtime,
+          architecture,
+          framework,
+          type
+        });
+      }
+      const templateConfig = component.runtimes[runtime].frameworks[framework];
+      const haveTemplates = templateConfig?.templates;
+      if (!templateConfig) {
+        logger.break();
+        logger.error(
+          `Unsupported framework '${framework}' for component '${component.slug}'.`
+        );
+        logger.error(
+          `This ${type}: '${component.slug}' does not provide templates for the selected framework.`
+        );
+        logger.error(
+          `Please choose one of the supported frameworks and try again.`
+        );
+        logger.break();
+        process.exit(1);
+      }
 
     switch (type) {
       case "schema":

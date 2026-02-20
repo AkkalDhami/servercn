@@ -8,7 +8,7 @@ import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 import { getRegistry } from "@/lib/registry";
 import { cloneRegistryTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
-import type { AddOptions, IFoundation } from "@/types";
+import type { AddOptions, RegistryFoundation } from "@/types";
 import { tsConfig } from "@/configs/ts.config";
 import { commitlintConfig } from "@/configs/commitlint.config";
 import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
@@ -29,6 +29,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   }
 
   if (foundation) {
+    logger.break();
     const response = await prompts([
       {
         type: "text",
@@ -67,17 +68,17 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       try {
         await execa("git", ["init"], { cwd: rootPath });
         logger.info("Initialized git repository.");
-      } catch (error) {
+      } catch {
         logger.warn("Failed to initialize git repository. is git installed?");
       }
     }
 
     logger.info();
-    const spinner = ora(
+    ora(
       `Initializing project with foundation: ${foundation}`
     ).start();
     try {
-      const component: IFoundation = await getRegistry(
+      const component: RegistryFoundation = await getRegistry(
         foundation,
         "foundation"
       );
@@ -86,7 +87,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         path.join(rootPath, SERVERCN_CONFIG_FILE),
         servercnConfig({
           project: {
-            root: rootPath,
+            root: response.root,
             srcDir: "src",
             type: "backend"
           },
@@ -123,13 +124,14 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         `export default ${JSON.stringify(commitlintConfig, null, 2)}`
       );
 
-      const templatePathRelative: string =
-        component.templates.express[response.architecture as "mvc" | "feature"];
+      const templatePathRelative =
+        component.runtimes['node'].frameworks['express']?.templates[response.architecture as "mvc" | "feature"];
 
       if (!templatePathRelative) {
         logger.error(
           `Template not found for ${foundation.toLowerCase()} (${response.architecture})`
         );
+        return;
       }
 
       // const templateDir = path.resolve(paths.templates(), templatePathRelative);
@@ -148,12 +150,10 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       });
 
       await installDependencies({
-        runtime: component.dependencies.runtime,
-        dev: component.dependencies.dev,
+        runtime: component.runtimes['node'].frameworks['express']?.dependencies?.runtime || [],
+        dev: component.runtimes['node'].frameworks['express']?.dependencies?.dev || [],
         cwd: rootPath
       });
-
-      spinner.succeed(`${APP_NAME} initialized with ${foundation}.`);
       logger.success(`${APP_NAME} initialized with ${foundation}.`);
       logger.info("Configure environment variables in .env file.");
       logger.log("Run the following commands:");
@@ -172,6 +172,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       process.exit(1);
     }
   }
+
+  logger.break();
 
   const response = await prompts([
     {
@@ -259,14 +261,16 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     !response.orm ||
     !response.root
   ) {
+    logger.break();
     logger.warn("Initialization cancelled.");
+    logger.break();
     return;
   }
 
   const rootPath = path.resolve(cwd, response.root);
   const srcPath = path.resolve(rootPath, response.srcDir);
 
-  if (fs.pathExistsSync(rootPath)) {
+  if (response.root !== '.' && fs.pathExistsSync(rootPath)) {
     logger.break();
     logger.error(`Cannot create '${response.root}' — file already exists!`);
     logger.break();
