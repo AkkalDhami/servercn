@@ -1,5 +1,5 @@
 {
-  "$schema": "http://localhost:3000/schema/foundation.schema.json",
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
   "slug": "express-server",
   "runtimes": {
     "node": {

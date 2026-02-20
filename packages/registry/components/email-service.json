@@ -1,5 +1,5 @@
 {
-  "$schema": "http://localhost:3000/schema/component.registry.json",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "email-service",
   "runtimes": {
     "node": {
