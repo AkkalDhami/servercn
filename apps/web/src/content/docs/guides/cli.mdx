@@ -1,0 +1,362 @@
+---
+title: ServerCN CLI
+description: Learn about the available commands in ServerCN CLI.
+---
+
+# ServerCN CLI
+
+The <Code>ServerCN</Code> CLI provides a set of commands to help you manage your ServerCN projects.
+
+---
+
+## <Code>init</Code>
+
+The <Code>init</Code> command bootstraps ServerCN configuration in an existing project or scaffolds a new project from a starter template.
+
+---
+
+### 1. Existing Project
+
+#### Initialize ServerCN in an Existing Project
+
+<PackageManagerTabs command="npx servercn-cli init" />
+
+You will be prompted to configure your stack:
+
+```
+> npx servercn-cli init
+
+√ Project root directory ... .
+√ Source directory ... src
+√ Select architecture » MVC (controllers, services, models)
+√ Programming language » Typescript (recommended)
+√ Backend framework » Express.js
+√ Select database » Mongodb
+√ Mongodb library » mongoose
+
+ServerCN initialized successfully.
+
+You may now add components by running:
+1. npx servercn-cli add <component>
+ex: npx servercn-cli add jwt-utils error-handler http-status-codes
+```
+
+This generates a <Code>servercn.config.json</Code> file in your project root:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/servercn.config.registry.json",
+  "version": "1.1.1",
+  "project": {
+    "root": ".",
+    "srcDir": "src",
+    "type": "backend"
+  },
+  "stack": {
+    "runtime": "node",
+    "language": "typescript",
+    "framework": "express",
+    "architecture": "mvc"
+  },
+  "database": {
+    "type": "mongodb",
+    "orm": "mongoose"
+  },
+  "meta": {
+    "createdAt": "2026-02-19T14:52:44.537Z",
+    "createdBy": "servercn@1.1.1"
+  }
+}
+```
+
+---
+
+### 2. New Project
+
+#### Initialize a New Project from a Starter
+
+Available starters:
+
+- <Code>mongoose-starter</Code>  
+- <Code>express-server</Code>  
+- <Code>drizzle-mysql-starter</Code>  
+- <Code>drizzle-pg-starter</Code>  
+
+<PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
+
+Example:
+
+```
+> npx servercn-cli init drizzle-pg-starter
+
+√ Project root directory ... drizzle-starter
+√ Select architecture » Feature (modules, shared)
+√ Initialize git repository? ... no
+```
+
+This creates a configured project with <Code>servercn.config.json</Code>:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/servercn.config.schema.json",
+  "version": "1.1.1",
+  "project": {
+    "root": "drizzle-starter",
+    "srcDir": "src",
+    "type": "backend"
+  },
+  "stack": {
+    "runtime": "node",
+    "language": "typescript",
+    "framework": "express",
+    "architecture": "feature"
+  },
+  "database": {
+    "type": "postgresql",
+    "orm": "drizzle"
+  },
+  "meta": {
+    "createdAt": "2026-02-20T07:01:41.475Z",
+    "createdBy": "servercn@1.1.1"
+  }
+}
+```
+---
+
+## <Code>list</Code>
+
+List all available registry items.
+
+<PackageManagerTabs command="npx servercn-cli list" />
+
+```
+ServerCN Registry Overview
+
+────────────────────────────────────────
+│ Type         │ Shortcut │ Total │ Command                   │
+────────────────────────────────────────
+│ Components   │   cp     │  30   │ npx servercn-cli list cp  │
+│ Blueprints   │   bp     │  02   │ npx servercn-cli list bp  │
+│ Foundations  │   fd     │  04   │ npx servercn-cli list fd  │
+│ Tooling      │   tl     │  06   │ npx servercn-cli list tl  │
+│ Schemas      │   sc     │  02   │ npx servercn-cli list sc  │
+────────────────────────────────────────
+
+ Explore:
+ npx servercn-cli list <type | shortcut>
+ npx servercn-cli list <type | shortcut> --json
+
+ Examples:
+ npx servercn-cli list components
+ npx servercn-cli list cp
+ npx servercn-cli ls fd
+ npx servercn-cli list schemas
+ npx servercn-cli ls sc --json
+ ```
+
+**Description:**  
+Displays all available starters, components, and schemas in a readable format.
+
+---
+
+## <Code>list --json</Code>
+
+Return registry items in JSON format.
+
+<PackageManagerTabs command="npx servercn-cli ls --json" />
+
+```json
+{
+  "command": "npx servercn-cli list <type>",
+  "types": [
+    {
+      "type": "component",
+      "shortcut": "cp",
+      "total": 30,
+      "command": "npx servercn-cli list cp"
+    },
+    {
+      "type": "blueprint",
+      "shortcut": "bp",
+      "total": 2,
+      "command": "npx servercn-cli list bp"
+    },
+    {
+      "type": "foundation",
+      "shortcut": "fd",
+      "total": 4,
+      "command": "npx servercn-cli list fd"
+    },
+    {
+      "type": "tooling",
+      "shortcut": "tl",
+      "total": 6,
+      "command": "npx servercn-cli list tl"
+    },
+    {
+      "type": "schema",
+      "shortcut": "sc",
+      "total": 2,
+      "command": "npx servercn-cli list sc"
+    }
+  ]
+}
+```
+
+**Description:**  
+Outputs registry metadata in machine-readable JSON format. Useful for automation and tooling.
+
+---
+## <Code>add</Code>
+
+The <Code>add</Code> command installs a registry resource into your existing ServerCN project.
+
+It reads your <Code>servercn.config.json</Code> and resolves the correct implementation based on your selected stack (architecture, framework, database, ORM).
+
+---
+
+### Add a Component
+
+Use this to install reusable components such as utilities, middleware, or shared modules.
+
+<PackageManagerTabs command="npx servercn-cli add <component-name>" />
+
+**Example:**
+
+<PackageManagerTabs command="npx servercn-cli add jwt-utils" />
+
+### Add a Foundation
+
+Install a foundational layer that provides core system setup (e.g., base configs, global handlers, shared infrastructure).
+
+<PackageManagerTabs command="npx servercn-cli add foundation <foundation-name>" />
+
+<PackageManagerTabs command="npx servercn-cli add fd express-server" />
+
+This integrates the foundation according to your selected architecture and stack configuration.
+
+---
+
+### Add Tooling
+
+Install development tooling such as linters, formatters, logging utilities, or build integrations.
+
+<PackageManagerTabs command="npx servercn-cli add tooling <tooling-name>" />
+
+<PackageManagerTabs command="npx servercn-cli add tl prettier" />
+
+Tooling is configured to match your runtime and language setup.
+
+---
+
+### Add a Blueprint
+
+Install a predefined feature structure that scaffolds a complete module pattern (routes, controller, service, model).
+
+<PackageManagerTabs command="npx servercn-cli add blueprint <blueprint-name>" />
+
+<PackageManagerTabs command="npx servercn-cli add bp stateless-auth" />
+
+Blueprints accelerate feature-level development while preserving architectural consistency.
+
+---
+
+### Add a Schema
+
+Install a predefined database schema aligned with your selected database and ORM.
+
+<PackageManagerTabs command="npx servercn-cli add schema <schema-name>" />
+
+<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+
+The schema is generated based on your configured database type and ORM.
+
+---
+
+## <Code>ls fd</Code>
+
+List available all foundation.
+
+<PackageManagerTabs command="npx servercn-cli ls fd" />
+<PackageManagerTabs command="npx servercn-cli ls fd --json" />
+
+```
+Available Foundations
+
+{
+  "type": "foundation",
+  "command": "npx servercn-cli init <foundation-name>",
+  "total": 4,
+  "items": [
+    {
+      "name": "drizzle-mysql-starter",
+      "command": "npx servercn-cli init drizzle-mysql-starter"
+    },
+    {
+      "name": "drizzle-pg-starter",
+      "command": "npx servercn-cli init drizzle-pg-starter"
+    },
+    {
+      "name": "express-server",
+      "command": "npx servercn-cli init express-server"
+    },
+    {
+      "name": "mongoose-starter",
+      "command": "npx servercn-cli init mongoose-starter"
+    }
+  ]
+}
+```
+
+**Description:**  
+Shows all foundation available in the registry.
+
+
+---
+
+## <Code>ls cp</Code>
+
+List available components.
+
+<PackageManagerTabs command="npx servercn-cli ls cp" />
+<PackageManagerTabs command="npx servercn-cli ls cp --json" />
+
+**Description:**  
+Displays all reusable components available in the registry.
+
+---
+
+## <Code>ls bp</Code>
+
+List available blueprints.
+
+<PackageManagerTabs command="npx servercn-cli ls bp" />
+<PackageManagerTabs command="npx servercn-cli ls bp --json" />
+
+**Description:**  
+Display all blueprints available in the servercn.
+
+---
+
+## <Code>ls sc</Code>
+
+List available schema.
+
+<PackageManagerTabs command="npx servercn-cli ls sc" />
+<PackageManagerTabs command="npx servercn-cli ls sc --json" />
+
+**Description:**  
+Display all schema available in the servercn.
+
+---
+## <Code>ls tl</Code>
+
+List available tooling.
+
+<PackageManagerTabs command="npx servercn-cli ls tl" />
+<PackageManagerTabs command="npx servercn-cli ls tl --json" />
+
+**Description:**  
+Display all tooling available in the servercn.
+
+---

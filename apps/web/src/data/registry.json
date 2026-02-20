@@ -12,6 +12,14 @@
       "docs": "/docs/introduction"
     },
     {
+      "slug": "cli",
+      "title": "ServerCN CLI",
+      "description": "The ServerCN CLI provides a set of commands to help you manage your ServerCN projects.",
+      "type": "guide",
+      "status": "stable",
+      "docs": "/docs/cli"
+    },
+    {
       "slug": "installation",
       "title": "Installation",
       "description": "Learn how to install and set up ServerCN in your project.",
@@ -355,6 +363,7 @@
         ]
       }
     },
+
     {
       "slug": "auth",
       "title": "Authentication",
