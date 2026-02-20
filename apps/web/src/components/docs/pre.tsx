@@ -27,7 +27,7 @@ export function Pre({
   }
 
   return (
-    <div className="thin-scrollbar relative max-w-[472.5px] overflow-x-auto sm:w-full sm:max-w-200">
+    <div className="thin-scrollbar relative max-w-[472.5px] overflow-x-auto sm:w-full sm:max-w-200 mb-3">
       <pre
         ref={ref}
         {...props}

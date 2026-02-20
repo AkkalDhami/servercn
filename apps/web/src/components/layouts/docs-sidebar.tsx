@@ -16,16 +16,62 @@ export const ITEM_GROUP_NAMING = {
   tooling: "Tooling",
   component: "Components",
   blueprint: "Blueprints",
-  schema: "Schemas"
+  schema: "Schemas",
+  page: "Pages"
 } as const;
 
+export const PAGE_ITEMS = [
+  {
+    title: "Components",
+    url: "/components"
+  },
+  {
+    title: "Foundations",
+    url: "/foundations"
+  },
+  {
+    title: "Blueprints",
+    url: "/blueprints"
+  },
+  {
+    title: "Schemas",
+    url: "/schemas"
+  },
+  {
+    title: "Contributors",
+    url: "/contributors"
+  }
+];
+
 const navSections = [
-  { title: ITEM_GROUP_NAMING.guide, items: getTypeItems("guide") },
-  { title: ITEM_GROUP_NAMING.foundation, items: getTypeItems("foundation") },
-  { title: ITEM_GROUP_NAMING.tooling, items: getTypeItems("tooling") },
-  { title: ITEM_GROUP_NAMING.component, items: getTypeItems("component") },
-  { title: ITEM_GROUP_NAMING.blueprint, items: getTypeItems("blueprint") },
-  { title: ITEM_GROUP_NAMING.schema, items: getTypeItems("schema") }
+  {
+    title: ITEM_GROUP_NAMING.guide,
+    items: getTypeItems("guide")
+  },
+  {
+    title: ITEM_GROUP_NAMING.foundation,
+    items: getTypeItems("foundation")
+  },
+  {
+    title: ITEM_GROUP_NAMING.tooling,
+    items: getTypeItems("tooling")
+  },
+  {
+    title: ITEM_GROUP_NAMING.component,
+    items: getTypeItems("component")
+  },
+  {
+    title: ITEM_GROUP_NAMING.blueprint,
+    items: getTypeItems("blueprint")
+  },
+  {
+    title: ITEM_GROUP_NAMING.schema,
+    items: getTypeItems("schema")
+  },
+  {
+    title: ITEM_GROUP_NAMING.page,
+    items: PAGE_ITEMS
+  }
 ];
 
 export default function DocsSidebar({
@@ -83,9 +129,10 @@ export default function DocsSidebar({
 
                       <span>{item.title}</span>
 
-                      {item.status !== "stable" && (
-                        <span className="ml-2 h-2 w-2 rounded-full bg-yellow-500" />
-                      )}
+                      {section.title !== "Pages" &&
+                        item.status !== "stable" && (
+                          <span className="ml-2 h-2 w-2 rounded-full bg-yellow-500" />
+                        )}
                     </Link>
 
                     {/* Schema or Blueprint databases or models */}

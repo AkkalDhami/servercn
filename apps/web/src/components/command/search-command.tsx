@@ -19,9 +19,14 @@ import { Route } from "next";
 import { CircleIcon } from "lucide-react";
 import { getTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
-import { ITEM_GROUP_NAMING } from "../layouts/docs-sidebar";
+import { ITEM_GROUP_NAMING, PAGE_ITEMS } from "../layouts/docs-sidebar";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL, X_URL } from "@/lib/constants";
+import {
+  BASE_GITHUB_URL,
+  DISCORD_URL,
+  GITHUB_URL,
+  X_URL
+} from "@/lib/constants";
 import { FaXTwitter } from "react-icons/fa6";
 export default function SearchCommand({
   className,
@@ -82,15 +87,6 @@ export default function SearchCommand({
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="SOCIAL LINKS">
-            <CommandItem asChild forceMount className="mb-0.5">
-              <Link
-                href={BASE_GITHUB_URL}
-                target="_blank"
-                onClick={() => setOpen(!open)}>
-                <FaGithub className="size-2.5 text-primary cursor-pointer" />
-                Github @akkaldhami
-              </Link>
-            </CommandItem>
             <CommandItem asChild className="mb-0.5">
               <Link
                 href={GITHUB_URL}
@@ -113,6 +109,15 @@ export default function SearchCommand({
                 onClick={() => setOpen(!open)}>
                 <FaDiscord className="size-2. text-primary cursor-pointer" />
                 Discord Server
+              </Link>
+            </CommandItem>
+            <CommandItem asChild forceMount className="mb-0.5">
+              <Link
+                href={BASE_GITHUB_URL}
+                target="_blank"
+                onClick={() => setOpen(!open)}>
+                <FaGithub className="text-primary size-2.5 cursor-pointer" />
+                Github @akkaldhami
               </Link>
             </CommandItem>
           </CommandGroup>
@@ -194,6 +199,21 @@ export default function SearchCommand({
           {schemas.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.schema.toUpperCase()}>
               {schemas.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link
+                    href={item.url as Route}
+                    onClick={() => setOpen(!open)}
+                    className="cursor-pointer pl-4 capitalize">
+                    <CircleIcon className="text-muted-secondary mb-1 size-2.5" />
+                    {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {PAGE_ITEMS.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.page.toUpperCase()}>
+              {PAGE_ITEMS.map(item => (
                 <CommandItem asChild key={item.title}>
                   <Link
                     href={item.url as Route}

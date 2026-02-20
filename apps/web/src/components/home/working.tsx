@@ -27,7 +27,7 @@ export default function Working() {
         <div className="w-full">
           <Terminal className="mx-auto max-h-150 max-w-2xl text-sm sm:text-lg">
             <TypingAnimation className="text-sm sm:text-lg">
-              &gt; npx servercn init
+              &gt; npx servercn-cli init
             </TypingAnimation>
 
             <AnimatedSpan>
