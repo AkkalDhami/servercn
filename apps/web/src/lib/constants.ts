@@ -7,6 +7,8 @@ export const DISCORD_URL = "https://discord.gg/Cutb3vPG";
 
 export const BASE_GITHUB_URL = "https://github.com/akkaldhami";
 
+export const X_URL = "https://x.com/AavashDhami2127";
+
 export const GITHUB_URL = `${BASE_GITHUB_URL}/servercn`;
 
 export const SERVERCN_URL = "https://servercn.vercel.app";
