@@ -1,5 +1,5 @@
 {
-  "$schema": "http://localhost:3000/schema/foundation.registry.json",
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
   "slug": "drizzle-mysql-starter",
   "runtimes": {
     "node": {

@@ -1,17 +1,17 @@
 {
   "$schema": "https://servercn.vercel.app/schema/component.registry.json",
-  "slug": "async-handler",
+  "slug": "cron-job",
   "runtimes": {
     "node": {
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "async-handler/mvc",
-            "feature": "async-handler/feature"
+            "mvc": "cron-job/mvc",
+            "feature": "cron-job/feature"
           },
           "dependencies": {
-            "runtime": ["express"],
-            "dev": ["@types/express"]
+            "runtime": ["node-cron"],
+            "dev": [""]
           },
           "env": []
         }
