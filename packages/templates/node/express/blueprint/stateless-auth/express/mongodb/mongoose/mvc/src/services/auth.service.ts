@@ -90,7 +90,7 @@ export class AuthService {
       if (!isPasswordValid) {
         let lockUntil = null;
 
-        let newAttempts = user.failedLoginAttempts + 1;
+        const newAttempts = user.failedLoginAttempts + 1;
 
         if (newAttempts >= LOGIN_MAX_ATTEMPTS) {
           lockUntil = new Date(Date.now() + LOCK_TIME_MS);
