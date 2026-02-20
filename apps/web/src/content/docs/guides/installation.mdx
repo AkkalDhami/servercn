@@ -21,7 +21,7 @@ The fastest way to get started with ServerCN:
 
 ### 1. Initialize ServerCN in your project
 
-<PackageManagerTabs command="npx servercn init" />
+<PackageManagerTabs command="npx servercn-cli init" />
 
 ### 2. Add your first component
 
@@ -35,7 +35,7 @@ The fastest way to get started with ServerCN:
 
 The Express Server Foundation is the core starting block provided by servercn
 
-<PackageManagerTabs command="npx servercn init express-server" />
+<PackageManagerTabs command="npx servercn-cli init express-server" />
 
 [Express Server Docs](/docs/foundations/express-server)
 
@@ -43,7 +43,7 @@ The Express Server Foundation is the core starting block provided by servercn
 
 The Drizzle MySQL Starter is a database foundation provided by servercn for projects that use MySQL with Drizzle ORM
 
-<PackageManagerTabs command="npx servercn init drizzle-mysql-starter" />
+<PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
 
 [Drizzle MySQL Starter Docs](/docs/foundations/drizzle-mysql-starter)
 
@@ -51,7 +51,7 @@ The Drizzle MySQL Starter is a database foundation provided by servercn for proj
 
 The Drizzle PostgreSQL Starter is a database foundation provided by servercn for projects that use PostgreSQL with Drizzle ORM
 
-<PackageManagerTabs command="npx servercn init drizzle-pg-starter" />
+<PackageManagerTabs command="npx servercn-cli init drizzle-pg-starter" />
 
 [Drizzle PostgreSQL Starter Docs](/docs/foundations/drizzle-pg-starter)
 
@@ -59,7 +59,7 @@ The Drizzle PostgreSQL Starter is a database foundation provided by servercn for
 
 The Mongoose Starter is a database foundation provided by servercn for projects that use MongoDB with Mongoose ODM
 
-<PackageManagerTabs command="npx servercn init mongoose-starter" />
+<PackageManagerTabs command="npx servercn-cli init mongoose-starter" />
 
 [Mongoose Starter Docs](/docs/foundations/mongoose-starter)
 
@@ -117,7 +117,6 @@ This file stores your project configuration and is used by ServerCN to generate 
     "type": "mongodb",
     "orm": "mongoose"
   },
-  "overrides": {},
   "meta": {
     "createdAt": "2026-01-17T12:09:31.721Z",
     "createdBy": "servercn@1.0.0"
@@ -172,7 +171,7 @@ npx servercn-cli add jwt-utils http-status-codes
 
 To see all available components, foundations, blueprints, schemas.
 
-<PackageManagerTabs command="npx servercn list" />
+<PackageManagerTabs command="npx servercn-cli list" />
 
 ## Project Structure
 
@@ -228,7 +227,7 @@ src/
 
 ### Initialize ServerCN
 
-<PackageManagerTabs command="npx servercn init" />
+<PackageManagerTabs command="npx servercn-cli init" />
 
 ### Add a Component
 
@@ -240,7 +239,7 @@ Or you can add multiple components like this:
 
 ### List Available Components
 
-<PackageManagerTabs command="npx servercn list" />
+<PackageManagerTabs command="npx servercn-cli list" />
 
 ## Installing Components
 
@@ -281,7 +280,7 @@ After updating, new components will use the updated configuration.
 To verify ServerCN is properly installed:
 
 1. Check for <Code children="servercn.config.json" /> in your project root
-2. Run <Code children="npx servercn list" /> to see available components
+2. Run <Code children="npx servercn-cli list" /> to see available components
 3. Try adding a component: <Code children="npx servercn-cli add error-handler" />
 
 ## Troubleshooting
@@ -300,7 +299,7 @@ If a component doesn't exist:
 
 ```bash
 # List all available components
-npx servercn list
+npx servercn-cli list
 
 # Check component name spelling
 npx servercn-cli add error-handler  # ✅ Correct
@@ -321,7 +320,7 @@ After installation:
 
 1. **Add your first component**: <Code children="npx servercn-cli add error-handler" />
 2. **Set up your Express app**: Create <Code children='src/app.ts' />
-3. **Add more components**: Explore available components with <Code children="npx servercn list" />
+3. **Add more components**: Explore available components with <Code children="npx servercn-cli list" />
 4. **Read component docs**: Each component has detailed documentation
 
 ## Getting Help
