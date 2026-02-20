@@ -2,7 +2,7 @@
 
 title: ESLint
 description: A production-grade ESLint configuration for TypeScript and Express.js projects, optimized for backend reliability and team consistency.
-command: npx servercn add tooling eslint
+command: npx servercn-cli add tooling eslint
 ---
 
 # ESLint
@@ -24,7 +24,7 @@ This configuration is tailored specifically for **Node.js, TypeScript, and Expre
 
 Install the ESLint configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling eslint" />
+<PackageManagerTabs command="npx servercn-cli add tooling eslint" />
 
 This command automatically:
 
@@ -88,7 +88,7 @@ export default [
 
 Add the following scripts to your <Code children="package.json" /> to standardize linting across environments:
 
-```json
+```json {3-4}
 {
   "scripts": {
     "lint:check": "eslint .",
@@ -143,4 +143,4 @@ This makes it suitable for **serious backend systems** and **resume-grade projec
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />

@@ -1,7 +1,7 @@
 ---
 title: Lint-Staged
 description: A robust Lint-Staged configuration for TypeScript and Express.js projects.
-command: npx servercn add tooling lint-staged
+command: npx servercn-cli add tooling lint-staged
 ---
 
 # Lint-Staged
@@ -14,7 +14,7 @@ Lint-Staged runs linters only on staged Git files, ensuring that bad code never 
 
 Install Lint-Staged using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling lint-staged" />
+<PackageManagerTabs command="npx servercn-cli add tooling lint-staged" />
 
 ## Configuration
 
@@ -25,8 +25,10 @@ You can customize this configuration to match your project’s structure and too
 #### Basic Example (TypeScript)
 <Code children="package.json" />
 
-```json
+```json {4-12}
 {
+  "scripts": {...},
+
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
@@ -36,12 +38,15 @@ You can customize this configuration to match your project’s structure and too
       "prettier --write"
     ]
   },
+
+  "dependencies":{...},
+  "devDependencies":{...}
 }
 ```
 #### Express + TypeScript Example
 <Code children="package.json" />
 
-```json
+```json 
 {
   "lint-staged":{
     "src/**/*.{ts,tsx}": [
@@ -101,4 +106,4 @@ Instead of <Code children="package.json" />, you can define your rules in <Code 
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />

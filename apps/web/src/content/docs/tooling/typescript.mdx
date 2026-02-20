@@ -1,7 +1,7 @@
 ---
 title: TypeScript
 description: A robust TypeScript configuration for Node.js and Express.js projects.
-command: npx servercn add tooling typescript
+command: npx servercn-cli add tooling typescript
 ---
 
 # TypeScript
@@ -14,7 +14,7 @@ TypeScript is a strongly typed programming language that builds on JavaScript, g
 
 Install the TypeScript configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling typescript" />
+<PackageManagerTabs command="npx servercn-cli add tooling typescript" />
 
 ## Configuration
 
@@ -38,10 +38,8 @@ The component provides a <Code children="tsconfig.json" /> file optimized for mo
     "alwaysStrict": true,
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": [ "./*" ],
-      "@/src/*": [ "./src/*" ]
+      "@/*": [ "./src/*" ]
     }
   },
   "include": [ "src/**/*" ],
@@ -54,7 +52,6 @@ The component provides a <Code children="tsconfig.json" /> file optimized for mo
 ```json
 {
   "compilerOptions": {
-    /* Base Options */
     "target": "ES2021",
     "module": "es2022",
     "moduleResolution": "bundler",
@@ -67,7 +64,6 @@ The component provides a <Code children="tsconfig.json" /> file optimized for mo
     "rootDir": "src",
     "removeComments": true,
 
-    /* Strictness */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -82,15 +78,12 @@ The component provides a <Code children="tsconfig.json" /> file optimized for mo
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Module Resolution */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Advanced */
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
@@ -103,7 +96,7 @@ The component provides a <Code children="tsconfig.json" /> file optimized for mo
 
 Add the following scripts to your <Code children="package.json" />:
 
-```json
+```json {3-6}
 {
   "scripts": {
     "dev": "tsx watch src/server.ts",
@@ -127,7 +120,7 @@ If you prefer nodemon, add a <Code children="nodemon.json" /> file:
 
 Then update your scripts:
 
-```json
+```json {3-6}
 {
   "scripts": {
     "dev": "nodemon",
@@ -148,4 +141,4 @@ Then update your scripts:
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />

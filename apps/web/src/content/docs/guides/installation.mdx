@@ -25,7 +25,7 @@ The fastest way to get started with ServerCN:
 
 ### 2. Add your first component
 
-<PackageManagerTabs command="npx servercn add error-handler" />
+<PackageManagerTabs command="npx servercn-cli add error-handler" />
 
 ## ServerCN Foundations (Recommended)
 
@@ -159,13 +159,13 @@ Once initialized, you can add components to your project:
 
 ```bash
 # Add a component
-npx servercn add <component-name>
+npx servercn-cli add <component-name>
 
 # Examples
-npx servercn add error-handler
+npx servercn-cli add error-handler
 
 # Add multiple components
-npx servercn add jwt-utils http-status-codes
+npx servercn-cli add jwt-utils http-status-codes
 ```
 
 ## Listing Available Components
@@ -232,11 +232,11 @@ src/
 
 ### Add a Component
 
-<PackageManagerTabs command="npx servercn add <component-name>" />
+<PackageManagerTabs command="npx servercn-cli add <component-name>" />
 
 Or you can add multiple components like this:
 
-<PackageManagerTabs command="npx servercn add jwt-utils http-status-codes logger-pino" />
+<PackageManagerTabs command="npx servercn-cli add jwt-utils http-status-codes logger-pino" />
 
 ### List Available Components
 
@@ -253,7 +253,7 @@ When you add a component, ServerCN will:
 
 ### Example: Adding Error Handler
 
-<PackageManagerTabs command="npx servercn add error-handler" />
+<PackageManagerTabs command="npx servercn-cli add error-handler" />
 
 This will:
 
@@ -282,7 +282,7 @@ To verify ServerCN is properly installed:
 
 1. Check for <Code children="servercn.config.json" /> in your project root
 2. Run <Code children="npx servercn list" /> to see available components
-3. Try adding a component: <Code children="npx servercn add error-handler" />
+3. Try adding a component: <Code children="npx servercn-cli add error-handler" />
 
 ## Troubleshooting
 
@@ -303,8 +303,8 @@ If a component doesn't exist:
 npx servercn list
 
 # Check component name spelling
-npx servercn add error-handler  # ✅ Correct
-npx servercn add errorhandler   # ❌ Incorrect
+npx servercn-cli add error-handler  # ✅ Correct
+npx servercn-cli add errorhandler   # ❌ Incorrect
 ```
 
 ### Architecture Mismatch
@@ -319,7 +319,7 @@ If components aren't appearing in the expected location:
 
 After installation:
 
-1. **Add your first component**: <Code children="npx servercn add error-handler" />
+1. **Add your first component**: <Code children="npx servercn-cli add error-handler" />
 2. **Set up your Express app**: Create <Code children='src/app.ts' />
 3. **Add more components**: Explore available components with <Code children="npx servercn list" />
 4. **Read component docs**: Each component has detailed documentation

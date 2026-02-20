@@ -1,7 +1,7 @@
 ---
 title: Prettier
 description: A robust Prettier configuration for TypeScript and Express.js projects.
-command: npx servercn add tooling prettier
+command: npx servercn-cli add tooling prettier
 ---
 
 # Prettier
@@ -14,7 +14,7 @@ Prettier is an opinionated code formatter. It enforces a consistent style by par
 
 Install the Prettier configuration using the ServerCN CLI:
 
-<PackageManagerTabs command="npx servercn add tooling prettier" />
+<PackageManagerTabs command="npx servercn-cli add tooling prettier" />
 
 ## Configuration
 
@@ -38,7 +38,7 @@ The component installs a <Code children=".prettierrc" /> file and a <Code childr
 
 Add the following scripts to your <Code children="package.json" />:
 
-```json
+```json {3-4}
 {
   "scripts": {
     "format:check": "npx prettier . --check",
@@ -57,4 +57,4 @@ Add the following scripts to your <Code children="package.json" />:
 
 ## Add More Tooling
 
-<PackageManagerTabs command="npx servercn add tooling commitlint husky eslint prettier lint-staged typescript " />
+<PackageManagerTabs command="npx servercn-cli add tooling commitlint husky eslint prettier lint-staged typescript " />

@@ -1,7 +1,7 @@
 ---
 title: Todo | PostgreSQL (Drizzle) | Schema
 description: Production-ready Todo schema for PostgreSQL using Drizzle ORM, featuring type safety and relational mappings.
-command: npx servercn add schema todo
+command: npx servercn-cli add schema todo
 
 mvc_structure:
   - type: folder
@@ -350,7 +350,7 @@ The PostgreSQL implementation leverages strong types and relational integrity to
 
 To add this schema to your project, run:
 
-<PackageManagerTabs command="npx servercn add schema todo" />
+<PackageManagerTabs command="npx servercn-cli add schema todo" />
 
 During initialization, ensure you select <Code children="PostgreSQL" /> when prompted for the database.
 
@@ -494,7 +494,7 @@ export type NewTodo = typeof todos.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn add schema todo/todo" />
+<PackageManagerTabs command="npx servercn-cli add schema todo/todo" />
 
 ## 3. schema.helper.ts
 
