@@ -70,7 +70,7 @@ export default function Working() {
               You may now add components by running:
             </TypingAnimation>
             <TypingAnimation className="text-muted-primary text-sm sm:text-lg">
-              &gt; npx servercn add &lt;component&gt;
+              &gt; npx servercn-cli add &lt;component&gt;
             </TypingAnimation>
           </Terminal>
         </div>

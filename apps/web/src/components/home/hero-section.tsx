@@ -73,7 +73,7 @@ export default function HeroSection() {
                 variant="default"
                 className={cn(
                   "hover:shadow-primary shadow-primary/20 hover:shadow-primary/30 text-base shadow-none",
-                  "h-10 px-1 sm:h-12 sm:px-6"
+                  "h-10 px-1 sm:h-11 sm:w-40 sm:px-8"
                 )}>
                 <Link href="/docs" className="flex items-center gap-2">
                   <span>Get Started</span>
@@ -83,10 +83,10 @@ export default function HeroSection() {
               <Button
                 key={2}
                 asChild
-                variant="ghost"
+                variant="outline"
                 className={cn(
                   "hover:shadow-tertiary h-9 gap-2 px-1 text-base",
-                  "h-10 px-2 sm:h-12 sm:px-8"
+                  "h-10 px-2 sm:h-11 sm:w-40 sm:px-8"
                 )}>
                 <Link
                   href={GITHUB_URL}

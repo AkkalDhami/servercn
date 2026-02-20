@@ -16,7 +16,7 @@ export function MobileNav() {
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] p-0">
+      <SheetContent side="left" className="w-75 p-0">
         <div className="h-full py-6 pr-2 pl-4">
           <DocsSidebar onLinkClickAction={() => setOpen(false)} />
         </div>
