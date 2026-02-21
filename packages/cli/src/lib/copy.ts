@@ -134,21 +134,16 @@ export async function cloneRegistryTemplate({
 
   try {
     const templateSource = `${GITHUB_BASE_URL}/${templateDir}`;
-    // console.log({ targetDir, templateDir, templateSource });
-
-    const s = await downloadTemplate(templateSource, {
+    await downloadTemplate(templateSource, {
       dir: targetPath,
       force: true
     });
-
-    // console.log({ s });
-
     await mergeDirectory({
       srcDir: tempDir,
       destDir: targetPath,
       force
     });
-  } catch (e) {
+  } catch {
     throw new Error("Repository not found on GitHub");
   } finally {
     await fs.remove(tempDir);

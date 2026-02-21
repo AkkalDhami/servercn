@@ -25,8 +25,7 @@ export function updateEnvKeys({
   cwd = process.cwd(),
   label
 }: UpdateEnvProps) {
-  if (!envKeys.length) return;
-
+  if (envKeys.length < 1) return;
   const envFilePath = path.join(cwd, envFile);
 
   const existing = existsSync(envFilePath)
