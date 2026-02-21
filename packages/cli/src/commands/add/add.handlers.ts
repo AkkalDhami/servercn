@@ -16,7 +16,6 @@ import type {
   RuntimeType,
   SchemaFramework
 } from "@/types";
-import { spinner } from "@/utils/spinner";
 import { updateEnvKeys } from "@/utils/update-env";
 
 export async function resolveTemplateResolution({
@@ -43,7 +42,6 @@ export async function resolveTemplateResolution({
   if (type === "tooling") {
     selectedPath = `${registryItemName}`
   } else {
-    //if (component.type === "component" || component.type === "blueprint" || component.type === "foundation" || component.type === "schema")
     // console.log({ type })
     if (component?.runtimes[runtime].frameworks[framework]?.variants) {
       return resolvePromptVariants({
@@ -110,7 +108,7 @@ export async function resolveTemplateResolution({
         break;
 
       case "blueprint":
-        selectedPath = resolveDatabaseTemplate({
+        const bpPath = resolveDatabaseTemplate({
           templateConfig,
           config,
           architecture,
@@ -118,21 +116,22 @@ export async function resolveTemplateResolution({
           registryItemName: component.slug
         });
 
-        if (type === "blueprint" && selectedPath) {
-          const result = spinner("Installing Dependencies").start();
-          const blueprintDeps = resolveDependencies({
-            component,
-            framework,
-            db: config.database?.type as DatabaseType,
-            orm: config.database?.orm as OrmType,
-            runtime,
-          }
+        selectedPath = `${config.stack.runtime}/${config.stack.framework}/${type}/${bpPath}`;
+
+        if (selectedPath) {
+          const bpDeps = resolveDependencies(
+            {
+              component,
+              framework,
+              db: config.database?.type as DatabaseType,
+              orm: config.database?.orm as OrmType,
+              runtime,
+            }
           );
-          result.succeed();
           return {
             templatePath: selectedPath,
-            additionalRuntimeDeps: blueprintDeps.runtime || [],
-            additionalDevDeps: blueprintDeps.dev || []
+            additionalRuntimeDeps: bpDeps.runtime || [],
+            additionalDevDeps: bpDeps.dev || [],
           };
         }
         break;
@@ -199,20 +198,26 @@ function resolveDatabaseTemplate({
   }
 
   const dbConfig = templateConfig?.databases[dbType];
-  if (!dbConfig || !dbConfig.orms[orm]) {
+  const dbOrm = dbConfig?.orms[orm];
+
+  if (!dbConfig || !dbOrm) {
     logger.break();
     logger.error(
-      `Database stack '${dbType}-${orm}' is not supported by "${formattedRegistryItemName}".`
+      `Database stack '${dbType}:${orm}' is not supported by ${options.type}:'${formattedRegistryItemName}'.`
     );
     logger.break();
     process.exit(1);
   }
 
-  const archOptions = dbConfig.orms[orm].templates;
+  const archOptions = dbOrm?.templates;
+  if (options.type === 'blueprint') {
+    const selectedConfig = archOptions[architecture] as string;
+    return selectedConfig;
+  }
 
-  const selectedConfig = archOptions[formattedRegistryItemName][architecture];
-  if (!selectedConfig) return undefined;
-  return selectedConfig
+  if (options.type == 'schema') {
+    return archOptions[formattedRegistryItemName][architecture] as string;
+  }
 }
 
 async function resolvePromptVariants({
@@ -249,8 +254,6 @@ async function resolvePromptVariants({
     message: variantConfig?.prompt || "Select",
     choices
   });
-
-  // console.log({ variant })
 
   if (!variant) {
     logger.break();
