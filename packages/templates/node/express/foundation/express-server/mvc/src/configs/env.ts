@@ -8,8 +8,6 @@ export const envSchema = z.object({
 
   PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
 
-  DATABASE_URL: z.url(),
-
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
