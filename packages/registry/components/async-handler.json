@@ -10,10 +10,10 @@
             "feature": "async-handler/feature"
           },
           "dependencies": {
-            "runtime": ["express"],
-            "dev": ["@types/express"]
+            "runtime": [""],
+            "dev": []
           },
-          "env": []
+          "env": ["AD"]
         }
       }
     }
