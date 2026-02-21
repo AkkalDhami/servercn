@@ -6,8 +6,8 @@
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "foundations/express-server/mvc",
-            "feature": "foundations/express-server/feature"
+            "mvc": "express-server/mvc",
+            "feature": "express-server/feature"
           },
           "dependencies": {
             "runtime": [

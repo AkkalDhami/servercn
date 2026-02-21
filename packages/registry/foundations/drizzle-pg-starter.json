@@ -6,8 +6,8 @@
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "foundations/drizzle-pg-starter/mvc",
-            "feature": "foundations/drizzle-pg-starter/feature"
+            "mvc": "drizzle-pg-starter/mvc",
+            "feature": "drizzle-pg-starter/feature"
           },
           "dependencies": {
             "runtime": [

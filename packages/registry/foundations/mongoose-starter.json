@@ -6,8 +6,8 @@
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "foundations/mongoose-starter/mvc",
-            "feature": "foundations/mongoose-starter/feature"
+            "mvc": "mongoose-starter/mvc",
+            "feature": "mongoose-starter/feature"
           },
           "dependencies": {
             "runtime": [
