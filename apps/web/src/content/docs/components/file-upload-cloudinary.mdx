@@ -2,7 +2,7 @@
 title: File Upload (Cloudinary)
 description: The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.
 
-command: npx servercn-cli add file-upload-cloudinary
+command: npx servercn-cli add file-upload
 
 mvc_structure:
   - type: folder
@@ -1202,7 +1202,17 @@ Documentation:
 
 ### 2. Install this component
 
-<PackageManagerTabs command="npx servercn-cli add file-upload-cloudinary" />
+<PackageManagerTabs command="npx servercn-cli add file-upload" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select file upload provider: » - Use arrow-keys. Return to submit.
+>   Cloudinary
+    Imagekit
+```
+
+The CLI will then automatically configure the component based on your selected provider.
 
 ## Prerequisites
 
@@ -1319,10 +1329,7 @@ export default upload;
 
 Services for uploading files to Cloudinary and deleting files from Cloudinary.
 
-**MVC:** <Code children="src/services/cloudinary.service.ts" /> or
-
-<Code children="src/utils/cloudinary.ts" /> or
-<Code children="src/helpers/cloudinary.ts" />
+**MVC:** <Code children="src/services/cloudinary.service.ts" /> or <Code children="src/utils/cloudinary.ts" /> 
 
 **Feature:** <Code children="src/modules/upload/upload.service.ts" />
 

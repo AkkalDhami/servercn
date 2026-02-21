@@ -2,7 +2,7 @@
 title: File Upload (ImageKit)
 description: The File Upload component provides a standardized way to handle file uploads in ServerCN using ImageKit as the storage provider.
 
-command: npx servercn-cli add file-upload-imagekit
+command: npx servercn-cli add file-upload
 
 mvc_structure:
   - type: folder
@@ -1135,7 +1135,9 @@ It abstracts common concerns such as multipart handling, ImageKit configuration,
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+**_👉 Note:_** _You do not need to install any ServerCN dependencies manually.
+Running the File Upload installer will automatically install all required dependencies.
+Manual installation is optional and only recommended if you prefer fine-grained dependency control._
 
 ### 1. Install ServerCN dependencies(Optional)
 
@@ -1183,7 +1185,17 @@ Documentation:
 
 ### 2. Install this component
 
-<PackageManagerTabs command="npx servercn-cli add file-upload-imagekit" />
+<PackageManagerTabs command="npx servercn-cli add file-upload" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select file upload provider: » - Use arrow-keys. Return to submit.
+    Cloudinary
+>   Imagekit
+```
+
+The CLI will then automatically configure the component based on your selected provider.
 
 ## Prerequisites
 
@@ -1292,10 +1304,7 @@ export default upload;
 
 Services for uploading files to ImageKit and deleting files from ImageKit.
 
-**MVC:** <Code children="src/services/upload.service.ts" /> or
-
-<Code children="src/utils/imagekit.ts" /> or
-<Code children="src/helpers/imagekit.ts" />
+**MVC:** <Code children="src/services/upload.service.ts" /> or <Code children="src/utils/imagekit.ts" /> 
 
 **Feature:** <Code children="src/modules/upload/upload.service.ts" />
 

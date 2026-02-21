@@ -74,7 +74,7 @@
   --background: #fcfcfc;
   --foreground: #000000;
   --card: #ffffff;
-  --highlight: #ededed;
+  --highlight: var(--color-green-100);
   --card-foreground: #000000;
   --popover: #fcfcfc;
   --popover-foreground: #000000;
@@ -148,7 +148,7 @@
   --background: #000000;
   --foreground: #ffffff;
   --card: #090909;
-  --highlight: #333;
+  --highlight: var(--color-green-950);
   --card-foreground: #ffffff;
   --popover: #121212;
   --popover-foreground: #ffffff;
@@ -269,7 +269,7 @@ code > [data-line]::before {
 
   display: inline-block;
   width: 1rem;
-  margin-right: 1rem;
+  margin-right: 1.5rem;
   text-align: right;
   color: gray;
 }

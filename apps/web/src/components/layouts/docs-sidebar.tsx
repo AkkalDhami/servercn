@@ -95,7 +95,7 @@ export default function DocsSidebar({
             </h3>
 
             <ul className="mb-3 space-y-3.5 border-l border-zinc-200 dark:border-zinc-800">
-              {(section.items as IRegistryItems[]).map(item => {
+              {(section.items as IRegistryItems[]).map((item, i: number) => {
                 const isActive =
                   pathname === item.url || pathname.startsWith(`${item.url}/`);
 
@@ -103,7 +103,7 @@ export default function DocsSidebar({
                   item.type === "schema" || item.type === "blueprint";
 
                 return (
-                  <li key={item.slug}>
+                  <li key={`${item.slug + i}`}>
                     <Link
                       onClick={onLinkClickAction}
                       href={item.url as Route}
