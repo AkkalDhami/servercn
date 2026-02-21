@@ -1,6 +1,6 @@
 # ServerCN
 
-> **Backend components CLI for Node.js & Typescript**
+> **Backend component registry for Node.js & Typescript**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
@@ -75,7 +75,7 @@ npx servercn-cli add response-formatter
 npx servercn-cli add async-handler
 ```
 
-- ### File Upload Cloudinary
+- ### File Upload provider
 
 ```bash
 npx servercn-cli add file-upload
@@ -87,16 +87,10 @@ npx servercn-cli add file-upload
 npx servercn-cli add jwt-utils
 ```
 
-- ### Logger Pino
+- ### Logger
 
 ```bash
-npx servercn-cli add logger-pino
-```
-
-- ### Logger Winston
-
-```bash
-npx servercn-cli add logger-winston
+npx servercn-cli add logger
 ```
 
 - ### Rate Limiter
@@ -105,22 +99,10 @@ npx servercn-cli add logger-winston
 npx servercn-cli add rate-limiter
 ```
 
-- ### GitHub OAuth
+- ### OAuth Provider
 
 ```bash
-npx servercn-cli add github-oauth
-```
-
-- ### Google OAuth
-
-```bash
-npx servercn-cli add google-oauth
-```
-
-- ### GitHub and Google OAuth
-
-```bash
-npx servercn-cli add github-google-oauth
+npx servercn-cli add oauth
 ```
 
 - ### Health Check
@@ -131,13 +113,65 @@ npx servercn-cli add health-check
 
 ### And more
 
-### 3. List Components
+### 3. CLI Commands
 
-View all available components that you can add to your project.
+[Visit for more](https://servercn.vercel.app/docs/cli)
 
-```bash
-npx servercn-cli list
-```
+- List all available registry item.
+
+  ```bash
+  npx servercn-cli ls --all
+  ```
+
+- List all available registry item in JSON structure.
+
+  ```bash
+  npx servercn-cli ls --all --json
+  ```
+
+- List all available registry commands.
+
+  ```bash
+  npx servercn-cli list
+  ```
+
+- List all available registry commands in JSON structure.
+
+  ```bash
+  npx servercn-cli ls --json
+  ```
+
+- List available components.
+
+  ```bash
+  npx servercn-cli ls cp
+  ```
+
+- List available all foundation.
+
+  ```bash
+  npx servercn-cli ls fd
+  ```
+
+- List available schema.
+
+  ```bash
+  npx servercn-cli ls sc
+  ```
+
+- List available blueprint.
+
+  ```bash
+  npx servercn-cli ls bp
+  ```
+
+- List available tooling.
+
+  ```bash
+  npx servercn-cli ls tl
+  ```
+
+[Visit for more](https://servercn.vercel.app/docs/cli)
 
 ## 🏗️ Project Structure
 
@@ -171,8 +205,12 @@ We welcome contributions! Please feel free to submit a Pull Request.
 
 This project is licensed under the [MIT License](LICENSE).
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/AkkalDhami/servercn.svg?variant=adaptive)](https://starchart.cc/AkkalDhami/servercn)
+
 ---
 
 <p align="center">
-  Built with 🗡️ by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a>
+  Built with 🗡️ by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a> and the <a target="_blank" href="https://servercn.vercel.app/contributors">ServerCN contributors</a>
 </p>

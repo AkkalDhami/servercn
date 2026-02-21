@@ -11,7 +11,7 @@ const files = [
   "src/configs/env.ts",
   "src/configs/passport.ts",
   "src/constants/status-codes.ts",
-  "src/controllers/auth.controller.ts",
+  "src/controllers/oauth.controller.ts",
   "src/middlewares/error-handler.ts",
   "src/middlewares/not-found-handler.ts",
   "src/routes/auth.routes.ts",
@@ -28,19 +28,26 @@ export default function InstallComponentCommands({
 }) {
   return (
     <div className={cn("h-full", className)}>
-      <Terminal className="mx-auto h-full min-h-140 min-w-xl text-sm sm:text-lg">
+      <Terminal className="mx-auto h-full min-h-145 min-w-xl text-sm sm:text-lg">
         <TypingAnimation className="text-sm sm:text-lg">
-          &gt; npx servercn-cli add google-oauth
+          &gt; npx servercn-cli add oauth
         </TypingAnimation>
-
+        <TypingAnimation className="text-sm sm:text-lg">
+          ? Select OAuth provider:
+        </TypingAnimation>
+        <TypingAnimation className="text-sm sm:text-lg">
+          &gt; Google
+        </TypingAnimation>
+        <TypingAnimation className="text-sm sm:text-lg">
+          &nbsp; GitHub Google + GitHub
+        </TypingAnimation>
         {files.map((file, index) => (
           <AnimatedSpan key={index} delay={index * 50} className="text-sm">
-            <p>Created: {file}</p>
+            <p>Create: {file}</p>
           </AnimatedSpan>
         ))}
-
         <TypingAnimation className="text-sm text-green-600 sm:text-lg">
-          Success! Component Google OAuth added successfully
+          Component: oauth-google added successfully
         </TypingAnimation>
       </Terminal>
     </div>
