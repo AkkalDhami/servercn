@@ -1,5 +1,4 @@
 import { LATEST_VERSION, SERVERCN_URL } from "@/constants/app.constants";
-import { getDatabaseConfig } from "@/lib/config";
 import type { IServerCNConfig } from "@/types";
 
 export const servercnConfig = (
