@@ -129,9 +129,10 @@ export async function scaffoldFiles(
   templatePath: string,
   options: AddOptions
 ) {
-  const IS_TESTING = true;
+  const IS_TESTING = options.local ?? false;
   const targetDir = paths.targets(".");
 
+ 
   const spin = spinner("Scaffolding files...")?.start();
 
   if (IS_TESTING) {
@@ -158,7 +159,6 @@ export async function scaffoldFiles(
 
   logger.break();
   spin?.succeed("Scaffolding files successfully!");
-  logger.break();
 }
 
 //? Project File Guards
