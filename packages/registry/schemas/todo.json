@@ -18,6 +18,10 @@
                       "mvc": "todo/todo/mysql/drizzle/mvc",
                       "feature": "todo/todo/mysql/drizzle/feature"
                     }
+                  },
+                  "dependencies": {
+                    "runtime": ["mysql2", "drizzle-orm"],
+                    "dev": ["drizzle-kit"]
                   }
                 }
               }
@@ -35,6 +39,10 @@
                       "mvc": "todo/todo/postgresql/drizzle/mvc",
                       "feature": "todo/todo/postgresql/drizzle/feature"
                     }
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["@types/pg", "drizzle-kit"]
                   }
                 }
               }
@@ -52,6 +60,10 @@
                       "mvc": "todo/todo/mongodb/mongoose/mvc",
                       "feature": "todo/todo/mongodb/mongoose/feature"
                     }
+                  },
+                  "dependencies": {
+                    "runtime": ["mongoose"],
+                    "dev": []
                   }
                 }
               }
@@ -59,36 +71,6 @@
           }
         }
       }
-    }
-  },
-
-  "dependencies": {
-    "common": {
-      "runtime": [],
-      "dev": []
-    },
-
-    "stack:express": {
-      "runtime": ["express"],
-      "dev": ["@types/express"]
-    },
-
-    "db:mysql": {
-      "runtime": ["mysql2"]
-    },
-
-    "db:postgresql": {
-      "runtime": ["pg"],
-      "dev": ["@types/pg"]
-    },
-
-    "orm:drizzle": {
-      "runtime": ["drizzle-orm"],
-      "dev": ["drizzle-kit"]
-    },
-
-    "orm:mongoose": {
-      "runtime": ["mongoose"]
     }
   }
 }
