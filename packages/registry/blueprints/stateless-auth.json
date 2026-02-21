@@ -1,5 +1,5 @@
 {
-  "$schema": "http://localhost:3000/schema/blueprint.registry.json",
+  "$schema": "https://servercn.vercel.app/schema/blueprint.registry.json",
   "slug": "stateless-auth",
   "runtimes": {
     "node": {
