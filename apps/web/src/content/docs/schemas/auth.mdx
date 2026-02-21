@@ -1,7 +1,7 @@
 ---
 title: Auth Domain Schemas
 description: Complete authentication system schemas including User, OTP, and Session models for building secure authentication workflows.
-command: npx servercn-cli add schema auth
+command: npx servercn-cli add sc auth
 
 mvc_structure:
   - type: folder
@@ -622,21 +622,6 @@ The **User Schema** is the foundation of your authentication system. It stores u
 
 **View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
-**Quick Example:**
-
-```ts
-import User from "@/models/user";
-
-// Create a new user
-const user = await User.create({
-  name: "John Doe",
-  email: "john@example.com",
-  password: hashedPassword,
-  role: "user",
-  isEmailVerified: false
-});
-```
-
 ### 2. OTP Schema
 
 The **OTP Schema** handles one-time password verification for various authentication workflows.
@@ -651,28 +636,6 @@ The **OTP Schema** handles one-time password verification for various authentica
 - User and email references
 
 **View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
-
-**Quick Example:**
-
-```ts
-import Otp from "@/models/otp";
-import { generateOTP } from "@/helpers/token.helpers";
-
-// Generate and store OTP
-const { code, hashCode, expiresAt } = generateOTP(6, 5); // 6 digits, 5 min TTL
-
-await Otp.create({
-  userId: user._id,
-  email: user.email,
-  otpHashCode: hashCode,
-  type: "email-verification",
-  expiresAt,
-  nextResendAllowedAt: new Date(Date.now() + 60 * 1000) // 1 minute
-});
-
-// Send OTP via email (never store plain code)
-await sendEmail(user.email, `Your verification code: ${code}`);
-```
 
 ### 3. Session Schema
 
@@ -689,28 +652,6 @@ The **Session Schema** manages user sessions for authenticated users, supporting
 
 **View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
-**Quick Example:**
-
-```ts
-import Session from "@/models/session";
-import { generateSecureToken } from "@/helpers/token.helpers";
-
-// Create a session
-const token = generateSecureToken(32);
-const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-await Session.create({
-  userId: user._id,
-  tokenHash: hashedToken,
-  userAgent: req.headers["user-agent"],
-  ipAddress: req.ip,
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-});
-
-// Return token to client (only shown once)
-res.cookie("session_token", token, { httpOnly: true, secure: true });
-```
-
 ### 4. Refresh Token Schema
 
 The **Refresh Token Schema** manages long-lived tokens used to renew access tokens in JWT-based authentication systems.
@@ -724,23 +665,6 @@ The **Refresh Token Schema** manages long-lived tokens used to renew access toke
 
 **View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
 
-**Quick Example:**
-
-```ts
-import RefreshToken from "@/models/refresh-token";
-import { generateSecureToken } from "@/helpers/token.helpers";
-
-// Create a refresh token
-const token = generateSecureToken(40);
-const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-await RefreshToken.create({
-  userId: user._id,
-  tokenHash: hashedToken,
-  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-});
-```
-
 ## Database Support
 
 All auth schemas support multiple databases:
@@ -750,39 +674,6 @@ All auth schemas support multiple databases:
 - **PostgreSQL** - via Drizzle ORM
 
 The CLI automatically detects your database configuration from <Code children="servercn.config.json" /> and generates the appropriate schema.
-
-## Security Best Practices
-
-### Password Security
-
-- Always hash passwords before storing (use [Password Hashing](/docs/components/password-hashing))
-- Never return password field in queries (<Code children="select: false" />)
-- Implement account locking after failed attempts
-
-### OTP Security
-
-- Hash OTPs before storing (SHA-256)
-- Set appropriate expiration times (5-15 minutes)
-- Implement rate limiting (max 5 attempts)
-- Add resend cooldown (1 minute)
-- Never log OTP values
-
-### Session Security
-
-- Hash session tokens before storing
-- Set reasonable expiration times
-- Track device and IP information
-- Implement session revocation
-- Use secure, httpOnly cookies
-- Rotate tokens on sensitive actions
-
-### General Security
-
-- Use HTTPS in production
-- Implement CSRF protection
-- Add rate limiting on auth endpoints
-- Log authentication events
-- Notify users of suspicious activity
 
 ## Related Components
 
