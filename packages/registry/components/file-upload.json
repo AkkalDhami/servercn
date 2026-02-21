@@ -1,0 +1,58 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "file-upload",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "prompt": "Select file upload provider:",
+          "variants": {
+            "cloudinary": {
+              "label": "Cloudinary",
+              "dependencies": {
+                "runtime": [
+                  "express",
+                  "pino",
+                  "pino-pretty",
+                  "dotenv",
+                  "multer",
+                  "cloudinary"
+                ],
+                "dev": ["@types/multer"]
+              },
+              "env": [
+                "CLOUDINARY_CLOUD_NAME",
+                "CLOUDINARY_API_KEY",
+                "CLOUDINARY_API_SECRET",
+                "LOG_LEVEL",
+                "PORT"
+              ],
+              "templates": {
+                "mvc": "file-upload/cloudinary/mvc",
+                "feature": "file-upload/cloudinary/feature"
+              }
+            },
+            "imagekit": {
+              "label": "Imagekit",
+              "dependencies": {
+                "runtime": [
+                  "pino",
+                  "pino-pretty",
+                  "dotenv",
+                  "multer",
+                  "@imagekit/nodejs"
+                ],
+                "dev": ["@types/multer"]
+              },
+              "env": ["IMAGEKIT_PRIVATE_KEY", "LOG_LEVEL", "PORT"],
+              "templates": {
+                "mvc": "file-upload/imagekit/mvc",
+                "feature": "file-upload/imagekit/feature"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
