@@ -59,7 +59,14 @@ export async function add(
     cwd: process.cwd()
   });
 
-  await runPostInstallHooks(registryItemName, type, component);
+  await runPostInstallHooks({
+    registryItemName,
+    type,
+    component,
+    framework: config.stack.framework,
+    runtime: config.stack.runtime,
+    selectedProvider: resolution.selectedProvider ?? ""
+  });
 
   logger.break();
   logger.success(`${capitalize(type)}: ${component.slug} added successfully`);
@@ -117,19 +124,18 @@ function validateCompatibility(
 }
 
 //? Scaffolding Layer
-async function scaffoldFiles(
+export async function scaffoldFiles(
   registryItemName: string,
   templatePath: string,
   options: AddOptions
 ) {
-  const IS_TESTING = false;
+  const IS_TESTING = true;
   const targetDir = paths.targets(".");
 
   const spin = spinner("Scaffolding files...")?.start();
 
   if (IS_TESTING) {
     const templateDir = path.resolve(paths.templates(), templatePath);
-
     if (!(await fs.pathExists(templateDir))) {
       logger.error(`Template not found: ${templateDir}`);
       process.exit(1);
@@ -150,7 +156,9 @@ async function scaffoldFiles(
     });
   }
 
+  logger.break();
   spin?.succeed("Scaffolding files successfully!");
+  logger.break();
 }
 
 //? Project File Guards
@@ -158,6 +166,7 @@ function ensureProjectFiles() {
   ensurePackageJson(process.cwd());
   ensureTsConfig(process.cwd());
 }
+
 
 //? Dependency Resolution
 function resolveDependencies(

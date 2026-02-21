@@ -33,6 +33,7 @@ export async function resolveTemplateResolution({
   templatePath: string;
   additionalRuntimeDeps: string[];
   additionalDevDeps: string[];
+  selectedProvider?: string;
 }> {
   const type: RegistryType = options.type || "component";
   const framework = config.stack.framework;
@@ -40,36 +41,44 @@ export async function resolveTemplateResolution({
   const runtime = config.stack.runtime;
   let selectedPath: string | undefined;
   if (type === "tooling") {
-      console.log({ type, registryItemName });
-      selectedPath = `${registryItemName}`
-    } else if (component.type === "component" || component.type === "blueprint" || component.type === "foundation" || component.type === "schema") {
-      if (component?.runtimes[runtime].frameworks[framework]?.variants) {
-        return resolvePromptVariants({
-          component,
-          runtime: runtime,
-          architecture,
-          framework,
-          type
-        });
-      }
-      const templateConfig = component.runtimes[runtime].frameworks[framework];
-      const haveTemplates = templateConfig?.templates;
-      if (!templateConfig) {
-        logger.break();
-        logger.error(
-          `Unsupported framework '${framework}' for component '${component.slug}'.`
-        );
-        logger.error(
-          `This ${type}: '${component.slug}' does not provide templates for the selected framework.`
-        );
-        logger.error(
-          `Please choose one of the supported frameworks and try again.`
-        );
-        logger.break();
-        process.exit(1);
-      }
+    selectedPath = `${registryItemName}`
+  } else {
+    //if (component.type === "component" || component.type === "blueprint" || component.type === "foundation" || component.type === "schema")
+    // console.log({ type })
+    if (component?.runtimes[runtime].frameworks[framework]?.variants) {
+      return resolvePromptVariants({
+        component,
+        runtime: runtime,
+        architecture,
+        framework,
+        type
+      });
+    }
+
+    const templateConfig = component.runtimes[runtime].frameworks[framework];
+    const haveTemplates = templateConfig?.templates;
+    if (!templateConfig) {
+      logger.break();
+      logger.error(
+        `Unsupported framework '${framework}' for component '${component.slug}'.`
+      );
+      logger.error(
+        `This ${type}: '${component.slug}' does not provide templates for the selected framework.`
+      );
+      logger.error(
+        `Please choose one of the supported frameworks and try again.`
+      );
+      logger.break();
+      process.exit(1);
+    }
 
     switch (type) {
+      case "component":
+        selectedPath =
+          typeof templateConfig === "string"
+            ? templateConfig
+            : haveTemplates && templateConfig.templates[architecture];
+        break;
       case "schema":
         const schemaPath = resolveDatabaseTemplate({
           templateConfig,
@@ -91,7 +100,7 @@ export async function resolveTemplateResolution({
           return {
             templatePath: selectedPath,
             additionalRuntimeDeps: schemaDeps.runtime || [],
-            additionalDevDeps: schemaDeps.dev || []
+            additionalDevDeps: schemaDeps.dev || [],
           };
         }
         break;
@@ -129,8 +138,6 @@ export async function resolveTemplateResolution({
         break;
     }
 
-    console.log({ selectedPath });
-
     if (!selectedPath) {
       logger.break();
       logger.error(
@@ -144,11 +151,11 @@ export async function resolveTemplateResolution({
   return {
     templatePath: type === "tooling" ? `${options.type}/${selectedPath}/base` : `${config.stack.runtime}/${config.stack.framework}/${options.type}/${selectedPath}`,
     additionalRuntimeDeps: [],
-    additionalDevDeps: []
+    additionalDevDeps: [],
   };
 }
 
-export function resolveDatabaseTemplate({
+function resolveDatabaseTemplate({
   templateConfig,
   config,
   architecture,
@@ -172,8 +179,8 @@ export function resolveDatabaseTemplate({
   //   registryItemName,
   //   formattedRegistryItemName
   // });
-  const dbType = config.database?.type;
-  const orm = config.database?.orm;
+  const dbType = config?.database?.type;
+  const orm = config?.database?.orm;
 
   if (!dbType || !orm) {
     logger.break();
@@ -184,7 +191,7 @@ export function resolveDatabaseTemplate({
     process.exit(1);
   }
 
-  const dbConfig = templateConfig.databases[dbType];
+  const dbConfig = templateConfig?.databases[dbType];
   if (!dbConfig || !dbConfig.orms[orm]) {
     logger.break();
     logger.error(
@@ -197,7 +204,6 @@ export function resolveDatabaseTemplate({
   const archOptions = dbConfig.orms[orm].templates;
 
   const selectedConfig = archOptions[formattedRegistryItemName][architecture];
-  console.log({ selectedConfig });
   if (!selectedConfig) return undefined;
 
   // Handle variants (e.g., minimal vs advanced) if they exist
@@ -207,7 +213,7 @@ export function resolveDatabaseTemplate({
     : selectedConfig[variant];
 }
 
-export async function resolvePromptVariants({
+async function resolvePromptVariants({
   component,
   runtime,
   architecture,
@@ -223,9 +229,9 @@ export async function resolvePromptVariants({
   templatePath: string;
   additionalRuntimeDeps: string[];
   additionalDevDeps: string[];
+  selectedProvider: string;
 }> {
   const variantConfig = component.runtimes[runtime].frameworks[framework];
-
   const choices = Object.entries(variantConfig?.variants || {}).map(
     ([key, value]: [string, { label: string }]) => {
       return {
@@ -234,8 +240,6 @@ export async function resolvePromptVariants({
       };
     }
   );
-
-  // console.log({ variantConfig })
 
   const { variant } = await prompts({
     type: "select",
@@ -270,16 +274,21 @@ export async function resolvePromptVariants({
     additionalRuntimeDeps:
       variantConfig?.variants?.[variant]?.dependencies?.runtime ?? [],
     additionalDevDeps:
-      variantConfig?.variants?.[variant]?.dependencies?.dev ?? []
+      variantConfig?.variants?.[variant]?.dependencies?.dev ?? [],
+    selectedProvider: variant
   };
 }
 
-export async function runPostInstallHooks(
-  componentName: string,
+export async function runPostInstallHooks({ component, registryItemName, type, runtime, framework, selectedProvider }: {
+  registryItemName: string,
+  selectedProvider: string,
   type: RegistryType,
-  component: any
+  component: any,
+  runtime: RuntimeType,
+  framework: FrameworkType
+}
 ) {
-  if (type === "tooling" && componentName === "husky") {
+  if (type === "tooling" && registryItemName === "husky") {
     try {
       await execa("npx", ["husky", "init"], { stdio: "inherit" });
     } catch {
@@ -287,21 +296,38 @@ export async function runPostInstallHooks(
         "Could not initialize husky automatically. Please run 'npx husky init' manually."
       );
     }
-  }
+  } else {
 
-  const filterEnvs = component.env?.filter((env: string) => env !== "");
+    let filterEnvs: Array<string> = []
+    switch (type) {
+      case 'component':
+        const registry = component?.runtimes[runtime]?.frameworks[framework];
 
-  if (filterEnvs?.length > 0) {
-    updateEnvKeys({
-      envFile: ".env.example",
-      envKeys: filterEnvs,
-      label: componentName
-    });
-    updateEnvKeys({
-      envFile: ".env",
-      envKeys: filterEnvs,
-      label: componentName
-    });
+        if (registry?.prompt) {
+          filterEnvs = registry?.variants[selectedProvider]?.env?.filter((env: string) => env !== "");
+        } else {
+          filterEnvs = registry?.env?.filter((env: string) => env !== "");
+        }
+
+        break;
+
+      default:
+        break;
+    }
+
+
+    if (filterEnvs?.length > 0) {
+      updateEnvKeys({
+        envFile: ".env.example",
+        envKeys: filterEnvs,
+        label: registryItemName
+      });
+      updateEnvKeys({
+        envFile: ".env",
+        envKeys: filterEnvs,
+        label: registryItemName
+      });
+    }
   }
 }
 
