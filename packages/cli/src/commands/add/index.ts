@@ -132,13 +132,13 @@ export async function scaffoldFiles(
   const IS_TESTING = options.local ?? false;
   const targetDir = paths.targets(".");
 
- 
+
   const spin = spinner("Scaffolding files...")?.start();
 
+  const templateDir = path.resolve(paths.templates(), templatePath);
   if (IS_TESTING) {
-    const templateDir = path.resolve(paths.templates(), templatePath);
     if (!(await fs.pathExists(templateDir))) {
-      logger.error(`Template not found: ${templateDir}`);
+      logger.error(`\nTemplate not found: ${templateDir}\nCheck your servercn configuration.\n`);
       process.exit(1);
     }
 
@@ -150,6 +150,10 @@ export async function scaffoldFiles(
       dryRun: options.force
     });
   } else {
+    if (!(await fs.pathExists(templateDir))) {
+      logger.error("\nTemplate not available for this stack.\nCheck your servercn configuration.\n");
+      process.exit(1);
+    }
     await cloneRegistryTemplate({
       targetDir,
       templateDir: templatePath,
