@@ -20,7 +20,7 @@ export const ArchitectureList = ["mvc", "feature"] as const;
 
 export const DatabaseList = ["mongodb", "postgresql", "mysql"] as const;
 
-export const OrmList = ["mongoose", "drizzle", "prisma"] as const;
+export const OrmList = ["mongoose", "drizzle"] as const;
 
 export const RegistryTypeList = [
   "component",
