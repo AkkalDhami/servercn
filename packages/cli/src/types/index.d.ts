@@ -172,6 +172,28 @@ export interface RegistrySchema extends IRegistryCommon {
   };
 }
 
+//? registry:blueprint
+export interface BlueprintOrm {
+  templates: ArchitectureSet;
+  dependencies: DependencySet
+}
+
+export interface BlueprintDatabase {
+  orms: Record<OrmType, BlueprintOrm>;
+}
+
+export interface BlueprintFramework {
+  databases: Record<DatabaseType, BlueprintDatabase>;
+}
+export interface NodeBlueprinttime {
+  frameworks: Record<FrameworkType, BlueprintFramework>
+}
+
+export interface RegistryBlueprint extends IRegistryCommon {
+  runtimes: {
+    node: NodeBlueprinttime;
+  };
+}
 
 //? registry:tooling
 export interface RegistryTooling extends IRegistryCommon {
@@ -179,13 +201,7 @@ export interface RegistryTooling extends IRegistryCommon {
   dependencies?: DependencySet;
 }
 
-//? registry:blueprint
-export interface RegistryBlueprint extends IRegistryCommon {
-  runtimes: {
-    node: NodeSchemaRuntime;
-  };
-  dependencies: Record<string, DependencySet>;
-}
+s.runtimes.node.frameworks.express.databases.mongodb.orms.mongoose.t
 
 export interface RegistryMap {
   component: RegistryComponent;
@@ -199,5 +215,3 @@ export type RegistryItem = RegistryMap[keyof RegistryMap];
 export type RuntimeRegistryItem =
   | RegistryComponent
   | RegistryBlueprint
-
-// | RegistrySchema
