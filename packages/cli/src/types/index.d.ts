@@ -23,6 +23,7 @@ export interface AddOptions {
   stack?: StackConfig;
   arch?: Architecture;
   force?: boolean;
+  local?: boolean;
   variant?: string;
 }
 export interface CopyOptions {
@@ -151,6 +152,7 @@ export interface RegistryFoundation extends IRegistryCommon {
 //? registry:schema
 export interface SchemaOrm {
   templates: Record<string, ArchitectureSet>;
+  dependencies: DependencySet
 }
 
 export interface SchemaDatabase {
@@ -161,18 +163,15 @@ export interface SchemaFramework {
   databases: Record<DatabaseType, SchemaDatabase>;
 }
 export interface NodeSchemaRuntime {
-  frameworks: {
-    express?: SchemaFramework;
-    nest?: SchemaFramework;
-  };
+  frameworks: Record<FrameworkType, SchemaFramework>
 }
 
 export interface RegistrySchema extends IRegistryCommon {
   runtimes: {
     node: NodeSchemaRuntime;
   };
-  dependencies: Record<string, DependencySet>;
 }
+
 
 //? registry:tooling
 export interface RegistryTooling extends IRegistryCommon {

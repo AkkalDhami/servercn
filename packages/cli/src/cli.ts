@@ -36,6 +36,7 @@ async function main() {
       "advanced"
     )
     .option("-f, --force", "Force overwrite existing files")
+    .option("--local", "Add registry items from local environment(development runtime)")
     .action(
       async (
         components: string[],
@@ -43,6 +44,7 @@ async function main() {
           arch: Architecture;
           variant: "minimal" | "advanced";
           force: boolean;
+          local: boolean;
         }
       ) => {
         let type: RegistryType = "component";
@@ -66,7 +68,8 @@ async function main() {
             arch: options.arch,
             variant: options.variant,
             type: type,
-            force: options.force
+            force: options.force,
+            local: options.local
           });
         }
       }
