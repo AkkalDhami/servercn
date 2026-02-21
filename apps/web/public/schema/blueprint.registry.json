@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ServerCN Blueprint Registry Schema",
+  "description": "Validates ServerCN blueprint registry (runtime → framework → database → orm → architecture).",
+  "type": "object",
+
+  "required": ["slug", "runtimes"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "Schema reference URL"
+    },
+
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case blueprint identifier"
+    },
+
+    "runtimes": {
+      "type": "object",
+      "required": ["node"],
+      "additionalProperties": false,
+      "description": "Runtime configurations",
+      "properties": {
+        "node": {
+          "$ref": "#/$defs/nodeRuntime"
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "nodeRuntime": {
+      "type": "object",
+      "required": ["frameworks"],
+      "additionalProperties": false,
+      "description": "Node.js runtime configuration",
+      "properties": {
+        "frameworks": {
+          "type": "object",
+          "required": ["express"],
+          "additionalProperties": false,
+          "description": "Supported frameworks",
+          "properties": {
+            "express": {
+              "$ref": "#/$defs/framework"
+            }
+          }
+        }
+      }
+    },
+
+    "framework": {
+      "type": "object",
+      "required": ["databases"],
+      "additionalProperties": false,
+      "description": "Framework configuration",
+      "properties": {
+        "databases": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Supported databases",
+          "properties": {
+            "mysql": {
+              "$ref": "#/$defs/sqlDatabase"
+            },
+            "postgresql": {
+              "$ref": "#/$defs/sqlDatabase"
+            },
+            "mongodb": {
+              "$ref": "#/$defs/mongodbDatabase"
+            }
+          }
+        }
+      }
+    },
+
+    "mongodbDatabase": {
+      "type": "object",
+      "required": ["orms"],
+      "additionalProperties": false,
+      "description": "MongoDB configuration (Mongoose only)",
+      "properties": {
+        "orms": {
+          "type": "object",
+          "required": ["mongoose"],
+          "additionalProperties": false,
+          "properties": {
+            "mongoose": {
+              "$ref": "#/$defs/orm"
+            }
+          }
+        }
+      }
+    },
+
+    "sqlDatabase": {
+      "type": "object",
+      "required": ["orms"],
+      "additionalProperties": false,
+      "description": "SQL database configuration (Drizzle only)",
+      "properties": {
+        "orms": {
+          "type": "object",
+          "required": ["drizzle"],
+          "additionalProperties": false,
+          "properties": {
+            "drizzle": {
+              "$ref": "#/$defs/orm"
+            }
+          }
+        }
+      }
+    },
+
+    "orm": {
+      "type": "object",
+      "required": ["templates", "dependencies"],
+      "additionalProperties": false,
+      "description": "ORM configuration including architecture templates and dependencies",
+      "properties": {
+        "templates": {
+          "$ref": "#/$defs/architectureTemplates"
+        },
+        "dependencies": {
+          "$ref": "#/$defs/dependencySet"
+        }
+      }
+    },
+
+    "architectureTemplates": {
+      "type": "object",
+      "description": "Architecture template paths",
+      "additionalProperties": false,
+      "properties": {
+        "mvc": {
+          "type": "string",
+          "description": "MVC architecture template path"
+        },
+        "feature": {
+          "type": "string",
+          "description": "Feature-based architecture template path"
+        }
+      },
+      "minProperties": 1
+    },
+
+    "dependencySet": {
+      "type": "object",
+      "description": "Dependency definitions for an ORM",
+      "additionalProperties": false,
+      "properties": {
+        "runtime": {
+          "type": "array",
+          "description": "Runtime dependencies",
+          "items": { "type": "string" }
+        },
+        "dev": {
+          "type": "array",
+          "description": "Development dependencies",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
