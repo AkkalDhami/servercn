@@ -1,16 +1,17 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ServerCN Registry Schema",
-  "description": "Validates ServerCN registry:schema entries (runtime → framework → database → orm → module → architecture).",
+  "description": "Validates ServerCN registry schema (runtime → framework → database → orm → module → architecture).",
   "type": "object",
 
-  "required": ["slug", "runtimes", "dependencies"],
+  "required": ["slug", "runtimes"],
   "additionalProperties": false,
 
   "properties": {
     "$schema": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "const": "https://servercn.vercel.app/schema/schema.registry.json"
     },
 
     "slug": {
@@ -25,15 +26,9 @@
       "additionalProperties": false,
 
       "properties": {
-        "node": { "$ref": "#/$defs/nodeRuntime" }
-      }
-    },
-
-    "dependencies": {
-      "type": "object",
-      "description": "Dependency sets keyed by capability (stack, db, orm)",
-      "additionalProperties": {
-        "$ref": "#/$defs/dependencySet"
+        "node": {
+          "$ref": "#/$defs/nodeRuntime"
+        }
       }
     }
   },
@@ -89,22 +84,24 @@
 
     "orm": {
       "type": "object",
-      "required": ["templates"],
+      "required": ["templates", "dependencies"],
       "additionalProperties": false,
 
       "properties": {
         "templates": {
           "type": "object",
           "minProperties": 1,
-          "description": "Module-based templates (index, otp, user, etc.)",
-          "additionalProperties": {
-            "$ref": "#/$defs/moduleTemplate"
-          },
+          "description": "Module-based templates (index, todo, user, etc.)",
           "patternProperties": {
             "^[a-z0-9-]+$": {
               "$ref": "#/$defs/moduleTemplate"
             }
-          }
+          },
+          "additionalProperties": false
+        },
+
+        "dependencies": {
+          "$ref": "#/$defs/dependencySet"
         }
       }
     },
