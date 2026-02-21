@@ -79,6 +79,7 @@ export async function resolveTemplateResolution({
             ? templateConfig
             : haveTemplates && templateConfig.templates[architecture];
         break;
+
       case "schema":
         const schemaPath = resolveDatabaseTemplate({
           templateConfig,
@@ -92,10 +93,13 @@ export async function resolveTemplateResolution({
 
         if (selectedPath) {
           const schemaDeps = resolveDependencies(
-            component,
-            framework,
-            config.database?.type as DatabaseType,
-            config.database?.orm as OrmType
+            {
+              component,
+              framework,
+              db: config.database?.type as DatabaseType,
+              orm: config.database?.orm as OrmType,
+              runtime,
+            }
           );
           return {
             templatePath: selectedPath,
@@ -104,6 +108,7 @@ export async function resolveTemplateResolution({
           };
         }
         break;
+
       case "blueprint":
         selectedPath = resolveDatabaseTemplate({
           templateConfig,
@@ -115,11 +120,13 @@ export async function resolveTemplateResolution({
 
         if (type === "blueprint" && selectedPath) {
           const result = spinner("Installing Dependencies").start();
-          const blueprintDeps = resolveDependencies(
+          const blueprintDeps = resolveDependencies({
             component,
             framework,
-            config.database?.type as DatabaseType,
-            config.database?.orm as OrmType
+            db: config.database?.type as DatabaseType,
+            orm: config.database?.orm as OrmType,
+            runtime,
+          }
           );
           result.succeed();
           return {
@@ -205,12 +212,7 @@ function resolveDatabaseTemplate({
 
   const selectedConfig = archOptions[formattedRegistryItemName][architecture];
   if (!selectedConfig) return undefined;
-
-  // Handle variants (e.g., minimal vs advanced) if they exist
-  const variant = options.variant || "advanced";
-  return typeof selectedConfig === "string"
-    ? selectedConfig
-    : selectedConfig[variant];
+  return selectedConfig
 }
 
 async function resolvePromptVariants({
@@ -332,29 +334,14 @@ export async function runPostInstallHooks({ component, registryItemName, type, r
 }
 
 function resolveDependencies(
-  component: RegistrySchema,
-  framework: FrameworkType,
-  db: DatabaseType,
-  orm: OrmType
+  { component, framework, db, orm, runtime }: {
+    component: RegistrySchema,
+    framework: FrameworkType,
+    db: DatabaseType,
+    orm: OrmType,
+    runtime: RuntimeType,
+  }
 ): DependencySet {
-  const sets = component.dependencies;
-
-  const relevantKeys = [
-    "common",
-    `stack:${framework}`,
-    `db:${db}`,
-    `orm:${orm}`
-  ];
-
-  return relevantKeys.reduce<DependencySet>(
-    (acc, key) => {
-      const set = sets[key];
-      if (set) {
-        acc?.runtime?.push(...(set.runtime || []));
-        acc?.dev?.push(...(set.dev || []));
-      }
-      return acc;
-    },
-    { runtime: [], dev: [] }
-  );
+  const sets = component.runtimes[runtime].frameworks[framework].databases[db].orms[orm].dependencies;
+  return sets;
 }
