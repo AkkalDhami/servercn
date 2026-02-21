@@ -11,7 +11,7 @@
     "$schema": {
       "type": "string",
       "format": "uri",
-      "const": "https://servercn.vercel.app/schema/schema.registry.json"
+      "description": "Schema reference URL"
     },
 
     "slug": {
@@ -22,9 +22,9 @@
 
     "runtimes": {
       "type": "object",
+      "description": "Runtime configurations",
       "required": ["node"],
       "additionalProperties": false,
-
       "properties": {
         "node": {
           "$ref": "#/$defs/nodeRuntime"
@@ -36,15 +36,19 @@
   "$defs": {
     "nodeRuntime": {
       "type": "object",
+      "description": "Node.js runtime configuration",
       "required": ["frameworks"],
       "additionalProperties": false,
-
       "properties": {
         "frameworks": {
           "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "$ref": "#/$defs/framework"
+          "description": "Supported frameworks",
+          "required": ["express"],
+          "additionalProperties": false,
+          "properties": {
+            "express": {
+              "$ref": "#/$defs/framework"
+            }
           }
         }
       }
@@ -52,31 +56,62 @@
 
     "framework": {
       "type": "object",
+      "description": "Framework configuration",
       "required": ["databases"],
       "additionalProperties": false,
-
       "properties": {
         "databases": {
           "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "$ref": "#/$defs/database"
+          "description": "Supported databases",
+          "additionalProperties": false,
+          "properties": {
+            "mongodb": {
+              "$ref": "#/$defs/mongodbDatabase"
+            },
+            "mysql": {
+              "$ref": "#/$defs/sqlDatabase"
+            },
+            "postgresql": {
+              "$ref": "#/$defs/sqlDatabase"
+            }
           }
         }
       }
     },
 
-    "database": {
+    "mongodbDatabase": {
       "type": "object",
+      "description": "MongoDB database configuration (Mongoose only)",
       "required": ["orms"],
       "additionalProperties": false,
-
       "properties": {
         "orms": {
           "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "$ref": "#/$defs/orm"
+          "required": ["mongoose"],
+          "additionalProperties": false,
+          "properties": {
+            "mongoose": {
+              "$ref": "#/$defs/orm"
+            }
+          }
+        }
+      }
+    },
+
+    "sqlDatabase": {
+      "type": "object",
+      "description": "SQL database configuration (Drizzle only)",
+      "required": ["orms"],
+      "additionalProperties": false,
+      "properties": {
+        "orms": {
+          "type": "object",
+          "required": ["drizzle"],
+          "additionalProperties": false,
+          "properties": {
+            "drizzle": {
+              "$ref": "#/$defs/orm"
+            }
           }
         }
       }
@@ -84,14 +119,14 @@
 
     "orm": {
       "type": "object",
+      "description": "ORM configuration including templates and dependencies",
       "required": ["templates", "dependencies"],
       "additionalProperties": false,
-
       "properties": {
         "templates": {
           "type": "object",
-          "minProperties": 1,
           "description": "Module-based templates (index, todo, user, etc.)",
+          "minProperties": 1,
           "patternProperties": {
             "^[a-z0-9-]+$": {
               "$ref": "#/$defs/moduleTemplate"
@@ -108,8 +143,8 @@
 
     "moduleTemplate": {
       "type": "object",
+      "description": "Architecture-based template paths",
       "additionalProperties": false,
-
       "properties": {
         "mvc": {
           "type": "string",
@@ -120,21 +155,22 @@
           "description": "Feature-based architecture template path"
         }
       },
-
       "minProperties": 1
     },
 
     "dependencySet": {
       "type": "object",
+      "description": "Dependency definitions for an ORM",
       "additionalProperties": false,
-
       "properties": {
         "runtime": {
           "type": "array",
+          "description": "Runtime dependencies",
           "items": { "type": "string" }
         },
         "dev": {
           "type": "array",
+          "description": "Development dependencies",
           "items": { "type": "string" }
         }
       }
