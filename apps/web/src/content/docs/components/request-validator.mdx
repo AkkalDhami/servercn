@@ -406,27 +406,19 @@ This middleware is designed for **type-safe, schema-based validation** in REST A
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+<Note text="👉 You do not need to install any ServerCN components manually.
+Running this component installer will automatically install all required components.
+Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
 ### 1. Install ServerCN components(Optional)
 
-- **HTTP Status Codes:**
+- [HTTP Status Codes](/docs/components/http-status-codes)
 
-<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
-
-Documentation: [HTTP Status Codes](/docs/components/http-status-codes)
-
-- **API Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add error-handler" />
-
-Documentation: [API Error Handler](/docs/components/error-handler)
+- [API Error Handler](/docs/components/error-handler)
 
 ### 2. Install this component
 
 <PackageManagerTabs command="npx servercn-cli add request-validator" />
-
-> ⚠️ If these dependencies are not installed, the component will not function correctly.
 
 ## How Validation Works
 
@@ -442,39 +434,9 @@ This ensures **type-safe request handling** with clear validation error messages
 
 ## Middleware Implementation
 
-### 1. MVC Structure
 
-<Code children="src/middlewares/validate-request.ts" />
-
-```ts
-import { Request, Response, NextFunction } from "express";
-import z, { ZodError, type ZodObject } from "zod";
-
-import { ApiError } from "../utils/api-error";
-
-export const validateRequest = (schema: ZodObject<any>) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      schema.parse(req.body);
-
-      next();
-    } catch (error) {
-      if (!(error instanceof ZodError)) {
-        return next(error);
-      }
-
-      throw ApiError.badRequest(
-        "Invalid request data",
-        z.flattenError(error).fieldErrors || z.flattenError(error)
-      );
-    }
-  };
-};
-```
-
-### 2. Feature Structure
-
-<Code children="src/shared/middlewares/validate-request.ts" />
+#### MVC: <Code children="src/middlewares/validate-request.ts" />
+#### Feature: <Code children="src/shared/middlewares/validate-request.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -506,24 +468,8 @@ export const validateRequest = (schema: ZodObject<any>) => {
 
 Create validation schemas using Zod.
 
-### 1. MVC Structure
-
-<Code children="src/validations/user.validation.ts" />
-
-```ts
-import z from "zod";
-
-export const createUserSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  age: z.number().int().min(18).max(100).optional()
-});
-```
-
-### 2. Feature Structure
-
-<Code children="src/modules/user/user.validation.ts" />
+#### MVC: <Code children="src/validations/user.validation.ts" />
+#### Feature: <Code children="src/modules/user/user.validation.ts" />
 
 ```ts
 import z from "zod";
@@ -540,31 +486,12 @@ export const createUserSchema = z.object({
 
 Apply the <Code children="validateRequest" /> middleware to your routes with the appropriate schema.
 
-### 1. MVC Structure
 
 <Code children="src/routes/user.routes.ts" />
 
-```ts
+```ts {2} /validateRequest(createUserSchema)/
 import { Router } from "express";
 import { validateRequest } from "../middlewares/validate-request";
-import { createUserSchema } from "./user.validation";
-
-const router = Router();
-
-router.post("/", validateRequest(createUserSchema), (req, res) => {
-  return res.status(201).json({ success: true, data: req.body });
-});
-
-export default router;
-```
-
-### 2. Feature Structure
-
-<Code children="src/modules/user/user.routes.ts" />
-
-```ts
-import { Router } from "express";
-import { validateRequest } from "../../shared/middlewares/validate-request";
 import { createUserSchema } from "./user.validation";
 
 const router = Router();

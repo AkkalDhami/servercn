@@ -1,18 +1,21 @@
 {
-  "title": "Request Validator(Zod)",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "request-validator",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/request-validator/express/mvc",
-      "feature": "components/request-validator/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "request-validator/mvc",
+            "feature": "request-validator/feature"
+          },
+          "dependencies": {
+            "runtime": ["zod"],
+            "dev": [""]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express", "zod"],
-    "dev": ["@types/express"]
-  },
-  "env": []
+  }
 }
