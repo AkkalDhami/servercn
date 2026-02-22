@@ -1,0 +1,39 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "logger",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "prompt": "Select a logging library: ",
+          "variants": {
+            "pino": {
+              "label": "Pino (High-performance structured JSON logger)",
+              "templates": {
+                "feature": "logger/pino/feature",
+                "mvc": "logger/pino/mvc"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": ["pino", "pino-pretty", "pino-http"],
+                "dev": []
+              }
+            },
+            "winston": {
+              "label": "Winston (Flexible multi-transport logger)",
+              "templates": {
+                "feature": "logger/winston/feature",
+                "mvc": "logger/winston/mvc"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": ["winston", "winston-daily-rotate-file"],
+                "dev": []
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
