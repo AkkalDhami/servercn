@@ -1,17 +1,21 @@
 {
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "rate-limiter",
-  "title": "Rate Limiter",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["feature", "mvc"],
-  "templates": {
-    "express": {
-      "mvc": "components/rate-limiter/express/mvc",
-      "feature": "components/rate-limiter/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "rate-limiter/mvc",
+            "feature": "rate-limiter/feature"
+          },
+          "dependencies": {
+            "runtime": ["express-rate-limit"],
+            "dev": [""]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express-rate-limit", "express"],
-    "dev": ["@types/express"]
   }
 }
