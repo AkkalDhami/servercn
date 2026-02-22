@@ -88,62 +88,39 @@ The **RBAC** component provides a clean and reusable middleware to restrict API 
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+<Note text="👉 You do not need to install any ServerCN components manually.
+Running this component installer will automatically install all required components.
+Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
 ### 1. Install ServerCN components(Optional)
 
-- **HTTP Status Codes:**
+- [HTTP Status Codes](/docs/components/http-status-codes)
 
-<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
+- [Api Response Handler](/docs/components/response-formatter)
 
-Documentation:
-[HTTP Status Codes](/docs/components/http-status-codes)
+- [Api Error Handler](/docs/components/error-handler)
 
-- **Api Response Handler:**
+- [JWT Authentication](/docs/components/jwt-auth)
 
-<PackageManagerTabs command="npx servercn-cli add response-formatter" />
-
-Documentation:
-[Api Response Handler](/docs/components/response-formatter)
-
-- **Api Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add error-handler" />
-
-Documentation:
-[Api Error Handler](/docs/components/error-handler)
-
-- **JWT Authentication:**
-
-<PackageManagerTabs command="npx servercn-cli add jwt-utils" />
-
-Documentation:
-[JWT Authentication](/docs/components/jwt-auth)
-
-- **Logger:**
-
-<PackageManagerTabs command="npx servercn-cli add logger" />
-
-Documentation:
-[Logger](/docs/components/logger)
+- [Logger](/docs/components/logger)
 
 ### 2. Install this component
 
 <PackageManagerTabs command="npx servercn-cli add rbac" />
 
-> ⚠️ If this dependency is not installed, the component will not function correctly.
+<Warning text="If this dependency is not installed, the component will not function correctly." />
 
 ## Prerequisites
 
 This component assumes you have:
 
-1.  **Authentication Middleware**: Detailed in the [JWT Auth](/docs/components/jwt-auth) component.
+1.  **Authentication Middleware**: Detailed in the [Verify Auth Middleware](/docs/components/verify-auth-middleware) component.
 2.  **User Model**: Your user schema/model should include a <Code children="role" /> field.
 3.  **Populated User**: Your <Code children="req.user" /> object must contain the <Code children="role" /> property.
 
-> **Note**: If your authentication middleware only attaches the user ID (e.g., from a JWT payload), you may need to fetch the full user profile or include the role in the JWT payload.
+<Note text="If your authentication middleware only attaches the user ID (e.g., from a JWT payload), you may need to fetch the full user profile or include the role in the JWT payload." />
 
-\***\*Or follow the guides:\*\***
+#### Or follow the guides:
 
 Ensure the following environment variables are defined in **.env**:
 
@@ -341,7 +318,7 @@ export const authorizeRoles = (...allowedRoles: userRoles[]) => {
 
 Use <Code children="authorizeRoles" /> in your route definitions. It typically runs **after** your authentication middleware.
 
-```ts
+```ts {5, 12}
 import { Response, Router } from "express";
 import { verifyAuthentication } from "../middlewares/verify-auth";
 import { UserRequest } from "../types/user";

@@ -1,18 +1,21 @@
 {
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "rbac",
-  "title": "Role Based Access Control(RBAC)",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["feature", "mvc"],
-  "templates": {
-    "express": {
-      "mvc": "components/rbac/express/mvc",
-      "feature": "components/rbac/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "rbac/mvc",
+            "feature": "rbac/feature"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": [""]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express", "dotenv", "pino"],
-    "dev": ["@types/express"],
-    "peer": []
   }
 }
