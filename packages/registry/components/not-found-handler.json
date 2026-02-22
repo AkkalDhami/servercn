@@ -1,17 +1,21 @@
 {
-  "title": "Not Found Handler",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "not-found-handler",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/not-found-handler/express/mvc",
-      "feature": "components/not-found-handler/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "not-found-handler/mvc",
+            "feature": "not-found-handler/feature"
+          },
+          "dependencies": {
+            "runtime": ["pino", "pino-pretty"],
+            "dev": []
+          },
+          "env": ["NODE_ENV", "LOG_LEVEL", "PORT"]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express", "pino", "pino-pretty", "dotenv"],
-    "dev": ["@types/express"]
   }
 }
