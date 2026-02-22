@@ -1,18 +1,21 @@
 {
-  "title": "JWT Utilities",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "jwt-utils",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/jwt-utils/express/mvc",
-      "feature": "components/jwt-utils/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "jwt-utils/mvc",
+            "feature": "jwt-utils/feature"
+          },
+          "dependencies": {
+            "runtime": ["jsonwebtoken"],
+            "dev": ["@types/jsonwebtoken"]
+          },
+          "env": ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["jsonwebtoken", "express"],
-    "dev": ["@types/jsonwebtoken", "@types/express"]
-  },
-  "env": ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]
+  }
 }

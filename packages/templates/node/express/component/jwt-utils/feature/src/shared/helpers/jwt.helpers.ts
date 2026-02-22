@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import env from "../../shared/configs/env";
+import env from "../configs/env";
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
