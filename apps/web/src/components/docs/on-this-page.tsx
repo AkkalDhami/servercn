@@ -16,7 +16,6 @@ export function OnThisPage() {
 
   useEffect(() => {
     const container = document.getElementById("docs-content");
-    console.log({ container });
     if (!container) return;
 
     const slugger = new GithubSlugger();

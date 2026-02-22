@@ -33,19 +33,17 @@ export default async function PackageManagerTabs({
     <Tabs
       defaultValue="npm"
       className={cn(
-        "dark:code-theme xsm:max-w[360px] my-6 max-w-[320px] overflow-auto rounded-md border-0 sm:max-w-200"
+        "xsm:max-w[340px] my-6 max-w-90 overflow-auto rounded-md border-0 sm:max-w-200"
       )}
       style={{ backgroundColor: bg }}>
-      <TabsList
-        className={cn("dark:code-theme pl-3")}
-        style={{ backgroundColor: bg }}>
+      <TabsList className={cn("pl-3")} style={{ backgroundColor: bg }}>
         <TerminalIcon className="mr-4 size-5 text-neutral-400" />
         {Object.keys(managers).map(m => (
           <TabsTrigger
             key={m}
             value={m}
             className={cn(
-              "dark:data-[state=active]:bg-editor data-[state=active]:bg-editor flex items-center gap-2 font-medium text-neutral-400 data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:text-white"
+              "flex items-center gap-2 font-medium text-neutral-400 data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:text-white"
             )}
             style={{ backgroundColor: bg }}>
             <Image

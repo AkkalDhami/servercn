@@ -25,8 +25,8 @@ export default function ThemeToggle() {
   const toggleTheme = async () => {
     const result = await toggleCodeTheme(currentTheme || "dark", codeTheme);
     setTheme(result.appTheme);
-    setCodeTheme(result.codeTheme);
     setBg(result.codeThemeBg);
+    setCodeTheme(result.codeTheme);
   };
 
   return (

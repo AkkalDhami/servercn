@@ -102,8 +102,10 @@ export default function DocsSidebar({
                 const isNested =
                   item.type === "schema" || item.type === "blueprint";
 
+                // console.log({ item });
+
                 return (
-                  <li key={`${item.slug + i}`}>
+                  <li key={`${item.slug + item.url}`}>
                     <Link
                       onClick={onLinkClickAction}
                       href={item.url as Route}
