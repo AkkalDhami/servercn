@@ -36,7 +36,7 @@
         "children": [
           {
             "type": "file",
-            "name": "auth.controller.ts",
+            "name": "oauth.controller.ts",
             "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile } from \"passport-google-oauth20\";\n\n//? import servercn components\nimport { ApiResponse } from \"../utils/api-response\";\nimport { AsyncHandler } from \"../utils/async-handler\";\nimport { ApiError } from \"../utils/api-error\";\n\n//? login with google\nexport const googleOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as Profile | undefined;\n    const user = data?._json;\n\n    if (!user || !data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    const userInfo = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: data?.emails && data?.emails[0]?.verified,\n      avatar: data.profileUrl || (data.photos && data.photos[0].value)\n    };\n\n    const userInfo2 = {\n      provider: data?.provider,\n      providerId: user.sub,\n      name: user.name,\n      email: user.email,\n      isEmailVerified: user.email_verified,\n      avatar: user.picture\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      userInfo,\n      userInfo2\n    });\n  }\n);\n"
           }
         ]
@@ -64,7 +64,7 @@
           {
             "type": "file",
             "name": "auth.routes.ts",
-            "content": "import { Router } from \"express\";\nimport passport from \"passport\";\n\nimport { googleOAuth } from \"../controllers/auth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
+            "content": "import { Router } from \"express\";\nimport passport from \"passport\";\n\nimport { googleOAuth } from \"../controllers/oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
           }
         ]
       },
