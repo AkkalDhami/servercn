@@ -6,6 +6,7 @@ import { logger } from "@/utils/logger";
 
 export type listOptionType = {
   json?: boolean;
+  all?: boolean;
 };
 
 type listOverviewType = {
@@ -28,6 +29,11 @@ export async function listOverview(options: listOptionType) {
   const foundations = await loadRegistry("foundation");
   const toolings = await loadRegistry("tooling");
   const schemas = await loadRegistry("schema");
+
+  if (options.all) {
+    return await getRegistryLists("blueprint", options)
+  }
+
   const data: listOverviewType = {
     command: "npx servercn-cli list <type>",
     types: [
@@ -123,6 +129,7 @@ export async function listComponents(options: listOptionType) {
 
   if (options?.json) {
     process.stdout.write(JSON.stringify(data, null, 2));
+    logger.break();
     return;
   }
 
@@ -141,27 +148,27 @@ export async function listComponents(options: listOptionType) {
 }
 
 export async function listFoundations(options: listOptionType) {
-  logger.break();
-  logger.info("Available Foundations");
   const foundations = await loadRegistry("foundation");
 
   const data = {
     type: "foundation",
     command: `npx servercn-cli init <foundation-name>`,
     total: foundations.length,
-    items: foundations.map(c => ({
-      name: c.slug,
-      command: `npx servercn-cli init ${c.slug}`
-    }))
+    items: foundations.
+      sort((a, b) => a.slug.localeCompare(b.slug)).map(c => ({
+        name: c.slug,
+        command: `npx servercn-cli init ${c.slug}`
+      }))
   } satisfies listRegistryDataType;
 
   if (options?.json) {
-    logger.break();
     process.stdout.write(JSON.stringify(data, null, 2));
     logger.break();
     return;
   }
 
+  logger.break();
+  logger.info("Available Foundations");
   foundations.map((c, i) => {
     logger.log(` ${i + 1}. ${c.slug}`);
   });
@@ -177,8 +184,6 @@ export async function listFoundations(options: listOptionType) {
 }
 
 export async function listTooling(options: listOptionType) {
-  logger.break();
-  logger.info("Available Tooling");
 
   const toolings = await loadRegistry("tooling");
 
@@ -193,12 +198,13 @@ export async function listTooling(options: listOptionType) {
   } satisfies listRegistryDataType;
 
   if (options?.json) {
-    logger.break();
     process.stdout.write(JSON.stringify(data, null, 2));
     logger.break();
     return;
   }
 
+  logger.break();
+  logger.info("Available Tooling");
   toolings.map((c, i) => {
     logger.log(` ${i + 1}. ${c.slug}`);
   });
@@ -214,26 +220,26 @@ export async function listTooling(options: listOptionType) {
 }
 
 export async function listSchemas(options: listOptionType) {
-  logger.break();
-  logger.info("Available Schemas");
-
   const schemas = await loadRegistry("schema");
   const data = {
     type: "schema",
     command: `npx servercn-cli add schema <schema-name>`,
     total: schemas.length,
-    items: schemas.map(c => ({
-      name: c.slug,
-      command: `npx servercn-cli add schema ${c.slug}`
-    }))
+    items: schemas
+      .sort((a, b) => a.slug.localeCompare(b.slug))
+      .map(c => ({
+        name: c.slug,
+        command: `npx servercn-cli add schema ${c.slug}`
+      }))
   } satisfies listRegistryDataType;
 
   if (options?.json) {
-    logger.break();
     process.stdout.write(JSON.stringify(data, null, 2));
     logger.break();
     return;
   }
+  logger.break();
+  logger.info("Available Schemas");
 
   schemas.map((c, i) => {
     logger.log(` ${i + 1}. ${c.slug}`);
@@ -248,8 +254,6 @@ export async function listSchemas(options: listOptionType) {
 }
 
 export async function listBlueprints(options: listOptionType) {
-  logger.break();
-  logger.info("Available Blueprints");
 
   const blueprints = await loadRegistry("blueprint");
 
@@ -264,12 +268,13 @@ export async function listBlueprints(options: listOptionType) {
   } satisfies listRegistryDataType;
 
   if (options?.json) {
-    logger.break();
     process.stdout.write(JSON.stringify(data, null, 2));
     logger.break();
     return;
   }
 
+  logger.break();
+  logger.info("Available Blueprints");
   blueprints.map((c, i) => {
     logger.log(` ${i + 1}. ${c.slug}`);
   });
@@ -285,19 +290,33 @@ export async function getRegistryLists(
   type: RegistryType,
   options?: listOptionType
 ) {
-  switch (type) {
-    case "component":
-      return await listComponents(options ?? { json: false });
-    case "blueprint":
-      return await listBlueprints(options ?? { json: false });
-    case "schema":
-      return await listSchemas(options ?? { json: false });
-    case "tooling":
-      return listTooling(options ?? { json: false });
-    case "foundation":
-      return await listFoundations(options ?? { json: false });
+  if (options?.all && options.json) {
+    await listComponents({ json: true });
+    await listSchemas({ json: true });
+    await listBlueprints({ json: true });
+    await listTooling({ json: true });
+    await listFoundations({ json: true });
+  } else if (options?.all) {
+    await listComponents({ json: false });
+    await listSchemas({ json: false });
+    await listBlueprints({ json: false });
+    await listTooling({ json: false });
+    await listFoundations({ json: false });
+  } else {
+    switch (type) {
+      case "component":
+        return await listComponents(options ?? { json: false });
+      case "blueprint":
+        return await listBlueprints(options ?? { json: false });
+      case "schema":
+        return await listSchemas(options ?? { json: false });
+      case "tooling":
+        return listTooling(options ?? { json: false });
+      case "foundation":
+        return await listFoundations(options ?? { json: false });
 
-    default:
-      return await listComponents(options ?? { json: false });
+      default:
+        return await listComponents(options ?? { json: false });
+    }
   }
 }

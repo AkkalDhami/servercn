@@ -15,6 +15,7 @@ export function registryListCommands(program: Command) {
     .alias("ls")
     .description("List available ServerCN resources")
     .option("--json", "Output resources as JSON")
+    .option("--all", "Display all available registries")
     .enablePositionalOptions()
     .action((options: listOptionType) => {
       listOverview(options);

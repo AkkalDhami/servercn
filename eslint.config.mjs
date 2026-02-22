@@ -17,7 +17,7 @@ const eslintConfig = defineConfig([
     ".source/**",
     "**/__index__.tsx",
     "commitlint.config.ts",
-    "packages/templates/node/express/blueprint"
+    "packages/templates/"
   ]),
   {
     rules: {
