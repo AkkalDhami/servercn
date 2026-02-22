@@ -125,7 +125,7 @@ This creates a configured project with <Code>servercn.config.json</Code>:
 
 ## <Code>list</Code>
 
-List all available registry items.
+List all available registry item commands.
 
 <PackageManagerTabs command="npx servercn-cli list" />
 
@@ -161,7 +161,7 @@ Displays all available starters, components, and schemas in a readable format.
 
 ## <Code>list --json</Code>
 
-Return registry items in JSON format.
+Return registry item commands in JSON format.
 
 <PackageManagerTabs command="npx servercn-cli ls --json" />
 
@@ -202,6 +202,18 @@ Return registry items in JSON format.
   ]
 }
 ```
+
+## <Code>list --all</Code>
+
+Return all registry items.
+
+<PackageManagerTabs command="npx servercn-cli ls --all" />
+
+## <Code>list --all --json</Code>
+
+Return all registry items in JSON structure.
+
+<PackageManagerTabs command="npx servercn-cli ls --all --json" />
 
 **Description:**  
 Outputs registry metadata in machine-readable JSON format. Useful for automation and tooling.

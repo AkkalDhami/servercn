@@ -1,7 +1,7 @@
 ---
 title: GitHub OAuth
 description: Secure GitHub OAuth authentication integration using passport, passport-github2 for Express applications.
-command: npx servercn-cli add github-oauth
+command: npx servercn-cli add oauth
 
 mvc_structure:
   - type: folder
@@ -902,48 +902,34 @@ It handles the complete OAuth 2.0 flow including authorization URL generation, t
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+<Note text="👉 You do not need to install any ServerCN components manually.
+Running this component installer will automatically install all required components.
+Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
-### 1. Install ServerCN dependencies(Optional)
+### 1. Install ServerCN components(Optional)
 
-- **HTTP Status Codes:**
+- [HTTP Status Codes](/docs/components/http-status-codes)
+- [Api Response Handler](/docs/components/api-response-handler)
+- [Api Error Handler](/docs/components/api-error-handler)
+- [Global Error Handler](/docs/components/global-error-handler)
+- [Async Handler](/docs/components/async-handler)
+- [Logger](/docs/components/logger)
 
-<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
 
-Documentation:
-[HTTP Status Codes](/docs/components/http-status-codes)
+### 2. Install this component
 
-- **Api Response Handler:**
+<PackageManagerTabs command="npx servercn-cli add oauth" />
 
-<PackageManagerTabs command="npx servercn-cli add response-formatter" />
+You will be prompted to select a file upload provider:
 
-Documentation:
-[Api Response Handler](/docs/components/response-formatter)
+```
+? Select OAuth provider:  » - Use arrow-keys. Return to submit.
+    Google
+>   GitHub
+    Google + GitHub
+```
 
-- **Api Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add error-handler" />
-
-Documentation:
-[Api Error Handler](/docs/components/error-handler)
-
-- **Global Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add global-error-handler" />
-
-Documentation:
-[Global Error Handler](/docs/components/global-error-handler)
-
-- **Async Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add async-handler" />
-
-Documentation:
-[Async Handler](/docs/components/async-handler)
-
-### 3. Install this component
-
-<PackageManagerTabs command="npx servercn-cli add github-oauth" />
+The CLI will then automatically configure the component based on your selected provider.
 
 ## Prerequisites
 
