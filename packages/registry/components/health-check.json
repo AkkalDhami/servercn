@@ -1,18 +1,21 @@
 {
-  "title": "Health Check",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "health-check",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/health-check/express/mvc",
-      "feature": "components/health-check/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "health-check/mvc",
+            "feature": "health-check/feature"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": []
+          },
+          "env": ["PORT"]
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express"],
-    "dev": ["@types/express"]
-  },
-  "env": ["PORT"]
+  }
 }
