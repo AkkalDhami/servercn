@@ -1,18 +1,21 @@
 {
-  "title": "HTTP Status Codes",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "http-status-codes",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/http-status-codes/express/mvc",
-      "feature": "components/http-status-codes/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "http-status-codes/mvc",
+            "feature": "http-status-codes/feature"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": []
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express"],
-    "dev": ["@types/express"]
-  },
-  "env": [""]
+  }
 }
