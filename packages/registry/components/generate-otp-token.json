@@ -1,17 +1,21 @@
 {
-  "title": "Generate OTP/Token",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "generate-otp-token",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/generate-otp-token/express/mvc",
-      "feature": "components/generate-otp-token/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "generate-otp-token/mvc",
+            "feature": "generate-otp-token/feature"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": []
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": [],
-    "dev": []
   }
 }
