@@ -232,9 +232,6 @@
   .border-hover {
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
-  .bg-editor {
-    @apply bg-[#ffffff] dark:bg-[#101010];
-  }
 }
 html {
   scroll-behavior: smooth;
@@ -282,6 +279,11 @@ code[data-theme*=" "] span {
 
 [data-highlighted-line] {
   background-color: var(--highlight);
+}
+
+[data-highlighted-chars] {
+  background-color: var(--highlight);
+  color: inherit;
 }
 
 @media (prefers-color-scheme: dark) {

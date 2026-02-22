@@ -7,6 +7,7 @@ import BackendStructureViewer from "../file-viewer/backend-structure-viewer";
 import Code from "./custom-code";
 import Note from "./note";
 import Warning from "./warning";
+import { cn } from "@/lib/utils";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
@@ -37,7 +38,7 @@ export const mdxComponents: MDXComponents = {
   ),
   code: props => (
     <code
-      className="thin-scrollbar max-h-120 max-w-[472.5px] overflow-x-auto rounded-md px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
+      className="thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-md px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
       {...props}
     />
   ),
@@ -54,5 +55,23 @@ export const mdxComponents: MDXComponents = {
   ol: props => (
     <ol className="text-muted-primary list-decimal space-y-3 pl-2" {...props} />
   ),
-  strong: props => <strong className="text-primary" {...props} />
+  strong: props => <strong className="text-primary" {...props} />,
+  Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
+    <h3
+      className={cn(
+        "font-heading mt-8 scroll-m-32 text-lg font-medium tracking-tight",
+        className
+      )}
+      {...props}
+    />
+  ),
+  Steps: ({ className, ...props }: React.ComponentProps<"div">) => (
+    <div
+      className={cn(
+        "[&>h3]:step steps mb-12 [counter-reset:step] md:ml-4 md:border-l md:pl-8",
+        className
+      )}
+      {...props}
+    />
+  )
 };
