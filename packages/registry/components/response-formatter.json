@@ -1,17 +1,21 @@
 {
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "response-formatter",
-  "title": "API Response Formatter",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/response-formatter/express/mvc",
-      "feature": "components/response-formatter/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "response-formatter/mvc",
+            "feature": "response-formatter/feature"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": [""]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express"],
-    "dev": ["@types/express"]
   }
 }
