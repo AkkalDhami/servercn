@@ -433,27 +433,17 @@ Built on top of <Code children="express-rate-limit" />, it provides a standardiz
 
 This component requires additional ServerCN components.
 
-**_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
+<Note text="👉 You do not need to install any ServerCN components manually.
+Running this component installer will automatically install all required components.
+Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
 ### 1. Install ServerCN components(Optional)
 
-- **HTTP Status Codes:**
+- [HTTP Status Codes](/docs/components/http-status-codes)
 
-<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
+- [API Error Handler](/docs/components/error-handler)
 
-Documentation: [HTTP Status Codes](/docs/components/http-status-codes)
-
-- **API Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add error-handler" />
-
-Documentation: [API Error Handler](/docs/components/error-handler)
-
-- **Global Error Handler:**
-
-<PackageManagerTabs command="npx servercn-cli add global-error-handler" />
-
-Documentation: [Global Error Handler](/docs/components/global-error-handler)
+- [Global Error Handler](/docs/components/global-error-handler)
 
 ### 2. Install this component
 
@@ -470,9 +460,9 @@ The rate limiter can be customized to fit your application's needs:
 
 ## Basic Implementation
 
-#### **MVC:** <Code children="src/middlewares/rate-limiter.ts" />
+#### MVC: <Code children="src/middlewares/rate-limiter.ts" />
 
-#### **Modular:** <Code children="src/shared/middlewares/rate-limiter.ts" />
+#### Modular: <Code children="src/shared/middlewares/rate-limiter.ts" />
 
 ```ts
 import { rateLimit } from "express-rate-limit";
@@ -609,7 +599,7 @@ Apply the rate limiter globally in your main <Code children="app.ts" /> file to 
 
 <Code children="src/app.ts" />
 
-```ts
+```ts {7, 2}
 import express from "express";
 import { rateLimiter } from "./middlewares/rate-limiter";
 
@@ -627,7 +617,7 @@ For sensitive routes like login, password reset, or expensive search operations,
 
 <Code children="src/routes/auth.routes.ts" />
 
-```ts
+```ts /authRateLimiter/ {2}
 import { Router } from "express";
 import { authRateLimiter } from "../middlewares/rate-limiter";
 
@@ -640,44 +630,3 @@ router.post("/login", authRateLimiter, (req, res) => {
 
 export default router;
 ```
-
-## Rate Limiter with Redis
-
-For distributed applications (multiple server instances), you should use a centralized store like Redis to sync rate limits across all instances.
-
-### 1. Install Redis adapter
-
-<PackageManagerTabs command="npm install rate-limit-redis redis" />
-
-### 2. Update Middleware
-
-```ts
-import { rateLimit } from "express-rate-limit";
-import RedisStore from "rate-limit-redis";
-import { createClient } from "redis";
-
-const redisClient = createClient({
-  /* redis config */
-});
-redisClient.connect();
-
-export const redisRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  store: new RedisStore({
-    sendCommand: (...args: string[]) => redisClient.sendCommand(args)
-  })
-});
-```
-
-## Best Practices
-
-1.  **Trust Proxy**: If your app is behind a reverse proxy (like Nginx, Heroku, Cloudflare), you must enable **trust proxy** in Express to get the real IP address.
-    ```ts
-    app.set("trust proxy", 1);
-    ```
-2.  **Informative Errors**: Always use the **handler** option to return a structured error message using **ApiError**.
-3.  **Exemptions**: If you have internal services or webhooks that should never be throttled, use the **skip** option:
-    ```ts
-    skip: (req) => req.ip === "127.0.0.1",
-    ```
