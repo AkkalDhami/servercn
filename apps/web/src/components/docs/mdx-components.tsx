@@ -8,6 +8,7 @@ import Code from "./custom-code";
 import Note from "./note";
 import Warning from "./warning";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
@@ -38,7 +39,7 @@ export const mdxComponents: MDXComponents = {
   ),
   code: props => (
     <code
-      className="thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-md px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
+      className="thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
       {...props}
     />
   ),
@@ -56,10 +57,16 @@ export const mdxComponents: MDXComponents = {
     <ol className="text-muted-primary list-decimal space-y-3 pl-2" {...props} />
   ),
   strong: props => <strong className="text-primary" {...props} />,
+  blockquote: ({ className, ...props }: React.ComponentProps<"blockquote">) => (
+    <blockquote
+      className={cn("mt-6 border-l-2 pl-6 italic", className)}
+      {...props}
+    />
+  ),
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "font-heading mt-8 scroll-m-32 text-lg font-medium tracking-tight",
+        "mt-8 scroll-m-32 text-lg font-medium tracking-tight",
         className
       )}
       {...props}
@@ -73,5 +80,49 @@ export const mdxComponents: MDXComponents = {
       )}
       {...props}
     />
+  ),
+  Tabs: ({ className, ...props }: React.ComponentProps<typeof Tabs>) => {
+    return (
+      <Tabs className={cn("relative mt-6 w-full", className)} {...props} />
+    );
+  },
+  TabsList: ({
+    className,
+    ...props
+  }: React.ComponentProps<typeof TabsList>) => (
+    <TabsList
+      className={cn(
+        "justify-start gap-4 rounded-none bg-transparent px-0",
+        className
+      )}
+      {...props}
+    />
+  ),
+  TabsTrigger: ({
+    className,
+    ...props
+  }: React.ComponentProps<typeof TabsTrigger>) => (
+    <TabsTrigger
+      className={cn(
+        "text-muted-foreground data-[state=active]:text-foreground data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
+        className
+      )}
+      {...props}
+    />
+  ),
+  TabsContent: ({
+    className,
+    ...props
+  }: React.ComponentProps<typeof TabsContent>) => (
+    <TabsContent
+      className={cn(
+        "relative [&_h3.font-heading]:text-base [&_h3.font-heading]:font-medium *:[figure]:first:mt-0 [&>.steps]:mt-6",
+        className
+      )}
+      {...props}
+    />
+  ),
+  Tab: ({ className, ...props }: React.ComponentProps<"div">) => (
+    <div className={cn(className)} {...props} />
   )
 };

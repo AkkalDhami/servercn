@@ -18,6 +18,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import registry from "@/data/registry.json";
 import { IRegistryItems } from "@/@types/registry";
+import { contributingGuides } from "@/lib/contributing";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -35,7 +36,11 @@ export async function generateStaticParams() {
     return [...slugArray, ...nestedSlugs];
   });
 
-  // Include special routes
+  const contributingParams = contributingGuides.map(({ docs }) => {
+    const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
+    return slugArray;
+  });
+
   const specialRoutes = [
     { slug: [] },
     { slug: ["introduction"] },
@@ -43,7 +48,7 @@ export async function generateStaticParams() {
     { slug: ["installation"] }
   ];
 
-  return [...specialRoutes, ...registryParams];
+  return [...specialRoutes, ...registryParams, ...contributingParams];
 }
 
 export async function generateMetadata(props: {
@@ -104,6 +109,11 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
   } else if (slug.length === 1 && slug[0] === "cli") {
     return path.join(DOCS_PATH, "guides", "cli.mdx");
+  }
+
+  if (slug.length === 2 && slug[0] === "contributing") {
+    console.log({ slug });
+    return path.join(DOCS_PATH, `${slug.join("/")}.mdx`);
   }
 
   if (slug.length === 2 && slug[0] === "schemas") {
@@ -194,7 +204,7 @@ export default async function DocsPage({
             )}
           {data.command && (
             <>
-              <h2 className="mt-8 text-2xl font-semibold tracking-tight">
+              <h2 className="my-4 text-2xl font-semibold tracking-tight">
                 Installation
               </h2>
               <PackageManagerTabs command={data.command} />

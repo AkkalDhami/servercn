@@ -26,4 +26,5 @@ export type ItemType =
   | "guide"
   | "schema"
   | "foundation"
-  | "tooling";
+  | "tooling"
+  | "contributing";

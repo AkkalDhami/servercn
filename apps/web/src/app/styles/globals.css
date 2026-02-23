@@ -233,6 +233,42 @@
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
 }
+
+@utility step {
+  counter-increment: step;
+
+  &:before {
+    @apply border-background bg-muted mr-2 inline-flex size-6 items-center justify-center rounded-full text-center -indent-px font-mono text-sm font-medium md:absolute md:-mt-1 md:-ml-12.5 md:size-9 md:border-4;
+    content: counter(step);
+  }
+}
+
+@utility extend-touch-target {
+  @media (pointer: coarse) {
+    @apply relative touch-manipulation after:absolute after:-inset-2;
+  }
+}
+
+@layer components {
+  .steps {
+    &:first-child {
+      @apply mt-0!;
+    }
+
+    &:first-child > h3:first-child {
+      @apply mt-0!;
+    }
+
+    > h3 {
+      @apply mt-8!;
+    }
+
+    > h3 + p {
+      @apply mt-2!;
+    }
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -295,7 +331,7 @@ code[data-theme*=" "] span {
 }
 h2,
 h3 {
-  scroll-margin-top: 80px;
+  scroll-margin-top: 300px;
 }
 
 .no-scrollbar {
