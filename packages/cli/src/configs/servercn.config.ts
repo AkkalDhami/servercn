@@ -5,7 +5,7 @@ export const servercnConfig = (
   config: Omit<IServerCNConfig, "$schema" | "version" | "meta">,
 ): IServerCNConfig => {
   return {
-    $schema: `${SERVERCN_URL}/schema/servercn.config.schema.json`,
+    $schema: `${SERVERCN_URL}/schema/servercn.config.registry.json`,
     version: LATEST_VERSION,
 
     project: {
