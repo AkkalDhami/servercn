@@ -6,6 +6,7 @@ import FileTree from "../file-viewer/file-tree";
 import BackendStructureViewer from "../file-viewer/backend-structure-viewer";
 import Code from "./custom-code";
 import Note from "./note";
+import LNote from "./list-note";
 import Warning from "./warning";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -17,6 +18,7 @@ export const mdxComponents: MDXComponents = {
   BackendStructureViewer,
   Code,
   Note,
+  LNote,
   Warning,
   h1: props => <h1 className="text-3xl font-bold tracking-tight" {...props} />,
   h2: props => (
@@ -27,12 +29,15 @@ export const mdxComponents: MDXComponents = {
   ),
   h3: props => (
     <h3
-      className="this-page-link mt-4 mb-4 text-xl font-medium tracking-tight"
+      className="this-page-link my-3.5 text-xl font-medium tracking-tight"
       {...props}
     />
   ),
   h4: props => (
-    <h4 className="mt-4 mb-4 text-lg font-medium tracking-tight" {...props} />
+    <h4 className="my-3.5 text-lg font-medium tracking-tight" {...props} />
+  ),
+  h5: props => (
+    <h5 className="my-3 text-[17px] font-medium tracking-tight" {...props} />
   ),
   p: props => (
     <p className="text-muted-primary mt-4 mb-3 leading-7" {...props} />

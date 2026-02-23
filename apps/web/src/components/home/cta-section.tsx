@@ -6,7 +6,7 @@ export default function CallToAction() {
   return (
     <section
       id="cta"
-      className="bg-muted relative mx-auto mb-18 flex w-full max-w-3xl flex-col justify-between gap-y-4 rounded-xl  px-4 py-20">
+      className="bg-muted relative mx-auto mb-18 flex w-full max-w-3xl flex-col justify-between gap-y-4 rounded-xl px-4 py-20">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -31,7 +31,7 @@ export default function CallToAction() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-top-left absolute -inset-1 text-muted-secondary">
+        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-top-left text-muted-secondary absolute -inset-1">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M5 19v-6a8 8 0 0 1 8 -8h6" />
       </svg>
@@ -45,7 +45,7 @@ export default function CallToAction() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-top-right absolute -top-1 -right-1 text-muted-secondary">
+        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-top-right text-muted-secondary absolute -top-1 -right-1">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M5 5h6a8 8 0 0 1 8 8v6" />
       </svg>
@@ -59,7 +59,7 @@ export default function CallToAction() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-bottom-left absolute -bottom-1 -left-1 text-muted-secondary">
+        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-bottom-left text-muted-secondary absolute -bottom-1 -left-1">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M19 19h-6a8 8 0 0 1 -8 -8v-6" />
       </svg>
@@ -73,7 +73,7 @@ export default function CallToAction() {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-bottom-right absolute -bottom-1 -right-1 text-muted-secondary">
+        className="icon icon-tabler icons-tabler-outline icon-tabler-radius-bottom-right text-muted-secondary absolute -right-1 -bottom-1">
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M19 5v6a8 8 0 0 1 -8 8h-6" />
       </svg>
@@ -88,7 +88,7 @@ export default function CallToAction() {
       </p>
 
       <div className="flex items-center justify-center gap-4">
-        <Button variant={"outline"} asChild>
+        <Button variant={"outline"} asChild className="bg-transparent">
           <Link href="/components">Browse Components</Link>
         </Button>
         <Button asChild>
