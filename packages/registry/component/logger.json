@@ -15,7 +15,7 @@
               },
               "env": ["LOG_LEVEL", "NODE_ENV"],
               "dependencies": {
-                "runtime": ["pino", "pino-pretty", "pino-http"],
+                "runtime": ["pino", "pino-pretty"],
                 "dev": []
               }
             },
