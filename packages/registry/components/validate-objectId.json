@@ -1,18 +1,21 @@
 {
-  "title": "Validate ObjectId Middleware",
-  "slug": "validate-objectId",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/validate-objectId/express/mvc",
-      "feature": "components/validate-objectId/express/feature"
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "validate-objectid",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "validate-objectid/mvc",
+            "feature": "validate-objectid/feature"
+          },
+          "dependencies": {
+            "runtime": ["mongoose"],
+            "dev": []
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["express", "mongoose"],
-    "dev": ["@types/express"]
-  },
-  "env": []
+  }
 }

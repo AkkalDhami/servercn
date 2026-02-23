@@ -272,20 +272,12 @@ Install the component using the ServerCN CLI:
 
 <PackageManagerTabs command="npx servercn-cli add validate-objectId" />
 
-## Prerequisites
-
-This middleware relies on <Code children="mongoose" /> for validation and an error handling utility for throwing exceptions.
-
-### Dependencies
-
-- **Mongoose**: For <Code children="isValidObjectId" />.
-- **Api Error Handler**: implementation of <Code children='ApiError' /> class.
 
 ## Basic Implementation
 
-### 1. MVC Structure
+#### MVC: <Code children="src/middlewares/validate-id.ts" />
+#### Feature: <Code children="src/shared/middlewares/validate-id.ts" />
 
-<Code children="src/middlewares/validate-id.ts" />
 
 ```ts
 import { Request, Response, NextFunction } from "express";
@@ -313,37 +305,12 @@ export const validateObjectId = (paramName: string = "id") => {
 };
 ```
 
-### 2. Feature Structure
-
-<Code children="src/shared/middlewares/validate-id.ts" />
-
-```ts
-import { Request, Response, NextFunction } from "express";
-import { isValidObjectId } from "mongoose";
-import { ApiError } from "../errors/api-error";
-
-export const validateObjectId = (paramName: string = "id") => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const value =
-      req.params[paramName] || req.body[paramName] || req.query[paramName];
-    if (!value) {
-      throw ApiError.badRequest(`${paramName} is required`);
-    }
-
-    if (!isValidObjectId(value)) {
-      throw ApiError.badRequest(`Invalid ${paramName}`);
-    }
-
-    next();
-  };
-};
-```
 
 ## Usage Example
 
 Apply the middleware to any route that contains an <Code children=":id" /> parameter.
 
-```ts
+```ts {2, 8, 11}
 import { Router } from "express";
 import { validateObjectId } from "../middlewares/validate-id";
 import { getUserById, deleteUser } from "../controllers/user.controller";
