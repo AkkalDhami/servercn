@@ -1,17 +1,21 @@
 {
-  "title": "Security Headers",
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
   "slug": "security-header",
-  "type": "component",
-  "stacks": ["express"],
-  "architectures": ["mvc", "feature"],
-  "templates": {
-    "express": {
-      "mvc": "components/security-header/express/mvc",
-      "feature": "components/security-header/express/feature"
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "security-header/mvc",
+            "feature": "security-header/feature"
+          },
+          "dependencies": {
+            "runtime": ["helmet", "cors"],
+            "dev": ["@types/cors"]
+          },
+          "env": []
+        }
+      }
     }
-  },
-  "dependencies": {
-    "runtime": ["helmet", "cors"],
-    "dev": ["@types/cors"]
   }
 }
