@@ -46,17 +46,18 @@ export async function add(
 
   ensureProjectFiles();
 
-  const { runtimeDeps, devDeps } = resolveDependencies(
+  const { runtimeDeps, devDeps } = resolveDependencies({
     component,
     config,
-    resolution.additionalRuntimeDeps,
-    resolution.additionalDevDeps
+    additionalRuntimeDeps: resolution.additionalRuntimeDeps,
+    additionalDevDeps: resolution.additionalDevDeps,
+  }
   );
 
   await installDependencies({
     runtime: runtimeDeps,
     dev: devDeps,
-    cwd: process.cwd()
+    cwd: process.cwd(),
   });
 
   await runPostInstallHooks({
@@ -174,10 +175,12 @@ function ensureProjectFiles() {
 
 //? Dependency Resolution
 function resolveDependencies(
-  component: RegistryItem,
-  config: IServerCNConfig,
-  additionalRuntimeDeps: string[],
-  additionalDevDeps: string[]
+  { component, config, additionalDevDeps, additionalRuntimeDeps, }: {
+    component: RegistryItem,
+    config: IServerCNConfig,
+    additionalRuntimeDeps: string[],
+    additionalDevDeps: string[],
+  }
 ) {
   // TOOLING (no runtimes)
   if (!("runtimes" in component)) {

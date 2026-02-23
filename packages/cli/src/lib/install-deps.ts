@@ -9,35 +9,38 @@ export async function installDependencies({
   dev = [],
   cwd
 }: InstallOptions) {
-  if (runtime.length < 1 || dev.length < 1) return;
+  if (runtime.length === 0 && dev.length === 0) return;
 
   const pm = detectPackageManager();
 
-  logger.log("\nInstalling Dependencies:");
-  runtime.forEach(dep => logger.info(`- ${dep}`));
+  const run = async (packages: string[], isDev: boolean) => {
+    if (packages.length === 0) return;
 
-  logger.log("\nInstalling devDependencies:");
-  dev.forEach(dep => logger.info(`- ${dep}`));
+    const label = isDev ? "devDependencies" : "dependencies";
 
-  logger.break();
-  const result = spinner("Installing Dependencies")?.start();
+    logger.log(`\nInstalling ${label}:`);
+    packages.forEach(dep => logger.info(`- ${dep}`));
+    logger.break();
 
-  const run = async (args: string[]) => {
-    await execa(pm, args, {
-      cwd,
-      stdio: "inherit"
-    });
+    const spin = spinner(`Installing ${label} with ${pm}`)?.start();
+
+    try {
+      await execa(pm, getInstallArgs(pm, packages, isDev), {
+        cwd,
+        stdio: "inherit"
+      });
+
+      spin?.succeed(
+        `Successfully installed ${packages.length} ${label}`
+      );
+    } catch (error) {
+      spin?.fail(`Failed to install ${label}`);
+      throw error;
+    }
   };
 
-  result?.succeed(
-    `Installed ${runtime.length} ${runtime.length > 1 ? "Dependencies" : "Dependency"}`
-  );
-  await run(getInstallArgs(pm, runtime, false));
-
-  await run(getInstallArgs(pm, dev, true));
-  result?.succeed(
-    `Installed ${dev.length} ${dev.length > 1 ? "devDependencies" : "devDependency"}`
-  );
+  await run(runtime, false);
+  await run(dev, true);
 }
 
 function getInstallArgs(
