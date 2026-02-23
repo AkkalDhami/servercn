@@ -8,7 +8,7 @@
           "prompt": "Select a logging library: ",
           "variants": {
             "pino": {
-              "label": "Pino (High-performance structured JSON logger)",
+              "label": "Pino (High-performancer)",
               "templates": {
                 "feature": "logger/pino/feature",
                 "mvc": "logger/pino/mvc"
@@ -20,7 +20,7 @@
               }
             },
             "winston": {
-              "label": "Winston (Flexible multi-transport logger)",
+              "label": "Winston (Flexible)",
               "templates": {
                 "feature": "logger/winston/feature",
                 "mvc": "logger/winston/mvc"
