@@ -1,0 +1,384 @@
+---
+title: Contributing foundations | ServerCN
+description: Step-by-step guide to contributing foundation to the ServerCN registry.
+---
+
+# ServerCN Foundation Contributing Guide
+
+This guide explains how to contribute a Foundation to ServerCN.
+A foundation represents a production-ready backend baseline (database, logging, security, env setup, tooling, etc.) that other foundations build upon.
+
+##  What Is a Foundation?
+
+A Foundation in ServerCN is:
+- A complete backend starting structure
+- Opinionated but extensible
+- Runtime + framework scoped
+
+Includes:
+- Templates (project structures)
+- Runtime dependencies
+- Dev dependencies
+- Required environment variables
+
+> It is not a single feature — it is the base architecture layer.
+
+Some servercn foundations:
+ - [Express Server Starter](/docs/foundations/express-server)
+ - [Drizzle PostgreSQL Starter](/docs/foundations/drizzle-pg-starter)
+ - [Drizzle MySQL Starter](/docs/foundations/drizzle-mysql-starter)
+ - [Mongoose Starter](/docs/foundations/mongoose-starter)
+
+<br/>
+---
+
+## Step-by-Step Contribution Guide
+
+<Steps>
+<Step>
+Fork & Clone the Repository
+</Step>
+Fork the ServerCN repository and clone it locally:
+[GitHub Link](https://github.com/AkkalDhami/servercn)
+
+```bash
+# Clone on your local machine
+git clone https://github.com/<your-username>/servercn.git
+
+# Navigate to project directory
+cd servercn
+
+# Create a new Branch
+git checkout -b my-new-branch
+
+# Install dependencies
+npm install
+
+# Run a workspace
+npm run dev:app 
+npm run dev:cli
+```
+
+
+<Step>
+Add Registry
+</Step>
+Each foundation must follow the registry structure:
+
+```
+packages/
+  registry/
+    foundation/
+      foundation-name.json
+```      
+
+The example below references the demo foundation:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "express-server",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "express-server/mvc",
+            "feature": "express-server/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "pino",
+              "pino-pretty",
+              "source-map-support",
+              "zod"
+            ],
+            "dev": [
+              "@types/express",
+              "typescript",
+              "dotenv",
+              "tsx",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN"]
+        }
+      }
+    }
+  }
+}
+```
+
+
+##### I. $schema
+
+- Points to the official ServerCN [foundation](https://servercn.vercel.app/schema/foundation.registry.json) schema.
+- Ensures your configuration is validated automatically.
+- If this is missing or incorrect, the foundation will fail validation.
+- Always use the official schema URL.
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+}
+```
+
+##### II. slug
+
+- Unique identifier of the foundation.
+- Must be kebab-case.
+- Used internally by CLI commands:
+
+<PackageManagerTabs command="npx servercn-cli add fd express-server" />
+
+```json
+{
+ "slug": "express-server"
+}
+```
+
+##### III. runtimes
+
+Defines which runtime environments support this foundation.
+
+```json
+"runtimes": {
+  "node": { ... },
+  "bun": { ... }
+}
+```
+<LNote>
+- Currently, node is the primary runtime.
+- Future runtimes (e.g., bun, deno) may be added.
+- Your foundation must not assume compatibility with unsupported runtimes.
+</LNote>
+
+##### IV. frameworks
+
+Specifies which frameworks the foundation supports.
+
+```json
+"frameworks": {
+  "express": { ... }
+}
+```
+<LNote>
+- Only define frameworks your templates actually support.
+- If you declare express, you must provide valid Express-compatible templates.
+- Do not declare frameworks without implementation support.
+</LNote>
+
+
+##### V. dependencies
+
+Defines packages automatically installed when the foundation is added.
+
+```json
+{
+  "dependencies": {
+      "runtime": [...],
+      "dev": [...]
+  }
+}
+```
+
+```
+| Field     | Meaning                  |
+| --------- | ------------------------ |
+| `runtime` | Production dependencies  |
+| `dev`     | Development dependencies |
+```
+
+<LNote>
+- Only include packages required by your templates.
+- Do not include unnecessary peer dependencies.
+</LNote>
+
+##### VI. templates
+
+Templates define project structure variants.
+
+```json
+{
+  "templates": {
+    "mvc": "express-server/mvc",
+    "feature": "express-server/feature"
+  }
+}
+```
+
+<LNote>
+- If you declare both, you must implement both.
+- Template folder paths must exist inside: 
+- <Code>packages/templates/node/express/foundation/new-foundation/</Code>
+</LNote>
+
+Example:
+
+```bash
+packages/
+  templates/
+    node/
+      express/
+        foundation/
+          foundation-name/
+            feature/
+            mvc/
+```      
+
+##### VII. env
+
+Defines required environment variables.
+
+```json
+{
+  "env": [
+    "LOG_LEVEL",
+    "NODE_ENV",
+    "PORT",
+    "CORS_ORIGIN",
+    "DATABASE_URL"
+  ]
+}
+```
+
+<LNote>
+- Only include truly required variables.
+- Use clear naming conventions.
+- Avoid default secrets inside templates.
+- No hardcoded credentials.
+</LNote>
+
+<Step>Add Templates</Step>
+
+Template must follow the folder structure below:
+
+```bash
+packages/
+  templates/
+    node/
+      express/
+        foundation/
+          foundation-name
+            feature/
+            mvc/
+```      
+
+<LNote>
+- Follow clean separation of concerns
+- Match selected architecture style
+- Avoid unnecessary dependencies
+- Be production-ready
+</LNote>
+
+
+<Step>Test the Component via CLI</Step>
+
+**Before submitting:**
+
+```bash
+npm run build:cli
+```
+
+<PackageManagerTabs command="npx servercn-cli add fd foundation-name --local" />
+
+- <Code>--local</Code>: Used for testing in the local environment.
+
+**Verify:**
+
+<LNote>
+- No runtime errors
+- Files generate correctly
+- Architecture mapping works
+- Stack selection works
+</LNote>
+
+
+<Step>Register in registry.json</Step>
+
+Add registry inside:
+<Code>apps/web/src/data/registry.json</Code>
+
+```json
+{
+  ...,
+  "items": [
+      {
+        "slug": "foundation-slug",
+        "title": "Foundation Title",
+        "description": "foundation short description",
+        "type": "foundation",
+        "status": "stable",
+        "docs": "/docs/foundations/foundation-slug"
+      }
+  ]
+}
+```
+
+> This configuration is used to generate the docs sidebar and display foundations in the <Code>/foundations</Code> route.
+
+<Step>Write Minimal Documentation</Step>
+
+Add mdx documentation inside:
+
+<Code>apps/web/src/content/docs/foundations/foundation-slug.mdx</Code>
+
+Keep documentation concise and technical.
+
+<Warning text="Don't forget to include `mvc_structure` and `feature_structure` in the front matter."/> 
+
+<Step>Validation Checklist Before PR</Step>
+
+- Slug is unique
+- Schema URL correct
+- Templates exist physically
+- Dependencies match imports
+- No unused packages
+- Type definitions installed
+- Foundation builds without errors
+
+
+<Step>Commit Properly</Step>
+
+Use conventional commit format:
+
+> feat(foundation): add foundation-name foundation
+
+**Example:**
+
+> feat(foundation): add drizzle-pg-starter for node/express with mvc and feature architecture
+
+<Step>Submit a Pull Request</Step>
+
+**Your PR must include:**
+<LNote>
+- Clear title
+- Foundation summary
+- Supported stacks
+- Testing confirmation
+- Foundation registry entry
+- Template directories
+
+</LNote>
+
+</Steps>
+
+## License
+
+By contributing a foundation to ServerCN, you agree that your contribution will be licensed under the MIT License.
+
+<Note text="Thank you for contributing to ServerCN foundation 🚀
+  Your work helps strengthen the Node.js backend ecosystem." />
