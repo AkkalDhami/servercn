@@ -1,36 +1,136 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "version": "1.0.0",
-  "schemas": [
-    {
-      "name": "registry:servercn.config",
-      "description": "Configuration schema for a ServerCN project",
-      "url": "https://servercn.vercel.app/schema/servercn.config.registry.json"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://servercn.vercel.app/schema/registry.schema.json",
+  "title": "ServerCN Registry Schema",
+  "description": "Schema definition for the ServerCN documentation and registry configuration file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "name", "homepage", "author", "items"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema reference URI.",
+      "minLength": 1
     },
-    {
-      "name": "registry:component",
-      "description": "Registry schema that defines individual ServerCN components",
-      "url": "https://servercn.vercel.app/schema/component.registry.json"
+    "name": {
+      "type": "string",
+      "description": "The name of the registry or project.",
+      "minLength": 1
     },
-    {
-      "name": "registry:blueprint",
-      "description": "Registry schema that defines ServerCN blueprints",
-      "url": "https://servercn.vercel.app/schema/blueprint.registry.json"
+    "homepage": {
+      "type": "string",
+      "description": "The public homepage URL of the project.",
+      "format": "uri"
     },
-    {
-      "name": "registry:foundation",
-      "description": "Registry schema that defines ServerCN project foundations",
-      "url": "https://servercn.vercel.app/schema/foundation.registry.json"
+    "author": {
+      "type": "string",
+      "description": "The author or maintainer of the registry.",
+      "minLength": 1
     },
-    {
-      "name": "registry:tooling",
-      "description": "Registry schema that defines ServerCN development tooling",
-      "url": "https://servercn.vercel.app/schema/tooling.registry.json"
-    },
-    {
-      "name": "registry:schema",
-      "description": "Registry schema that defines database and domain schemas",
-      "url": "https://servercn.vercel.app/schema/schema.registry.json"
+    "items": {
+      "type": "array",
+      "description": "List of documentation entries and registry items.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/item"
+      }
     }
-  ]
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "description": "Represents a single registry entry.",
+      "additionalProperties": false,
+      "required": ["slug", "title", "description", "type", "status", "docs"],
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "Unique kebab-case identifier used for routing and registry referencing.",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable title of the registry entry.",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation of what this entry provides.",
+          "minLength": 10
+        },
+        "type": {
+          "type": "string",
+          "description": "Defines the category of the registry entry.",
+          "enum": [
+            "guide",
+            "contributing",
+            "component",
+            "blueprint",
+            "foundation",
+            "schema",
+            "tooling"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "Indicates the stability level of the entry.",
+          "enum": ["stable", "beta", "experimental", "deprecated"]
+        },
+        "docs": {
+          "type": "string",
+          "description": "Relative documentation path starting with /docs/.",
+          "pattern": "^/docs/[a-z0-9\\-/]+$"
+        },
+        "meta": {
+          "$ref": "#/$defs/meta"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "enum": ["blueprint", "schema"] }
+            }
+          },
+          "then": {
+            "required": ["meta"]
+          },
+          "else": {
+            "not": { "required": ["meta"] }
+          }
+        }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional configuration metadata for blueprint or schema types.",
+      "additionalProperties": false,
+      "required": ["databases"],
+      "properties": {
+        "databases": {
+          "type": "array",
+          "description": "List of supported database implementations.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "description": "Database configuration entry.",
+            "additionalProperties": false,
+            "required": ["label", "slug"],
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Human-readable database name.",
+                "minLength": 1
+              },
+              "slug": {
+                "type": "string",
+                "description": "Unique kebab-case identifier for the database variant.",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
