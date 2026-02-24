@@ -25,12 +25,12 @@ import {
   BASE_GITHUB_URL,
   DISCORD_URL,
   GITHUB_URL,
+  SERVERCN_URL,
   X_URL
 } from "@/lib/constants";
 import { FaXTwitter } from "react-icons/fa6";
 
 import { contributingGuides } from "@/lib/contributing";
-
 
 export default function SearchCommand({
   className,
@@ -232,17 +232,28 @@ export default function SearchCommand({
           )}
           {PAGE_ITEMS.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.page.toUpperCase()}>
-              {PAGE_ITEMS.map(item => (
-                <CommandItem asChild key={item.title}>
+              <>
+                {PAGE_ITEMS.map(item => (
+                  <CommandItem asChild key={item.title}>
+                    <Link
+                      href={item.url as Route}
+                      onClick={() => setOpen(!open)}
+                      className="cursor-pointer pl-4 capitalize">
+                      <CircleIcon className="text-muted-secondary mb-1 size-2.5" />
+                      {item.title}
+                    </Link>
+                  </CommandItem>
+                ))}
+                <CommandItem asChild>
                   <Link
-                    href={item.url as Route}
+                    href={`${GITHUB_URL}/stargazers` as Route}
                     onClick={() => setOpen(!open)}
                     className="cursor-pointer pl-4 capitalize">
                     <CircleIcon className="text-muted-secondary mb-1 size-2.5" />
-                    {item.title}
+                    Stargazers
                   </Link>
                 </CommandItem>
-              ))}
+              </>
             </CommandGroup>
           )}
           <CommandSeparator />

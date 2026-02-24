@@ -170,7 +170,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
         </div>
         <div className="flex items-center gap-4">
           <Button asChild size="icon" variant="secondary">
-            <Link href="https://github.com/akkaldhami" target="_blank">
+            <Link href={GITHUB_URL} target="_blank">
               <FaGithub className="size-4" />
             </Link>
           </Button>

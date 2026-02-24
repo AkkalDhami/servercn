@@ -88,7 +88,10 @@ export default function CallToAction() {
       </p>
 
       <div className="flex items-center justify-center gap-4">
-        <Button variant={"outline"} asChild className="bg-transparent">
+        <Button
+          variant={"outline"}
+          asChild
+          className="bg-transparent dark:bg-transparent">
           <Link href="/components">Browse Components</Link>
         </Button>
         <Button asChild>
