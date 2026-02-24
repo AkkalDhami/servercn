@@ -52,15 +52,6 @@ packages/
       component-name.json
 ```          
 
-#### Required Files
-
-```
-| File            | Purpose                            |
-| --------------- | ---------------------------------- |
-| `registry.json` | Component metadata & configuration |
-| `templates/`    | Implementation templates per stack |
-```
-
 <Step>
 Add Registry
 </Step>
@@ -126,7 +117,7 @@ Each component must follow the registry structure:
 
 ##### I. $schema
 
-- Points to the official ServerCN component schema.
+- Points to the official ServerCN [component](https://servercn.vercel.app/schema/component.registry.json) schema.
 - Ensures your configuration is validated automatically.
 - If this is missing or incorrect, the component will fail validation.
 - Always use the official schema URL.
@@ -143,7 +134,7 @@ Each component must follow the registry structure:
 - Must be kebab-case.
 - Used internally by CLI commands:
 
-<PackageManagerTabs command="npx servercn add test-component" />
+<PackageManagerTabs command="npx servercn-cli add test-component" />
 
 ```json
 {
@@ -274,9 +265,11 @@ Defines packages automatically installed when the component is added.
 Maps architecture types to template folders.
 
 ```json
-"templates": {
+{
+  "templates": {
   "feature": "test-component/feature",
   "mvc": "test-component/mvc"
+  }
 }
 ```
 
@@ -288,18 +281,18 @@ Maps architecture types to template folders.
 
 Example:
 
-```
+```bash
 packages/
   templates/
     node/
       express/
         component/
-          test-component/
+          component-name/
             feature/
             mvc/
 ```      
 
-##### 10. env
+##### X. env
 
 Defines required environment variables.
 
@@ -317,13 +310,17 @@ Defines required environment variables.
 
 <Step>Add Templates</Step>
 
-```
+Template must follow the folder structure below:
+
+```bash
 packages/
   templates/
     node/
       express/
         component/
-          your-component
+          component-name
+            feature/
+            mvc/
 ```      
 
 <LNote>
@@ -341,7 +338,9 @@ packages/
 npm run build:cli
 ```
 
-<PackageManagerTabs command="npx servercn add test-component --local" />
+<PackageManagerTabs command="npx servercn-cli add test-component --local" />
+
+- <Code>--local</Code>: Used for testing in the local environment.
 
 **Verify:**
 
@@ -352,13 +351,43 @@ npm run build:cli
 - Stack selection works
 </LNote>
 
+
+<Step>Register in registry.json</Step>
+
+Add registry inside:
+<Code>apps/web/src/data/registry.json</Code>
+
+```json
+{
+  "name": "ServerCN",
+  "homepage": "https://servercn.vercel.app",
+  "author": "Akkal Dhami",
+  "items": [
+    ...
+      {
+        "slug": "component-slug",
+        "title": "Component Title",
+        "description": "Component short description",
+        "type": "component",
+        "status": "stable",
+        "docs": "/docs/components/component-slug"
+      },
+      ....
+  ]
+}
+```
+
+> This configuration is used to generate the docs sidebar and display components in the <Code>/components</Code> route.
+
 <Step>Write Minimal Documentation</Step>
 
 Add mdx documentation inside:
 
-<Code>apps/web/src/content/docs/component/test-component.mdx</Code>
+<Code>apps/web/src/content/docs/components/component-slug.mdx</Code>
 
 Keep documentation concise and technical.
+
+<Warning text="Don't forget to include `mvc_structure` and `feature_structure` in the front matter."/> 
 
 <Step>Commit Properly</Step>
 
