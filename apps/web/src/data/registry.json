@@ -1,4 +1,5 @@
 {
+  "$schema": "https://servercn.vercel.app/schema/registry.json",
   "name": "ServerCN",
   "homepage": "https://servercn.vercel.app",
   "author": "Akkal Dhami",
@@ -188,14 +189,6 @@
       "docs": "/docs/components/health-check"
     },
     {
-      "slug": "rest-api-basic",
-      "title": "REST API Basic",
-      "description": "A production-ready REST API docs for ServerCN, combining structured logging, request validation, standardized responses, and centralized error handling.",
-      "type": "blueprint",
-      "status": "stable",
-      "docs": "/docs/blueprints/rest-api-basic"
-    },
-    {
       "slug": "google-oauth",
       "title": "Google OAuth",
       "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in ServerCN.",
@@ -268,12 +261,12 @@
       "docs": "/docs/components/security-header"
     },
     {
-      "slug": "validate-objectId",
+      "slug": "validate-objectid",
       "title": "Validate ObjectId Middleware",
       "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
       "type": "component",
       "status": "stable",
-      "docs": "/docs/components/validate-objectId"
+      "docs": "/docs/components/validate-objectid"
     },
     {
       "slug": "generate-otp-token",
@@ -417,9 +410,7 @@
             "label": "MySQL (Drizzle)",
             "slug": "auth-mysql"
           }
-        ],
-        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "relations": true
+        ]
       }
     },
     {
@@ -443,9 +434,7 @@
             "label": "MySQL (Drizzle)",
             "slug": "todo-mysql"
           }
-        ],
-        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "relations": true
+        ]
       }
     },
     {
@@ -469,9 +458,7 @@
             "label": "MySQL (Drizzle)",
             "slug": "banking-app-mysql"
           }
-        ],
-        "adapters": ["mongoose", "drizzle", "mysql2", "pg"],
-        "relations": true
+        ]
       }
     }
   ]
