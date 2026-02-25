@@ -38,126 +38,115 @@ export async function resolveTemplateResolution({
   const framework = config.stack.framework;
   const architecture = config.stack.architecture;
   const runtime = config.stack.runtime;
-  let selectedPath: string | undefined;
+
+  const isBuilt = !options.local;
+
   if (type === "tooling") {
-    selectedPath = `${registryItemName}`
-  } else {
-    // console.log({ type })
-    if (component?.runtimes[runtime].frameworks[framework]?.variants) {
-      return resolvePromptVariants({
-        component,
-        runtime: runtime,
+    const selectedPath = registryItemName;
+    return {
+      templatePath: `tooling/${selectedPath}/base`,
+      additionalRuntimeDeps: [],
+      additionalDevDeps: []
+    };
+  }
+
+  const templateConfig = component.runtimes?.[runtime]?.frameworks?.[framework];
+
+  if (!templateConfig) {
+    logger.break();
+    logger.error(
+      `Unsupported framework '${framework}' for ${type}: '${component.slug}'.`
+    );
+    logger.error(
+      `This ${type} does not provide templates for the selected framework.`
+    );
+    logger.break();
+    process.exit(1);
+  }
+
+  // Handle variants
+  if (templateConfig.variants) {
+    return resolvePromptVariants({
+      component,
+      runtime,
+      architecture,
+      framework,
+      type,
+      isBuilt
+    });
+  }
+
+  let selectedSubPath: string | undefined;
+
+  switch (type) {
+    case "component":
+    case "foundation":
+      if (isBuilt) {
+        if (templateConfig.architectures?.[architecture]) {
+          selectedSubPath = architecture;
+        }
+      } else {
+        const haveTemplates = templateConfig.templates;
+        selectedSubPath =
+          typeof templateConfig === "string"
+            ? templateConfig
+            : haveTemplates?.[architecture];
+      }
+      break;
+
+    case "schema":
+    case "blueprint":
+      selectedSubPath = resolveDatabaseTemplate({
+        templateConfig,
+        config,
         architecture,
-        framework,
-        type
+        options,
+        registryItemName:
+          type === "blueprint" ? component.slug : registryItemName
       });
-    }
+      break;
 
-    const templateConfig = component.runtimes[runtime].frameworks[framework];
-    const haveTemplates = templateConfig?.templates;
-    if (!templateConfig) {
-      logger.break();
-      logger.error(
-        `Unsupported framework '${framework}' for component '${component.slug}'.`
-      );
-      logger.error(
-        `This ${type}: '${component.slug}' does not provide templates for the selected framework.`
-      );
-      logger.error(
-        `Please choose one of the supported frameworks and try again.`
-      );
-      logger.break();
-      process.exit(1);
-    }
-
-    switch (type) {
-      case "component":
-        selectedPath =
+    default:
+      if (!isBuilt) {
+        const haveTemplates = templateConfig.templates;
+        selectedSubPath =
           typeof templateConfig === "string"
             ? templateConfig
             : haveTemplates && templateConfig.templates[architecture];
-        break;
+      }
+      break;
+  }
 
-      case "schema":
-        const schemaPath = resolveDatabaseTemplate({
-          templateConfig,
-          config,
-          architecture,
-          options,
-          registryItemName
-        });
+  if (!selectedSubPath) {
+    logger.break();
+    logger.error(
+      `Architecture '${architecture}' is not supported for '${type}:${component.slug}'.`
+    );
+    logger.break();
+    process.exit(1);
+  }
 
-        selectedPath = `${config.stack.runtime}/${config.stack.framework}/${type}/${schemaPath}`;
+  let runtimeDeps: string[] = [];
+  let devDeps: string[] = [];
 
-        if (selectedPath) {
-          const schemaDeps = resolveDependencies(
-            {
-              component,
-              framework,
-              db: config.database?.type as DatabaseType,
-              orm: config.database?.orm as OrmType,
-              runtime,
-            }
-          );
-          return {
-            templatePath: selectedPath,
-            additionalRuntimeDeps: schemaDeps.runtime || [],
-            additionalDevDeps: schemaDeps.dev || [],
-          };
-        }
-        break;
-
-      case "blueprint":
-        const bpPath = resolveDatabaseTemplate({
-          templateConfig,
-          config,
-          architecture,
-          options,
-          registryItemName: component.slug
-        });
-
-        selectedPath = `${config.stack.runtime}/${config.stack.framework}/${type}/${bpPath}`;
-
-        if (selectedPath) {
-          const bpDeps = resolveDependencies(
-            {
-              component,
-              framework,
-              db: config.database?.type as DatabaseType,
-              orm: config.database?.orm as OrmType,
-              runtime,
-            }
-          );
-          return {
-            templatePath: selectedPath,
-            additionalRuntimeDeps: bpDeps.runtime || [],
-            additionalDevDeps: bpDeps.dev || [],
-          };
-        }
-        break;
-
-      default:
-        selectedPath =
-          typeof templateConfig === "string"
-            ? templateConfig
-            : haveTemplates && templateConfig.templates[architecture];
-        break;
-    }
-
-    if (!selectedPath) {
-      logger.break();
-      logger.error(
-        `Architecture '${architecture}' is not supported for ${type}'${component.slug}'.`
-      );
-      logger.break();
-      process.exit(1);
-    }
+  if (type === "schema" || type === "blueprint") {
+    const db = config.database?.engine as DatabaseType;
+    const orm = config.database?.adapter as OrmType;
+    const deps = resolveDependencies({
+      component,
+      framework,
+      db,
+      orm,
+      runtime
+    });
+    runtimeDeps = deps.runtime || [];
+    devDeps = deps.dev || [];
   }
 
   return {
-    templatePath: type === "tooling" ? `${options.type}/${selectedPath}/base` : `${config.stack.runtime}/${config.stack.framework}/${options.type}/${selectedPath}`,
-    additionalRuntimeDeps: [],
-    additionalDevDeps: [],
+    templatePath: `${runtime}/${framework}/${type}/${selectedSubPath}`,
+    additionalRuntimeDeps: runtimeDeps,
+    additionalDevDeps: devDeps
   };
 }
 
@@ -185,8 +174,8 @@ function resolveDatabaseTemplate({
   //   registryItemName,
   //   formattedRegistryItemName
   // });
-  const dbType = config?.database?.type;
-  const orm = config?.database?.orm;
+  const dbType = config?.database?.engine;
+  const orm = config?.database?.adapter;
 
   if (!dbType || !orm) {
     logger.break();
@@ -210,12 +199,12 @@ function resolveDatabaseTemplate({
   }
 
   const archOptions = dbOrm?.templates;
-  if (options.type === 'blueprint') {
+  if (options.type === "blueprint") {
     const selectedConfig = archOptions[architecture] as string;
     return selectedConfig;
   }
 
-  if (options.type == 'schema') {
+  if (options.type == "schema") {
     return archOptions[formattedRegistryItemName][architecture] as string;
   }
 }
@@ -225,13 +214,15 @@ async function resolvePromptVariants({
   runtime,
   architecture,
   framework,
-  type
+  type,
+  isBuilt
 }: {
   component: RegistryComponent;
   runtime: RuntimeType;
   architecture: Architecture;
   framework: FrameworkType;
   type: RegistryType;
+  isBuilt: boolean;
 }): Promise<{
   templatePath: string;
   additionalRuntimeDeps: string[];
@@ -262,8 +253,11 @@ async function resolvePromptVariants({
     process.exit(0);
   }
 
-  const selectedTemplate =
-    variantConfig?.variants?.[variant]?.templates[architecture] || "";
+  const selectedTemplate = isBuilt
+    ? (variantConfig?.variants?.[variant] as any)?.architectures?.[architecture]
+      ? architecture
+      : ""
+    : variantConfig?.variants?.[variant]?.templates[architecture] || "";
 
   if (!selectedTemplate) {
     logger.break();
@@ -274,8 +268,10 @@ async function resolvePromptVariants({
     process.exit(1);
   }
 
+  const subPath = isBuilt ? `${variant}/${selectedTemplate}` : selectedTemplate;
+
   return {
-    templatePath: `${runtime}/${framework}/${type}/${selectedTemplate}`,
+    templatePath: `${runtime}/${framework}/${type}/${subPath}`,
     additionalRuntimeDeps:
       variantConfig?.variants?.[variant]?.dependencies?.runtime ?? [],
     additionalDevDeps:
@@ -284,15 +280,21 @@ async function resolvePromptVariants({
   };
 }
 
-export async function runPostInstallHooks({ component, registryItemName, type, runtime, framework, selectedProvider }: {
-  registryItemName: string,
-  selectedProvider: string,
-  type: RegistryType,
-  component: any,
-  runtime: RuntimeType,
-  framework: FrameworkType
-}
-) {
+export async function runPostInstallHooks({
+  component,
+  registryItemName,
+  type,
+  runtime,
+  framework,
+  selectedProvider
+}: {
+  registryItemName: string;
+  selectedProvider: string;
+  type: RegistryType;
+  component: any;
+  runtime: RuntimeType;
+  framework: FrameworkType;
+}) {
   if (type === "tooling" && registryItemName === "husky") {
     try {
       await execa("npx", ["husky", "init"], { stdio: "inherit" });
@@ -302,14 +304,15 @@ export async function runPostInstallHooks({ component, registryItemName, type, r
       );
     }
   } else {
-
-    let filterEnvs: Array<string> = []
+    let filterEnvs: Array<string> = [];
     switch (type) {
-      case 'component':
+      case "component":
         const registry = component?.runtimes[runtime]?.frameworks[framework];
 
         if (registry?.prompt) {
-          filterEnvs = registry?.variants[selectedProvider]?.env?.filter((env: string) => env !== "");
+          filterEnvs = registry?.variants[selectedProvider]?.env?.filter(
+            (env: string) => env !== ""
+          );
         } else {
           filterEnvs = registry?.env?.filter((env: string) => env !== "");
         }
@@ -319,7 +322,6 @@ export async function runPostInstallHooks({ component, registryItemName, type, r
       default:
         break;
     }
-
 
     if (filterEnvs?.length > 0) {
       updateEnvKeys({
@@ -336,15 +338,21 @@ export async function runPostInstallHooks({ component, registryItemName, type, r
   }
 }
 
-function resolveDependencies(
-  { component, framework, db, orm, runtime }: {
-    component: RegistrySchema,
-    framework: FrameworkType,
-    db: DatabaseType,
-    orm: OrmType,
-    runtime: RuntimeType,
-  }
-): DependencySet {
-  const sets = component.runtimes[runtime].frameworks[framework].databases[db].orms[orm].dependencies;
+function resolveDependencies({
+  component,
+  framework,
+  db,
+  orm,
+  runtime
+}: {
+  component: RegistrySchema;
+  framework: FrameworkType;
+  db: DatabaseType;
+  orm: OrmType;
+  runtime: RuntimeType;
+}): DependencySet {
+  const sets =
+    component.runtimes[runtime].frameworks[framework].databases[db].orms[orm]
+      .dependencies;
   return sets;
 }
