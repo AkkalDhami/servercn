@@ -20,7 +20,7 @@
 
     "project": {
       "type": "object",
-      "required": ["root", "srcDir", "type"],
+      "required": ["root", "packageManager", "type"],
       "additionalProperties": false,
       "properties": {
         "root": {
@@ -28,14 +28,15 @@
           "default": ".",
           "description": "Project root directory"
         },
-        "srcDir": {
+        "packageManager": {
           "type": "string",
-          "default": "src",
-          "description": "Source directory"
+          "enum": ["npm", "pnpm", "bun", "yarn"],
+          "default": "npm",
+          "description": "Package manager"
         },
         "type": {
           "type": "string",
-          "enum": ["backend", "fullstack"],
+          "enum": ["backend"],
           "description": "Project type"
         }
       }
@@ -138,15 +139,15 @@
         { "type": "null" },
         {
           "type": "object",
-          "required": ["type", "orm"],
+          "required": ["engine", "adapter"],
           "additionalProperties": false,
           "properties": {
-            "type": {
+            "engine": {
               "type": "string",
               "enum": ["mongodb", "postgresql", "mysql"],
-              "description": "Database type"
+              "description": "Database engine"
             },
-            "orm": {
+            "adapter": {
               "type": "string",
               "description": "ORM for selected database"
             }
@@ -155,11 +156,11 @@
           "allOf": [
             {
               "if": {
-                "properties": { "type": { "const": "mongodb" } }
+                "properties": { "engine": { "const": "mongodb" } }
               },
               "then": {
                 "properties": {
-                  "orm": {
+                  "adapter": {
                     "enum": ["mongoose"]
                   }
                 }
@@ -168,11 +169,11 @@
 
             {
               "if": {
-                "properties": { "type": { "const": "postgresql" } }
+                "properties": { "engine": { "const": "postgresql" } }
               },
               "then": {
                 "properties": {
-                  "orm": {
+                  "adapter": {
                     "enum": ["drizzle"]
                   }
                 }
@@ -181,11 +182,11 @@
 
             {
               "if": {
-                "properties": { "type": { "const": "mysql" } }
+                "properties": { "engine": { "const": "mysql" } }
               },
               "then": {
                 "properties": {
-                  "orm": {
+                  "adapter": {
                     "enum": ["drizzle"]
                   }
                 }
