@@ -17,11 +17,11 @@ import { gitignore } from "@/configs/gitignore.config";
 import { getDatabaseConfig } from "@/lib/config";
 import { paths } from "@/lib/paths";
 import { updateEnvKeys } from "@/utils/update-env";
+import { detectPackageManager } from "@/lib/detect";
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
   const configPath = path.join(cwd, SERVERCN_CONFIG_FILE);
-
 
   if ((await fs.pathExists(configPath)) && !foundation) {
     logger.warn(`${APP_NAME} is already initialized in this project.`);
@@ -51,6 +51,21 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         ]
       },
       {
+        type: "select",
+        name: "packageManager",
+        message: "Select package manager",
+        choices: [
+          { title: "npm", value: "npm" },
+          { title: "pnpm", value: "pnpm" },
+          { title: "yarn", value: "yarn" },
+          { title: "bun", value: "bun" }
+        ],
+        initial: Math.max(
+          0,
+          ["npm", "pnpm", "yarn", "bun"].indexOf(detectPackageManager())
+        )
+      },
+      {
         type: "confirm",
         name: "initGit",
         message: "Initialize git repository?",
@@ -60,7 +75,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
     const rootPath = path.resolve(cwd, response.root);
 
-    if (response.root !== '.' && fs.pathExistsSync(rootPath)) {
+    if (response.root !== "." && fs.pathExistsSync(rootPath)) {
       logger.break();
       logger.error(`Cannot create '${response.root}' — file already exists!`);
       logger.break();
@@ -92,15 +107,15 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         "foundation"
       );
 
-      const baseConfig = component.runtimes['node'].frameworks['express'];
+      const baseConfig = component.runtimes["node"].frameworks["express"];
 
       await fs.writeJson(
         path.join(rootPath, SERVERCN_CONFIG_FILE),
         servercnConfig({
           project: {
             root: response.root,
-            srcDir: "src",
-            type: "backend"
+            type: "backend",
+            packageManager: response.packageManager
           },
           stack: {
             runtime: "node",
@@ -125,11 +140,15 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         return;
       }
 
-      const templateDir = path.resolve(`${paths.templates()}/node/express/foundation/`, templatePathRelative);
+      const templateDir = path.resolve(
+        `${paths.templates()}/node/express/foundation/`,
+        templatePathRelative
+      );
 
       console.log({
-        templateDir, templatePathRelative
-      })
+        templateDir,
+        templatePathRelative
+      });
 
       await copyTemplate({
         templateDir,
@@ -137,13 +156,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         registryItemName: foundation,
         conflict: "overwrite"
       });
-
-      // await cloneRegistryTemplate({
-      //   targetDir: rootPath,
-      //   templateDir: templatePathRelative,
-      //   force: options.force
-      // });
-
 
       await fs.writeJson(path.join(rootPath, ".prettierrc"), prettierConfig, {
         spaces: 2
@@ -164,7 +176,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         path.join(rootPath, "commitlint.config.ts"),
         `export default ${JSON.stringify(commitlintConfig, null, 2)}`
       );
-      const filterEnvs = baseConfig?.env?.filter((env: string) => env !== "") || [];
+      const filterEnvs =
+        baseConfig?.env?.filter((env: string) => env !== "") || [];
 
       if (filterEnvs?.length > 0) {
         updateEnvKeys({
@@ -184,7 +197,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       await installDependencies({
         runtime: baseConfig?.dependencies?.runtime || [],
         dev: baseConfig?.dependencies?.dev || [],
-        cwd: rootPath
+        cwd: rootPath,
+        packageManager: response.packageManager
       });
       logger.break();
       logger.success(`${APP_NAME} initialized with ${foundation}.`);
@@ -216,13 +230,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       message: "Project root directory",
       initial: ".",
       format: val => val.trim() || "."
-    },
-    {
-      type: "text",
-      name: "srcDir",
-      message: "Source directory",
-      initial: "src",
-      format: val => val.trim() || "src"
     },
     {
       type: "select",
@@ -284,6 +291,21 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         { title: "Drizzle", value: "drizzle" }
         // { title: "prisma", value: "prisma" }
       ]
+    },
+    {
+      type: "select",
+      name: "packageManager",
+      message: "Select package manager",
+      choices: [
+        { title: "npm", value: "npm" },
+        { title: "pnpm", value: "pnpm" },
+        { title: "yarn", value: "yarn" },
+        { title: "bun", value: "bun" }
+      ],
+      initial: Math.max(
+        0,
+        ["npm", "pnpm", "yarn", "bun"].indexOf(detectPackageManager())
+      )
     }
   ]);
 
@@ -293,7 +315,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     !response.framework ||
     !response.language ||
     !response.orm ||
-    !response.root
+    !response.root ||
+    !response.packageManager
   ) {
     logger.break();
     logger.warn("Initialization cancelled.");
@@ -302,9 +325,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   }
 
   const rootPath = path.resolve(cwd, response.root);
-  const srcPath = path.resolve(rootPath, response.srcDir);
 
-  if (response.root !== '.' && fs.pathExistsSync(rootPath)) {
+  if (response.root !== "." && fs.pathExistsSync(rootPath)) {
     logger.break();
     logger.error(`Cannot create '${response.root}' — file already exists!`);
     logger.break();
@@ -312,15 +334,14 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   }
 
   await fs.ensureDir(rootPath);
-  await fs.ensureDir(srcPath);
 
   await fs.writeJson(
     path.join(rootPath, SERVERCN_CONFIG_FILE),
     servercnConfig({
       project: {
         root: response.root,
-        srcDir: response.srcDir,
-        type: "backend"
+        type: "backend",
+        packageManager: response.packageManager
       },
       stack: {
         runtime: "node",
@@ -329,8 +350,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         architecture: response.architecture
       },
       database: {
-        type: response.databaseType,
-        orm: response.orm
+        engine: response.databaseType,
+        adapter: response.orm
       }
     }),
     {

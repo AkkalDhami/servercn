@@ -6,6 +6,7 @@ import { init } from "@/commands/init";
 import type { Architecture, RegistryType } from "@/types";
 import { LATEST_VERSION } from "@/constants/app.constants";
 import { registryListCommands } from "./commands/list";
+import { build } from "./commands/build";
 
 const program = new Command();
 
@@ -14,7 +15,7 @@ process.on("SIGTERM", () => process.exit(0));
 
 async function main() {
   program
-    .name("servercn")
+    .name("servercn-cli")
     .description("Scaffold and manage backend components for Node.js projects")
     .version(LATEST_VERSION, "-v, --version", "output the current version");
 
@@ -26,6 +27,8 @@ async function main() {
 
   registryListCommands(program);
 
+  program.command("build").description("Build the project").action(build);
+
   program
     .command("add <components...>")
     .description("Add one or more backend components to your project")
@@ -36,7 +39,10 @@ async function main() {
       "advanced"
     )
     .option("-f, --force", "Force overwrite existing files")
-    .option("--local", "Add registry items from local environment(development runtime)")
+    .option(
+      "--local",
+      "Add registry items from local environment(development runtime)"
+    )
     .action(
       async (
         components: string[],
