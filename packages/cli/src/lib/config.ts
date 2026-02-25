@@ -21,18 +21,18 @@ export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
     case "express-server":
     case "mongoose-starter":
       return {
-        type: "mongodb",
-        orm: "mongoose"
+        engine: "mongodb",
+        adapter: "mongoose"
       };
     case "drizzle-mysql-starter":
       return {
-        type: "mysql",
-        orm: "drizzle"
+        engine: "mysql",
+        adapter: "drizzle"
       };
     case "drizzle-pg-starter":
       return {
-        type: "postgresql",
-        orm: "drizzle"
+        engine: "postgresql",
+        adapter: "drizzle"
       };
     default:
       return null;

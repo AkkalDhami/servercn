@@ -7,11 +7,12 @@ import { spinner } from "@/utils/spinner";
 export async function installDependencies({
   runtime = [],
   dev = [],
-  cwd
+  cwd,
+  packageManager
 }: InstallOptions) {
   if (runtime.length === 0 && dev.length === 0) return;
 
-  const pm = detectPackageManager();
+  const pm = packageManager || detectPackageManager();
 
   const run = async (packages: string[], isDev: boolean) => {
     if (packages.length === 0) return;
@@ -30,9 +31,7 @@ export async function installDependencies({
         stdio: "inherit"
       });
 
-      spin?.succeed(
-        `Successfully installed ${packages.length} ${label}`
-      );
+      spin?.succeed(`Successfully installed ${packages.length} ${label}`);
     } catch (error) {
       spin?.fail(`Failed to install ${label}`);
       throw error;
