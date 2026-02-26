@@ -29,7 +29,6 @@ export interface AddOptions {
   arch?: Architecture;
   force?: boolean;
   local?: boolean;
-  variant?: string;
 }
 export interface CopyOptions {
   templateDir: string;
@@ -88,7 +87,6 @@ export type DatabaseTemplate = Record<OrmType, ArchitectureSet>;
 
 export type TemplateSet = Record<DatabaseType, DatabaseTemplate>;
 export interface IRegistryCommon {
-  $schema?: string;
   slug: string;
 }
 
@@ -137,7 +135,7 @@ export interface RegistryComponent extends IRegistryCommon {
 
 //? registry:foundation
 export interface FoundationFramework {
-  templates: ArchitectureSet;
+  architectures: Record<Architecture, Record<"files", Array<{ type: string, path: string, content: string }>>>
   dependencies?: DependencySet;
   env?: EnvSet;
 }
@@ -157,7 +155,7 @@ export interface RegistryFoundation extends IRegistryCommon {
 
 //? registry:schema
 export interface SchemaOrm {
-  templates: Record<string, ArchitectureSet>;
+  templates: Record<string, Record<"architectures" | ArchitectureSet>>;
   dependencies: DependencySet;
 }
 
