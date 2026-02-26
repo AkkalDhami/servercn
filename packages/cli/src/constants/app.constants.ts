@@ -12,11 +12,11 @@ export const LATEST_VERSION = packageJson.version || "1.0.0";
 
 export const RuntimeList = ["node"] as const;
 
-export const FrameworkList = ["express"] as const;
+export const FrameworkList = ["express", "nestjs"] as const;
 
 export const LanguageList = ["typescript"] as const;
 
-export const ArchitectureList = ["mvc", "feature"] as const;
+export const ArchitectureList = ["mvc", "feature", "module"] as const;
 
 export const DatabaseList = ["mongodb", "postgresql", "mysql"] as const;
 

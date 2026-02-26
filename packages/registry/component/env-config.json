@@ -37,6 +37,39 @@
             "GITHUB_CLIENT_SECRET",
             "GITHUB_REDIRECT_URI"
           ]
+        },
+        "nestjs": {
+          "templates": {
+            "module": "env-config/module"
+          },
+          "dependencies": {
+            "runtime": ["zod"],
+            "dev": []
+          },
+          "env": [
+            "PORT",
+            "NODE_ENV",
+            "DATABASE_URL",
+            "CORS_ORIGIN",
+            "LOG_LEVEL",
+            "JWT_ACCESS_SECRET",
+            "JWT_REFRESH_SECRET",
+            "CRYPTO_SECRET",
+            "SMTP_HOST",
+            "SMTP_PORT",
+            "SMTP_USER",
+            "SMTP_PASS",
+            "EMAIL_FROM",
+            "CLOUDINARY_CLOUD_NAME",
+            "CLOUDINARY_API_KEY",
+            "CLOUDINARY_API_SECRET",
+            "GOOGLE_CLIENT_ID",
+            "GOOGLE_CLIENT_SECRET",
+            "GOOGLE_REDIRECT_URI",
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
+            "GITHUB_REDIRECT_URI"
+          ]
         }
       }
     }

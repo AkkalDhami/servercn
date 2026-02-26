@@ -85,6 +85,72 @@
               ]
             }
           }
+        },
+        "nestjs": {
+          "prompt": "Select OAuth provider: ",
+          "variants": {
+            "google": {
+              "label": "Google",
+              "templates": {
+                "module": "oauth/google/module"
+              },
+              "dependencies": {
+                "runtime": [
+                  "@nestjs/passport",
+                  "passport",
+                  "passport-google-oauth20"
+                ],
+                "dev": ["@types/passport-google-oauth20", "@types/passport"]
+              },
+              "env": [
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI"
+              ]
+            },
+            "github": {
+              "label": "GitHub",
+              "templates": {
+                "module": "oauth/github/module"
+              },
+              "dependencies": {
+                "runtime": ["@nestjs/passport", "passport", "passport-github2"],
+                "dev": ["@types/passport-github2", "@types/passport"]
+              },
+              "env": [
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI"
+              ]
+            },
+            "google-github": {
+              "label": "Google + GitHub",
+              "templates": {
+                "module": "oauth/google-github/module"
+              },
+              "dependencies": {
+                "runtime": [
+                  "@nestjs/passport",
+                  "passport",
+                  "passport-github2",
+                  "passport-google-oauth20"
+                ],
+                "dev": [
+                  "@types/passport-google-oauth20",
+                  "@types/passport-github2",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI"
+              ]
+            }
+          }
         }
       }
     }

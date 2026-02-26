@@ -123,7 +123,7 @@ export type FrameworkConfig = VariantFramework | SimpleFramework;
 export interface NodeRuntime {
   frameworks: {
     express?: FrameworkConfig;
-    nest?: FrameworkConfig;
+    nestjs?: FrameworkConfig;
   };
 }
 
@@ -143,7 +143,7 @@ export interface FoundationFramework {
 export interface NodeFoundationRuntime {
   frameworks: {
     express?: FoundationFramework;
-    nest?: FoundationFramework;
+    nestjs?: FoundationFramework;
   };
 }
 

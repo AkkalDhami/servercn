@@ -32,6 +32,37 @@
               }
             }
           }
+        },
+        "nestjs": {
+          "prompt": "Select a logging library: ",
+          "variants": {
+            "pino": {
+              "label": "Pino (High-performance)",
+              "templates": {
+                "module": "logger/pino/module"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": ["nestjs-pino", "pino-http", "pino-pretty"],
+                "dev": []
+              }
+            },
+            "winston": {
+              "label": "Winston (Flexible)",
+              "templates": {
+                "module": "logger/winston/module"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": [
+                  "nest-winston",
+                  "winston",
+                  "winston-daily-rotate-file"
+                ],
+                "dev": []
+              }
+            }
+          }
         }
       }
     }
