@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs-extra";
 import path from "path";
 import prompts from "prompts";
@@ -6,7 +5,7 @@ import { execa } from "execa";
 import { logger } from "@/utils/logger";
 import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 import { getRegistry } from "@/lib/registry";
-import { copyTemplate } from "@/lib/copy";
+import { cloneServercnRegistry } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
 import type { AddOptions, RegistryFoundation } from "@/types";
 import { tsConfig } from "@/configs/ts.config";
@@ -15,7 +14,6 @@ import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
 import { servercnConfig } from "@/configs/servercn.config";
 import { gitignore } from "@/configs/gitignore.config";
 import { getDatabaseConfig } from "@/lib/config";
-import { paths } from "@/lib/paths";
 import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
 
@@ -99,15 +97,27 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
     logger.info();
     try {
-      // ora(
-      //   `Initializing project with foundation: ${foundation}`
-      // ).start();
       const component: RegistryFoundation = await getRegistry(
         foundation,
         "foundation"
       );
 
       const baseConfig = component.runtimes["node"].frameworks["express"];
+
+      const templatePath = `node/express/${response.architecture}`
+      if (!templatePath) {
+        logger.error(
+          `Template not found for ${foundation.toLowerCase()} (${response.architecture})`
+        );
+        return;
+      }
+
+      await cloneServercnRegistry({
+        templatePath,
+        targetDir: response.root,
+        component,
+        options
+      })
 
       await fs.writeJson(
         path.join(rootPath, SERVERCN_CONFIG_FILE),
@@ -130,33 +140,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         }
       );
 
-      const templatePathRelative =
-        baseConfig?.templates[response.architecture as "mvc" | "feature"];
-
-      if (!templatePathRelative) {
-        logger.error(
-          `Template not found for ${foundation.toLowerCase()} (${response.architecture})`
-        );
-        return;
-      }
-
-      const templateDir = path.resolve(
-        `${paths.templates()}/node/express/foundation/`,
-        templatePathRelative
-      );
-
-      console.log({
-        templateDir,
-        templatePathRelative
-      });
-
-      await copyTemplate({
-        templateDir,
-        targetDir: rootPath,
-        registryItemName: foundation,
-        conflict: "overwrite"
-      });
-
       await fs.writeJson(path.join(rootPath, ".prettierrc"), prettierConfig, {
         spaces: 2
       });
@@ -176,6 +159,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         path.join(rootPath, "commitlint.config.ts"),
         `export default ${JSON.stringify(commitlintConfig, null, 2)}`
       );
+
       const filterEnvs =
         baseConfig?.env?.filter((env: string) => env !== "") || [];
 
@@ -201,7 +185,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         packageManager: response.packageManager
       });
       logger.break();
-      logger.success(`${APP_NAME} initialized with ${foundation}.`);
+      logger.success(`${APP_NAME} initialized with 'foundation:${foundation}'.`);
       logger.break();
       logger.info("Configure environment variables in .env file.");
       logger.break();

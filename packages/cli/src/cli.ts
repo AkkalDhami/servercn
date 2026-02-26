@@ -6,7 +6,7 @@ import { init } from "@/commands/init";
 import type { Architecture, RegistryType } from "@/types";
 import { LATEST_VERSION } from "@/constants/app.constants";
 import { registryListCommands } from "./commands/list";
-import { build } from "./commands/build";
+import { build, type buildTypeProps } from "./commands/build";
 
 const program = new Command();
 
@@ -27,17 +27,19 @@ async function main() {
 
   registryListCommands(program);
 
-  program.command("build").description("Build the project").action(build);
+  program
+    .command("build")
+    .description("Build the project")
+    .option("--name <name>", "App name, website name")
+    .option("--url <url>", "App URL, website URL")
+    .action(
+      async (options: buildTypeProps) => await build(options)
+    );
 
   program
     .command("add <components...>")
     .description("Add one or more backend components to your project")
     .option("--arch <arch>", "Project architecture: mvc or feature", "mvc")
-    .option(
-      "--variant <variant>",
-      "Component variant: advanced or minimal",
-      "advanced"
-    )
     .option("-f, --force", "Force overwrite existing files")
     .option(
       "--local",
@@ -48,7 +50,6 @@ async function main() {
         components: string[],
         options: {
           arch: Architecture;
-          variant: "minimal" | "advanced";
           force: boolean;
           local: boolean;
         }
@@ -72,7 +73,6 @@ async function main() {
         for (const item of items) {
           await add(item, {
             arch: options.arch,
-            variant: options.variant,
             type: type,
             force: options.force,
             local: options.local

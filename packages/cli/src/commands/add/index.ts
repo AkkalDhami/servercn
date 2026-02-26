@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { copyTemplate } from "@/lib/copy";
+import { cloneServercnRegistry, copyTemplate } from "@/lib/copy";
 import { getRegistry } from "@/lib/registry";
 import { installDependencies } from "@/lib/install-deps";
 import { ensurePackageJson, ensureTsConfig } from "@/lib/package";
@@ -39,11 +39,13 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     registryItemName
   });
 
-  await scaffoldFiles(
+  await scaffoldFiles({
     registryItemName,
-    resolution.templatePath,
+    templatePath: resolution.templatePath,
     options,
-    component
+    component,
+    selectedProvider: resolution.selectedProvider
+  }
   );
 
   ensureProjectFiles();
@@ -130,10 +132,19 @@ function validateCompatibility(
 
 //? Scaffolding Layer
 export async function scaffoldFiles(
-  registryItemName: string,
-  templatePath: string,
-  options: AddOptions,
-  component: RegistryItem
+  {
+    registryItemName,
+    templatePath,
+    options,
+    component,
+    selectedProvider
+  }: {
+    registryItemName: string,
+    templatePath: string,
+    options: AddOptions,
+    component: RegistryItem,
+    selectedProvider?: string
+  }
 ) {
   const IS_LOCAL = options.local ?? false;
   const targetDir = paths.targets(".");
@@ -157,166 +168,19 @@ export async function scaffoldFiles(
       conflict: options.force ? "overwrite" : "skip"
     });
   } else {
-    // Production: extract files from built registry component
-    try {
-      const files = findFilesByPath(component, templatePath);
-      if (!files || files.length === 0) {
-        logger.error(`\nNo files found in registry for: ${templatePath}\n`);
-        process.exit(1);
-      }
-
-      for (const file of files) {
-        const destPath = path.join(targetDir, file.path);
-        const exists = await fs.pathExists(destPath);
-
-        if (exists && !options.force) {
-          logger.skip(file.path);
-          continue;
-        }
-
-        await fs.ensureDir(path.dirname(destPath));
-        await fs.writeFile(destPath, file.content);
-
-        if (exists) {
-          logger.overwrite(file.path);
-        } else {
-          logger.create(file.path);
-        }
-      }
-    } catch (error) {
-      logger.error(`\nFailed to scaffold files from registry: ${error}`);
-      process.exit(1);
-    }
+    await cloneServercnRegistry({
+      component,
+      templatePath,
+      targetDir,
+      options,
+      selectedProvider
+    })
   }
 
   logger.break();
   spin?.succeed("Scaffolding files successfully!");
 }
 
-/**
- * Extracts files from a built registry item based on the template path.
- * The templatePath used in the handlers is runtime/framework/type/subpath.
- */
-function findFilesByPath(
-  component: RegistryItem,
-  templatePath: string
-): { type: string; path: string; content: string }[] | null {
-  const parts = templatePath.split("/");
-  const [runtime, framework, type] = parts;
-  const archKey = parts[parts.length - 1]; // e.g. "mvc" or "feature"
-
-  // Handle Tooling
-  if (type === "tooling" && "templates" in component) {
-    // For tooling, built JSON has templates[key].files
-    const templates = component.templates as unknown as Record<
-      string,
-      { files: { type: string; path: string; content: string }[] }
-    >;
-    for (const tmpl of Object.values(templates || {})) {
-      if (tmpl.files) return tmpl.files;
-    }
-    return null;
-  }
-
-  if (!("runtimes" in component)) return null;
-
-  const runtimes = component.runtimes as unknown as Record<
-    string,
-    {
-      frameworks: Record<
-        string,
-        {
-          architectures?: Record<
-            string,
-            { files: { type: string; path: string; content: string }[] }
-          >;
-          variants?: Record<
-            string,
-            {
-              architectures: Record<
-                string,
-                { files: { type: string; path: string; content: string }[] }
-              >;
-            }
-          >;
-          databases?: Record<
-            string,
-            {
-              orms: Record<
-                string,
-                {
-                  templates?: Record<
-                    string,
-                    {
-                      architectures: Record<
-                        string,
-                        {
-                          files: {
-                            type: string;
-                            path: string;
-                            content: string;
-                          }[];
-                        }
-                      >;
-                    }
-                  >;
-                  architectures?: Record<
-                    string,
-                    {
-                      files: { type: string; path: string; content: string }[];
-                    }
-                  >;
-                }
-              >;
-            }
-          >;
-        }
-      >;
-    }
-  >;
-  const fw = runtimes[runtime]?.frameworks?.[framework];
-  if (!fw) return null;
-
-  // 1. Check direct architectures (Foundation/Simple component)
-  if (fw.architectures && fw.architectures[archKey]) {
-    return fw.architectures[archKey].files;
-  }
-
-  // 2. Check variants (Variant component)
-  if (fw.variants) {
-    for (const v of Object.values(fw.variants)) {
-      if (v.architectures && v.architectures[archKey]) {
-        return v.architectures[archKey].files;
-      }
-    }
-  }
-
-  // 3. Check databases/ORMs (Blueprint/Schema)
-  if (fw.databases) {
-    const dbKey = parts[parts.length - 3];
-    const ormKey = parts[parts.length - 2];
-
-    const db = fw.databases[dbKey];
-    const orm = db?.orms?.[ormKey];
-
-    if (orm) {
-      if (type === "blueprint") {
-        if (orm.architectures && orm.architectures[archKey]) {
-          return orm.architectures[archKey].files;
-        }
-      } else if (type === "schema") {
-        // schema: [..., item, db, orm, arch]
-        const itemKey = parts[parts.length - 4];
-        const tmpl = orm.templates?.[itemKey];
-        if (tmpl?.architectures && tmpl.architectures[archKey]) {
-          return tmpl.architectures[archKey].files;
-        }
-      }
-    }
-  }
-
-  return null;
-}
 
 //? Project File Guards
 function ensureProjectFiles() {
