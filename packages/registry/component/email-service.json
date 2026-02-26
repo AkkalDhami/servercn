@@ -37,6 +37,38 @@
               "env": ["RESEND_API_KEY", "EMAIL_FROM"]
             }
           }
+        },
+        "nestjs": {
+          "prompt": "Select an email provider: ",
+          "variants": {
+            "nodemailer": {
+              "label": "Nodemailer (SMTP)",
+              "templates": {
+                "module": "email-service/nodemailer/module"
+              },
+              "dependencies": {
+                "runtime": ["nodemailer"],
+                "dev": ["@types/nodemailer"]
+              },
+              "env": [
+                "SMTP_HOST",
+                "SMTP_PORT",
+                "SMTP_USER",
+                "SMTP_PASS",
+                "EMAIL_FROM"
+              ]
+            },
+            "resend": {
+              "label": "Resend",
+              "templates": {
+                "module": "email-service/resend/module"
+              },
+              "dependencies": {
+                "runtime": ["resend"]
+              },
+              "env": ["RESEND_API_KEY", "EMAIL_FROM"]
+            }
+          }
         }
       }
     }

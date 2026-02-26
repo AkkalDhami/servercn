@@ -47,7 +47,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         message: "Select architecture",
         choices: [
           { title: "MVC (controllers, services, models)", value: "mvc" },
-          { title: "Feature (modules, shared)", value: "feature" }
+          { title: "Feature (modules, shared)", value: "feature" },
+          { title: "Module-based (NestJS style)", value: "module" }
         ]
       },
       {
@@ -237,7 +238,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       message: "Select architecture",
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
-        { title: "Feature-based (modules, shared)", value: "feature" }
+        { title: "Feature-based (modules, shared)", value: "feature" },
+        { title: "Module-based (NestJS style)", value: "module" }
       ]
     },
     {
@@ -255,7 +257,10 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       type: "select",
       name: "framework",
       message: "Backend framework",
-      choices: [{ title: "Express.js", value: "express" }]
+      choices: [
+        { title: "Express.js", value: "express" },
+        { title: "NestJS", value: "nestjs" }
+      ]
     },
     {
       type: "select",

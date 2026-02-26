@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "description": "Type stubs for NestJS template files (not published)",
+  "devDependencies": {
+    "@nestjs/common": "^11.0.0",
+    "nodemailer": "^6.10.0",
+    "@types/nodemailer": "^6.4.0",
+    "resend": "^4.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0"
+  }
+}

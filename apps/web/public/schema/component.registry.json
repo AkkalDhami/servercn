@@ -39,7 +39,7 @@
           "additionalProperties": false,
           "properties": {
             "express": { "$ref": "#/$defs/framework" },
-            "nest": { "$ref": "#/$defs/framework" }
+            "nestjs": { "$ref": "#/$defs/framework" }
           }
         }
       }
@@ -104,7 +104,8 @@
       "additionalProperties": false,
       "properties": {
         "mvc": { "type": "string" },
-        "feature": { "type": "string" }
+        "feature": { "type": "string" },
+        "module": { "type": "string" }
       }
     },
 
