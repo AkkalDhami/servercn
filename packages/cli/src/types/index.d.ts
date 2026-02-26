@@ -80,6 +80,7 @@ export type DependencySet = {
 export type ArchitectureSet = {
   mvc?: string;
   feature?: string;
+  module?: string;
 };
 
 export type EnvSet = string[];

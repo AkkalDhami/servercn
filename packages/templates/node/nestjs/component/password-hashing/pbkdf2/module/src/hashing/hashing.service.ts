@@ -23,7 +23,11 @@ export class Pbkdf2HashingService implements HashingService {
   }
 
   async compare(data: string, hash: string): Promise<boolean> {
-    const [salt, iterations, key] = hash.split(':');
+    const parts = hash.split(':');
+    if (parts.length !== 3) {
+      return false;
+    }
+    const [salt, iterations, key] = parts;
     const derivedKey = await pbkdf2Async(
       data,
       salt,

@@ -21,9 +21,10 @@ export function configureSecurityHeaders(app: INestApplication) {
   app.use(helmet());
 
   // Configure CORS
+  const corsOrigin = process.env.CORS_ORIGIN;
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
-    credentials: true,
+    origin: corsOrigin || '*',
+    credentials: !!corsOrigin, // Only enable credentials when explicit origin is set
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });

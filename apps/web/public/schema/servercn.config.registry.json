@@ -76,7 +76,7 @@
           "then": {
             "properties": {
               "framework": {
-                "enum": ["express", "nest", "fastify"]
+                "enum": ["express", "nestjs", "fastify"]
               }
             }
           }
@@ -107,12 +107,12 @@
         },
         {
           "if": {
-            "properties": { "framework": { "const": "nest" } }
+            "properties": { "framework": { "const": "nestjs" } }
           },
           "then": {
             "properties": {
               "architecture": {
-                "enum": ["feature"]
+                "enum": ["module", "feature"]
               }
             }
           }

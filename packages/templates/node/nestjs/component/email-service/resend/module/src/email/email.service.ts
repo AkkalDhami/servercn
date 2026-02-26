@@ -45,7 +45,7 @@ export class EmailService {
       return data;
     } catch (error) {
       this.logger.error(`Failed to send email: ${error}`);
-      throw new Error('Failed to send email');
+      throw error;
     }
   }
 }

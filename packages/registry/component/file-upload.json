@@ -73,7 +73,7 @@
             "imagekit": {
               "label": "ImageKit",
               "dependencies": {
-                "runtime": ["imagekit"],
+                "runtime": ["@imagekit/nodejs"],
                 "dev": []
               },
               "env": ["IMAGEKIT_PRIVATE_KEY"],

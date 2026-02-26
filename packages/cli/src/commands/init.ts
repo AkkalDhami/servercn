@@ -132,7 +132,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       );
 
       const templatePathRelative =
-        baseConfig?.templates[response.architecture as "mvc" | "feature"];
+        baseConfig?.templates[response.architecture as "mvc" | "feature" | "module"];
 
       if (!templatePathRelative) {
         logger.error(

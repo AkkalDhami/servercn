@@ -38,6 +38,9 @@ export class UploadController {
 
   @Delete()
   async deleteFiles(@Body('fileIds') fileIds: string[]) {
+    if (!Array.isArray(fileIds) || fileIds.length === 0) {
+      return { success: false, message: 'fileIds must be a non-empty array' };
+    }
     await this.uploadService.deleteFiles(fileIds);
     return { success: true, message: 'Files deleted successfully' };
   }

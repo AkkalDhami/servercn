@@ -15,7 +15,11 @@ export class ScryptHashingService implements HashingService {
   }
 
   async compare(data: string, hash: string): Promise<boolean> {
-    const [salt, key] = hash.split(':');
+    const parts = hash.split(':');
+    if (parts.length !== 2) {
+      return false;
+    }
+    const [salt, key] = parts;
     const derivedKey = (await scryptAsync(data, salt, KEY_LENGTH)) as Buffer;
     const keyBuffer = Buffer.from(key, 'hex');
     return timingSafeEqual(derivedKey, keyBuffer);

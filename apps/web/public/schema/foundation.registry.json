@@ -46,7 +46,7 @@
 
           "properties": {
             "express": { "$ref": "#/$defs/framework" },
-            "nest": { "$ref": "#/$defs/framework" }
+            "nestjs": { "$ref": "#/$defs/framework" }
           }
         }
       }

@@ -20,13 +20,16 @@ export class OtpService {
     return { code, hashCode, expiresAt };
   }
 
-  /** Verify an OTP against its hash */
+  /** Verify an OTP against its hash (timing-safe) */
   verifyOTP(code: string, hashCode: string): boolean {
     const validCode = crypto
       .createHash('sha256')
       .update(String(code))
       .digest('hex');
-    return validCode === hashCode;
+    return crypto.timingSafeEqual(
+      Buffer.from(validCode, 'hex'),
+      Buffer.from(hashCode, 'hex'),
+    );
   }
 
   /** Hash an OTP using SHA-256 */
@@ -46,7 +49,12 @@ export class OtpService {
 
   /** Generate an HMAC token and its hash, bound to a specific identifier */
   generateTokenAndHashedToken(id: string): TokenResult {
-    const cryptoSecret = process.env.CRYPTO_SECRET || 'secret';
+    const cryptoSecret = process.env.CRYPTO_SECRET;
+    if (!cryptoSecret) {
+      throw new Error(
+        'CRYPTO_SECRET environment variable is required for token generation',
+      );
+    }
     const token = crypto
       .createHmac('sha256', cryptoSecret)
       .update(String(id))
@@ -58,11 +66,15 @@ export class OtpService {
     return { token, hashedToken };
   }
 
-  /** Verify a token against its hash */
+  /** Verify a token against its hash (timing-safe) */
   verifyHashedToken(token: string, hashedToken: string): boolean {
-    return (
-      crypto.createHash('sha256').update(String(token)).digest('hex') ===
-      hashedToken
+    const computed = crypto
+      .createHash('sha256')
+      .update(String(token))
+      .digest('hex');
+    return crypto.timingSafeEqual(
+      Buffer.from(computed, 'hex'),
+      Buffer.from(hashedToken, 'hex'),
     );
   }
 
