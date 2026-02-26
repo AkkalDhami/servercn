@@ -104,6 +104,7 @@ export async function resolveTemplateResolution({
         registryItemName:
           type === "blueprint" ? component.slug : registryItemName
       });
+      // console.log({ selectedSubPath });
       break;
 
     default:
@@ -200,12 +201,13 @@ function resolveDatabaseTemplate({
 
   const archOptions = dbOrm?.templates;
   if (options.type === "blueprint") {
-    const selectedConfig = archOptions[architecture] as string;
-    return selectedConfig;
+    const path = options?.local ? archOptions[architecture] as string : `${config.database?.engine}/${config.database?.adapter}/${config.stack.architecture}`
+    return path;
   }
 
   if (options.type == "schema") {
-    return archOptions[formattedRegistryItemName][architecture] as string;
+    const path = options?.local ? archOptions[formattedRegistryItemName][architecture] : `${config.database?.engine}/${config.database?.adapter}/${formattedRegistryItemName}/${config.stack.architecture}`
+    return path;
   }
 }
 
