@@ -51,6 +51,37 @@
               }
             }
           }
+        },
+        "nestjs": {
+          "prompt": "Select file upload provider:",
+          "variants": {
+            "cloudinary": {
+              "label": "Cloudinary",
+              "dependencies": {
+                "runtime": ["cloudinary"],
+                "dev": []
+              },
+              "env": [
+                "CLOUDINARY_CLOUD_NAME",
+                "CLOUDINARY_API_KEY",
+                "CLOUDINARY_API_SECRET"
+              ],
+              "templates": {
+                "module": "file-upload/cloudinary/module"
+              }
+            },
+            "imagekit": {
+              "label": "ImageKit",
+              "dependencies": {
+                "runtime": ["imagekit"],
+                "dev": []
+              },
+              "env": ["IMAGEKIT_PRIVATE_KEY"],
+              "templates": {
+                "module": "file-upload/imagekit/module"
+              }
+            }
+          }
         }
       }
     }

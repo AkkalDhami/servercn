@@ -14,6 +14,16 @@
             "dev": [""]
           },
           "env": []
+        },
+        "nestjs": {
+          "templates": {
+            "module": "rbac/module"
+          },
+          "dependencies": {
+            "runtime": [],
+            "dev": []
+          },
+          "env": []
         }
       }
     }

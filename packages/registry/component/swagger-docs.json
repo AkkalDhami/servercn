@@ -14,6 +14,16 @@
             "dev": ["@types/swagger-ui-express"]
           },
           "env": []
+        },
+        "nestjs": {
+          "templates": {
+            "module": "swagger-docs/module"
+          },
+          "dependencies": {
+            "runtime": ["@nestjs/swagger"],
+            "dev": []
+          },
+          "env": []
         }
       }
     }

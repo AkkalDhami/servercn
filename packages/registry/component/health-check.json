@@ -14,6 +14,16 @@
             "dev": []
           },
           "env": ["PORT"]
+        },
+        "nestjs": {
+          "templates": {
+            "module": "health-check/module"
+          },
+          "dependencies": {
+            "runtime": ["@nestjs/terminus"],
+            "dev": []
+          },
+          "env": ["PORT"]
         }
       }
     }
