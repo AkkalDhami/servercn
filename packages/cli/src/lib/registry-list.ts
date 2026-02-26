@@ -2,6 +2,9 @@ import fs from "fs-extra";
 import path from "node:path";
 import { paths } from "./paths";
 import type { RegistryData, RegistryType } from "@/types";
+import { SERVERCN_URL } from "@/constants/app.constants";
+import { logger } from "@/utils/logger";
+import { capitalize } from "@/utils/capitalize";
 
 export async function loadRegistryItems(
   type: RegistryType,
@@ -39,9 +42,26 @@ export async function loadRegistryItems(
 
     return mappedItems;
   } else {
-    const registryFile = paths.remoteRegistry;
-    const data: { items: RegistryData[] } = await fs.readJSON(registryFile);
-    const mappedItems = data.items.filter(item => item.type === type);
-    return mappedItems;
+    const url = `${SERVERCN_URL}/sr/index.json`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        if (response.status === 404) {
+          logger.error(`\n${capitalize(type)} not found in registry.`);
+        } else {
+          logger.error(
+            `\nFailed to fetch registry item: ${response.statusText}`
+          );
+        }
+        process.exit(1);
+      }
+      const data: { items: RegistryData[] } = await response.json();
+      const mappedItems = data.items.filter(item => item.type === type);
+      return mappedItems;
+    } catch (error) {
+      logger.error(`\nNetwork error: ${error}`);
+      process.exit(1);
+    }
   }
 }

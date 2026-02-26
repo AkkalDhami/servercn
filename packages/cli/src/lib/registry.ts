@@ -18,7 +18,7 @@ export async function getRegistry<T extends keyof RegistryMap>(
     : name;
 
   if (local) {
-    const registryPath = paths.registry(type);
+    const registryPath = paths.localRegistry(type);
 
     if (!(await fs.pathExists(registryPath))) {
       logger.break();
@@ -60,7 +60,7 @@ export async function getRegistry<T extends keyof RegistryMap>(
     }
 
     // Fetch from SERVERCN_URL
-    const url = `${SERVERCN_URL}/sr/v1/${type}/${registryItemName}.json`;
+    const url = `${SERVERCN_URL}/sr/${type}/${registryItemName}.json`;
     try {
       const response = await fetch(url);
       if (!response.ok) {

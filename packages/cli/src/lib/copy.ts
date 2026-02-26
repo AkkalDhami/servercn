@@ -1,8 +1,10 @@
 import fs from "fs-extra";
 import path from "node:path";
 import { logger } from "@/utils/logger";
-import type { CopyOptions } from "@/types";
+import type { AddOptions, CopyOptions, RegistryItem } from "@/types";
+import { findFilesByPath } from "@/utils/file";
 
+//? development mode
 export async function copyTemplate({
   templateDir,
   targetDir,
@@ -70,5 +72,51 @@ export async function copyTemplate({
     } else {
       logger.create(relativeDestPath);
     }
+  }
+}
+
+//? production mode
+export async function cloneServercnRegistry({
+  component,
+  templatePath,
+  targetDir,
+  selectedProvider,
+  options
+}: {
+  component: RegistryItem,
+  templatePath: string,
+  targetDir: string,
+  selectedProvider?: string,
+  options: AddOptions
+}) {
+  logger.break();
+  try {
+    const files = findFilesByPath(component, templatePath, selectedProvider)
+    if (!files || files.length === 0) {
+      logger.error(`\nNo files found in registry.\n`);
+      return;
+    }
+
+    for (const file of files) {
+      const destPath = path.join(targetDir, file.path);
+      const exists = await fs.pathExists(destPath);
+
+      if (exists && !options.force) {
+        logger.skip(file.path);
+        continue;
+      }
+
+      await fs.ensureDir(path.dirname(destPath));
+      await fs.writeFile(destPath, file.content);
+
+      if (exists) {
+        logger.overwrite(file.path);
+      } else {
+        logger.create(file.path);
+      }
+    }
+  } catch (error) {
+    logger.error(`\nFailed to scaffold files from registry: ${error}`);
+    return;
   }
 }
