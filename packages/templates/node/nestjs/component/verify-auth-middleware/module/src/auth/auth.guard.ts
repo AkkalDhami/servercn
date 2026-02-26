@@ -3,9 +3,9 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -18,6 +18,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly reflector: Reflector,
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,16 +39,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized, please login first.');
     }
 
-    const secret = process.env.JWT_ACCESS_SECRET;
-    if (!secret) {
-      this.logger.error('JWT_ACCESS_SECRET is not configured');
-      throw new InternalServerErrorException(
-        'Authentication is not configured',
-      );
-    }
-
     try {
-      const payload = this.jwtService.verify(token, { secret });
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.getOrThrow('JWT_ACCESS_SECRET'),
+      });
       // Attach user to request
       (request as any).user = payload;
     } catch {

@@ -1,23 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import { EmailOptions, EmailConfig } from './email.interface';
-import { getEmailConfig } from '../config/email.config';
+import { EmailOptions } from './email.interface';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private resend: Resend;
-  private config: EmailConfig;
+  private readonly resend: Resend;
+  private readonly defaultFrom: string;
 
-  constructor() {
-    this.config = getEmailConfig();
-    this.resend = new Resend(this.config.apiKey);
+  constructor(private readonly configService: ConfigService) {
+    this.resend = new Resend(
+      this.configService.getOrThrow('RESEND_API_KEY'),
+    );
+    this.defaultFrom = this.configService.getOrThrow('EMAIL_FROM');
   }
 
   async send(options: EmailOptions): Promise<{ id: string } | null> {
     try {
       const { data, error } = await this.resend.emails.send({
-        from: options.from || this.config.from,
+        from: options.from || this.defaultFrom,
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,
         html: options.html,

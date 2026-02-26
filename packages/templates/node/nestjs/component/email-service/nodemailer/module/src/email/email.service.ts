@@ -1,39 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { EmailOptions, EmailConfig } from './email.interface';
-import { getEmailConfig } from '../config/email.config';
+import { EmailOptions } from './email.interface';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: nodemailer.Transporter | null = null;
-  private config: EmailConfig;
+  private readonly transporter: nodemailer.Transporter;
+  private readonly defaultFrom: string;
 
-  constructor() {
-    this.config = getEmailConfig();
-    this.initializeTransporter();
-  }
+  constructor(private readonly configService: ConfigService) {
+    const host = this.configService.getOrThrow('SMTP_HOST');
+    const port = Number(this.configService.getOrThrow('SMTP_PORT'));
+    const user = this.configService.getOrThrow('SMTP_USER');
+    const pass = this.configService.getOrThrow('SMTP_PASS');
+    this.defaultFrom = this.configService.getOrThrow('EMAIL_FROM');
 
-  private initializeTransporter() {
     this.transporter = nodemailer.createTransport({
-      host: this.config.host,
-      port: this.config.port,
-      secure: this.config.secure,
-      auth: {
-        user: this.config.user,
-        pass: this.config.pass,
-      },
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
     });
   }
 
   async send(options: EmailOptions): Promise<boolean> {
-    if (!this.transporter) {
-      throw new Error('Email transporter not initialized');
-    }
-
     try {
       const mailOptions = {
-        from: options.from || this.config.from,
+        from: options.from || this.defaultFrom,
         to: Array.isArray(options.to) ? options.to.join(',') : options.to,
         subject: options.subject,
         html: options.html,
@@ -56,15 +50,11 @@ export class EmailService {
       return true;
     } catch (error) {
       this.logger.error(`Failed to send email: ${error}`);
-      throw new Error('Failed to send email');
+      throw error;
     }
   }
 
   async verifyConnection(): Promise<boolean> {
-    if (!this.transporter) {
-      return false;
-    }
-
     try {
       await this.transporter.verify();
       this.logger.log('Email transporter is ready');

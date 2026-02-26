@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 
 /**
@@ -11,20 +12,24 @@ import helmet from 'helmet';
  *
  * async function bootstrap() {
  *   const app = await NestFactory.create(AppModule);
- *   configureSecurityHeaders(app);
+ *   const configService = app.get(ConfigService);
+ *   configureSecurityHeaders(app, configService);
  *   await app.listen(3000);
  * }
  * ```
  */
-export function configureSecurityHeaders(app: INestApplication) {
+export function configureSecurityHeaders(
+  app: INestApplication,
+  configService: ConfigService,
+) {
   // Helmet sets various security-related HTTP headers
   app.use(helmet());
 
   // Configure CORS
-  const corsOrigin = process.env.CORS_ORIGIN;
+  const corsOrigin = configService.get('CORS_ORIGIN');
   app.enableCors({
     origin: corsOrigin || '*',
-    credentials: !!corsOrigin, // Only enable credentials when explicit origin is set
+    credentials: !!corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });

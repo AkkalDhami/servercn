@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as crypto from 'node:crypto';
 import { OtpResult, TokenResult } from './otp.interface';
 
 @Injectable()
 export class OtpService {
+  constructor(private readonly configService: ConfigService) { }
+
   /** Generate a numeric OTP with SHA-256 hash */
   generateOTP(length: number = 6, ttlMinutes: number = 5): OtpResult {
     const code = crypto
@@ -49,12 +52,7 @@ export class OtpService {
 
   /** Generate an HMAC token and its hash, bound to a specific identifier */
   generateTokenAndHashedToken(id: string): TokenResult {
-    const cryptoSecret = process.env.CRYPTO_SECRET;
-    if (!cryptoSecret) {
-      throw new Error(
-        'CRYPTO_SECRET environment variable is required for token generation',
-      );
-    }
+    const cryptoSecret = this.configService.getOrThrow('CRYPTO_SECRET');
     const token = crypto
       .createHmac('sha256', cryptoSecret)
       .update(String(id))

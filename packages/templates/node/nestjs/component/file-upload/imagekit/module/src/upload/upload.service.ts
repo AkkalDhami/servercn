@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import ImageKit from '@imagekit/nodejs';
 import { toFile } from '@imagekit/nodejs';
-import { getImageKitConfig } from '../config/imagekit.config';
 
 export interface UploadOptions {
   folder?: string;
@@ -19,10 +19,9 @@ export class UploadService {
   private readonly logger = new Logger(UploadService.name);
   private readonly imagekitClient: ImageKit;
 
-  constructor() {
-    const config = getImageKitConfig();
+  constructor(private readonly configService: ConfigService) {
     this.imagekitClient = new ImageKit({
-      privateKey: config.privateKey,
+      privateKey: this.configService.getOrThrow('IMAGEKIT_PRIVATE_KEY'),
     });
   }
 
