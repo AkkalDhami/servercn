@@ -136,6 +136,7 @@ export interface RegistryComponent extends IRegistryCommon {
 //? registry:foundation
 export interface FoundationFramework {
   architectures: Record<Architecture, Record<"files", Array<{ type: string, path: string, content: string }>>>
+  templates: ArchitectureSet
   dependencies?: DependencySet;
   env?: EnvSet;
 }

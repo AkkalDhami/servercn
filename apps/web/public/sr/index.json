@@ -4,127 +4,158 @@
   "items": [
     {
       "type": "component",
-      "slug": "verify-auth-middleware"
+      "slug": "verify-auth-middleware",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "validate-objectid"
+      "slug": "validate-objectid",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "swagger-docs"
+      "slug": "swagger-docs",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "shutdown-handler"
+      "slug": "shutdown-handler",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "security-header"
+      "slug": "security-header",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "response-formatter"
+      "slug": "response-formatter",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "request-validator"
+      "slug": "request-validator",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "rbac"
+      "slug": "rbac",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "rate-limiter"
+      "slug": "rate-limiter",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "password-hashing"
+      "slug": "password-hashing",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "oauth"
+      "slug": "oauth",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "not-found-handler"
+      "slug": "not-found-handler",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "logger"
+      "slug": "logger",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "jwt-utils"
+      "slug": "jwt-utils",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "http-status-codes"
+      "slug": "http-status-codes",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "health-check"
+      "slug": "health-check",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "global-error-handler"
+      "slug": "global-error-handler",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "generate-otp-token"
+      "slug": "generate-otp-token",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "file-upload"
+      "slug": "file-upload",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "error-handler"
+      "slug": "error-handler",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "env"
+      "slug": "env",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "email-service"
+      "slug": "email-service",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "cron-job"
+      "slug": "cron-job",
+      "frameworks": ["express"]
     },
     {
       "type": "component",
-      "slug": "async-handler"
+      "slug": "async-handler",
+      "frameworks": ["express"]
     },
     {
       "type": "blueprint",
-      "slug": "stateless-auth"
+      "slug": "stateless-auth",
+      "frameworks": ["express"]
     },
     {
       "type": "schema",
-      "slug": "todo"
+      "slug": "todo",
+      "frameworks": ["express"]
     },
     {
       "type": "schema",
-      "slug": "auth"
+      "slug": "auth",
+      "frameworks": ["express"]
     },
     {
       "type": "foundation",
-      "slug": "mongoose-starter"
+      "slug": "mongoose-starter",
+      "frameworks": ["express"]
     },
     {
       "type": "foundation",
-      "slug": "express-server"
+      "slug": "express-server",
+      "frameworks": ["express"]
     },
     {
       "type": "foundation",
-      "slug": "drizzle-pg-starter"
+      "slug": "drizzle-pg-starter",
+      "frameworks": ["express"]
     },
     {
       "type": "foundation",
-      "slug": "drizzle-mysql-starter"
+      "slug": "drizzle-mysql-starter",
+      "frameworks": ["express"]
     },
     {
       "type": "tooling",
