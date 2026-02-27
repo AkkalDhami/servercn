@@ -1,7 +1,6 @@
 "use client";
 import { ArrowUp } from "lucide-react";
-import { motion } from "motion/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -31,14 +30,11 @@ export function ScrollToTopButton() {
   }, []);
   return (
     isVisible && (
-      <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
+      <button
         onClick={handleOnclick}
         className="bg-primary hover:bg-primary/80 text-primary-foreground fixed right-4 bottom-3 z-40 cursor-pointer rounded-md p-3 duration-300">
         <ArrowUp className="size-4" />
-      </motion.button>
+      </button>
     )
   );
 }
