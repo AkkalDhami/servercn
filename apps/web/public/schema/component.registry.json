@@ -103,8 +103,18 @@
       "minProperties": 1,
       "additionalProperties": false,
       "properties": {
-        "mvc": { "type": "string" },
-        "feature": { "type": "string" }
+        "mvc": {
+          "type": "string",
+          "description": "MVC architecture template path"
+        },
+        "feature": {
+          "type": "string",
+          "description": "Feature-based architecture template path"
+        },
+        "module": {
+          "type": "string",
+          "description": "Nestjs(Modular) architecture template path"
+        }
       }
     },
 

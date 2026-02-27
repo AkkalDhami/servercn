@@ -48,6 +48,9 @@
           "properties": {
             "express": {
               "$ref": "#/$defs/framework"
+            },
+            "nestjs": {
+              "$ref": "#/$defs/framework"
             }
           }
         }
@@ -153,6 +156,10 @@
         "feature": {
           "type": "string",
           "description": "Feature-based architecture template path"
+        },
+        "module": {
+          "type": "string",
+          "description": "Modular(Nestjs style) architecture template path"
         }
       },
       "minProperties": 1

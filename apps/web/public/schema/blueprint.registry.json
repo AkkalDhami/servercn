@@ -145,6 +145,10 @@
         "feature": {
           "type": "string",
           "description": "Feature-based architecture template path"
+        },
+        "module": {
+          "type": "string",
+          "description": "Nestjs(Modular) architecture template path"
         }
       },
       "minProperties": 1
