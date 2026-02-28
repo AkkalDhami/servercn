@@ -626,102 +626,9 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
 }
 ```
 
-### 4. Health Check with External Services
-
-Check external service dependencies:
-
-```ts
-export const healthCheckWithServices = async (_req: Request, res: Response) => {
-  const checks = {
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    checks: {
-      database: await checkDatabase(),
-      redis: await checkRedis(),
-      externalApi: await checkExternalApi()
-    }
-  };
-
-  // Determine overall health
-  const allHealthy = Object.values(checks.checks).every(
-    status => status === "healthy"
-  );
-
-  if (!allHealthy) {
-    checks.status = "degraded";
-    return ApiResponse.Error(res, "Service is degraded", checks);
-  }
-
-  return ApiResponse.Success(res, "Service is healthy", checks);
-};
-
-async function checkDatabase(): Promise<string> {
-  try {
-    // Your database check logic
-    return "healthy";
-  } catch {
-    return "unhealthy";
-  }
-}
-
-async function checkRedis(): Promise<string> {
-  try {
-    // Your Redis check logic
-    return "healthy";
-  } catch {
-    return "unhealthy";
-  }
-}
-
-async function checkExternalApi(): Promise<string> {
-  try {
-    // Your external API check logic
-    return "healthy";
-  } catch {
-    return "unhealthy";
-  }
-}
-```
-
-### 5. Using Async Handler
-
-With async handler for better error handling:
-
-```ts
-import { AsyncHandler } from "../utils/async-handler";
-
-export const healthCheck = AsyncHandler(
-  async (_req: Request, res: Response) => {
-    return ApiResponse.Success(res, "Service is healthy", {
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  }
-);
-```
 
 ## Route Setup
 
-### Basic Setup
-
-<Code children="src/app.ts" />
-
-```ts
-import express, { type Application } from "express";
-import healthRoutes from "./routes/health.routes";
-
-const app: Application = express();
-
-app.use(express.json());
-
-// Health check routes (usually placed early)
-app.use("/api/health", healthRoutes);
-
-// Other routes...
-```
-
-### Multiple Health Endpoints
 
 <Code children="src/routes/health.routes.ts" />
 
@@ -742,48 +649,23 @@ router.get("/db", healthCheckWithDB);
 export default router;
 ```
 
-## Best Practices
 
-1. **Keep it fast** - Health checks should respond quickly (< 100ms)
-2. **Don't include sensitive data** - Avoid exposing internal details
-3. **Use appropriate status codes** - 200 for healthy, 503 for unhealthy
-4. **Monitor dependencies** - Check critical services (DB, Redis, etc.)
-5. **Set up alerts** - Configure alerts based on health check failures
-6. **Version your API** - Include version information in detailed checks
+<Code children="src/app.ts" />
 
-## Response Format
+```ts {9}
+import express, { type Application } from "express";
+import healthRoutes from "./routes/health.routes";
 
-### Healthy Response (200)
+const app: Application = express();
 
-```json
-{
-  "success": true,
-  "message": "Service is healthy",
-  "statusCode": 200,
-  "data": {
-    "status": "healthy",
-    "timestamp": "2024-01-15T10:30:00.000Z",
-    "uptime": 3600.5
-  }
-}
+app.use(express.json());
+
+// Health check routes (usually placed early)
+app.use("/api/health", healthRoutes);
+
+// Other routes...
 ```
 
-### Unhealthy Response (503)
-
-```json
-{
-  "success": false,
-  "message": "Service is unhealthy",
-  "statusCode": 503,
-  "data": {
-    "status": "unhealthy",
-    "timestamp": "2024-01-15T10:30:00.000Z",
-    "checks": {
-      "database": "disconnected"
-    }
-  }
-}
-```
 
 ## Security Considerations
 
