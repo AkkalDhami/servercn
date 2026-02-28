@@ -49,6 +49,8 @@ const TransactionSchema = new Schema<ITransaction>(
   { timestamps: true }
 );
 
+//? indexes
+TransactionSchema.index({ fromAccountId: 1, toAccountId: 1 });
 const Transaction = model<ITransaction>("Transaction", TransactionSchema);
 
 export default Transaction;

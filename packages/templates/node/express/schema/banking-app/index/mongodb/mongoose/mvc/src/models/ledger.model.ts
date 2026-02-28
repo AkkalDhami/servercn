@@ -43,6 +43,8 @@ const LedgerSchema = new Schema<ILedger>(
   { timestamps: true }
 );
 
+LedgerSchema.index({ accountId: 1, transactionId: 1 });
+
 function preventLedgerUpdate() {
   throw new Error("Ledger cannot be updated");
 }
