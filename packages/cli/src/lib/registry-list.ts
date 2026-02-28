@@ -59,8 +59,8 @@ export async function loadRegistryItems(
       const data: { items: RegistryData[] } = await response.json();
       const mappedItems = data.items.filter(item => item.type === type);
       return mappedItems;
-    } catch (error) {
-      logger.error(`\nNetwork error: ${error}`);
+    } catch {
+      logger.error(`\nFailed to fetch registry item\n`);
       process.exit(1);
     }
   }

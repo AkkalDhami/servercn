@@ -29,6 +29,7 @@ export interface AddOptions {
   arch?: Architecture;
   force?: boolean;
   local?: boolean;
+  fw?: FrameworkType;
 }
 export interface CopyOptions {
   templateDir: string;
@@ -79,6 +80,7 @@ export type DependencySet = {
 export type ArchitectureSet = {
   mvc?: string;
   feature?: string;
+  modular?: string;
 };
 
 export type EnvSet = string[];
@@ -123,7 +125,7 @@ export type FrameworkConfig = VariantFramework | SimpleFramework;
 export interface NodeRuntime {
   frameworks: {
     express?: FrameworkConfig;
-    nest?: FrameworkConfig;
+    nestjs?: FrameworkConfig;
   };
 }
 
@@ -135,8 +137,11 @@ export interface RegistryComponent extends IRegistryCommon {
 
 //? registry:foundation
 export interface FoundationFramework {
-  architectures: Record<Architecture, Record<"files", Array<{ type: string, path: string, content: string }>>>
-  templates: ArchitectureSet
+  architectures: Record<
+    Architecture,
+    Record<"files", Array<{ type: string; path: string; content: string }>>
+  >;
+  templates: ArchitectureSet;
   dependencies?: DependencySet;
   env?: EnvSet;
 }
@@ -144,7 +149,7 @@ export interface FoundationFramework {
 export interface NodeFoundationRuntime {
   frameworks: {
     express?: FoundationFramework;
-    nest?: FoundationFramework;
+    nestjs?: FoundationFramework;
   };
 }
 

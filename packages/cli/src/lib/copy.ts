@@ -83,18 +83,17 @@ export async function cloneServercnRegistry({
   selectedProvider,
   options
 }: {
-  component: RegistryItem,
-  templatePath: string,
-  targetDir: string,
-  selectedProvider?: string,
-  options: AddOptions
-}) {
+  component: RegistryItem;
+  templatePath: string;
+  targetDir: string;
+  selectedProvider?: string;
+  options: AddOptions;
+}): Promise<boolean> {
   logger.break();
   try {
-    const files = findFilesByPath(component, templatePath, selectedProvider)
+    const files = findFilesByPath(component, templatePath, selectedProvider);
     if (!files || files.length === 0) {
-      logger.error(`\nNo files found in registry.\n`);
-      return;
+      return false;
     }
 
     for (const file of files) {
@@ -115,8 +114,8 @@ export async function cloneServercnRegistry({
         logger.create(file.path);
       }
     }
-  } catch (error) {
-    logger.error(`\nFailed to scaffold files from registry: ${error}`);
-    return;
+    return true;
+  } catch {
+    return false;
   }
 }
