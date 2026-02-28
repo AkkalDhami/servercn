@@ -27,12 +27,12 @@ You will be prompted to configure your stack:
 > npx servercn-cli init
 
 √ Project root directory ... .
-√ Source directory ... src
-√ Select architecture » MVC (controllers, services, models)
 √ Programming language » Typescript (recommended)
 √ Backend framework » Express.js
+√ Select architecture » MVC (controllers, services, models)
 √ Select database » Mongodb
 √ Mongodb library » mongoose
+√ Select package manager » npm
 
 ServerCN initialized successfully.
 
@@ -46,11 +46,11 @@ This generates a <Code>servercn.config.json</Code> file in your project root:
 ```json
 {
   "$schema": "https://servercn.vercel.app/schema/servercn.config.registry.json",
-  "version": "1.1.1",
+  "version": "1.1.5",
   "project": {
     "root": ".",
-    "srcDir": "src",
-    "type": "backend"
+    "type": "backend",
+    "packageManager": "npm"
   },
   "stack": {
     "runtime": "node",
@@ -59,12 +59,12 @@ This generates a <Code>servercn.config.json</Code> file in your project root:
     "architecture": "mvc"
   },
   "database": {
-    "type": "mongodb",
-    "orm": "mongoose"
+    "engine": "mongodb",
+    "adapter": "mongoose"
   },
   "meta": {
-    "createdAt": "2026-02-19T14:52:44.537Z",
-    "createdBy": "servercn@1.1.1"
+    "createdAt": "2026-02-28T13:51:27.198Z",
+    "createdBy": "servercn@1.1.5"
   }
 }
 ```
@@ -91,6 +91,7 @@ Example:
 
 √ Project root directory ... drizzle-starter
 √ Select architecture » Feature (modules, shared)
+√ Select package manager » npm
 √ Initialize git repository? ... no
 ```
 
@@ -102,8 +103,8 @@ This creates a configured project with <Code>servercn.config.json</Code>:
   "version": "1.1.1",
   "project": {
     "root": "drizzle-starter",
-    "srcDir": "src",
-    "type": "backend"
+    "type": "backend",
+    "packageManager": "npm"
   },
   "stack": {
     "runtime": "node",
@@ -112,8 +113,8 @@ This creates a configured project with <Code>servercn.config.json</Code>:
     "architecture": "feature"
   },
   "database": {
-    "type": "postgresql",
-    "orm": "drizzle"
+    "engine": "postgresql",
+    "adapter": "drizzle"
   },
   "meta": {
     "createdAt": "2026-02-20T07:01:41.475Z",
@@ -129,34 +130,6 @@ List all available registry item commands.
 
 <PackageManagerTabs command="npx servercn-cli list" />
 
-```
-ServerCN Registry Overview
-
-────────────────────────────────────────
-│ Type         │ Shortcut │ Total │ Command                   │
-────────────────────────────────────────
-│ Components   │   cp     │  30   │ npx servercn-cli list cp  │
-│ Blueprints   │   bp     │  02   │ npx servercn-cli list bp  │
-│ Foundations  │   fd     │  04   │ npx servercn-cli list fd  │
-│ Tooling      │   tl     │  06   │ npx servercn-cli list tl  │
-│ Schemas      │   sc     │  02   │ npx servercn-cli list sc  │
-────────────────────────────────────────
-
- Explore:
- npx servercn-cli list <type | shortcut>
- npx servercn-cli list <type | shortcut> --json
-
- Examples:
- npx servercn-cli list components
- npx servercn-cli list cp
- npx servercn-cli ls fd
- npx servercn-cli list schemas
- npx servercn-cli ls sc --json
- ```
-
-**Description:**  
-Displays all available starters, components, and schemas in a readable format.
-
 ---
 
 ## <Code>list --json</Code>
@@ -171,31 +144,31 @@ Return registry item commands in JSON format.
   "types": [
     {
       "type": "component",
-      "shortcut": "cp",
-      "total": 30,
+      "alias": "cp",
+      "total": 24,
       "command": "npx servercn-cli list cp"
     },
     {
       "type": "blueprint",
-      "shortcut": "bp",
-      "total": 2,
+      "alias": "bp",
+      "total": 1,
       "command": "npx servercn-cli list bp"
     },
     {
       "type": "foundation",
-      "shortcut": "fd",
+      "alias": "fd",
       "total": 4,
       "command": "npx servercn-cli list fd"
     },
     {
       "type": "tooling",
-      "shortcut": "tl",
+      "alias": "tl",
       "total": 6,
       "command": "npx servercn-cli list tl"
     },
     {
       "type": "schema",
-      "shortcut": "sc",
+      "alias": "sc",
       "total": 2,
       "command": "npx servercn-cli list sc"
     }
@@ -215,10 +188,8 @@ Return all registry items in JSON structure.
 
 <PackageManagerTabs command="npx servercn-cli ls --all --json" />
 
-**Description:**  
-Outputs registry metadata in machine-readable JSON format. Useful for automation and tooling.
-
 ---
+
 ## <Code>add</Code>
 
 The <Code>add</Code> command installs a registry resource into your existing ServerCN project.
@@ -300,73 +271,78 @@ List available all foundation.
   "items": [
     {
       "name": "drizzle-mysql-starter",
-      "command": "npx servercn-cli init drizzle-mysql-starter"
+      "command": "npx servercn-cli init drizzle-mysql-starter",
+      "frameworks": [
+        "express"
+      ]
     },
     {
       "name": "drizzle-pg-starter",
-      "command": "npx servercn-cli init drizzle-pg-starter"
+      "command": "npx servercn-cli init drizzle-pg-starter",
+      "frameworks": [
+        "express"
+      ]
     },
     {
       "name": "express-server",
-      "command": "npx servercn-cli init express-server"
+      "command": "npx servercn-cli init express-server",
+      "frameworks": [
+        "express"
+      ]
     },
     {
       "name": "mongoose-starter",
-      "command": "npx servercn-cli init mongoose-starter"
+      "command": "npx servercn-cli init mongoose-starter",
+      "frameworks": [
+        "express"
+      ]
     }
   ]
 }
 ```
 
-**Description:**  
-Shows all foundation available in the registry.
-
-
 ---
 
 ## <Code>ls cp</Code>
 
-List available components.
+Displays all reusable components available in the registry.
 
 <PackageManagerTabs command="npx servercn-cli ls cp" />
 <PackageManagerTabs command="npx servercn-cli ls cp --json" />
-
-**Description:**  
-Displays all reusable components available in the registry.
 
 ---
 
 ## <Code>ls bp</Code>
 
-List available blueprints.
+Display all blueprints available in the servercn.
 
 <PackageManagerTabs command="npx servercn-cli ls bp" />
 <PackageManagerTabs command="npx servercn-cli ls bp --json" />
-
-**Description:**  
-Display all blueprints available in the servercn.
 
 ---
 
 ## <Code>ls sc</Code>
 
-List available schema.
+Display all schema available in the servercn.
 
 <PackageManagerTabs command="npx servercn-cli ls sc" />
 <PackageManagerTabs command="npx servercn-cli ls sc --json" />
 
-**Description:**  
-Display all schema available in the servercn.
-
 ---
 ## <Code>ls tl</Code>
 
-List available tooling.
+Display all tooling available in the servercn.
 
+<PackageManagerTabs command="npx servercn-cli ls tl" />
 <PackageManagerTabs command="npx servercn-cli ls tl" />
 <PackageManagerTabs command="npx servercn-cli ls tl --json" />
 
-**Description:**  
-Display all tooling available in the servercn.
-
 ---
+
+## <Code>build</Code>
+
+The <Code>build</Code> command generate registry json files in <Code>apps/web/public/sr/**</Code>
+
+Use the following command to execute the build process:
+
+<PackageManagerTabs command="npx servercn-cli build" />
