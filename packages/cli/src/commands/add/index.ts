@@ -168,13 +168,17 @@ export async function scaffoldFiles(
       conflict: options.force ? "overwrite" : "skip"
     });
   } else {
-    await cloneServercnRegistry({
+    const isCloned = await cloneServercnRegistry({
       component,
       templatePath,
       targetDir,
       options,
       selectedProvider
-    })
+    });
+    if (!isCloned) {
+      logger.error(`\nFailed to clone template: ${templatePath}\n`);
+      process.exit(1);
+    }
   }
 
   logger.break();

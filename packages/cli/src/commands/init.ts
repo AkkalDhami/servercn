@@ -45,7 +45,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         message: "Select architecture",
         choices: [
           { title: "MVC (controllers, services, models)", value: "mvc" },
-          { title: "Feature (modules, shared)", value: "feature" }
+          { title: "Feature (modules, shared)", value: "feature" },
+          { title: "Modular Architecture (NestJS)", value: "modular" }
         ]
       },
       {
@@ -102,22 +103,30 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         "foundation"
       );
 
-      const baseConfig = component.runtimes["node"].frameworks["express"];
+      const baseConfig =
+        component.runtimes["node"].frameworks[options.fw ?? "express"];
 
-      const templatePath = `node/express/${response.architecture}`
+      const templatePath = `node/${options?.fw ?? "express"}/${response.architecture}`;
       if (!templatePath) {
         logger.error(
-          `Template not found for ${foundation.toLowerCase()} (${response.architecture})`
+          `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
         );
+        fs.removeSync(rootPath);
         return;
       }
 
-      await cloneServercnRegistry({
+      const isCloned = await cloneServercnRegistry({
         templatePath,
         targetDir: response.root,
         component,
         options
-      })
+      });
+
+      if (!isCloned) {
+        logger.error(`Failed to initialize foundation:${foundation}.\n`);
+        fs.removeSync(rootPath);
+        return;
+      }
 
       await fs.writeJson(
         path.join(rootPath, SERVERCN_CONFIG_FILE),
@@ -185,7 +194,9 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         packageManager: response.packageManager
       });
       logger.break();
-      logger.success(`${APP_NAME} initialized with 'foundation:${foundation}'.`);
+      logger.success(
+        `${APP_NAME} initialized with 'foundation:${foundation}'.`
+      );
       logger.break();
       logger.info("Configure environment variables in .env file.");
       logger.break();
@@ -217,15 +228,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     },
     {
       type: "select",
-      name: "architecture",
-      message: "Select architecture",
-      choices: [
-        { title: "MVC (controllers, services, models)", value: "mvc" },
-        { title: "Feature-based (modules, shared)", value: "feature" }
-      ]
-    },
-    {
-      type: "select",
       name: "language",
       message: "Programming language",
       choices: [
@@ -239,8 +241,29 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       type: "select",
       name: "framework",
       message: "Backend framework",
-      choices: [{ title: "Express.js", value: "express" }]
+      choices: [
+        {
+          title: "Express.js",
+          value: "express"
+        },
+        {
+          title: "NestJS",
+          value: "nestjs"
+        }
+      ],
+      initial: 0
     },
+    {
+      type: "select",
+      name: "architecture",
+      message: "Select architecture",
+      choices: [
+        { title: "MVC (controllers, services, models)", value: "mvc" },
+        { title: "Feature-based (modules, shared)", value: "feature" },
+        { title: "Modular Architecture (NestJS)", value: "modular" }
+      ]
+    },
+
     {
       type: "select",
       name: "databaseType",
