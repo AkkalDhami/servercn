@@ -1,6 +1,5 @@
 import {
   mysqlTable,
-  serial,
   varchar,
   boolean,
   timestamp,
@@ -12,8 +11,6 @@ import {
 } from "drizzle-orm/mysql-core";
 import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
-import { refreshTokens } from "./refresh-token.schema";
-import { sessions } from "./session.schema";
 
 export interface IAvatar {
   public_id?: string;
@@ -57,12 +54,8 @@ export const users = mysqlTable(
 
 //? Relations between
 //? i. user and refresh tokens.
-//? ii. user and sessions.
 //? (One-to-Many)
-export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens),
-  sessions: many(sessions)
-}));
+
 
 //? User type
 export type User = typeof users.$inferSelect;
