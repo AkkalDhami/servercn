@@ -65,8 +65,8 @@ export async function getRegistry<T extends keyof RegistryMap>(
         process.exit(1);
       }
       return (await response.json()) as RegistryMap[T];
-    } catch (error) {
-      logger.error(`\nNetwork error: ${error}`);
+    } catch {
+      logger.error(`\nFailed to fetch registry item\n`);
       process.exit(1);
     }
   }
