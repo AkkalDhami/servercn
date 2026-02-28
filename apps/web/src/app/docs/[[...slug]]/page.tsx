@@ -133,9 +133,6 @@ function getDocPath(slug?: string[]) {
 
   // Remove framework segment if present (express or nestjs)
   const actualSlug = slug;
-  // if (slug && (slug[0] === "express" || slug[0] === "nestjs")) {
-  //   actualSlug = slug.slice(1);
-  // }
 
   if (actualSlug.length === 2 && actualSlug[0] === "contributing") {
     return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
@@ -159,7 +156,6 @@ export default async function DocsPage({
 }: DocsSlugRouterProps) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
-  const currentArch = (resolvedSearchParams?.arch as string) ?? "mvc";
 
   const filePath = getDocPath(slug);
   if (!fs.existsSync(filePath)) {
@@ -172,6 +168,10 @@ export default async function DocsPage({
     actualSlug = slug.slice(1);
   }
 
+  // Determine current architecture based on framework or URL param
+  const currentArch =
+    (resolvedSearchParams?.arch as string) ||
+    (slug[0] === "nestjs" ? "modular" : "mvc");
   const lastComponentIndex = actualSlug.length > 0 ? actualSlug.length - 1 : -1;
   const lastSlug =
     lastComponentIndex >= 0 ? actualSlug[lastComponentIndex] : undefined;
@@ -185,9 +185,14 @@ export default async function DocsPage({
 
   const mvcStructure = (data.mvc_structure as FileNode[]) || [];
   const featureStructure = (data.feature_structure as FileNode[]) || [];
+  const modularStructure = (data.modular_structure as FileNode[]) || [];
 
   const currentArchStructure =
-    currentArch === "mvc" ? mvcStructure : featureStructure;
+    currentArch === "mvc"
+      ? mvcStructure
+      : currentArch === "feature"
+        ? featureStructure
+        : modularStructure;
 
   const cookieStore = await cookies();
   const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
@@ -226,18 +231,27 @@ export default async function DocsPage({
             />
           </article>
           <div className="w-full overflow-x-auto">
-            {(mvcStructure.length > 0 || featureStructure.length > 0) &&
+            {(mvcStructure.length > 0 ||
+              featureStructure.length > 0 ||
+              modularStructure.length > 0) &&
               currentArchStructure &&
               lastSlug &&
               !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
                 <>
-                  <h2 className="mt-8 text-2xl font-semibold tracking-tight">
+                  <h2 className="mt-8 mb-4 text-2xl font-semibold tracking-tight">
                     File &amp; Folder Structure
                   </h2>
-                  <ArchitectureTabs current={currentArch || "mvc"} />
+                  <ArchitectureTabs
+                    current={currentArch || "mvc"}
+                    framework={currentFramework}
+                  />
                   <BackendStructureViewer
                     structure={
-                      currentArch === "mvc" ? mvcStructure : featureStructure
+                      currentArch === "mvc"
+                        ? mvcStructure
+                        : currentArch === "feature"
+                          ? featureStructure
+                          : modularStructure
                     }
                   />
                 </>
@@ -318,4 +332,4 @@ const NextSteps = ({
       )}
     </div>
   );
-};;
+};

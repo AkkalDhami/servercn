@@ -33,34 +33,21 @@ export default function BackendStructureViewer({
         orientation="horizontal"
         className="min-h-50 max-w-md rounded-lg border md:min-w-112.5">
         <ResizablePanel defaultSize="25%">
-          {/* <div className="thin-scrollbar w-full max-w-[calc(100%-17rem)] overflow-auto p-4"> */}
           <FileViewer content={activeFile?.content} />
-          {/* </div> */}
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="75%">
-          {/* <div className="code-wrapper thin-scrollbar w-72 overflow-auto p-4"> */}
           <FileTree
             data={structure}
             activeFile={activeFile?.name}
             onSelect={setActiveFile}
           />
-          {/* </div> */}
         </ResizablePanel>
       </ResizablePanelGroup>
     );
   }
 
   return (
-    // <div
-    //   className={cn(
-    //     "flex h-130 w-full max-w-200 overflow-auto rounded-xl",
-    //     className
-    //   )}
-    //   style={{
-    //     backgroundColor: bg,
-    //     border: `1px solid ${bg}`
-    //   }}>
     <ResizablePanelGroup
       orientation="horizontal"
       className="thin-scrollbar min-h-130 max-w-md rounded-lg border md:min-w-200"

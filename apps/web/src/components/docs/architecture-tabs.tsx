@@ -3,27 +3,47 @@
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ARCHS = ["mvc", "feature"] as const;
+type Framework = "express" | "nestjs" | null;
 
-const archNaming = {
+type ArchType = "mvc" | "feature" | "modular";
+
+const ARCHS_BY_FRAMEWORK: Record<NonNullable<Framework>, ArchType[]> = {
+  express: ["mvc", "feature"],
+  nestjs: ["modular"]
+};
+
+const archNaming: Record<ArchType, string> = {
   mvc: "Model-View-Controller (MVC)",
-  feature: "Feature-Based (Modular)"
+  feature: "Feature-Based (Module, Shared)",
+  modular: "Modular (NestJS)"
 };
 
 export default function ArchitectureTabs({
   current,
+  framework,
   className
 }: {
   current: string;
+  framework?: Framework;
   className?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Determine available architectures based on framework
+  const availableArchs: ArchType[] = framework
+    ? ARCHS_BY_FRAMEWORK[framework] || ["mvc", "feature"]
+    : ["mvc", "feature"];
+
   function onChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("arch", value);
     router.replace(`?${params.toString()}`, { scroll: false });
+  }
+
+  // If only one architecture available, don't show tabs
+  if (availableArchs.length === 1) {
+    return null;
   }
 
   return (
@@ -32,8 +52,12 @@ export default function ArchitectureTabs({
         "bg-background text-muted-primary my-6 w-full overflow-auto rounded-md border sm:max-w-200",
         className
       )}>
-      <div className="bg-background grid grid-cols-2 gap-3">
-        {ARCHS.map(arch => (
+      <div
+        className={cn(
+          "bg-background grid gap-3",
+          availableArchs.length === 2 ? "grid-cols-2" : "grid-cols-3"
+        )}>
+        {availableArchs.map(arch => (
           <button
             key={arch}
             onClick={() => onChange(arch)}

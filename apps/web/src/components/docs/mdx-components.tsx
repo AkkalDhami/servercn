@@ -39,12 +39,12 @@ export const mdxComponents: MDXComponents = {
   h5: props => (
     <h5 className="my-3 text-[17px] font-medium tracking-tight" {...props} />
   ),
-  p: props => (
-    <p className="text-muted-primary mt-4 mb-3 leading-7" {...props} />
+  p: ({ className, ...props }) => (
+    <p className={cn("mt-4 mb-3 leading-7", className)} {...props} />
   ),
-  code: props => (
+  code: ({ className, ...props }) => (
     <code
-      className="thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200"
+      className={cn("thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200", className)}
       {...props}
     />
   ),
@@ -109,7 +109,7 @@ export const mdxComponents: MDXComponents = {
   }: React.ComponentProps<typeof TabsTrigger>) => (
     <TabsTrigger
       className={cn(
-        "text-muted-foreground data-[state=active]:text-foreground data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
+        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
         className
       )}
       {...props}
