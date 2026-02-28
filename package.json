@@ -8,7 +8,6 @@
   ],
   "scripts": {
     "build": "npm run build -ws",
-    "dev": "npm run dev -ws",
     "dev:app": "npm run dev -w apps/web",
     "dev:cli": "npm run dev -w packages/cli",
     "lint": "eslint .",
@@ -43,7 +42,7 @@
     "@types/passport-google-oauth20": "^2.0.17",
     "@types/source-map-support": "^0.5.10",
     "@types/swagger-ui-express": "^4.1.8",
-    "drizzle-kit": "^0.31.9",
+    "drizzle-kit": "^0.18.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^6.15.0",
