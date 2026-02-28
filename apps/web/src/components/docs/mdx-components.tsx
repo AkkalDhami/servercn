@@ -10,6 +10,7 @@ import LNote from "./list-note";
 import Warning from "./warning";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getIconForLanguageExtension } from "./icons";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
@@ -20,31 +21,61 @@ export const mdxComponents: MDXComponents = {
   Note,
   LNote,
   Warning,
-  h1: props => <h1 className="text-3xl font-bold tracking-tight" {...props} />,
+  h1: props => (
+    <h1 className="text-3xl font-semibold tracking-tight" {...props} />
+  ),
   h2: props => (
-    <h2
-      className="mt-8 mb-4 text-2xl font-semibold tracking-tight"
-      {...props}
-    />
+    <h2 className="mt-8 mb-4 text-2xl font-medium tracking-tight" {...props} />
   ),
   h3: props => (
     <h3
-      className="this-page-link my-3.5 text-xl font-medium tracking-tight"
+      className="this-page-link my-3.5 text-xl font-normal tracking-tight"
       {...props}
     />
   ),
   h4: props => (
-    <h4 className="my-3.5 text-lg font-medium tracking-tight" {...props} />
+    <h4 className="my-3.5 text-lg font-normal tracking-tight" {...props} />
   ),
   h5: props => (
-    <h5 className="my-3 text-[17px] font-medium tracking-tight" {...props} />
+    <h5 className="my-3 text-[17px] font-normal tracking-tight" {...props} />
   ),
   p: ({ className, ...props }) => (
-    <p className={cn("mt-4 mb-3 leading-7", className)} {...props} />
+    <p
+      className={cn("mt-4 mb-3 leading-relaxed not-first:mt-4", className)}
+      {...props}
+    />
   ),
+  figure: ({ className, ...props }: React.ComponentProps<"figure">) => {
+    return <figure className={cn(className)} {...props} />;
+  },
+  figcaption: ({
+    className,
+    children,
+    ...props
+  }: React.ComponentProps<"figcaption">) => {
+    const iconExtension =
+      "data-language" in props && typeof props["data-language"] === "string"
+        ? getIconForLanguageExtension(props["data-language"])
+        : null;
+
+    return (
+      <figcaption
+        className={cn(
+          "text-code-foreground [&_svg]:text-code-foreground flex items-center gap-2 [&_svg]:size-4 [&_svg]:opacity-70",
+          className
+        )}
+        {...props}>
+        {iconExtension}
+        {children}
+      </figcaption>
+    );
+  },
   code: ({ className, ...props }) => (
     <code
-      className={cn("thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200", className)}
+      className={cn(
+        "thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200",
+        className
+      )}
       {...props}
     />
   ),
@@ -71,7 +102,7 @@ export const mdxComponents: MDXComponents = {
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "mt-8 scroll-m-32 text-xl font-medium tracking-tight",
+        "mt-8 scroll-m-32 text-lg font-medium tracking-tight",
         className
       )}
       {...props}
