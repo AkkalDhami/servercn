@@ -1,5 +1,5 @@
 {
-  "$schema": "http://localhost:3000/schema/registry.json",
+  "$schema": "https://servercn.vercel.app/schema/registry.json",
   "name": "ServerCN",
   "homepage": "https://servercn.vercel.app",
   "author": "Akkal Dhami",
@@ -101,7 +101,7 @@
       "description": "A standardized, type-safe API response wrapper for Express applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/response-formatter"
     },
     {
@@ -119,7 +119,7 @@
       "description": "The Password Hashing component provides a standardized way to hash passwords in ServerCN using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/password-hashing"
     },
     {
@@ -128,7 +128,7 @@
       "description": "Centralized, type-safe HTTP status codes for consistent API responses.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/http-status-codes"
     },
     {
@@ -146,7 +146,7 @@
       "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/logger"
     },
     {
@@ -155,7 +155,7 @@
       "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/file-upload-cloudinary"
     },
     {
@@ -164,7 +164,7 @@
       "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using ImageKit as the storage provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/file-upload-imagekit"
     },
     {
@@ -173,7 +173,7 @@
       "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/email-service"
     },
     {
@@ -191,7 +191,7 @@
       "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/request-validator"
     },
     {
@@ -236,7 +236,7 @@
       "description": "The Rate Limiter component provides a standardized way to handle rate limiting in ServerCN.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/rate-limiter"
     },
     {
@@ -263,7 +263,7 @@
       "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/env-config"
     },
     {
@@ -335,7 +335,7 @@
       "description": "A production-ready MySQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/foundations/drizzle-mysql-starter"
     },
     {
@@ -344,7 +344,7 @@
       "description": "A production-ready PostgreSQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
     {
@@ -427,7 +427,7 @@
       "description": "Authentication domain schemas including User, OTP, and Session models with support for multiple databases.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/schemas/auth",
       "meta": {
         "databases": [
@@ -452,7 +452,7 @@
       "description": "A production-ready Todo schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/schemas/todo",
       "meta": {
         "databases": [
@@ -477,7 +477,7 @@
       "description": "A production-ready Banking schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/schemas/banking-app",
       "meta": {
         "databases": [

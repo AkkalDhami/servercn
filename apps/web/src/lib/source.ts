@@ -81,15 +81,30 @@ export const findNeighbour = (
   };
 };
 
-export function getTypeItems(type: ItemType): IRegistryItems[] {
+export function getTypeItems(
+  type: ItemType,
+  framework?: string | null
+): IRegistryItems[] {
   const items = registry.items
     .sort((a, b) => a.title.localeCompare(b.title))
-    .filter(item => item.type == type && item.status == "stable")
+    .filter(item => {
+      // Filter by type and status
+      if (item.type !== type || item.status !== "stable") return false;
+
+      // If no framework filter or item has no framework restrictions, include it
+      if (!framework || !item.frameworks || item.frameworks.length === 0) {
+        return true;
+      }
+
+      // Check if item supports the selected framework
+      return item.frameworks.includes(framework);
+    })
     .map(item => ({
       title: item.title,
       url: item.docs,
       status: item.status,
       slug: item.slug,
+      frameworks: item.frameworks,
       meta: item.meta as IRegistryItems["meta"],
       type: item.type
     }));
