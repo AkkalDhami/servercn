@@ -272,7 +272,7 @@
       "description": "Automated OpenAPI documentation and interactive UI for Express APIs using Swagger.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/swagger-docs"
     },
     {
@@ -290,7 +290,7 @@
       "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/validate-objectid"
     },
     {
@@ -299,7 +299,7 @@
       "description": "Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/generate-otp-token"
     },
     {
@@ -308,7 +308,7 @@
       "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and background jobs in ServerCN using node-cron.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/components/background-jobs"
     },
     {
@@ -326,7 +326,7 @@
       "description": "A production-ready MongoDB foundation with Mongoose, featuring schema validation and type safety.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express"],
       "docs": "/docs/foundations/mongoose-starter"
     },
     {
