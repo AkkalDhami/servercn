@@ -1,0 +1,376 @@
+---
+title: Health Check
+description: Production-ready health check endpoints for monitoring API status, database connectivity, and system health in NestJS applications.
+command: npx servercn-cli add health-check
+
+modular_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: health
+        children:
+          - type: file
+            name: health.controller.ts
+            content: |
+              import { Controller, Get } from "@nestjs/common";
+              import { HealthCheckService, HealthCheck } from "@nestjs/terminus";
+              import { PrismaHealthIndicator } from "./prisma.health";
+
+              @Controller("health")
+              export class HealthController {
+                constructor(
+                  private health: HealthCheckService,
+                  private prismaHealth: PrismaHealthIndicator,
+                ) {}
+
+                @Get()
+                @HealthCheck()
+                check() {
+                  return this.health.check([
+                    () => this.prismaHealth.isHealthy("database"),
+                  ]);
+                }
+
+                @Get("liveness")
+                @HealthCheck()
+                liveness() {
+                  return this.health.check([]);
+                }
+
+                @Get("readiness")
+                @HealthCheck()
+                readiness() {
+                  return this.health.check([
+                    () => this.prismaHealth.isHealthy("database"),
+                  ]);
+                }
+              }
+
+          - type: file
+            name: health.module.ts
+            content: |
+              import { Module } from "@nestjs/common";
+              import { TerminusModule } from "@nestjs/terminus";
+              import { HealthController } from "./health.controller";
+              import { PrismaHealthIndicator } from "./prisma.health";
+
+              @Module({
+                imports: [TerminusModule],
+                controllers: [HealthController],
+                providers: [PrismaHealthIndicator],
+              })
+              export class HealthModule {}
+
+          - type: file
+            name: prisma.health.ts
+            content: |
+              import { Injectable } from "@nestjs/common";
+              import {
+                HealthIndicator,
+                HealthIndicatorResult,
+                HealthCheckError,
+              } from "@nestjs/terminus";
+              import { PrismaService } from "../prisma/prisma.service";
+
+              @Injectable()
+              export class PrismaHealthIndicator extends HealthIndicator {
+                constructor(private readonly prismaService: PrismaService) {
+                  super();
+                }
+
+                async isHealthy(key: string): Promise<HealthIndicatorResult> {
+                  try {
+                    await this.prismaService.$queryRaw`SELECT 1`;
+                    return this.getStatus(key, true);
+                  } catch (e) {
+                    throw new HealthCheckError(
+                      "Prisma check failed",
+                      this.getStatus(key, false),
+                    );
+                  }
+                }
+              }
+
+      - type: file
+        name: app.module.ts
+        content: |
+          import { Module } from "@nestjs/common";
+          import { HealthModule } from "./health/health.module";
+
+          @Module({
+            imports: [HealthModule],
+          })
+          export class AppModule {}
+
+  - type: file
+    name: .env.example
+    content: |
+      PORT='3000'
+      NODE_ENV='development'
+      DATABASE_URL='postgresql://user:password@localhost:5432/dbname'
+
+---
+
+# Health Check
+
+The **Health Check** component provides production-ready endpoints for monitoring your NestJS API's status, system health, and service availability using the official <Code>@nestjs/terminus</Code> package. Essential for load balancers, monitoring systems, and deployment tools.
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+    <PackageManagerTabs command="npx servercn-cli add health-check"/>
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Install Required Dependencies</Step>
+<PackageManagerTabs command="npm install @nestjs/terminus"/>
+
+<Step>Basic Implementation</Step>
+
+
+<Code children="src/health/health.controller.ts" />
+
+```ts
+import { Controller, Get } from '@nestjs/common';
+import {
+HealthCheckService,
+HealthCheck,
+MemoryHealthIndicator,
+DiskHealthIndicator,
+} from '@nestjs/terminus';
+
+@Controller('health')
+export class HealthController {
+constructor(
+    private health: HealthCheckService,
+    private memory: MemoryHealthIndicator,
+    private disk: DiskHealthIndicator,
+) {}
+
+/**
+* Basic health check
+* GET /health
+*/
+@Get()
+@HealthCheck()
+check() {
+    return this.health.check([]);
+}
+
+/**
+* Detailed health check with system metrics
+* GET /health/detailed
+*/
+@Get('detailed')
+@HealthCheck()
+checkDetailed() {
+    return this.health.check([
+    // Heap should not use more than 150 MB
+    () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
+    // RSS should not exceed 300 MB
+    () => this.memory.checkRSS('memory_rss', 300 * 1024 * 1024),
+    // Storage should not exceed 90% usage
+    () =>
+        this.disk.checkStorage('storage', {
+        path: '/',
+        thresholdPercent: 0.9,
+        }),
+    ]);
+}
+}
+```
+
+<Code children="src/health/health.module.ts" />
+
+```ts
+import { Module } from '@nestjs/common';
+import { TerminusModule } from '@nestjs/terminus';
+import { HealthController } from './health.controller';
+
+@Module({
+  imports: [TerminusModule],
+  controllers: [HealthController],
+})
+export class HealthModule {}
+```
+</Steps>
+</TabsContent>
+</Tabs>
+
+
+
+## Usage Examples
+
+Simple endpoint that returns service status:
+
+```ts
+import { Controller, Get } from "@nestjs/common";
+import { HealthCheckService, HealthCheck } from "@nestjs/terminus";
+
+@Controller("health")
+export class HealthController {
+  constructor(private health: HealthCheckService) {}
+
+  @Get()
+  @HealthCheck()
+  check() {
+    return this.health.check([]);
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "status": "ok",
+  "info": {},
+  "error": {},
+  "details": {}
+}
+```
+
+**Healthy Response:**
+
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": {
+      "status": "up"
+    }
+  },
+  "error": {},
+  "details": {
+    "database": {
+      "status": "up"
+    }
+  }
+}
+```
+
+**Unhealthy Response (503):**
+
+```json
+{
+  "status": "error",
+  "info": {},
+  "error": {
+    "database": {
+      "status": "down",
+      "message": "Prisma check failed"
+    }
+  },
+  "details": {
+    "database": {
+      "status": "down",
+      "message": "Prisma check failed"
+    }
+  }
+}
+```
+
+
+
+## Module Setup
+
+### Basic Setup
+
+<Code children="src/app.module.ts" />
+
+```ts
+import { Module } from "@nestjs/common";
+import { HealthModule } from "./health/health.module";
+
+@Module({
+  imports: [HealthModule],
+})
+export class AppModule {}
+```
+
+### With Global Prefix
+
+<Code children="src/main.ts" />
+
+```ts
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  // Global API prefix
+  app.setGlobalPrefix("api/v1");
+  
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+Health endpoints will be available at:
+- <Code>GET /api/v1/health</Code> - General health check
+- <Code>GET /api/v1/health/liveness</Code> - Liveness probe
+- <Code>GET /api/v1/health/readiness</Code> - Readiness probe
+
+
+## Response Format
+
+### Healthy Response (200)
+
+```json
+{
+  "status": "ok",
+  "info": {
+    "database": {
+      "status": "up"
+    }
+  },
+  "error": {},
+  "details": {
+    "database": {
+      "status": "up"
+    }
+  }
+}
+```
+
+### Unhealthy Response (503)
+
+```json
+{
+  "status": "error",
+  "info": {},
+  "error": {
+    "database": {
+      "status": "down",
+      "message": "Prisma check failed"
+    }
+  },
+  "details": {
+    "database": {
+      "status": "down",
+      "message": "Prisma check failed"
+    }
+  }
+}
+```
+
+## Common Use Cases
+
+- **Load balancer health checks** - Verify service availability
+- **Kubernetes probes** - Liveness, readiness, and startup checks
+- **Monitoring systems** - Track service uptime and performance
+- **Deployment verification** - Confirm successful deployments
+- **Auto-scaling** - Determine when to scale services
+- **Incident response** - Quick status verification during outages
+
