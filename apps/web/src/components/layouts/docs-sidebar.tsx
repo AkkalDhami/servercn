@@ -9,6 +9,15 @@ import { IRegistryItems } from "@/@types/registry";
 import { cn } from "@/lib/utils";
 import { getTypeItems } from "@/lib/source";
 import CodeTheme from "../docs/code-theme";
+import { SelectFramework } from "../docs/select-framework";
+import { useFramework } from "@/store/use-framework";
+
+const FRAMEWORK_SECTIONS = [
+  "blueprints",
+  "components",
+  "foundations",
+  "schemas"
+];
 
 export const ITEM_GROUP_NAMING = {
   guide: "Getting Started",
@@ -48,51 +57,78 @@ export const PAGE_ITEMS = [
   }
 ];
 
-const navSections = [
-  {
-    title: ITEM_GROUP_NAMING.guide,
-    items: getTypeItems("guide")
-  },
-  {
-    title: ITEM_GROUP_NAMING.foundation,
-    items: getTypeItems("foundation")
-  },
-  {
-    title: ITEM_GROUP_NAMING.tooling,
-    items: getTypeItems("tooling")
-  },
-  {
-    title: ITEM_GROUP_NAMING.component,
-    items: getTypeItems("component")
-  },
-  {
-    title: ITEM_GROUP_NAMING.blueprint,
-    items: getTypeItems("blueprint")
-  },
-  {
-    title: ITEM_GROUP_NAMING.schema,
-    items: getTypeItems("schema")
-  },
-  {
-    title: ITEM_GROUP_NAMING.contributing,
-    items: getTypeItems("contributing")
-  },
-  {
-    title: ITEM_GROUP_NAMING.page,
-    items: PAGE_ITEMS
-  }
-];
-
 export default function DocsSidebar({
   onLinkClickAction
 }: {
   onLinkClickAction?: () => void;
 }) {
   const pathname = usePathname();
+  const { framework } = useFramework();
+
+  // Create nav sections dynamically based on framework
+  const navSections = [
+    {
+      title: ITEM_GROUP_NAMING.guide,
+      items: getTypeItems("guide") // Guides don't filter by framework
+    },
+    {
+      title: ITEM_GROUP_NAMING.foundation,
+      items: getTypeItems("foundation", framework)
+    },
+    {
+      title: ITEM_GROUP_NAMING.tooling,
+      items: getTypeItems("tooling") // Tooling doesn't filter by framework
+    },
+    {
+      title: ITEM_GROUP_NAMING.component,
+      items: getTypeItems("component", framework)
+    },
+    {
+      title: ITEM_GROUP_NAMING.blueprint,
+      items: getTypeItems("blueprint", framework)
+    },
+    {
+      title: ITEM_GROUP_NAMING.schema,
+      items: getTypeItems("schema", framework)
+    },
+    {
+      title: ITEM_GROUP_NAMING.contributing,
+      items: getTypeItems("contributing") // Contributing doesn't filter by framework
+    },
+    {
+      title: ITEM_GROUP_NAMING.page,
+      items: PAGE_ITEMS
+    }
+  ];
+
+  // Helper function to inject framework into URL if applicable
+  const injectFramework = (url: string, itemType?: string): string => {
+    if (!framework) return url;
+
+    const segments = url.split("/").filter(Boolean);
+
+    // Check if URL starts with /docs
+    if (segments[0] !== "docs") return url;
+
+    // Check if the section supports frameworks
+    const section = segments[1];
+    if (FRAMEWORK_SECTIONS.includes(section)) {
+      // Remove existing framework if present
+      if (segments[1] === "express" || segments[1] === "nestjs") {
+        segments.splice(1, 1);
+      }
+      // Insert the stored framework
+      segments.splice(1, 0, framework);
+      return `/${segments.join("/")}`;
+    }
+
+    return url;
+  };
 
   return (
     <nav className="no-scrollbar font-inter sticky top-18 left-0 z-10 h-full max-h-[calc(100vh-2rem)] w-full space-y-6 overflow-y-auto px-3 pb-14">
       <CodeTheme />
+      <SelectFramework />
 
       {navSections.map(section => {
         if (!section.items.length) return null;
@@ -105,8 +141,13 @@ export default function DocsSidebar({
 
             <ul className="mb-3 space-y-3.5 border-l border-zinc-200 dark:border-zinc-800">
               {(section.items as IRegistryItems[]).map((item, i: number) => {
+                const itemUrl = injectFramework(item.url as string, item.type);
+                // Check if current pathname matches the item (with or without framework)
                 const isActive =
-                  pathname === item.url || pathname.startsWith(`${item.url}/`);
+                  pathname === itemUrl ||
+                  pathname.startsWith(`${itemUrl}/`) ||
+                  pathname === item.url ||
+                  pathname.startsWith(`${item.url}/`);
 
                 const isNested =
                   item.type === "schema" || item.type === "blueprint";
@@ -117,7 +158,7 @@ export default function DocsSidebar({
                   <li key={`${item.slug + item.url}`}>
                     <Link
                       onClick={onLinkClickAction}
-                      href={item.url as Route}
+                      href={itemUrl as Route}
                       className={cn(
                         "relative flex w-full cursor-pointer items-center justify-between pl-4 text-base font-medium transition-colors",
                         isActive
@@ -158,14 +199,23 @@ export default function DocsSidebar({
                                   ? "schemas"
                                   : "blueprints";
                               const subPath = `/docs/${typePath}/${subItem.slug}`;
+                              const subPathWithFramework = injectFramework(
+                                subPath,
+                                item.type
+                              );
+                              // Check if current pathname matches (with or without framework)
                               const subActive =
+                                pathname === subPathWithFramework ||
+                                pathname.startsWith(
+                                  `${subPathWithFramework}/`
+                                ) ||
                                 pathname === subPath ||
                                 pathname.startsWith(`${subPath}/`);
                               return (
                                 <li key={subItem.slug}>
                                   <Link
                                     onClick={onLinkClickAction}
-                                    href={subPath as Route}
+                                    href={subPathWithFramework as Route}
                                     className={cn(
                                       "relative block text-sm capitalize transition-colors",
                                       subActive
