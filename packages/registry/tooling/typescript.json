@@ -2,10 +2,10 @@
   "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "typescript",
   "templates": {
-    "base": "base/typescript"
+    "base": "typescript/base"
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["typescript", "@types/node", "tsx"]
+    "dev": ["typescript", "tsc-alias", "@types/node", "tsx"]
   }
 }

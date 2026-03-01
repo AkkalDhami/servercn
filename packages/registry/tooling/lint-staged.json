@@ -2,7 +2,7 @@
   "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "lint-staged",
   "templates": {
-    "base": "base/lint-staged"
+    "base": "lint-staged/base"
   },
   "dependencies": {
     "runtime": [],

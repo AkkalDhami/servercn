@@ -2,7 +2,7 @@
   "$schema": "https://servercn.vercel.app/schema/tooling.registry.json",
   "slug": "eslint",
   "templates": {
-    "base": "base/eslint"
+    "base": "eslint/base"
   },
   "dependencies": {
     "runtime": [],
