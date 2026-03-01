@@ -3,7 +3,7 @@ interface ISchema {
   slug: string;
 }
 
-type Framework = "express" | "nestjs";
+export type Framework = "express" | "nestjs";
 
 export interface IRegistryItems {
   slug: string;

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 
-import registry from "@/data/registry.json";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Heading } from "@/components/ui/heading";
 import ComponentCard from "@/components/docs/component-card";
-import { IRegistryItems } from "@/@types/registry";
+import { getRegistryTypeItems } from "@/lib/source";
 
 export const generateMetadata = (): Metadata => {
   return {
@@ -37,9 +36,7 @@ export const generateMetadata = (): Metadata => {
   };
 };
 
-const blueprints = registry.items
-  .filter(component => component.type === "blueprint")
-  .sort((a, b) => a.title.localeCompare(b.title)) as IRegistryItems[];
+const blueprints = getRegistryTypeItems("blueprint", "express");
 
 export default function BlueprintsPage() {
   return (
