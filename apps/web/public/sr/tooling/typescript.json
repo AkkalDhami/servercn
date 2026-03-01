@@ -6,13 +6,13 @@
         {
           "type": "tooling",
           "path": "tsconfig.json",
-          "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2021\",\n    \"module\": \"es2022\",\n    \"moduleResolution\": \"bundler\",\n    \"lib\": [\"ES2022\"],\n    \"allowJs\": true,\n    \"checkJs\": false,\n    \"declaration\": true,\n    \"sourceMap\": true,\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"removeComments\": true,\n\n    \"strict\": true,\n    \"noImplicitAny\": true,\n    \"strictNullChecks\": true,\n    \"strictFunctionTypes\": true,\n    \"strictBindCallApply\": true,\n    \"strictPropertyInitialization\": true,\n    \"noImplicitThis\": true,\n    \"useUnknownInCatchVariables\": true,\n    \"alwaysStrict\": true,\n    \"noUnusedLocals\": true,\n    \"noUnusedParameters\": true,\n    \"noImplicitReturns\": true,\n    \"noFallthroughCasesInSwitch\": true,\n\n    \"paths\": {\n      \"@/*\": [\"src/*\"],\n      \"@/shared/*\": [\"../../shared/*\"]\n    },\n    \"esModuleInterop\": true,\n    \"forceConsistentCasingInFileNames\": true,\n\n    /* Advanced */\n    \"skipLibCheck\": true,\n    \"resolveJsonModule\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"coverage\", \"**/*.test.ts\"]\n}\n"
+          "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2021\",\n    \"module\": \"es2022\",\n    \"moduleResolution\": \"bundler\",\n    \"lib\": [\"ES2022\"],\n    \"allowJs\": true,\n    \"checkJs\": false,\n    \"declaration\": true,\n    \"sourceMap\": true,\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"removeComments\": true,\n\n    \"strict\": true,\n    \"noImplicitAny\": true,\n    \"strictNullChecks\": true,\n    \"strictFunctionTypes\": true,\n    \"strictBindCallApply\": true,\n    \"strictPropertyInitialization\": true,\n    \"noImplicitThis\": true,\n    \"useUnknownInCatchVariables\": true,\n    \"alwaysStrict\": true,\n    \"noUnusedLocals\": true,\n    \"noUnusedParameters\": true,\n    \"noImplicitReturns\": true,\n    \"noFallthroughCasesInSwitch\": true,\n\n    \"paths\": {\n      \"@/*\": [\"src/*\"],\n      \"@/shared/*\": [\"../../shared/*\"]\n    },\n    \"esModuleInterop\": true,\n    \"forceConsistentCasingInFileNames\": true,\n\n    /* Advanced */\n    \"skipLibCheck\": true,\n    \"resolveJsonModule\": true\n  },\n  \"tsc-alias\": {\n    \"resolveFullPaths\": true,\n    \"verbose\": false\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\", \"coverage\", \"**/*.test.ts\"]\n}\n"
         }
       ]
     }
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["typescript", "@types/node", "tsx"]
+    "dev": ["typescript", "tsc-alias", "@types/node", "tsx"]
   }
 }

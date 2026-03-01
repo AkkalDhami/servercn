@@ -2,7 +2,13 @@
   "slug": "husky",
   "templates": {
     "base": {
-      "files": []
+      "files": [
+        {
+          "type": "tooling",
+          "path": ".husky/pre-commit",
+          "content": "npx lint-staged"
+        }
+      ]
     }
   },
   "dependencies": {
