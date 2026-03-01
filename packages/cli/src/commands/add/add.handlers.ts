@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import prompts from "prompts";
-import { execa } from "execa";
 import { logger } from "@/utils/logger";
 import type {
   AddOptions,
@@ -16,7 +15,6 @@ import type {
   RuntimeType,
   SchemaFramework
 } from "@/types";
-import { updateEnvKeys } from "@/utils/update-env";
 
 export async function resolveTemplateResolution({
   registryItemName,
@@ -201,12 +199,16 @@ function resolveDatabaseTemplate({
 
   const archOptions = dbOrm?.templates;
   if (options.type === "blueprint") {
-    const path = options?.local ? archOptions[architecture] as string : `${config.database?.engine}/${config.database?.adapter}/${config.stack.architecture}`
+    const path = options?.local
+      ? (archOptions[architecture] as string)
+      : `${config.database?.engine}/${config.database?.adapter}/${config.stack.architecture}`;
     return path;
   }
 
   if (options.type == "schema") {
-    const path = options?.local ? archOptions[formattedRegistryItemName][architecture] : `${config.database?.engine}/${config.database?.adapter}/${formattedRegistryItemName}/${config.stack.architecture}`
+    const path = options?.local
+      ? archOptions[formattedRegistryItemName][architecture]
+      : `${config.database?.engine}/${config.database?.adapter}/${formattedRegistryItemName}/${config.stack.architecture}`;
     return path;
   }
 }
@@ -282,63 +284,6 @@ async function resolvePromptVariants({
   };
 }
 
-export async function runPostInstallHooks({
-  component,
-  registryItemName,
-  type,
-  runtime,
-  framework,
-  selectedProvider
-}: {
-  registryItemName: string;
-  selectedProvider: string;
-  type: RegistryType;
-  component: any;
-  runtime: RuntimeType;
-  framework: FrameworkType;
-}) {
-  if (type === "tooling" && registryItemName === "husky") {
-    try {
-      await execa("npx", ["husky", "init"], { stdio: "inherit" });
-    } catch {
-      logger.warn(
-        "Could not initialize husky automatically. Please run 'npx husky init' manually."
-      );
-    }
-  } else {
-    let filterEnvs: Array<string> = [];
-    switch (type) {
-      case "component":
-        const registry = component?.runtimes[runtime]?.frameworks[framework];
-
-        if (registry?.prompt) {
-          filterEnvs = registry?.variants[selectedProvider]?.env?.filter(
-            (env: string) => env !== ""
-          );
-        } else {
-          filterEnvs = registry?.env?.filter((env: string) => env !== "");
-        }
-
-        break;
-
-      default:
-        break;
-    }
-
-    if (filterEnvs?.length > 0) {
-      updateEnvKeys({
-        envFile: ".env.example",
-        envKeys: filterEnvs,
-        label: registryItemName
-      });
-      updateEnvKeys({
-        envFile: ".env",
-        envKeys: filterEnvs,
-        label: registryItemName
-      });
-    }
-  }
-}
 
 function resolveDependencies({
   component,

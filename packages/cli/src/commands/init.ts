@@ -115,14 +115,14 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         return;
       }
 
-      const isCloned = await cloneServercnRegistry({
+      const ok = await cloneServercnRegistry({
         templatePath,
         targetDir: response.root,
         component,
         options
       });
 
-      if (!isCloned) {
+      if (!ok) {
         logger.error(`Failed to initialize foundation:${foundation}.\n`);
         fs.removeSync(rootPath);
         return;
