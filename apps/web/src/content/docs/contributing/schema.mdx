@@ -1,0 +1,245 @@
+---
+title: Contributing Schemas | ServerCN
+description: Step-by-step guide to contributing data schemas to the ServerCN registry.
+---
+
+# ServerCN Schema Contributing Guide
+
+This guide explains how to contribute a Data Schema to ServerCN.
+A Schema represents the data layer of an application, including models, entities, and validation logic for various databases (MongoDB, PostgreSQL, MySQL) and ORMs (Mongoose, Drizzle).
+
+## What Is a Schema?
+
+A Schema in ServerCN is:
+- A collection of related data models (e.g., User, Session, OTP)
+- Database-agnostic in concept but implementation-specific
+- Type-safe and production-ready
+- Designed to work with both MVC and Feature-based architectures
+
+Includes:
+- Model/Entity definitions
+- Relationship mappings
+- Zod validation schemas (optional but recommended)
+- Seed data (optional)
+
+> Schemas are the building blocks of blueprints.
+
+Some servercn schemas:
+ - [Authentication Schema](/docs/schemas/auth)
+ - [Todo Schema](/docs/schemas/todo)
+
+---
+
+## Step-by-Step Contribution Guide
+
+<Steps>
+<Step>
+Fork & Clone the Repository
+</Step>
+Fork the ServerCN repository and clone it locally:
+[GitHub Link](https://github.com/AkkalDhami/servercn)
+
+```bash
+# Clone on your local machine
+git clone https://github.com/<your-username>/servercn.git
+
+# Navigate to project directory
+cd servercn
+
+# Create a new Branch
+git checkout -b feat/schema-name
+
+# Install dependencies
+npm install
+
+# Run a workspace
+npm run dev:app 
+npm run dev:cli
+```
+
+
+<Step>
+Add Registry
+</Step>
+Each schema must follow the registry structure. Schemas are unique because they often contain multiple files (sub-items):
+
+```
+packages/
+  registry/
+    schema/
+      schema-name.json
+```      
+
+The example below references the registry structure for a schema:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/schema.registry.json",
+  "slug": "my-schema",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "my-schema/index/postgresql/drizzle/mvc",
+                      "feature": "my-schema/index/postgresql/drizzle/feature"
+                    },
+                    "user": {
+                      "mvc": "my-schema/user/postgresql/drizzle/mvc",
+                      "feature": "my-schema/user/postgresql/drizzle/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["@types/pg", "drizzle-kit"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+##### I. $schema
+
+- Points to the official ServerCN [schema](https://servercn.vercel.app/schema/schema.registry.json) registry definition.
+
+##### II. slug
+
+- Unique identifier of the schema.
+- Must be kebab-case.
+- Used internally by CLI commands:
+
+<PackageManagerTabs command="npx servercn-cli add sc my-schema" />
+
+##### III. templates (Sub-items)
+
+Schemas use a nested <Code>templates</Code> object where each key represents a "sub-item" (like <Code>index</Code>, <Code>user</Code>, or <Code>post</Code>). 
+- **index**: Usually represents the main entry point or combined models.
+- **individual items**: Large schemas should be broken down into individual files.
+
+##### IV. Physical Path
+
+Mapping strings (e.g., <Code>my-schema/user/postgresql/drizzle/mvc</Code>) must exist inside:
+<Code>packages/templates/node/express/schema/</Code>
+
+Example structure:
+```bash
+packages/
+  templates/
+    node/
+      express/
+        schema/
+          my-schema/
+            user/
+              postgresql/
+                drizzle/
+                  mvc/
+                  feature/
+```      
+
+<Step>Add Templates</Step>
+
+Ensure your templates:
+- Provide clear types/interfaces.
+- Use appropriate database naming conventions (snake_case for SQL, camelCase for MongoDB).
+- Include index files for easy exporting.
+
+
+<Step>Test the Schema via CLI</Step>
+
+**Before submitting:**
+
+```bash
+npm run build:cli
+```
+
+<PackageManagerTabs command="npx servercn-cli add sc schema-name --local" />
+
+- <Code>--local</Code>: Used for testing in the local environment.
+
+**Verify:**
+<LNote>
+- Files are generated in the correct project location
+- Types are correctly imported
+- Database drivers match the implementation
+</LNote>
+
+
+<Step>Build the Registry Items</Step>
+
+Before opening your pull request, ensure the registry output is generated and up to date.
+<PackageManagerTabs command="npx servercn-cli build" />
+
+<Warning text="Don't forget to run `npx servercn-cli build` before submitting your pull request." />
+
+<Step>Register in registry.json</Step>
+
+Add your schema entry to:
+<Code>apps/web/src/data/registry.json</Code>
+
+```json
+{
+  "slug": "schema-slug",
+  "title": "Schema Title",
+  "description": "Schema short description",
+  "type": "schema",
+  "status": "stable",
+  "docs": "/docs/schemas/schema-slug",
+  "meta": {
+    "databases": [
+      {
+        "label": "PostgreSQL (Drizzle)",
+        "slug": "schema-slug-postgresql"
+      },
+      {
+        "label": "MongoDB (Mongoose)",
+        "slug": "schema-slug-mongodb"
+      }
+    ]
+  }
+}
+```
+
+<Step>Write Documentation</Step>
+
+Add mdx documentation inside:
+<Code>apps/web/src/content/docs/express/schemas/schema-slug.mdx</Code>
+
+Explain:
+- Entity/Model fields
+- Relationships
+- Database-specific nuances
+
+<Step>Commit Properly</Step>
+
+Use conventional commit format:
+> feat(schema): add schema-name schema
+
+<Step>Submit a Pull Request</Step>
+
+**Your PR must include:**
+<LNote>
+- Clear title and summary
+- Supported database/ORM combinations
+- Updated registry and templates
+</LNote>
+
+</Steps>
+
+## License
+
+By contributing a schema to ServerCN, you agree that your contribution will be licensed under the MIT License.
+
+<Note text="Thank you for contributing to ServerCN schemas 🚀
+  Your work helps building consistent data layers across projects." />
