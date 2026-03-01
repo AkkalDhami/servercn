@@ -25,6 +25,7 @@
               "typescript",
               "dotenv",
               "tsx",
+              "tsc-alias",
               "morgan",
               "@types/cors",
               "@types/helmet",

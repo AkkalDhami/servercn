@@ -24,6 +24,7 @@
             "dev": [
               "typescript",
               "tsx",
+              "tsc-alias",
               "dotenv",
               "@types/node",
               "@types/express",

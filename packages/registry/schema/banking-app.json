@@ -1,0 +1,79 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/schema.registry.json",
+  "slug": "banking-app",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "banking-app/index/mysql/drizzle/mvc",
+                      "feature": "banking-app/index/mysql/drizzle/feature"
+                    },
+                    "account": {
+                      "mvc": "banking-app/account/mysql/drizzle/mvc",
+                      "feature": "banking-app/account/mysql/drizzle/feature"
+                    },
+                    "user": {
+                      "mvc": "banking-app/user/mysql/drizzle/mvc",
+                      "feature": "banking-app/user/mysql/drizzle/feature"
+                    },
+                    "transaction": {
+                      "mvc": "banking-app/transaction/mysql/drizzle/mvc",
+                      "feature": "banking-app/transaction/mysql/drizzle/feature"
+                    },
+                    "ledger": {
+                      "mvc": "banking-app/ledger/mysql/drizzle/mvc",
+                      "feature": "banking-app/ledger/mysql/drizzle/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mysql2", "drizzle-orm"],
+                    "dev": ["drizzle-kit"]
+                  }
+                }
+              }
+            },
+
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "index": {
+                      "mvc": "banking-app/index/mongodb/mongoose/mvc",
+                      "feature": "banking-app/index/mongodb/mongoose/feature"
+                    },
+                    "account": {
+                      "mvc": "banking-app/account/mongodb/mongoose/mvc",
+                      "feature": "banking-app/account/mongodb/mongoose/feature"
+                    },
+                    "user": {
+                      "mvc": "banking-app/user/mongodb/mongoose/mvc",
+                      "feature": "banking-app/user/mongodb/mongoose/feature"
+                    },
+                    "transaction": {
+                      "mvc": "banking-app/transaction/mongodb/mongoose/mvc",
+                      "feature": "banking-app/transaction/mongodb/mongoose/feature"
+                    },
+                    "ledger": {
+                      "mvc": "banking-app/ledger/mongodb/mongoose/mvc",
+                      "feature": "banking-app/ledger/mongodb/mongoose/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mongoose"],
+                    "dev": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
