@@ -2,10 +2,9 @@ import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import type { Metadata, Route } from "next";
-import registry from "@/data/registry.json";
-import { IRegistryItems } from "@/@types/registry";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getRegistryTypeItems } from "@/lib/source";
 
 export const generateMetadata = (): Metadata => {
   return {
@@ -37,11 +36,8 @@ export const generateMetadata = (): Metadata => {
   };
 };
 
+const schemas = getRegistryTypeItems("schema", "express");
 export default function SchemaPage() {
-  const schemas = registry.items
-    .filter(component => component.type === "schema")
-    .sort((a, b) => a.title.localeCompare(b.title)) as IRegistryItems[];
-
   return (
     <Container className="mt-16 min-h-screen">
       <div className="mb-6">
@@ -58,7 +54,7 @@ export default function SchemaPage() {
           return (
             <div key={component.slug} className="flex flex-col gap-2">
               <Link
-                href={`/docs/schemas/${component.slug}`}
+                href={`${component.url}` as Route}
                 className="text-lg font-medium duration-300 hover:underline sm:text-xl">
                 {component.title}
               </Link>
@@ -69,7 +65,7 @@ export default function SchemaPage() {
               {component.meta?.databases && (
                 <ul className="mt-2 space-y-3 pl-1">
                   {component.meta.databases.map((database, index) => {
-                    const modelPath = `/docs/schemas/${database.slug}`;
+                    const modelPath = `/docs/${database.slug}`;
                     return (
                       <li key={database.slug}>
                         <Link
