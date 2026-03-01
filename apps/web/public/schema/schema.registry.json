@@ -140,6 +140,14 @@
 
         "dependencies": {
           "$ref": "#/$defs/dependencySet"
+        },
+
+        "env": {
+          "type": "array",
+          "description": "Environment variables required by the schema",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

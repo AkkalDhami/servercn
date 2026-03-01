@@ -173,7 +173,7 @@
     },
     "env": {
       "type": "array",
-      "description": "Environment variables required by the foundation",
+      "description": "Environment variables required by the blueprint",
       "items": { "type": "string" }
     }
   }
