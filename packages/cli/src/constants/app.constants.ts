@@ -1,6 +1,9 @@
 import packageJson from "../../package.json";
 
-export const SERVERCN_URL = "https://servercn.vercel.app";
+//? For local development
+export const SERVERCN_URL = "http://localhost:3000";
+
+// export const SERVERCN_URL = "https://servercn.vercel.app";
 
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 

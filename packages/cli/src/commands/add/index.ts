@@ -10,14 +10,20 @@ import { getServerCNConfig } from "@/lib/config";
 import { paths } from "@/lib/paths";
 import type {
   AddOptions,
+  DatabaseType,
+  FrameworkType,
   IServerCNConfig,
+  OrmType,
   RegistryItem,
   RegistryMap,
-  RegistryType
+  RegistryType,
+  RuntimeType
 } from "@/types";
 import { capitalize } from "@/utils/capitalize";
-import { resolveTemplateResolution, runPostInstallHooks } from "./add.handlers";
+import { resolveTemplateResolution } from "./add.handlers";
 import { spinner } from "@/utils/spinner";
+import { execa } from "execa";
+import { updateEnvKeys } from "@/utils/update-env";
 
 export async function add(registryItemName: string, options: AddOptions = {}) {
   validateInput(registryItemName);
@@ -45,8 +51,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     options,
     component,
     selectedProvider: resolution.selectedProvider
-  }
-  );
+  });
 
   ensureProjectFiles();
 
@@ -70,7 +75,9 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     component,
     framework: config.stack.framework,
     runtime: config.stack.runtime,
-    selectedProvider: resolution.selectedProvider ?? ""
+    selectedProvider: resolution.selectedProvider ?? "",
+    dbEngine: config.database?.engine as DatabaseType,
+    dbAdapter: config.database?.adapter as OrmType
   });
 
   logger.break();
@@ -131,21 +138,19 @@ function validateCompatibility(
 }
 
 //? Scaffolding Layer
-export async function scaffoldFiles(
-  {
-    registryItemName,
-    templatePath,
-    options,
-    component,
-    selectedProvider
-  }: {
-    registryItemName: string,
-    templatePath: string,
-    options: AddOptions,
-    component: RegistryItem,
-    selectedProvider?: string
-  }
-) {
+export async function scaffoldFiles({
+  registryItemName,
+  templatePath,
+  options,
+  component,
+  selectedProvider
+}: {
+  registryItemName: string;
+  templatePath: string;
+  options: AddOptions;
+  component: RegistryItem;
+  selectedProvider?: string;
+}) {
   const IS_LOCAL = options.local ?? false;
   const targetDir = paths.targets(".");
 
@@ -168,15 +173,15 @@ export async function scaffoldFiles(
       conflict: options.force ? "overwrite" : "skip"
     });
   } else {
-    const isCloned = await cloneServercnRegistry({
+    const ok = await cloneServercnRegistry({
       component,
       templatePath,
       targetDir,
       options,
       selectedProvider
     });
-    if (!isCloned) {
-      logger.error(`\nFailed to clone template: ${templatePath}\n`);
+    if (!ok) {
+      logger.error("\nSomething went wrong. Failed to scaffold template\n");
       process.exit(1);
     }
   }
@@ -184,7 +189,6 @@ export async function scaffoldFiles(
   logger.break();
   spin?.succeed("Scaffolding files successfully!");
 }
-
 
 //? Project File Guards
 function ensureProjectFiles() {
@@ -233,4 +237,76 @@ function resolveDependencies({
       ...additionalDevDeps
     ]
   };
+}
+
+//? Post Install Hooks
+async function runPostInstallHooks({
+  component,
+  registryItemName,
+  type,
+  runtime,
+  framework,
+  selectedProvider,
+  dbEngine,
+  dbAdapter
+}: {
+  registryItemName: string;
+  selectedProvider: string;
+  type: RegistryType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: any;
+  runtime: RuntimeType;
+  framework: FrameworkType;
+  dbEngine: DatabaseType;
+  dbAdapter: OrmType;
+}) {
+  if (type === "tooling" && registryItemName === "husky") {
+    try {
+      await execa("npx", ["husky", "init"], { stdio: "inherit" });
+    } catch {
+      logger.warn(
+        "Could not initialize husky automatically. Please run 'npx husky init' manually."
+      );
+    }
+  } else {
+    let filterEnvs: Array<string> = [];
+    switch (type) {
+      case "component":
+        const registry = component?.runtimes[runtime]?.frameworks[framework];
+
+        if (registry?.prompt) {
+          filterEnvs = registry?.variants[selectedProvider]?.env?.filter(
+            (env: string) => env !== ""
+          );
+        } else {
+          filterEnvs = registry?.env?.filter((env: string) => env !== "");
+        }
+
+        break;
+
+      case "blueprint":
+        const registryBlueprint =
+          component?.runtimes[runtime]?.frameworks[framework]?.databases[
+            dbEngine
+          ].orms[dbAdapter]?.env ?? [];
+        filterEnvs = registryBlueprint?.filter((env: string) => env !== "");
+        break;
+
+      default:
+        break;
+    }
+
+    if (filterEnvs?.length > 0) {
+      updateEnvKeys({
+        envFile: ".env.example",
+        envKeys: filterEnvs,
+        label: registryItemName
+      });
+      updateEnvKeys({
+        envFile: ".env",
+        envKeys: filterEnvs,
+        label: registryItemName
+      });
+    }
+  }
 }

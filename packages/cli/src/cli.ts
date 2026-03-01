@@ -6,7 +6,7 @@ import { init } from "@/commands/init";
 import type { Architecture, RegistryType } from "@/types";
 import { LATEST_VERSION } from "@/constants/app.constants";
 import { registryListCommands } from "./commands/list";
-import { build, type buildTypeProps } from "./commands/build";
+import { build, type buildTypeProps } from "./commands/_build";
 
 const program = new Command();
 
