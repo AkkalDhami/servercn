@@ -12,10 +12,12 @@ import { Label } from "@/components/ui/label";
 import { SiExpress, SiNestjs } from "react-icons/si";
 import { usePathname, useRouter } from "next/navigation";
 import { Route } from "next";
-import { useFramework, Framework as FrameworkType } from "@/store/use-framework";
+import {
+  useFramework,
+  Framework as FrameworkType
+} from "@/store/use-framework";
 import { useEffect } from "react";
-
-type Framework = "express" | "nestjs";
+import { Framework } from "@/@types/registry";
 
 const FRAMEWORK_SECTIONS = [
   "blueprints",
@@ -31,9 +33,9 @@ export function SelectFramework() {
 
   // Detect current framework from URL
   const segments = pathname.split("/").filter(Boolean);
-  const currentFrameworkFromUrl: FrameworkType = 
-    segments[1] === "express" || segments[1] === "nestjs" 
-      ? (segments[1] as Framework) 
+  const currentFrameworkFromUrl: FrameworkType =
+    segments[1] === "express" || segments[1] === "nestjs"
+      ? (segments[1] as Framework)
       : null;
 
   // Sync URL framework with store on mount and URL change
@@ -50,7 +52,7 @@ export function SelectFramework() {
   const handleChange = (value: Framework) => {
     // Update the store
     setFramework(value);
-    
+
     const segments = pathname.split("/").filter(Boolean);
 
     if (segments[0] !== "docs") return;

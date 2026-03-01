@@ -17,7 +17,7 @@ import { Kbd } from "@/components/ui/kbd";
 import Link from "next/link";
 import { Route } from "next";
 import { CircleIcon } from "lucide-react";
-import { getTypeItems } from "@/lib/source";
+import { FRAMEWORK_SECTIONS, getRegistryTypeItems } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING, PAGE_ITEMS } from "../layouts/docs-sidebar";
 import { FaDiscord, FaGithub } from "react-icons/fa";
@@ -31,13 +31,6 @@ import { FaXTwitter } from "react-icons/fa6";
 
 import { contributingGuides } from "@/lib/contributing";
 import { useFramework } from "@/store/use-framework";
-
-const FRAMEWORK_SECTIONS = [
-  "blueprints",
-  "components",
-  "foundations",
-  "schemas"
-];
 
 export default function SearchCommand({
   className,
@@ -85,12 +78,12 @@ export default function SearchCommand({
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const guideItems = getTypeItems("guide");
-  const components = getTypeItems("component", framework);
-  const foundations = getTypeItems("foundation", framework);
-  const blueprints = getTypeItems("blueprint", framework);
-  const schemas = getTypeItems("schema", framework);
-  const toolings = getTypeItems("tooling");
+  const guideItems = getRegistryTypeItems("guide");
+  const components = getRegistryTypeItems("component", framework);
+  const foundations = getRegistryTypeItems("foundation", framework);
+  const blueprints = getRegistryTypeItems("blueprint", framework);
+  const schemas = getRegistryTypeItems("schema", framework);
+  const toolings = getRegistryTypeItems("tooling");
 
   return (
     <>

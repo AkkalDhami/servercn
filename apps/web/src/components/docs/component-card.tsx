@@ -9,7 +9,7 @@ export default function ComponentCard({
 }) {
   return (
     <Link
-      href={component.docs as Route}
+      href={component.url as Route}
       className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
       {component.status !== "stable" && (
         <>

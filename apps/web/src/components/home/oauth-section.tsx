@@ -26,7 +26,7 @@ export default function OAuthSection() {
         <BackendStructureViewer
           sidebar="left"
           structure={mvcData as FileNode[]}
-          className="col-span-3 h-145"
+          className="col-span-3"
         />
       </div>
     </section>

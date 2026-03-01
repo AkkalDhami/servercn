@@ -28,25 +28,25 @@ export default function InstallComponentCommands({
 }) {
   return (
     <div className={cn("h-full", className)}>
-      <Terminal className="mx-auto h-full min-h-145 min-w-xl text-sm sm:text-lg">
-        <TypingAnimation className="text-sm sm:text-lg">
+      <Terminal className="mx-auto h-full min-h-140 min-w-xl text-sm sm:text-base">
+        <TypingAnimation className="text-sm sm:text-base">
           &gt; npx servercn-cli add oauth
         </TypingAnimation>
-        <TypingAnimation className="text-sm sm:text-lg">
+        <TypingAnimation className="text-sm sm:text-base">
           ? Select OAuth provider:
         </TypingAnimation>
-        <TypingAnimation className="text-sm sm:text-lg">
+        <TypingAnimation className="text-sm sm:text-base">
           &gt; Google
         </TypingAnimation>
-        <TypingAnimation className="text-sm sm:text-lg">
+        <TypingAnimation className="text-sm sm:text-base">
           &nbsp; GitHub Google + GitHub
         </TypingAnimation>
         {files.map((file, index) => (
-          <AnimatedSpan key={index} delay={index * 50} className="text-sm">
-            <p>Create: {file}</p>
+          <AnimatedSpan key={index} delay={index * 50} className="text-sm text-blue-500">
+            <p>CREATE: {file}</p>
           </AnimatedSpan>
         ))}
-        <TypingAnimation className="text-sm text-green-600 sm:text-lg">
+        <TypingAnimation className="text-sm text-green-600 sm:text-base">
           Component: oauth-google added successfully
         </TypingAnimation>
       </Terminal>

@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import { IRegistryItems } from "@/@types/registry";
 
 import { cn } from "@/lib/utils";
-import { getTypeItems } from "@/lib/source";
+import { getRegistryTypeItems } from "@/lib/source";
 import CodeTheme from "../docs/code-theme";
 import { SelectFramework } from "../docs/select-framework";
 import { useFramework } from "@/store/use-framework";
@@ -69,31 +69,31 @@ export default function DocsSidebar({
   const navSections = [
     {
       title: ITEM_GROUP_NAMING.guide,
-      items: getTypeItems("guide") // Guides don't filter by framework
+      items: getRegistryTypeItems("guide") // Guides don't filter by framework
     },
     {
       title: ITEM_GROUP_NAMING.foundation,
-      items: getTypeItems("foundation", framework)
+      items: getRegistryTypeItems("foundation", framework)
     },
     {
       title: ITEM_GROUP_NAMING.tooling,
-      items: getTypeItems("tooling") // Tooling doesn't filter by framework
+      items: getRegistryTypeItems("tooling") // Tooling doesn't filter by framework
     },
     {
       title: ITEM_GROUP_NAMING.component,
-      items: getTypeItems("component", framework)
+      items: getRegistryTypeItems("component", framework)
     },
     {
       title: ITEM_GROUP_NAMING.blueprint,
-      items: getTypeItems("blueprint", framework)
+      items: getRegistryTypeItems("blueprint", framework)
     },
     {
       title: ITEM_GROUP_NAMING.schema,
-      items: getTypeItems("schema", framework)
+      items: getRegistryTypeItems("schema", framework)
     },
     {
       title: ITEM_GROUP_NAMING.contributing,
-      items: getTypeItems("contributing") // Contributing doesn't filter by framework
+      items: getRegistryTypeItems("contributing") // Contributing doesn't filter by framework
     },
     {
       title: ITEM_GROUP_NAMING.page,

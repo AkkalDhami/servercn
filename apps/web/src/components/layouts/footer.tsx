@@ -2,7 +2,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import type React from "react";
 import Logo from "./logo";
-import { getTypeItems } from "@/lib/source";
+import { getRegistryTypeItems } from "@/lib/source";
 import Link from "next/link";
 import { Route } from "next";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
@@ -98,10 +98,10 @@ export default function Footer() {
   );
 }
 
-const components = getTypeItems("component");
-const foundations = getTypeItems("foundation");
-const blueprints = getTypeItems("blueprint");
-const models = getTypeItems("schema");
+const components = getRegistryTypeItems("component", "express");
+const foundations = getRegistryTypeItems("foundation", "express");
+const blueprints = getRegistryTypeItems("blueprint", "express");
+const models = getRegistryTypeItems("schema", "express");
 
 const footerLinkGroups: FooterLinkGroup[] = [
   {
