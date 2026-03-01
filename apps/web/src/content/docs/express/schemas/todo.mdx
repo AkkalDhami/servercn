@@ -12,9 +12,9 @@ The **Todo App Schema** provides a robust foundation for building task managemen
 
 The Todo schema is available for multiple databases:
 
-1. **[MongoDB (Mongoose)](/docs/schemas/todo-mongodb)** - Using Mongoose models with full type safety.
-2. **[PostgreSQL (Drizzle)](/docs/schemas/todo-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
-3. **[MySQL (Drizzle)](/docs/schemas/todo-mysql)** - Type-safe Drizzle schemas for MySQL.
+1. **[MongoDB (Mongoose)](/docs/express/schemas/todo-mongodb)** - Using Mongoose models with full type safety.
+2. **[PostgreSQL (Drizzle)](/docs/express/schemas/todo-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
+3. **[MySQL (Drizzle)](/docs/express/schemas/todo-mysql)** - Type-safe Drizzle schemas for MySQL.
 
 ## Database Design
 
@@ -55,11 +55,11 @@ The **Todo Model** is the core component for storing task information.
 - <Code children="createdAt" />: When the task was created.
 - <Code children="updatedAt" />: When the task was last updated.
 
-**View Documentation: [MongoDB](/docs/schemas/todo-mongodb) | [PostgreSQL](/docs/schemas/todo-postgresql) | [MySQL](/docs/schemas/todo-mysql)**
+**View Documentation: [MongoDB](/docs/express/schemas/todo-mongodb) | [PostgreSQL](/docs/express/schemas/todo-postgresql) | [MySQL](/docs/express/schemas/todo-mysql)**
 
 ## Relationship Design
 
-The Todo schema is designed to work seamlessly with the [Auth Domain](/docs/schemas/auth). It maintains a one-to-many relationship:
+The Todo schema is designed to work seamlessly with the [Auth Domain](/docs/express/schemas/auth). It maintains a one-to-many relationship:
 - One **User** (from Auth Domain) can have many **Todos**.
 - One **Todo** belongs to exactly one **User**.
 
@@ -75,7 +75,7 @@ To install the Auth Domain alongside Todos:
 
 ## Learn More
 
-- [MongoDB (Mongoose) Implementation](/docs/schemas/todo-mongodb)
-- [PostgreSQL (Drizzle) Implementation](/docs/schemas/todo-postgresql)
-- [MySQL (Drizzle) Implementation](/docs/schemas/todo-mysql)
-- [Auth Domain Schemas](/docs/schemas/auth)
+- [MongoDB (Mongoose) Implementation](/docs/express/schemas/todo-mongodb)
+- [PostgreSQL (Drizzle) Implementation](/docs/express/schemas/todo-postgresql)
+- [MySQL (Drizzle) Implementation](/docs/express/schemas/todo-mysql)
+- [Auth Domain Schemas](/docs/express/schemas/auth)

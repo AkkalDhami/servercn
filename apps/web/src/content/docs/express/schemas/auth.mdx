@@ -555,9 +555,9 @@ To see the complete database design, including the User schema from the Auth Dom
 
 The Auth Domain is available for multiple databases:
 
-1. **[MongoDB (Mongoose)](/docs/schemas/auth-mongodb)** - Using Mongoose models and TTL indexes.
-2. **[PostgreSQL (Drizzle)](/docs/schemas/auth-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
-3. **[MySQL (Drizzle)](/docs/schemas/auth-mysql)** - Type-safe Drizzle schemas for MySQL.
+1. **[MongoDB (Mongoose)](/docs/express/schemas/auth-mongodb)** - Using Mongoose models and TTL indexes.
+2. **[PostgreSQL (Drizzle)](/docs/express/schemas/auth-postgresql)** - Type-safe Drizzle schemas for PostgreSQL.
+3. **[MySQL (Drizzle)](/docs/express/schemas/auth-mysql)** - Type-safe Drizzle schemas for MySQL.
 
 Together, these schemas provide everything you need to build:
 
@@ -586,7 +586,7 @@ This will install:
 
 ### Install Individual Schemas
 
-<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
 
 You can also install schemas individually:
 
@@ -622,7 +622,7 @@ The **User Schema** is the foundation of your authentication system. It stores u
 - Soft delete functionality
 - Avatar/profile management
 
-**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
+**View Documentation: [MongoDB](/docs/express/schemas/auth-mongodb) | [PostgreSQL](/docs/express/schemas/auth-postgresql) | [MySQL](/docs/express/schemas/auth-mysql)**
 
 ### 2. OTP Schema
 
@@ -637,7 +637,7 @@ The **OTP Schema** handles one-time password verification for various authentica
 - Resend cooldown protection
 - User and email references
 
-**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
+**View Documentation: [MongoDB](/docs/express/schemas/auth-mongodb) | [PostgreSQL](/docs/express/schemas/auth-postgresql) | [MySQL](/docs/express/schemas/auth-mysql)**
 
 ### 3. Session Schema
 
@@ -652,7 +652,7 @@ The **Session Schema** manages user sessions for authenticated users, supporting
 - Session revocation
 - Multi-device support
 
-**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
+**View Documentation: [MongoDB](/docs/express/schemas/auth-mongodb) | [PostgreSQL](/docs/express/schemas/auth-postgresql) | [MySQL](/docs/express/schemas/auth-mysql)**
 
 ### 4. Refresh Token Schema
 
@@ -665,7 +665,7 @@ The **Refresh Token Schema** manages long-lived tokens used to renew access toke
 - Family revocation
 - Auto-expiration
 
-**View Documentation: [MongoDB](/docs/schemas/auth-mongodb) | [PostgreSQL](/docs/schemas/auth-postgresql) | [MySQL](/docs/schemas/auth-mysql)**
+**View Documentation: [MongoDB](/docs/express/schemas/auth-mongodb) | [PostgreSQL](/docs/express/schemas/auth-postgresql) | [MySQL](/docs/express/schemas/auth-mysql)**
 
 ## Database Support
 
@@ -681,17 +681,17 @@ The CLI automatically detects your database configuration from <Code children="s
 
 These components work well with the Auth Domain schemas:
 
-- **[Password Hashing](/docs/components/password-hashing)** - Secure password hashing with argon2/bcrypt
-- **[Generate OTP/Token](/docs/components/generate-otp-token)** - Cryptographic token generation
-- **[JWT Utils](/docs/components/jwt-utils)** - JWT token generation and verification
-- **[Email Service](/docs/components/email-service)** - Send verification emails
-- **[Rate Limiter](/docs/components/rate-limiter)** - Protect auth endpoints
-- **[RBAC](/docs/components/rbac)** - Role-based access control
+- **[Password Hashing](/docs/express/components/password-hashing)** - Secure password hashing with argon2/bcrypt
+- **[Generate OTP/Token](/docs/express/components/generate-otp-token)** - Cryptographic token generation
+- **[JWT Utils](/docs/express/components/jwt-utils)** - JWT token generation and verification
+- **[Email Service](/docs/express/components/email-service)** - Send verification emails
+- **[Rate Limiter](/docs/express/components/rate-limiter)** - Protect auth endpoints
+- **[RBAC](/docs/express/components/rbac)** - Role-based access control
 
 ## Learn More
 
-- [MongoDB (Mongoose) Schemas](/docs/schemas/auth-mongodb)
-- [PostgreSQL (Drizzle) Schemas](/docs/schemas/auth-postgresql)
-- [MySQL (Drizzle) Schemas](/docs/schemas/auth-mysql)
-- [Password Hashing Component](/docs/components/password-hashing)
-- [Generate OTP/Token Component](/docs/components/generate-otp-token)
+- [MongoDB (Mongoose) Schemas](/docs/express/schemas/auth-mongodb)
+- [PostgreSQL (Drizzle) Schemas](/docs/express/schemas/auth-postgresql)
+- [MySQL (Drizzle) Schemas](/docs/express/schemas/auth-mysql)
+- [Password Hashing Component](/docs/express/components/password-hashing)
+- [Generate OTP/Token Component](/docs/express/components/generate-otp-token)
