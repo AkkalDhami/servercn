@@ -1,15 +1,12 @@
 import {
   mysqlTable,
-  varchar,
   boolean,
-  timestamp,
   int,
   mysqlEnum,
-  index,
-  uniqueIndex
+  index
 } from "drizzle-orm/mysql-core";
 import { timestamps } from "./schema.helper";
-import { relations } from "drizzle-orm";
+import { users } from "./user.schema";
 
 //? Account types
 export const ACCOUNT_TYPES = ["savings", "current"] as const;
@@ -27,9 +24,13 @@ export const accounts = mysqlTable(
   "accounts",
   {
     id: int("id").primaryKey().autoincrement(),
-    userId: int("user_id").notNull(),
+    userId: int("user_id")
+      .references(() => users.id)
+      .notNull(),
     type: mysqlEnum("type", ACCOUNT_TYPES).notNull(),
-    currency: mysqlEnum("currency", ACCOUNT_CURRENCIES).default("NPR").notNull(),
+    currency: mysqlEnum("currency", ACCOUNT_CURRENCIES)
+      .default("NPR")
+      .notNull(),
     status: mysqlEnum("status", ACCOUNT_STATUS).default("active").notNull(),
     systemAccount: boolean("system_account").default(false).notNull(),
     ...timestamps

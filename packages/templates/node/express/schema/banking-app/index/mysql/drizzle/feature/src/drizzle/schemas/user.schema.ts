@@ -52,11 +52,6 @@ export const users = mysqlTable(
   ]
 );
 
-//? Relations between
-//? i. user and refresh tokens.
-//? (One-to-Many)
-
-
 //? User type
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
