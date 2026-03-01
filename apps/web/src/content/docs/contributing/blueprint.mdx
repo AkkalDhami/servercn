@@ -1,0 +1,247 @@
+---
+title: Contributing Blueprints | ServerCN
+description: Step-by-step guide to contributing blueprints to the ServerCN registry.
+---
+
+# ServerCN Blueprint Contributing Guide
+
+This guide explains how to contribute a Blueprint to ServerCN.
+A Blueprint represents a high-level feature or application module (e.g., Auth, Payments, Inventory Management) that combines multiple components and patterns into a production-ready solution.
+
+## What Is a Blueprint?
+
+A Blueprint in ServerCN is:
+- A complete, functional vertical feature
+- Built on top of foundations
+- Multi-database and multi-architecture by design
+- Opinionated and production-ready
+
+Includes:
+- Business logic (Controllers, Services)
+- Data models (Schemas/Models)
+- Middleware specific to the feature
+- Required environment variables
+- Documentation for usage and integration
+
+> Unlike foundations which are base architectural layers, blueprints are feature-rich modules.
+
+Some servercn blueprints:
+ - [Stateless Authentication](/docs/blueprints/stateless-auth)
+
+<br/>
+---
+
+## Step-by-Step Contribution Guide
+
+<Steps>
+<Step>
+Fork & Clone the Repository
+</Step>
+Fork the ServerCN repository and clone it locally:
+[GitHub Link](https://github.com/AkkalDhami/servercn)
+
+```bash
+# Clone on your local machine
+git clone https://github.com/<your-username>/servercn.git
+
+# Navigate to project directory
+cd servercn
+
+# Create a new Branch
+git checkout -b feat/blueprint-name
+
+# Install dependencies
+npm install
+
+# Run a workspace
+npm run dev:app 
+npm run dev:cli
+```
+
+
+<Step>
+Add Registry
+</Step>
+Each blueprint must follow the registry structure. Blueprints have a more nested structure because they support multiple databases and ORMs:
+
+```
+packages/
+  registry/
+    blueprint/
+      blueprint-name.json
+```      
+
+The example below references the registry structure for a blueprint:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/blueprint.registry.json",
+  "slug": "my-blueprint",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "mvc": "my-blueprint/postgresql/drizzle/mvc",
+                    "feature": "my-blueprint/postgresql/drizzle/feature"
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["@types/pg", "drizzle-kit"]
+                  },
+                  "env": ["DATABASE_URL"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+##### I. $schema
+
+- Points to the official ServerCN [blueprint](https://servercn.vercel.app/schema/blueprint.registry.json) schema.
+- Ensures your configuration is validated automatically.
+
+##### II. slug
+
+- Unique identifier of the blueprint.
+- Must be kebab-case.
+- Used internally by CLI commands:
+
+<PackageManagerTabs command="npx servercn-cli add bp my-blueprint" />
+
+##### III. databases & orms
+
+Blueprints are designed to be flexible. You should ideally provide implementations for:
+- **Databases**: PostgreSQL, MySQL, MongoDB.
+- **ORMs**: Drizzle (for SQL), Mongoose (for MongoDB).
+
+##### IV. templates
+
+Templates define the physical location of the code for each combination.
+Template folder paths must exist inside: 
+<Code>packages/templates/node/express/blueprint/blueprint-name/database/orm/architecture/</Code>
+
+Example:
+```bash
+packages/
+  templates/
+    node/
+      express/
+        blueprint/
+          my-blueprint/
+            postgresql/
+              drizzle/
+                mvc/
+                feature/
+```      
+
+<Step>Add Templates</Step>
+
+Ensure your templates:
+- Follow clean separation of concerns.
+- Are production-ready with proper error handling and logging.
+- Use components where possible instead of duplicating code.
+
+
+<Step>Test the Blueprint via CLI</Step>
+
+**Before submitting:**
+
+```bash
+npm run build:cli
+```
+
+<PackageManagerTabs command="npx servercn-cli add bp blueprint-name --local" />
+
+- <Code>--local</Code>: Used for testing in the local environment.
+
+**Verify:**
+<LNote>
+- No runtime errors during installation
+- All files are correctly placed according to the architecture (MVC or Feature)
+- Environment variables are correctly identified
+</LNote>
+
+
+<Step>Build the Registry Items</Step>
+
+Before opening your pull request, ensure the registry output is generated and up to date.
+<PackageManagerTabs command="npx servercn-cli build" />
+
+#### What This Does:
+<LNote>
+  - Compiles all registry items
+  - Validates schema structure
+  - Outputs generated files into: <Code>apps/web/public/sr/</Code>
+</LNote>
+
+<Warning text="Don't forget to run `npx servercn-cli build` before submitting your pull request." />
+
+<Step>Register in registry.json</Step>
+
+Add your blueprint entry to:
+<Code>apps/web/src/data/registry.json</Code>
+
+```json
+{
+  "slug": "blueprint-slug",
+  "title": "Blueprint Title",
+  "description": "Blueprint short description",
+  "type": "blueprint",
+  "status": "stable",
+  "docs": "/docs/blueprints/blueprint-slug",
+  "meta": {
+    "databases": [
+      {
+        "label": "PostgreSQL (Drizzle)",
+        "slug": "blueprint-slug-postgresql"
+      }
+    ]
+  }
+}
+```
+
+<Step>Write Documentation</Step>
+
+Add mdx documentation inside:
+<Code>apps/web/src/content/docs/express/blueprints/blueprint-slug.mdx</Code>
+
+Explain:
+- Key features
+- How the logic works
+- Installation steps
+- Environment variables required
+
+<Step>Commit Properly</Step>
+
+Use conventional commit format:
+> feat(blueprint): add blueprint-name blueprint
+
+<Step>Submit a Pull Request</Step>
+
+**Your PR must include:**
+<LNote>
+- Clear title and summary
+- Supported databases and ORMs
+- Verification that <Code>npx servercn-cli build</Code> was run
+- Registry and template files
+</LNote>
+
+</Steps>
+
+## License
+
+By contributing a blueprint to ServerCN, you agree that your contribution will be licensed under the MIT License.
+
+<Note text="Thank you for contributing to ServerCN blueprints 🚀
+  Your work helps developers build complex features in minutes." />
