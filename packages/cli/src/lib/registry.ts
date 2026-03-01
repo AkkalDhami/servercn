@@ -55,7 +55,7 @@ export async function getRegistry<T extends keyof RegistryMap>(
       if (!response.ok) {
         if (response.status === 404) {
           logger.error(
-            `\n${capitalize(type)} '${name}' not found in registry.`
+            `\n${capitalize(type)} '${name}' not found in registry.\n`
           );
         } else {
           logger.error(

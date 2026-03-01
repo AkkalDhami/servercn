@@ -48,7 +48,7 @@ export async function loadRegistryItems(
       const response = await fetch(url);
       if (!response.ok) {
         if (response.status === 404) {
-          logger.error(`\n${capitalize(type)} not found in registry.`);
+          logger.error(`\n${capitalize(type)} not found in registry.\n`);
         } else {
           logger.error(
             `\nFailed to fetch registry item: ${response.statusText}`
