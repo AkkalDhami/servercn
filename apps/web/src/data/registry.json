@@ -61,14 +61,6 @@
       "docs": "/docs/contributing/schema"
     },
     {
-      "slug": "tooling",
-      "title": "Tooling",
-      "description": "Develop and contribute development tools, scripts, and utilities. Enhance the ServerCN development experience.",
-      "type": "contributing",
-      "status": "stable",
-      "docs": "/docs/contributing/tooling"
-    },
-    {
       "slug": "jwt-utils",
       "title": "JWT Utilities",
       "description": "JWT Utilities for JSON Web Token authentication with access & refresh token support for Express",
