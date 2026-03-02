@@ -28,7 +28,6 @@ export function findFilesByPath(
   } else {
     const [runtime, framework, type] = parts;
     const archKey = parts[parts.length - 1];
-    // console.log(parts);
     if (!("runtimes" in component)) return null;
 
     const runtimes = component.runtimes as unknown as Record<

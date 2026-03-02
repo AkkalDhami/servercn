@@ -102,7 +102,6 @@ export async function resolveTemplateResolution({
         registryItemName:
           type === "blueprint" ? component.slug : registryItemName
       });
-      // console.log({ selectedSubPath });
       break;
 
     default:
@@ -168,11 +167,6 @@ function resolveDatabaseTemplate({
       ? "index"
       : registryItemName;
 
-  // console.log({
-  //   templateConfig,
-  //   registryItemName,
-  //   formattedRegistryItemName
-  // });
   const dbType = config?.database?.engine;
   const orm = config?.database?.adapter;
 
