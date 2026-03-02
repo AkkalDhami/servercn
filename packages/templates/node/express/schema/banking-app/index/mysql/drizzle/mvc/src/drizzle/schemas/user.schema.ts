@@ -10,7 +10,6 @@ import {
   mysqlEnum
 } from "drizzle-orm/mysql-core";
 import { timestamps } from "./schema.helper";
-import { relations } from "drizzle-orm";
 
 export interface IAvatar {
   public_id?: string;
