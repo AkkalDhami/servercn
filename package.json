@@ -87,5 +87,15 @@
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
+  },
+  "optionalDependencies": {
+    "@next/swc-darwin-arm64": "16.1.6",
+    "@next/swc-darwin-x64": "16.1.6",
+    "@next/swc-linux-arm64-gnu": "16.1.6",
+    "@next/swc-linux-arm64-musl": "16.1.6",
+    "@next/swc-linux-x64-gnu": "16.1.6",
+    "@next/swc-linux-x64-musl": "16.1.6",
+    "@next/swc-win32-arm64-msvc": "16.1.6",
+    "@next/swc-win32-x64-msvc": "16.1.6"
   }
 }
