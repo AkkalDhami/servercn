@@ -8,6 +8,7 @@ import rehypePrettyCode from "rehype-pretty-code";
 import { cookies } from "next/headers";
 import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OnThisPage } from "@/components/docs/on-this-page";
+import { OpenInAi } from "@/components/docs/open-in-ai";
 import type { FileNode } from "@/components/file-viewer/file-tree";
 import BackendStructureViewer from "@/components/file-viewer/backend-structure-viewer";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
@@ -209,6 +210,9 @@ export default async function DocsPage({
       <div className="flex w-full max-w-5xl gap-8 sm:p-0 sm:px-3">
         <div id="docs-content" className="flex-1">
           <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
+            <div className="flex items-center justify-end">
+              <OpenInAi />
+            </div>
             <MDXRemote
               source={content}
               components={mdxComponents}
@@ -274,7 +278,8 @@ export default async function DocsPage({
             />
           </div>
         </div>
-        <aside className="no-scrollbar docs-content sticky top-20 hidden max-h-[calc(100vh-2rem)] min-w-64 shrink-0 overflow-y-auto xl:block">
+        <aside className="no-scrollbar docs-content sticky top-20 hidden max-h-[calc(100vh-2rem)] min-w-64 shrink-0 space-y-4 overflow-y-auto xl:block">
+          {/* <OpenInAi /> */}
           <OnThisPage />
         </aside>
       </div>
