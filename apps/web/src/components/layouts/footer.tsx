@@ -76,6 +76,13 @@ export default function Footer() {
                 target="_blank">
                 Akkal Dhami
               </Link>
+              and the{" "}
+              <Link
+                className="hover:text-foreground underline"
+                href={"/contributors"}
+                target="_blank">
+                ServerCN Contributors
+              </Link>
             </div>
             <div className="flex items-center gap-3">
               <Link
