@@ -6,7 +6,7 @@ import ThemeToggle from "./theme-toggle";
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa";
 import { siteConfig } from "@/lib/config";
-import SearchCommand from "../command/search-command";
+import { SearchCommand } from "@/components/command/search-command";
 import { Route } from "next";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";

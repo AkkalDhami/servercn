@@ -8,8 +8,8 @@ import { IRegistryItems } from "@/@types/registry";
 
 import { cn } from "@/lib/utils";
 import { getRegistryTypeItems } from "@/lib/source";
-import CodeTheme from "../docs/code-theme";
-import { SelectFramework } from "../docs/select-framework";
+import CodeTheme from "@/components/docs/code-theme";
+import { SelectFramework } from "@/components/docs/select-framework";
 import { useFramework } from "@/store/use-framework";
 
 const FRAMEWORK_SECTIONS = [
@@ -198,24 +198,16 @@ export default function DocsSidebar({
                                 item.type === "schema"
                                   ? "schemas"
                                   : "blueprints";
-                              const subPath = `/docs/${typePath}/${subItem.slug}`;
-                              const subPathWithFramework = injectFramework(
-                                subPath,
-                                item.type
-                              );
-                              // Check if current pathname matches (with or without framework)
+                              const subPath = `/docs/${subItem.slug}`;
                               const subActive =
-                                pathname === subPathWithFramework ||
-                                pathname.startsWith(
-                                  `${subPathWithFramework}/`
-                                ) ||
                                 pathname === subPath ||
                                 pathname.startsWith(`${subPath}/`);
+                      
                               return (
                                 <li key={subItem.slug}>
                                   <Link
                                     onClick={onLinkClickAction}
-                                    href={subPathWithFramework as Route}
+                                    href={subPath as Route}
                                     className={cn(
                                       "relative block text-sm capitalize transition-colors",
                                       subActive

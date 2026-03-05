@@ -480,6 +480,10 @@
           {
             "label": "MySQL (Drizzle)",
             "slug": "banking-app-mysql"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "banking-app-postgresql"
           }
         ]
       }
