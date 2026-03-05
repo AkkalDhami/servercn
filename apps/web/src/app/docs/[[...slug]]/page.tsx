@@ -21,6 +21,7 @@ import registry from "@/data/registry.json";
 import { IRegistryItems } from "@/@types/registry";
 import { contributingGuides } from "@/lib/contributing";
 import { FrameworkRedirect } from "@/components/docs/framework-redirect";
+import { buttonVariants } from "@/components/ui/button";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -34,6 +35,28 @@ const FRAMEWORK_SECTIONS = [
   "foundations",
   "schemas"
 ];
+
+const injectFramework = ({
+  docsUrl,
+  currentFramework = ""
+}: {
+  docsUrl: string;
+  currentFramework: string;
+}): string => {
+  if (!currentFramework) return docsUrl;
+
+  const segments = docsUrl.split("/").filter(Boolean);
+  if (segments[0] !== "docs") return docsUrl;
+
+  // Check if the target section supports frameworks
+  const section = segments[1];
+  if (FRAMEWORK_SECTIONS.includes(section)) {
+    segments.splice(1, 0, currentFramework);
+    return `/${segments.join("/")}`;
+  }
+
+  return docsUrl;
+};
 
 export async function generateStaticParams() {
   const registryParams = registry.items.flatMap(({ meta, docs, type }) => {
@@ -210,8 +233,35 @@ export default async function DocsPage({
       <div className="flex w-full max-w-5xl gap-8 sm:p-0 sm:px-3">
         <div id="docs-content" className="flex-1">
           <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
-            <div className="flex items-center justify-end">
+            <div className="mb-6 flex items-center justify-between pt-6">
               <OpenInAi />
+
+              <div className="flex items-center gap-3">
+                <Link
+                  className={buttonVariants({ variant: "secondary" })}
+                  href={
+                    (prev
+                      ? injectFramework({
+                          docsUrl: prev.docs as string,
+                          currentFramework: currentFramework || ""
+                        })
+                      : "") as Route
+                  }>
+                  <ArrowLeftIcon className="size-4" />
+                </Link>
+                <Link
+                  href={
+                    (next
+                      ? injectFramework({
+                          docsUrl: next.docs as string,
+                          currentFramework: currentFramework || ""
+                        })
+                      : "") as Route
+                  }
+                  className={buttonVariants({ variant: "secondary" })}>
+                  <ArrowRightIcon className="size-4" />
+                </Link>
+              </div>
             </div>
             <MDXRemote
               source={content}
@@ -296,28 +346,18 @@ const NextSteps = ({
   currentFramework?: string;
 }) => {
   // Helper function to inject framework into docs URL if needed
-  const injectFramework = (docsUrl: string): string => {
-    if (!currentFramework) return docsUrl;
-
-    const segments = docsUrl.split("/").filter(Boolean);
-    if (segments[0] !== "docs") return docsUrl;
-
-    // Check if the target section supports frameworks
-    const section = segments[1];
-    if (FRAMEWORK_SECTIONS.includes(section)) {
-      segments.splice(1, 0, currentFramework);
-      return `/${segments.join("/")}`;
-    }
-
-    return docsUrl;
-  };
 
   return (
     <div className="mt-8 flex items-center justify-between">
       {prev && (
         <div className="flex items-center justify-start">
           <Link
-            href={injectFramework(prev.docs as string) as Route}
+            href={
+              injectFramework({
+                docsUrl: prev.docs as string,
+                currentFramework: currentFramework || ""
+              }) as Route
+            }
             className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium duration-200 sm:py-1.5">
             <ArrowLeftIcon className="size-4" />
             <span className="hidden sm:inline">{prev.title}</span>
@@ -327,7 +367,12 @@ const NextSteps = ({
       {next && (
         <div className="flex items-center justify-end">
           <Link
-            href={injectFramework(next.docs as string) as Route}
+            href={
+              injectFramework({
+                docsUrl: next.docs as string,
+                currentFramework: currentFramework || ""
+              }) as Route
+            }
             className="bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium duration-200 sm:py-1.5">
             <span className="hidden sm:inline"> {next.title}</span>{" "}
             <ArrowRightIcon className="size-4" />

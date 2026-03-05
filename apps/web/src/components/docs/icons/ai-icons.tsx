@@ -11,7 +11,8 @@ export const Icons = {
       imageRendering="optimizeQuality"
       fillRule="evenodd"
       clipRule="evenodd"
-      viewBox="0 0 512 509.639">
+      viewBox="0 0 512 509.639"
+      {...props}>
       <path
         fill="#fff"
         d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.613-115.613 115.613H115.612C52.026 509.64 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"
@@ -30,7 +31,8 @@ export const Icons = {
       imageRendering="optimizeQuality"
       fillRule="evenodd"
       clipRule="evenodd"
-      viewBox="0 0 512 509.641">
+      viewBox="0 0 512 509.641"
+      {...props}>
       <path d="M115.612 0h280.776C459.975 0 512 52.026 512 115.612v278.416c0 63.587-52.025 115.613-115.612 115.613H115.612C52.026 509.641 0 457.615 0 394.028V115.612C0 52.026 52.026 0 115.612 0z" />
       <path
         fill="#fff"
@@ -39,7 +41,11 @@ export const Icons = {
     </svg>
   ),
   gemini: (props: IconProps) => (
-    <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65">
+    <svg
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 65 65"
+      {...props}>
       <mask
         id="maskme"
         style={{ maskType: "alpha" }}
@@ -314,7 +320,8 @@ export const Icons = {
       imageRendering="optimizeQuality"
       fillRule="evenodd"
       clipRule="evenodd"
-      viewBox="0 0 512 509.64">
+      viewBox="0 0 512 509.64"
+      {...props}>
       <path
         fill="#1F1F1F"
         d="M115.613 0h280.774C459.974 0 512 52.025 512 115.612v278.415c0 63.587-52.026 115.613-115.613 115.613H115.613C52.026 509.64 0 457.614 0 394.027V115.612C0 52.025 52.026 0 115.613 0z"
@@ -334,7 +341,8 @@ export const Icons = {
       imageRendering="optimizeQuality"
       fillRule="evenodd"
       clipRule="evenodd"
-      viewBox="0 0 512 509.64">
+      viewBox="0 0 512 509.64"
+      {...props}>
       <path
         fill="#D77655"
         d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.612-115.613 115.612H115.612C52.026 509.639 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"
@@ -347,7 +355,11 @@ export const Icons = {
     </svg>
   ),
   googleAiStudio: (props: IconProps) => (
-    <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <svg
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+      {...props}>
       <g
         clipPath="url(#prefix__clip0_5_13)"
         fillRule="evenodd"
@@ -371,7 +383,8 @@ export const Icons = {
       imageRendering="optimizeQuality"
       fillRule="evenodd"
       clipRule="evenodd"
-      viewBox="0 0 512 509.64">
+      viewBox="0 0 512 509.64"
+      {...props}>
       <path
         fill="#fff"
         d="M115.612 0h280.775C459.974 0 512 52.026 512 115.612v278.415c0 63.587-52.026 115.613-115.613 115.613H115.612C52.026 509.64 0 457.614 0 394.027V115.612C0 52.026 52.026 0 115.612 0z"
@@ -388,7 +401,8 @@ export const Icons = {
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 147 70"
-      className="size-4.5 -translate-x-px">
+      className="size-4.5 -translate-x-px"
+      {...props}>
       <path d="M56 50.203V14h14v46.156C70 65.593 65.593 70 60.156 70c-2.596 0-5.158-1-7-2.843L0 14h19.797L56 50.203ZM147 56h-14V23.953L100.953 56H133v14H96.687C85.814 70 77 61.186 77 50.312V14h14v32.156L123.156 14H91V0h36.312C138.186 0 147 8.814 147 19.688V56Z" />
     </svg>
   ),
@@ -398,7 +412,8 @@ export const Icons = {
       height="934"
       viewBox="0 0 910 934"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}>
       <path
         d="M647.664 197.775C569.13 189.049 525.5 145.419 516.774 66.8849C508.048 145.419 464.418 189.049 385.884 197.775C464.418 206.501 508.048 250.131 516.774 328.665C525.5 250.131 569.13 206.501 647.664 197.775Z"
         fill="currentColor"
@@ -449,8 +464,8 @@ export const Icons = {
     </svg>
   )
 };
-const AiNames = AI_QUERIES.map((query) => query.name)
-export type AiName = typeof AiNames[number];
+const AiNames = AI_QUERIES.map(query => query.name);
+export type AiName = (typeof AiNames)[number];
 
 const aiIconMap: Readonly<Record<AiName, React.ComponentType<IconProps>>> = {
   chatgpt: Icons.chatgpt,
@@ -461,7 +476,7 @@ const aiIconMap: Readonly<Record<AiName, React.ComponentType<IconProps>>> = {
   gemini: Icons.gemini,
   deepseek: Icons.deepseek,
   v0: Icons.v0,
-  scira:Icons.scira
+  scira: Icons.scira
 };
 
 export function getIconForAi(ai?: AiName) {
