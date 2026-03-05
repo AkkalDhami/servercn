@@ -32,7 +32,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { contributingGuides } from "@/lib/contributing";
 import { useFramework } from "@/store/use-framework";
 
-export default function SearchCommand({
+export function SearchCommand({
   className,
   size
 }: {

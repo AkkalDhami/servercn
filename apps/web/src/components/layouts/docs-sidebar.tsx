@@ -8,8 +8,8 @@ import { IRegistryItems } from "@/@types/registry";
 
 import { cn } from "@/lib/utils";
 import { getRegistryTypeItems } from "@/lib/source";
-import CodeTheme from "../docs/code-theme";
-import { SelectFramework } from "../docs/select-framework";
+import CodeTheme from "@/components/docs/code-theme";
+import { SelectFramework } from "@/components/docs/select-framework";
 import { useFramework } from "@/store/use-framework";
 
 const FRAMEWORK_SECTIONS = [
