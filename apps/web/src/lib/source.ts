@@ -125,7 +125,3 @@ export function getRegistryTypeItems(
     }));
   return items.length > 0 ? (items as IRegistryItems[]) : [];
 }
-
-export function getGithubUrl(slug: string) {
-  return `${GITHUB_URL}/tree/main/apps/web/src/content/docs/${slug}`;
-}
