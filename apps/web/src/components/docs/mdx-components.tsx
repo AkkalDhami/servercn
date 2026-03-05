@@ -10,7 +10,7 @@ import LNote from "./list-note";
 import Warning from "./warning";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getIconForLanguageExtension } from "./icons";
+import { getIconForLanguageExtension } from "./icons/language-icons";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
