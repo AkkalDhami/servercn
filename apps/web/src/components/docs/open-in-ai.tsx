@@ -48,7 +48,9 @@ export function OpenInAi() {
           />
         </SelectTrigger>
         <SelectContent>
-          {AI_QUERIES.map(query => (
+          {AI_QUERIES
+            .toSorted((a, b) => a.label.localeCompare(b.label))
+            .map(query => (
             <SelectItem
               key={query.name}
               value={query.name}
