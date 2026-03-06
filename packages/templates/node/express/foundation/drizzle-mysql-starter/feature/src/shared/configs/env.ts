@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "dotenv-flow/config";
 import { z } from "zod";
 
 export const envSchema = z.object({

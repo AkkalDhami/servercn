@@ -19,12 +19,12 @@
               "mysql2",
               "pino-pretty",
               "pino",
+              "dotenv-flow",
               "source-map-support",
               "zod"
             ],
             "dev": [
               "typescript",
-              "dotenv",
               "tsx",
               "tsc-alias",
               "@types/node",
