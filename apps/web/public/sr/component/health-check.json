@@ -5,7 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": ["dotenv-flow"],
+            "runtime": ["dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["PORT"],
@@ -29,13 +29,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                  "path": "src/controllers/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../utils/api-response\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = async (_req: Request, res: Response) => {\n  return ApiResponse.Success(res, \"Service is healthy\", {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime()\n  });\n};\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = async (_req: Request, res: Response) => {\n  const healthData = {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime(),\n    environment: process.env.NODE_ENV || \"development\",\n    version: process.env.npm_package_version || \"1.0.0\",\n    memory: {\n      used:\n        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,\n      total:\n        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,\n      unit: \"MB\"\n    },\n    cpu: {\n      usage: process.cpuUsage()\n    }\n  };\n\n  return ApiResponse.Success(res, \"Service is healthy\", healthData);\n};\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/controllers/health.controller.ts",
-                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../utils/api-response\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = async (_req: Request, res: Response) => {\n  return ApiResponse.Success(res, \"Service is healthy\", {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime()\n  });\n};\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = async (_req: Request, res: Response) => {\n  const healthData = {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime(),\n    environment: process.env.NODE_ENV || \"development\",\n    version: process.env.npm_package_version || \"1.0.0\",\n    memory: {\n      used:\n        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,\n      total:\n        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,\n      unit: \"MB\"\n    },\n    cpu: {\n      usage: process.cpuUsage()\n    }\n  };\n\n  return ApiResponse.Success(res, \"Service is healthy\", healthData);\n};\n"
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 }
               ]
             },

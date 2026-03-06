@@ -4,9 +4,9 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development npx tsx watch src/server.ts",
+    "dev": "cross-env NODE_ENV=development npx tsx watch src/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "NODE_ENV=production node dist/server.js",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
     "typecheck": "tsc --noEmit",
     "docs": "node swagger.config.ts",
     "db:generate": "drizzle-kit generate",
