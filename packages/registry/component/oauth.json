@@ -15,7 +15,7 @@
               },
               "dependencies": {
                 "runtime": [
-                  "dotenv",
+                  "dotenv-flow",
                   "pino",
                   "pino-pretty",
                   "passport",
@@ -38,7 +38,7 @@
               },
               "dependencies": {
                 "runtime": [
-                  "dotenv",
+                  "dotenv-flow",
                   "pino",
                   "pino-pretty",
                   "passport",
@@ -61,7 +61,7 @@
               },
               "dependencies": {
                 "runtime": [
-                  "dotenv",
+                  "dotenv-flow",
                   "pino",
                   "pino-pretty",
                   "passport",
