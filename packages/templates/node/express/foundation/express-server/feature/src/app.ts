@@ -4,7 +4,8 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import "source-map-support/register";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 import Routes from "./routes/index";
 

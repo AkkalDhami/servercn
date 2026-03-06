@@ -11,7 +11,8 @@ import env from "./shared/configs/env";
 import { errorHandler } from "./shared/middlewares/error-handler";
 import { notFoundHandler } from "./shared/middlewares/not-found-handler";
 
-import "source-map-support/register";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 const app: Express = express();
 

@@ -9,6 +9,8 @@ import { configureSecurityHeaders } from "./middlewares/security-header";
 import Routes from "./routes/index";
 
 import "./configs/passport";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 const app: Express = express();
 

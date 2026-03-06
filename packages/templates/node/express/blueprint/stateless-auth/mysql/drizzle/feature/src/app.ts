@@ -10,6 +10,8 @@ import { startRefreshTokenCleanupJob } from "./cron/cleanup-refresh-tokens.cron"
 
 import { rateLimiter } from "./shared/middlewares/rate-limiter";
 import { setupSwagger } from "./config/swagger";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 const app: Express = express();
 

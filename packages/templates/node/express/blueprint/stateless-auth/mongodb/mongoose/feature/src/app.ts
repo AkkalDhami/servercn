@@ -10,6 +10,9 @@ import { notFoundHandler } from "./shared/middlewares/not-found-handler";
 import { errorHandler } from "./shared/middlewares/error-handler";
 import env from "./shared/configs/env";
 
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
+
 const app: Express = express();
 
 //? Apply security headers before other middlewares and routes

@@ -10,6 +10,8 @@ import { startRefreshTokenCleanupJob } from "./cron/cleanup-refresh-tokens.cron"
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./docs/swagger.json";
 import { rateLimiter } from "./middlewares/rate-limiter";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 const app: Express = express();
 

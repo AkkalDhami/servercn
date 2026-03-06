@@ -7,7 +7,8 @@ import { notFoundHandler } from "./middlewares/not-found-handler";
 import { errorHandler } from "./middlewares/error-handler";
 import healthRoutes from "./routes/health.routes";
 
-import "source-map-support/register";
+import sourceMapSupport from "source-map-support";
+sourceMapSupport.install();
 
 const app: Express = express();
 
