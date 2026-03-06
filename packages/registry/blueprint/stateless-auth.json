@@ -36,6 +36,7 @@
                       "pino",
                       "pino-pretty",
                       "zod",
+                      "dotenv-flow",
                       "source-map-support",
                       "swagger-autogen",
                       "swagger-ui-express"
@@ -59,7 +60,6 @@
                       "@types/passport",
                       "@types/passport-github2",
                       "@types/passport-google-oauth20",
-                      "dotenv",
                       "morgan",
                       "prettier",
                       "tsc-alias",
@@ -131,6 +131,7 @@
                       "pino",
                       "pino-pretty",
                       "zod",
+                      "dotenv-flow",
                       "source-map-support",
                       "swagger-autogen",
                       "swagger-ui-express"
@@ -152,7 +153,6 @@
                       "@types/passport",
                       "@types/passport-github2",
                       "@types/passport-google-oauth20",
-                      "dotenv",
                       "morgan",
                       "prettier",
                       "tsc-alias",
