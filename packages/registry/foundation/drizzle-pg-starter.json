@@ -19,6 +19,7 @@
               "pg",
               "pino-pretty",
               "pino",
+              "dotenv-flow",
               "source-map-support",
               "zod"
             ],
@@ -26,7 +27,6 @@
               "typescript",
               "tsx",
               "tsc-alias",
-              "dotenv",
               "@types/node",
               "@types/express",
               "@types/pg",
