@@ -215,7 +215,7 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from './middlewares/error-handler';
 
           const app: Application = express();
@@ -458,7 +458,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from './shared/middlewares/error-handler';
 
           const app: Application = express();
@@ -671,7 +671,7 @@ export const errorHandler = (
 
 ```ts
 import express, { type Application } from "express";
-import "dotenv/config";
+import "dotenv-flow/config";
 import { errorHandler } from "./middlewares/error-handler";
 
 const app: Application = express();

@@ -12,7 +12,7 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
               import { z } from "zod";
 
               /**
@@ -143,7 +143,7 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-                  import "dotenv/config";
+                  import "dotenv-flow/config";
                   import { z } from "zod";
 
                   /**
@@ -286,7 +286,7 @@ Install the component using the ServerCN CLI:
 Create a file named <Code children="src/configs/env.ts"/>  (or similar) and add the following code:
 
 ```ts
-import "dotenv/config";
+import "dotenv-flow/config";
 import { z } from "zod";
 
 /**

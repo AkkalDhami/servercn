@@ -191,7 +191,7 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import healthRoutes from "./routes/health.routes";
 
           const app: Application = express();
@@ -424,7 +424,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import Routes from "./routes/index.ts";
 
           const app: Application = express();

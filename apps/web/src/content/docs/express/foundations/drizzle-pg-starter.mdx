@@ -13,7 +13,7 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
               import { z } from "zod";
 
               export const envSchema = z.object({
@@ -570,7 +570,7 @@ feature_structure:
           - type: file
             name: db.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
               import { drizzle } from "drizzle-orm/mysql2";
               import env from "../shared/configs/env";
 
@@ -702,7 +702,7 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-                  import "dotenv/config";
+                  import "dotenv-flow/config";
                   import { z } from "zod";
 
                   export const envSchema = z.object({
@@ -1050,7 +1050,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { Express, Request, Response } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import cors from "cors";
           import helmet from "helmet";
           import cookieParser from "cookie-parser";

@@ -13,7 +13,7 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
 
               interface Config {
                 PORT: number;
@@ -509,7 +509,7 @@ feature_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
 
               interface Config {
                 PORT: number;
@@ -932,7 +932,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { Express, Request, Response } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import cors from "cors";
           import helmet from "helmet";
           import cookieParser from "cookie-parser";

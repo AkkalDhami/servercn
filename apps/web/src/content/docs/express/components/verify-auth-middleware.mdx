@@ -545,7 +545,7 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from './middlewares/error-handler';
 
           import UserRouter from "./routes/user.routes"
@@ -1115,7 +1115,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from './shared/middlewares/error-handler';
           import Routes from "./routes/index";
 

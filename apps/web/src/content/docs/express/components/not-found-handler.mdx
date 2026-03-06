@@ -244,7 +244,7 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from "./middlewares/error-handler";
           import { notFoundHandler } from "./middlewares/not-found-handler";
 
@@ -520,7 +520,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
           import { errorHandler } from "./shared/middlewares/error-handler";
           import { notFoundHandler } from "./shared/middlewares/not-found-handler";
 
@@ -633,7 +633,7 @@ The Not Found Handler must be placed **after all routes** but **before the error
 
 ```ts
 import express, { type Application } from "express";
-import "dotenv/config";
+import "dotenv-flow/config";
 import { errorHandler } from "./middlewares/error-handler";
 import { notFoundHandler } from "./middlewares/not-found-handler";
 
@@ -659,7 +659,7 @@ export default app;
 
 ```ts
 import express, { type Application } from "express";
-import "dotenv/config";
+import "dotenv-flow/config";
 import { errorHandler } from "./shared/middlewares/error-handler";
 import { notFoundHandler } from "./shared/middlewares/not-found-handler";
 

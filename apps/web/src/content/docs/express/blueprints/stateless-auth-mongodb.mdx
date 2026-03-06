@@ -44,7 +44,7 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
               import { z } from "zod";
 
               export const envSchema = z.object({
@@ -107,7 +107,7 @@ mvc_structure:
             name: nodemailer.ts
             content: |
               import nodemailer from "nodemailer";
-              import "dotenv/config";
+              import "dotenv-flow/config";
               import env from "./env";
 
               let transporter: nodemailer.Transporter | null = null;
@@ -5127,7 +5127,7 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-                  import "dotenv/config";
+                  import "dotenv-flow/config";
                   import { z } from "zod";
 
                   const envSchema = z.object({
@@ -5178,7 +5178,7 @@ feature_structure:
                 name: nodemailer.ts
                 content: |
                   import nodemailer from "nodemailer";
-                  import "dotenv/config";
+                  import "dotenv-flow/config";
                   import env from "./env";
 
                   let transporter: nodemailer.Transporter | null = null;

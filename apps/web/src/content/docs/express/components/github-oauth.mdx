@@ -13,7 +13,7 @@ mvc_structure:
           - type: file
             name: env.ts
             content: |
-              import "dotenv/config";
+              import "dotenv-flow/config";
 
               interface Config {
                 PORT: number;
@@ -430,7 +430,7 @@ feature_structure:
               - type: file
                 name: env.ts
                 content: |
-                  import "dotenv/config";
+                  import "dotenv-flow/config";
 
                   interface Config {
                     PORT: number;
@@ -962,7 +962,7 @@ Ensure the following configuration are defined:
 **Feature:** <Code children="src/shared/configs/env.ts" />
 
 ```ts
-import "dotenv/config";
+import "dotenv-flow/config";
 
 interface Config {
   PORT: number;

@@ -507,7 +507,7 @@ mvc_structure:
         name: app.ts
         content: |
           import express, { Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
 
           import { errorHandler } from "./middlewares/error-handler";
           import { logger } from "./utils/logger";
@@ -1060,7 +1060,7 @@ feature_structure:
         name: app.ts
         content: |
           import express, { type Application } from "express";
-          import "dotenv/config";
+          import "dotenv-flow/config";
 
           import { errorHandler } from './shared/middlewares/error-handler';
           import { logger } from "./shared/utils/logger";
@@ -1508,7 +1508,7 @@ export default router;
 
 ```ts
 import express, { Application } from "express";
-import "dotenv/config";
+import "dotenv-flow/config";
 
 import { errorHandler } from "./middlewares/error-handler";
 import { logger } from "./utils/logger";
