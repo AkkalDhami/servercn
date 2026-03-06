@@ -5,9 +5,9 @@ import { execa } from "execa";
 import { logger } from "@/utils/logger";
 import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 import { getRegistry } from "@/lib/registry";
-import { cloneServercnRegistry } from "@/lib/copy";
+import { cloneServercnRegistry, copyTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
-import type { AddOptions, RegistryFoundation } from "@/types";
+import type { AddOptions, Architecture, RegistryFoundation } from "@/types";
 import { tsConfig } from "@/configs/ts.config";
 import { commitlintConfig } from "@/configs/commitlint.config";
 import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
@@ -16,6 +16,7 @@ import { gitignore } from "@/configs/gitignore.config";
 import { getDatabaseConfig } from "@/lib/config";
 import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
+import { paths } from "@/lib/paths";
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
@@ -100,34 +101,57 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     try {
       const component: RegistryFoundation = await getRegistry(
         foundation,
-        "foundation"
+        "foundation",
+        options.local
       );
 
       const baseConfig =
         component.runtimes["node"].frameworks[options.fw ?? "express"];
 
-      const templatePath = `node/${options?.fw ?? "express"}/${response.architecture}`;
-      if (!templatePath) {
-        logger.error(
-          `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
-        );
-        fs.removeSync(rootPath);
-        return;
+      if (options.local) {
+        const targetDir = paths.targets(".");
+        const localTemplatePath =
+          `node/${options?.fw ?? "express"}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
+          "";
+        const templateDir = path.resolve(paths.templates(), localTemplatePath);
+
+        if (!(await fs.pathExists(templateDir))) {
+          logger.error(
+            `\nTemplate not found: ${templateDir}\nCheck your servercn configuration.\n`
+          );
+          process.exit(1);
+        }
+        logger.break();
+
+        await copyTemplate({
+          templateDir,
+          targetDir,
+          registryItemName: foundation,
+          conflict: options.force ? "overwrite" : "skip"
+        });
+      } else {
+        const templatePath = `node/${options?.fw ?? "express"}/${response.architecture}`;
+        if (!templatePath) {
+          logger.error(
+            `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
+          );
+          fs.removeSync(rootPath);
+          return;
+        }
+
+        const ok = await cloneServercnRegistry({
+          templatePath,
+          targetDir: response.root,
+          component,
+          options
+        });
+
+        if (!ok) {
+          logger.error(`Failed to initialize foundation:${foundation}.\n`);
+          fs.removeSync(rootPath);
+          return;
+        }
       }
-
-      const ok = await cloneServercnRegistry({
-        templatePath,
-        targetDir: response.root,
-        component,
-        options
-      });
-
-      if (!ok) {
-        logger.error(`Failed to initialize foundation:${foundation}.\n`);
-        fs.removeSync(rootPath);
-        return;
-      }
-
       await fs.writeJson(
         path.join(rootPath, SERVERCN_CONFIG_FILE),
         servercnConfig({
