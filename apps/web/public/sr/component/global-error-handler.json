@@ -5,11 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": [
-              "pino",
-              "pino-pretty",
-              "dotenv-flow"
-            ],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
             "dev": []
           },
           "env": [

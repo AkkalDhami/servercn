@@ -10,7 +10,7 @@
             "feature": "health-check/feature"
           },
           "dependencies": {
-            "runtime": ["dotenv-flow"],
+            "runtime": ["dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["PORT"]

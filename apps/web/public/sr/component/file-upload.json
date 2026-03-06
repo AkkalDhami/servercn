@@ -14,6 +14,7 @@
                   "pino",
                   "pino-pretty",
                   "dotenv-flow",
+                  "cross-env",
                   "multer",
                   "cloudinary"
                 ],
@@ -122,6 +123,11 @@
                     },
                     {
                       "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/shared/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  CLOUDINARY_CLOUD_NAME: string;\n  CLOUDINARY_API_KEY: string;\n  CLOUDINARY_API_SECRET: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,\n  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,\n  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!\n};\n\nexport default env;\n"
                     },
@@ -129,6 +135,11 @@
                       "type": "file",
                       "path": "src/shared/configs/cloudinary.ts",
                       "content": "import { v2 as cloudinary } from \"cloudinary\";\nimport env from \"./env\";\n\ncloudinary.config({\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\n  api_key: env.CLOUDINARY_API_KEY,\n  api_secret: env.CLOUDINARY_API_SECRET\n});\n\nexport default cloudinary;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                     },
                     {
                       "type": "file",
@@ -181,6 +192,7 @@
                   "pino",
                   "pino-pretty",
                   "dotenv-flow",
+                  "cross-env",
                   "multer",
                   "@imagekit/nodejs"
                 ],
@@ -223,8 +235,8 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/services/upload.service.ts",
-                      "content": "import imagekitClient from \"../configs/imagekit\";\nimport { toFile } from \"@imagekit/nodejs\";\n\nexport interface UploadOptions {\n  folder: string;\n  fileName?: string;\n}\n\nexport interface ImageKitUploadResult {\n  url: string;\n  fileId: string;\n  size: number;\n}\n\nexport const uploadToImageKit = async (\n  buffer: Buffer,\n  options: UploadOptions\n): Promise<ImageKitUploadResult> => {\n  try {\n    const fileName = options.fileName || `file-${Date.now()}`;\n    const file = await toFile(buffer, fileName);\n\n    const result = await imagekitClient.files.upload({\n      file: file,\n      fileName: fileName,\n      folder: options.folder || \"uploads\"\n    });\n\n    // console.log({ result });\n\n    return {\n      url: result.url || \"\",\n      fileId: result.fileId || \"\",\n      size: result.size || 0\n    };\n  } catch (error) {\n    throw error;\n  }\n};\n\nexport const deleteFileFromImageKit = async (\n  fileIds: string[]\n): Promise<void> => {\n  try {\n    await Promise.all(\n      fileIds.map(fileId => imagekitClient.files.delete(fileId))\n    );\n  } catch (error) {\n    throw error;\n  }\n};\n"
+                      "path": "src/routes/upload.routes.ts",
+                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
@@ -243,8 +255,8 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/routes/upload.routes.ts",
-                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
+                      "path": "src/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                     },
                     {
                       "type": "file",
@@ -260,6 +272,11 @@
                       "type": "file",
                       "path": "src/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/services/upload.service.ts",
+                      "content": "import imagekitClient from \"../configs/imagekit\";\nimport { toFile } from \"@imagekit/nodejs\";\n\nexport interface UploadOptions {\n  folder: string;\n  fileName?: string;\n}\n\nexport interface ImageKitUploadResult {\n  url: string;\n  fileId: string;\n  size: number;\n}\n\nexport const uploadToImageKit = async (\n  buffer: Buffer,\n  options: UploadOptions\n): Promise<ImageKitUploadResult> => {\n  try {\n    const fileName = options.fileName || `file-${Date.now()}`;\n    const file = await toFile(buffer, fileName);\n\n    const result = await imagekitClient.files.upload({\n      file: file,\n      fileName: fileName,\n      folder: options.folder || \"uploads\"\n    });\n\n    // console.log({ result });\n\n    return {\n      url: result.url || \"\",\n      fileId: result.fileId || \"\",\n      size: result.size || 0\n    };\n  } catch (error) {\n    throw error;\n  }\n};\n\nexport const deleteFileFromImageKit = async (\n  fileIds: string[]\n): Promise<void> => {\n  try {\n    await Promise.all(\n      fileIds.map(fileId => imagekitClient.files.delete(fileId))\n    );\n  } catch (error) {\n    throw error;\n  }\n};\n"
                     }
                   ]
                 },
@@ -277,21 +294,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/imagekit.ts",
-                      "content": "import ImageKit from \"@imagekit/nodejs\";\nimport env from \"./env\";\n\nconst imagekitClient = new ImageKit({\n  privateKey: env.IMAGEKIT_PRIVATE_KEY\n});\n\nexport default imagekitClient;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/env.ts",
-                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/utils/logger.ts",
                       "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
                     },
@@ -304,6 +306,36 @@
                       "type": "file",
                       "path": "src/shared/utils/api-response.ts",
                       "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\nimport type { Response } from \"express\";\n\ntype ApiResponseParams<T> = {\n  success: boolean;\n  message: string;\n  statusCode: StatusCode;\n  data?: T | null;\n  errors?: unknown;\n};\n\nexport class ApiResponse<T = unknown> {\n  public readonly success: boolean;\n  public readonly message: string;\n  public readonly statusCode: StatusCode;\n  public readonly data?: T | null;\n  public readonly errors?: unknown;\n\n  constructor({\n    success,\n    message,\n    statusCode,\n    data = null,\n    errors\n  }: ApiResponseParams<T>) {\n    this.success = success;\n    this.message = message;\n    this.statusCode = statusCode;\n    this.data = data;\n    this.errors = errors;\n  }\n\n  send(res: Response): Response {\n    return res.status(this.statusCode).json({\n      success: this.success,\n      message: this.message,\n      statusCode: this.statusCode,\n      ...(this.data !== undefined && { data: this.data }),\n      ...(this.errors !== undefined && { errors: this.errors })\n    });\n  }\n\n  static Success<T>(\n    res: Response,\n    message: string,\n    data?: T,\n    statusCode: StatusCode = 200\n  ): Response {\n    return new ApiResponse<T>({\n      success: true,\n      message,\n      data,\n      statusCode\n    }).send(res);\n  }\n\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\n  }\n\n  static created<T>(res: Response, message = \"Created\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\n  }\n}\n\n/*\n * Usage:\n * ApiResponse.ok(res, \"OK\", data);\n * ApiResponse.created(res, \"Created\", data);\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/upload-file.ts",
+                      "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/error-handler.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/imagekit.ts",
+                      "content": "import ImageKit from \"@imagekit/nodejs\";\nimport env from \"./env\";\n\nconst imagekitClient = new ImageKit({\n  privateKey: env.IMAGEKIT_PRIVATE_KEY\n});\n\nexport default imagekitClient;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
                     },
                     {
                       "type": "file",

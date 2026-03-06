@@ -5,9 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": [
-              "dotenv-flow"
-            ],
+            "runtime": ["dotenv-flow"],
             "dev": []
           },
           "env": [

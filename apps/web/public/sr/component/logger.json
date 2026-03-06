@@ -13,11 +13,7 @@
                 "NODE_ENV"
               ],
               "dependencies": {
-                "runtime": [
-                  "pino",
-                  "pino-pretty",
-                  "dotenv-flow"
-                ],
+                "runtime": ["pino", "pino-pretty", "dotenv-flow"],
                 "dev": []
               },
               "architectures": {
@@ -40,8 +36,13 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/configs/env.ts",
-                      "content": "interface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n}\n\nconst config: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\"\n};\n\nexport default config;\n"
+                      "path": "src/shared/middlewares/logger.middleware.ts",
+                      "content": "import pinoHttp from \"pino-http\";\nimport { logger } from \"../utils/pino-logger\";\n\nexport const httpLogger = pinoHttp({\n  logger,\n  customLogLevel(req, res, err) {\n    if (res.statusCode >= 500 || err) return \"error\";\n    if (res.statusCode >= 400) return \"warn\";\n    return \"info\";\n  }\n});\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/logger.middleware.ts",
+                      "content": "import pinoHttp from \"pino-http\";\nimport { logger } from \"../utils/pino-logger\";\n\nexport const httpLogger = pinoHttp({\n  logger,\n  customLogLevel(req, res, err) {\n    if (res.statusCode >= 500 || err) return \"error\";\n    if (res.statusCode >= 400) return \"warn\";\n    return \"info\";\n  }\n});\n"
                     }
                   ]
                 },
@@ -81,7 +82,8 @@
                 "runtime": [
                   "winston",
                   "winston-daily-rotate-file",
-                  "dotenv-flow"
+                  "dotenv-flow",
+                  "cross-env"
                 ],
                 "dev": []
               },

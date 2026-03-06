@@ -16,6 +16,7 @@
               "dependencies": {
                 "runtime": [
                   "dotenv-flow",
+                  "cross-env",
                   "pino",
                   "pino-pretty",
                   "passport",
@@ -39,6 +40,7 @@
               "dependencies": {
                 "runtime": [
                   "dotenv-flow",
+                  "cross-env",
                   "pino",
                   "pino-pretty",
                   "passport",
@@ -62,6 +64,7 @@
               "dependencies": {
                 "runtime": [
                   "dotenv-flow",
+                  "cross-env",
                   "pino",
                   "pino-pretty",
                   "passport",

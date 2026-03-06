@@ -5,11 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": [
-              "pino",
-              "pino-pretty",
-              "dotenv-flow"
-            ],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
             "dev": []
           },
           "env": [
@@ -29,6 +25,16 @@
                   "type": "file",
                   "path": "src/app.test.ts",
                   "content": "import express, { type Application } from \"express\";\nimport \"dotenv-flow/config\";\nimport { errorHandler } from \"./middlewares/error-handler\";\n\nimport UserRouter from \"./routes/user.routes\";\n\nconst app: Application = express();\n\napp.use(express.json());\n\n// routes here\napp.use(\"/api/v1/users\", UserRouter);\n\n// Global error handler (should be after routes)\napp.use(errorHandler);\n\nexport default app;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/types/user.ts",
+                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/user.routes.ts",
+                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",
@@ -52,13 +58,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/routes/user.routes.ts",
-                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
+                  "path": "src/types/user.ts",
+                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/types/user.ts",
-                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
+                  "path": "src/routes/user.routes.ts",
+                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",

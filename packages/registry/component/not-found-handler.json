@@ -10,7 +10,7 @@
             "feature": "not-found-handler/feature"
           },
           "dependencies": {
-            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["NODE_ENV", "LOG_LEVEL", "PORT"]
