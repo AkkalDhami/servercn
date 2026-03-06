@@ -10,7 +10,7 @@
             "feature": "env-config/feature"
           },
           "dependencies": {
-            "runtime": ["zod", "dotenv-flow"],
+            "runtime": ["zod", "dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": [

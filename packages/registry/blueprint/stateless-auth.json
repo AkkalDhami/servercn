@@ -37,6 +37,7 @@
                       "pino-pretty",
                       "zod",
                       "dotenv-flow",
+                      "cross-env",
                       "source-map-support",
                       "swagger-autogen",
                       "swagger-ui-express"
@@ -132,6 +133,7 @@
                       "pino-pretty",
                       "zod",
                       "dotenv-flow",
+                      "cross-env",
                       "source-map-support",
                       "swagger-autogen",
                       "swagger-ui-express"
