@@ -1,6 +1,6 @@
 {
   "name": "servercn",
-  "homepage": "https://servercn.vercel.app",
+  "homepage": "http://localhost:3000",
   "items": [
     {
       "type": "component",

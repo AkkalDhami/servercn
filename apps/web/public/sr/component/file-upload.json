@@ -13,7 +13,7 @@
                   "express",
                   "pino",
                   "pino-pretty",
-                  "dotenv",
+                  "dotenv-flow",
                   "multer",
                   "cloudinary"
                 ],
@@ -32,7 +32,7 @@
                     {
                       "type": "file",
                       "path": "src/app.upload-file.ts",
-                      "content": "import express, { Application } from \"express\";\nimport \"dotenv/config\";\n\nimport { errorHandler } from \"./middlewares/error-handler\";\nimport { logger } from \"./utils/logger\";\n\nimport uploadRoutes from \"./routes/upload.routes\";\nimport env from \"./configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api/uploads\", uploadRoutes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
+                      "content": "import express, { Application } from \"express\";\nimport \"dotenv-flow/config\";\n\nimport { errorHandler } from \"./middlewares/error-handler\";\nimport { logger } from \"./utils/logger\";\n\nimport uploadRoutes from \"./routes/upload.routes\";\nimport env from \"./configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api/uploads\", uploadRoutes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
                     },
                     {
                       "type": "file",
@@ -56,28 +56,13 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/routes/upload.routes.ts",
-                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/configs/env.ts",
-                      "content": "import \"dotenv/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  CLOUDINARY_CLOUD_NAME: string;\n  CLOUDINARY_API_KEY: string;\n  CLOUDINARY_API_SECRET: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,\n  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,\n  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!\n};\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/configs/cloudinary.ts",
-                      "content": "import { v2 as cloudinary } from \"cloudinary\";\nimport env from \"./env\";\n\ncloudinary.config({\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\n  api_key: env.CLOUDINARY_API_KEY,\n  api_secret: env.CLOUDINARY_API_SECRET\n});\n\nexport default cloudinary;\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/services/cloudinary.service.ts",
                       "content": "import { DeleteApiResponse } from \"cloudinary\";\nimport cloudinary from \"../configs/cloudinary\";\n\nexport interface UploadOptions {\n  folder: string;\n  resource_type?: \"image\" | \"video\" | \"raw\" | \"auto\";\n}\n\nexport interface CloudinaryUploadResult {\n  url: string;\n  public_id: string;\n  size: number;\n}\n\nexport const uploadToCloudinary = (\n  buffer: Buffer,\n  options: UploadOptions\n): Promise<CloudinaryUploadResult> => {\n  return new Promise((resolve, reject) => {\n    const stream = cloudinary.uploader.upload_stream(\n      {\n        folder: options.folder || \"uploads\",\n        resource_type: options.resource_type || \"auto\"\n      },\n      (error, result) => {\n        if (error || !result) {\n          return reject(error);\n        }\n        resolve({\n          url: result.secure_url,\n          public_id: result.public_id,\n          size: result.bytes\n        });\n      }\n    );\n\n    stream.end(buffer);\n  });\n};\n\nexport const deleteFileFromCloudinary = (\n  publicIds: string[]\n): Promise<DeleteApiResponse> => {\n  return new Promise((resolve, reject) => {\n    cloudinary.api.delete_resources(publicIds, (error, result) => {\n      if (error || !result) {\n        return reject(error);\n      }\n      resolve(result);\n    });\n  });\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/routes/upload.routes.ts",
+                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
@@ -93,6 +78,21 @@
                       "type": "file",
                       "path": "src/controllers/upload.controller.ts",
                       "content": "import { NextFunction, Request, Response } from \"express\";\nimport {\n  CloudinaryUploadResult,\n  deleteFileFromCloudinary,\n  uploadToCloudinary\n} from \"../services/cloudinary.service\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { ApiResponse } from \"../utils/api-response\";\nimport { AsyncHandler } from \"../utils/async-handler\";\n\nexport const uploadFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    if (!req.file) {\n      return next(ApiError.badRequest(\"File is required\"));\n    }\n\n    const file = await uploadToCloudinary(req.file.buffer, {\n      folder: \"uploads/files\",\n      resource_type: \"auto\"\n    });\n\n    return ApiResponse.created(res, \"File uploaded successfully\", file);\n  }\n);\n\nexport const uploadMultipleFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const files = req.files as Express.Multer.File[];\n\n    if (!files || files.length === 0) {\n      return next(ApiError.badRequest(\"Files are required\"));\n    }\n\n    const results: CloudinaryUploadResult[] = await Promise.all(\n      files.map(async file => {\n        return await uploadToCloudinary(file.buffer, {\n          folder: \"uploads/images\"\n        });\n      })\n    );\n\n    return ApiResponse.created(res, \"Files uploaded successfully\", results);\n  }\n);\n\nexport const deleteFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const { public_id } = req.body;\n\n    if (!public_id) {\n      return next(ApiError.badRequest(\"File ID is required\"));\n    }\n\n    await deleteFileFromCloudinary([public_id]);\n\n    return ApiResponse.Success(res, \"File deleted successfully\", null, 200);\n  }\n);\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  CLOUDINARY_CLOUD_NAME: string;\n  CLOUDINARY_API_KEY: string;\n  CLOUDINARY_API_SECRET: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,\n  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,\n  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!\n};\n\nexport default env;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/cloudinary.ts",
+                      "content": "import { v2 as cloudinary } from \"cloudinary\";\nimport env from \"./env\";\n\ncloudinary.config({\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\n  api_key: env.CLOUDINARY_API_KEY,\n  api_secret: env.CLOUDINARY_API_SECRET\n});\n\nexport default cloudinary;\n"
                     }
                   ]
                 },
@@ -101,7 +101,7 @@
                     {
                       "type": "file",
                       "path": "src/app.upload-file.ts",
-                      "content": "import express, { Application } from \"express\";\nimport \"dotenv/config\";\n\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\nimport { logger } from \"./shared/utils/logger\";\n\nimport Routes from \"./routes/index\";\nimport env from \"./shared/configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api\", Routes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
+                      "content": "import express, { Application } from \"express\";\nimport \"dotenv-flow/config\";\n\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\nimport { logger } from \"./shared/utils/logger\";\n\nimport Routes from \"./routes/index\";\nimport env from \"./shared/configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api\", Routes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
                     },
                     {
                       "type": "file",
@@ -125,11 +125,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/middlewares/upload-file.ts",
                       "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
                     },
@@ -137,6 +132,26 @@
                       "type": "file",
                       "path": "src/shared/middlewares/error-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  CLOUDINARY_CLOUD_NAME: string;\n  CLOUDINARY_API_KEY: string;\n  CLOUDINARY_API_SECRET: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,\n  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,\n  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!\n};\n\nexport default env;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/cloudinary.ts",
+                      "content": "import { v2 as cloudinary } from \"cloudinary\";\nimport env from \"./env\";\n\ncloudinary.config({\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\n  api_key: env.CLOUDINARY_API_KEY,\n  api_secret: env.CLOUDINARY_API_SECRET\n});\n\nexport default cloudinary;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                     },
                     {
                       "type": "file",
@@ -152,21 +167,6 @@
                       "type": "file",
                       "path": "src/modules/upload/upload.controller.ts",
                       "content": "import { NextFunction, Request, Response } from \"express\";\n\nimport { ApiResponse } from \"../../shared/utils/api-response\";\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\nimport {\n  CloudinaryUploadResult,\n  deleteFileFromCloudinary,\n  uploadToCloudinary\n} from \"./upload.service\";\nimport { ApiError } from \"../../shared/errors/api-error\";\n\nexport const uploadFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    if (!req.file) {\n      return next(ApiError.badRequest(\"File is required\"));\n    }\n\n    const file = await uploadToCloudinary(req.file.buffer, {\n      folder: \"uploads/files\",\n      resource_type: \"auto\"\n    });\n\n    return ApiResponse.created(res, \"File uploaded successfully\", file);\n  }\n);\n\nexport const uploadMultipleFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const files = req.files as Express.Multer.File[];\n\n    if (!files || files.length === 0) {\n      return next(ApiError.badRequest(\"Files are required\"));\n    }\n\n    const results: CloudinaryUploadResult[] = await Promise.all(\n      files.map(async file => {\n        return await uploadToCloudinary(file.buffer, {\n          folder: \"uploads/images\"\n        });\n      })\n    );\n\n    return ApiResponse.created(res, \"Files uploaded successfully\", results);\n  }\n);\n\nexport const deleteFile = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const { public_id } = req.body;\n\n    if (!public_id) {\n      return next(ApiError.badRequest(\"File ID is required\"));\n    }\n\n    await deleteFileFromCloudinary([public_id]);\n\n    return ApiResponse.Success(res, \"File deleted successfully\", null, 200);\n  }\n);\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/errors/api-error.ts",
-                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/env.ts",
-                      "content": "import \"dotenv/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  CLOUDINARY_CLOUD_NAME: string;\n  CLOUDINARY_API_KEY: string;\n  CLOUDINARY_API_SECRET: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,\n  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,\n  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!\n};\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/cloudinary.ts",
-                      "content": "import { v2 as cloudinary } from \"cloudinary\";\nimport env from \"./env\";\n\ncloudinary.config({\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\n  api_key: env.CLOUDINARY_API_KEY,\n  api_secret: env.CLOUDINARY_API_SECRET\n});\n\nexport default cloudinary;\n"
                     }
                   ]
                 }
@@ -178,7 +178,7 @@
                 "runtime": [
                   "pino",
                   "pino-pretty",
-                  "dotenv",
+                  "dotenv-flow",
                   "multer",
                   "@imagekit/nodejs"
                 ],
@@ -196,27 +196,7 @@
                     {
                       "type": "file",
                       "path": "src/app.upload-file.ts",
-                      "content": "import express, { Application } from \"express\";\nimport \"dotenv/config\";\n\nimport { errorHandler } from \"./middlewares/error-handler\";\nimport { logger } from \"./utils/logger\";\n\nimport uploadRoutes from \"./routes/upload.routes\";\nimport env from \"./configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api/uploads\", uploadRoutes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/middlewares/upload-file.ts",
-                      "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/middlewares/error-handler.ts",
-                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/services/upload.service.ts",
-                      "content": "import imagekitClient from \"../configs/imagekit\";\nimport { toFile } from \"@imagekit/nodejs\";\n\nexport interface UploadOptions {\n  folder: string;\n  fileName?: string;\n}\n\nexport interface ImageKitUploadResult {\n  url: string;\n  fileId: string;\n  size: number;\n}\n\nexport const uploadToImageKit = async (\n  buffer: Buffer,\n  options: UploadOptions\n): Promise<ImageKitUploadResult> => {\n  try {\n    const fileName = options.fileName || `file-${Date.now()}`;\n    const file = await toFile(buffer, fileName);\n\n    const result = await imagekitClient.files.upload({\n      file: file,\n      fileName: fileName,\n      folder: options.folder || \"uploads\"\n    });\n\n    // console.log({ result });\n\n    return {\n      url: result.url || \"\",\n      fileId: result.fileId || \"\",\n      size: result.size || 0\n    };\n  } catch (error) {\n    throw error;\n  }\n};\n\nexport const deleteFileFromImageKit = async (\n  fileIds: string[]\n): Promise<void> => {\n  try {\n    await Promise.all(\n      fileIds.map(fileId => imagekitClient.files.delete(fileId))\n    );\n  } catch (error) {\n    throw error;\n  }\n};\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/routes/upload.routes.ts",
-                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
+                      "content": "import express, { Application } from \"express\";\nimport \"dotenv-flow/config\";\n\nimport { errorHandler } from \"./middlewares/error-handler\";\nimport { logger } from \"./utils/logger\";\n\nimport uploadRoutes from \"./routes/upload.routes\";\nimport env from \"./configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api/uploads\", uploadRoutes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
                     },
                     {
                       "type": "file",
@@ -237,6 +217,26 @@
                       "type": "file",
                       "path": "src/utils/api-error.ts",
                       "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/services/upload.service.ts",
+                      "content": "import imagekitClient from \"../configs/imagekit\";\nimport { toFile } from \"@imagekit/nodejs\";\n\nexport interface UploadOptions {\n  folder: string;\n  fileName?: string;\n}\n\nexport interface ImageKitUploadResult {\n  url: string;\n  fileId: string;\n  size: number;\n}\n\nexport const uploadToImageKit = async (\n  buffer: Buffer,\n  options: UploadOptions\n): Promise<ImageKitUploadResult> => {\n  try {\n    const fileName = options.fileName || `file-${Date.now()}`;\n    const file = await toFile(buffer, fileName);\n\n    const result = await imagekitClient.files.upload({\n      file: file,\n      fileName: fileName,\n      folder: options.folder || \"uploads\"\n    });\n\n    // console.log({ result });\n\n    return {\n      url: result.url || \"\",\n      fileId: result.fileId || \"\",\n      size: result.size || 0\n    };\n  } catch (error) {\n    throw error;\n  }\n};\n\nexport const deleteFileFromImageKit = async (\n  fileIds: string[]\n): Promise<void> => {\n  try {\n    await Promise.all(\n      fileIds.map(fileId => imagekitClient.files.delete(fileId))\n    );\n  } catch (error) {\n    throw error;\n  }\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/middlewares/upload-file.ts",
+                      "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/middlewares/error-handler.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/routes/upload.routes.ts",
+                      "content": "import { Router } from \"express\";\n\nimport upload from \"../middlewares/upload-file\";\nimport {\n  deleteFile,\n  uploadFile,\n  uploadMultipleFile\n} from \"../controllers/upload.controller\";\n\nconst router = Router();\n\nrouter.post(\"/file\", upload.single(\"file\"), uploadFile);\nrouter.post(\"/files\", upload.array(\"files\", 10), uploadMultipleFile);\nrouter.delete(\"/\", deleteFile);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
@@ -256,7 +256,7 @@
                     {
                       "type": "file",
                       "path": "src/configs/env.ts",
-                      "content": "import \"dotenv/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
+                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
                     }
                   ]
                 },
@@ -265,37 +265,12 @@
                     {
                       "type": "file",
                       "path": "src/app.upload-file.ts",
-                      "content": "import express, { Application } from \"express\";\nimport \"dotenv/config\";\n\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\nimport { logger } from \"./shared/utils/logger\";\n\nimport Routes from \"./routes/index\";\nimport env from \"./shared/configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api\", Routes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
+                      "content": "import express, { Application } from \"express\";\nimport \"dotenv-flow/config\";\n\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\nimport { logger } from \"./shared/utils/logger\";\n\nimport Routes from \"./routes/index\";\nimport env from \"./shared/configs/env\";\n\nconst app: Application = express();\n\nconst PORT = env.PORT;\n\n// middlewares\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\n\n// routes\napp.use(\"/api\", Routes);\n\n// Global error handler\napp.use(errorHandler);\n\napp.listen(PORT, () => {\n  logger.info(`Server is running on http://localhost:${PORT}`);\n});\n"
                     },
                     {
                       "type": "file",
                       "path": "src/routes/index.ts",
                       "content": "import { Router } from \"express\";\nimport UploadRouter from \"../modules/upload/upload.routes\";\n\nconst router = Router();\n\nrouter.use(\"/v1/uploads\", UploadRouter);\n\nexport default router;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/middlewares/upload-file.ts",
-                      "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/middlewares/error-handler.ts",
-                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/imagekit.ts",
-                      "content": "import ImageKit from \"@imagekit/nodejs\";\nimport env from \"./env\";\n\nconst imagekitClient = new ImageKit({\n  privateKey: env.IMAGEKIT_PRIVATE_KEY\n});\n\nexport default imagekitClient;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/configs/env.ts",
-                      "content": "import \"dotenv/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
                     },
                     {
                       "type": "file",
@@ -314,8 +289,33 @@
                     },
                     {
                       "type": "file",
+                      "path": "src/shared/middlewares/upload-file.ts",
+                      "content": "import multer from \"multer\";\n\nexport const ALLOWED_FILE_TYPES = [\n  \"image/jpeg\",\n  \"image/png\",\n  \"image/webp\",\n  \"video/mp4\",\n  \"video/mpeg\",\n  \"video/quicktime\",\n  \"application/pdf\"\n];\n\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\n\nconst storage = multer.memoryStorage();\n\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\n  console.log({ file });\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\n    return cb(null, false);\n  }\n  cb(null, true);\n};\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: MAX_FILE_SIZE },\n  fileFilter\n});\n\nexport default upload;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/error-handler.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/shared/errors/api-error.ts",
                       "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/imagekit.ts",
+                      "content": "import ImageKit from \"@imagekit/nodejs\";\nimport env from \"./env\";\n\nconst imagekitClient = new ImageKit({\n  privateKey: env.IMAGEKIT_PRIVATE_KEY\n});\n\nexport default imagekitClient;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\n\ninterface Config {\n  PORT: number;\n  NODE_ENV: string;\n  LOG_LEVEL: string;\n\n  IMAGEKIT_PRIVATE_KEY: string;\n}\n\nconst env: Config = {\n  PORT: Number(process.env.PORT) || 1111,\n  NODE_ENV: process.env.NODE_ENV || \"development\",\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\",\n\n  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY!\n};\n\nexport default env;\n"
                     },
                     {
                       "type": "file",
