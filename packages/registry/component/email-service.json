@@ -14,7 +14,7 @@
                 "feature": "email-service/nodemailer/feature"
               },
               "dependencies": {
-                "runtime": ["nodemailer", "dotenv-flow"],
+                "runtime": ["nodemailer", "dotenv-flow", "cross-env"],
                 "dev": ["@types/nodemailer"]
               },
               "env": [
@@ -32,7 +32,7 @@
                 "feature": "email-service/resend/feature"
               },
               "dependencies": {
-                "runtime": ["resend", "dotenv-flow"]
+                "runtime": ["resend", "dotenv-flow", "cross-env"]
               },
               "env": ["RESEND_API_KEY", "EMAIL_FROM"]
             }

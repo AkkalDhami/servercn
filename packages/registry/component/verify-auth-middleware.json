@@ -10,7 +10,7 @@
             "feature": "verify-auth-middleware/feature"
           },
           "dependencies": {
-            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["PORT", "LOG_LEVEL", "NODE_ENV"]

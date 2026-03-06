@@ -5,7 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["PORT", "LOG_LEVEL", "NODE_ENV"],
@@ -21,6 +21,16 @@
                   "type": "file",
                   "path": "src/app.test.ts",
                   "content": "import express, { type Application } from \"express\";\nimport \"dotenv-flow/config\";\nimport { errorHandler } from \"./middlewares/error-handler\";\n\nimport UserRouter from \"./routes/user.routes\";\n\nconst app: Application = express();\n\napp.use(express.json());\n\n// routes here\napp.use(\"/api/v1/users\", UserRouter);\n\n// Global error handler (should be after routes)\napp.use(errorHandler);\n\nexport default app;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/types/user.ts",
+                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/user.routes.ts",
+                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",
@@ -41,16 +51,6 @@
                   "type": "file",
                   "path": "src/utils/api-error.ts",
                   "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/types/user.ts",
-                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/routes/user.routes.ts",
-                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",

@@ -5,7 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": ["pino", "pino-pretty", "dotenv-flow"],
+            "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
             "dev": []
           },
           "env": ["LOG_LEVEL"],
