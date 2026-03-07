@@ -24,6 +24,7 @@
             ],
             "dev": [
               "@types/express",
+              "@types/node",
               "typescript",
               "tsx",
               "tsc-alias",
