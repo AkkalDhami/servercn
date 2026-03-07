@@ -13,8 +13,13 @@ export const tsConfig = {
     useUnknownInCatchVariables: true,
     forceConsistentCasingInFileNames: true,
     paths: {
-      "@/*": ["./*"],
+      "@/*": ["./*", "./src/*"],
+      "@/shared/*": ["../../shared/*"]
     },
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
   },
   include: ["src/**/*"],
   exclude: ["node_modules"],

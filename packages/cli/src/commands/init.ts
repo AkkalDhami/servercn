@@ -7,7 +7,7 @@ import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 import { getRegistry } from "@/lib/registry";
 import { cloneServercnRegistry, copyTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
-import type { AddOptions, Architecture, RegistryFoundation } from "@/types";
+import type { AddOptions, Architecture, FrameworkType, RegistryFoundation } from "@/types";
 import { tsConfig } from "@/configs/ts.config";
 import { commitlintConfig } from "@/configs/commitlint.config";
 import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
@@ -17,6 +17,7 @@ import { getDatabaseConfig } from "@/lib/config";
 import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
 import { paths } from "@/lib/paths";
+
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
@@ -106,12 +107,12 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       );
 
       const baseConfig =
-        component.runtimes["node"].frameworks[options.fw ?? "express"];
+        component.runtimes["node"].frameworks[getFramework(options.fw ?? "express")];
 
       if (options.local) {
-        const targetDir = paths.targets(".");
+        const targetDir = paths.targets(response.root ?? ".");
         const localTemplatePath =
-          `node/${options?.fw ?? "express"}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
+          `node/${getFramework(options.fw ?? "express")}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
           "";
         const templateDir = path.resolve(paths.templates(), localTemplatePath);
 
@@ -130,7 +131,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           conflict: options.force ? "overwrite" : "skip"
         });
       } else {
-        const templatePath = `node/${options?.fw ?? "express"}/${response.architecture}`;
+        const templatePath = `node/${getFramework(options.fw ?? "express")}/${response.architecture}`;
         if (!templatePath) {
           logger.error(
             `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
@@ -152,6 +153,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           return;
         }
       }
+
       await fs.writeJson(
         path.join(rootPath, SERVERCN_CONFIG_FILE),
         servercnConfig({
@@ -163,7 +165,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           stack: {
             runtime: "node",
             language: "typescript",
-            framework: "express",
+            framework: getFramework(options.fw ?? "express"),
             architecture: response.architecture
           },
           database: getDatabaseConfig(foundation)
@@ -404,4 +406,17 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     "ex: npx servercn-cli add jwt-utils error-handler http-status-codes"
   );
   logger.break();
+}
+
+function getFramework(fw: string): FrameworkType {
+  switch (fw) {
+    case "express":
+    case "expressjs":
+      return "express";
+    case "nestjs":
+    case "nest":
+      return "nestjs";
+    default:
+      return "express";
+  }
 }

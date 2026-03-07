@@ -178,6 +178,13 @@
       ]
     },
     {
+      "type": "blueprint",
+      "slug": "banking-app",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
       "type": "schema",
       "slug": "todo",
       "frameworks": [

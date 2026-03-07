@@ -8,4 +8,30 @@ export const prettierConfig = {
   endOfLine: "lf",
 };
 
-export const prettierIgnore = `build\ndist\n.env\nnode_modules`;
+export const prettierIgnore = `# dependencies
+node_modules
+
+# build outputs
+dist
+build
+coverage
+
+# lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# environment
+.env
+
+# generated files
+*.min.js
+*.bundle.js
+
+# logs
+*.log
+
+# git
+.git
+.gitignore
+`;

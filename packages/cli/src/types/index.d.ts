@@ -30,7 +30,7 @@ export interface AddOptions {
   arch?: Architecture;
   force?: boolean;
   local?: boolean;
-  fw?: FrameworkType;
+  fw?: string;
 }
 export interface CopyOptions {
   templateDir: string;
