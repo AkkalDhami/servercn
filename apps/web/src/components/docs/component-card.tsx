@@ -21,14 +21,18 @@ export default function ComponentCard({
             className={`absolute top-4 right-4 block size-2 rounded-full bg-amber-500 md:hidden`}></span>
         </>
       )}
-      <h3 className="text-lg font-medium">{component.title}</h3>
+      <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
+        {component.title}
+      </h3>
 
       <p className="text-muted-primary mt-2 line-clamp-2 text-sm">
         {component.description}
       </p>
 
-      <div className="text-muted-secondary group-hover:text-foreground mt-4 flex items-center text-sm font-medium duration-300 group-hover:underline">
-        View docs
+      <div className="mt-4 flex text-muted-primary items-center text-sm font-medium">
+        {component?.frameworks
+          ?.map((framework: string) => framework)
+          .join(" | ")}
       </div>
     </Link>
   );
