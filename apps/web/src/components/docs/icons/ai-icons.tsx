@@ -359,6 +359,7 @@ export const Icons = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 512 512"
+      className="text-primary"
       {...props}>
       <g
         clipPath="url(#prefix__clip0_5_13)"
@@ -401,7 +402,7 @@ export const Icons = {
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 147 70"
-      className="size-4.5 -translate-x-px"
+      className="text-primary size-4.5 -translate-x-px"
       {...props}>
       <path d="M56 50.203V14h14v46.156C70 65.593 65.593 70 60.156 70c-2.596 0-5.158-1-7-2.843L0 14h19.797L56 50.203ZM147 56h-14V23.953L100.953 56H133v14H96.687C85.814 70 77 61.186 77 50.312V14h14v32.156L123.156 14H91V0h36.312C138.186 0 147 8.814 147 19.688V56Z" />
     </svg>
@@ -413,6 +414,7 @@ export const Icons = {
       viewBox="0 0 910 934"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className="text-primary"
       {...props}>
       <path
         d="M647.664 197.775C569.13 189.049 525.5 145.419 516.774 66.8849C508.048 145.419 464.418 189.049 385.884 197.775C464.418 206.501 508.048 250.131 516.774 328.665C525.5 250.131 569.13 206.501 647.664 197.775Z"
