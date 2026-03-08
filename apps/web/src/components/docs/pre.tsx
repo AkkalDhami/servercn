@@ -36,6 +36,7 @@ export function Pre({
           backgroundColor: bg
         }}>
         <CopyButton
+          bg={bg}
           handleCopy={copy}
           copied={copied}
           className={cn(
