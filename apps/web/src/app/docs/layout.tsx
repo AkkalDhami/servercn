@@ -11,7 +11,7 @@ export default function DocsLayout({
       <div className="fixed right-0 bottom-4 left-0 z-20 flex h-10 items-center px-4 lg:hidden">
         <MobileNav />
       </div>
-      <aside className="mt-14 ml-6 hidden w-78 border-r py-0 text-sm md:ml-6 lg:mb-10 lg:block">
+      <aside className="mt-14 ml-6 hidden w-76 border-r py-0 text-sm md:ml-6 lg:mb-10 lg:block">
         <DocsSidebar />
       </aside>
       <main className="w-full flex-1 pt-12 pb-16 md:pt-18">{children}</main>

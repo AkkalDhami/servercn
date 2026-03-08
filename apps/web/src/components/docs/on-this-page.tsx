@@ -57,7 +57,7 @@ export function OnThisPage() {
       },
       {
         root: null,
-        rootMargin: "-96px 0px -60% 0px",
+        // rootMargin: "-96px 0px -60% 0px",
         threshold: 0
       }
     );
