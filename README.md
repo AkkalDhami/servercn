@@ -8,27 +8,15 @@
 
 **ServerCN** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
 
+> Shadcn ecosystem for nodejs backend 
+
 ---
 
 ![ServerCN Components](./apps/web/public/assets/hero.png)
 
-## 🚀 Key Features
+[Visit website: https://servercn.vercel.app](https://servercn.vercel.app/docs/cli)
 
-- **⚡ Instant Scaffolding**: Quickly generate backend components like Authentication, Logging, and Database setups.
-- **🛡️ Type-Safety First**: Built entirely with TypeScript for robust and reliable code.
-- **🔐 Secure by Design**: Includes best-practice implementations for security (Argon2, JWT, Zod).
-- **🧩 Modular Architecture**: Add only what you need to your existing project.
-- **📝 Comprehensive Logging**: Integrated with Pino and Winston for effective monitoring and debugging.
-
-## 📦 Components
-
-ServerCN allows you to quickly add the following components to your project:
-
-- **Authentication System** (JWT, Refresh Tokens, Password Hashing)
-- **Database Connection** (Mongoose/MongoDB)
-- **Input Validation** (Zod)
-- **Error Handling** (Global Error Handler, Async Wrapper)
-- **Logging** (Winston, Pino)
+[Join discord: https://discord.gg/2fXqnTXF8d](https://discord.gg/2fXqnTXF8d)
 
 ## 🛠️ Usage
 
@@ -51,8 +39,11 @@ npx servercn-cli add [component-name]
 Examples:
 
 ```bash
-npx servercn-cli add logger-pino
-npx servercn-cli add logger-winston
+npx servercn-cli add logger
+```
+
+```bash
+npx servercn-cli add oauth
 ```
 
 ## Components
@@ -171,35 +162,11 @@ npx servercn-cli add health-check
   npx servercn-cli ls tl
   ```
 
-[Visit for more](https://servercn.vercel.app/docs/cli)
-
-## 🏗️ Project Structure
-
-The generated code follows a clean, MVC-inspired architecture designed for scalability:
-
-```bash
-src/
-├── config/         # Environment variables and configuration
-├── controllers/    # Request handlers
-├── middlewares/    # Express middlewares (Auth, Error handling)
-├── models/         # Database models (Mongoose schemas)
-├── routes/         # API routes definitions
-├── services/       # Business logic layer
-├── utils/          # Helper functions and classes
-└── app.ts          # App entry point
-└── server.ts       # Server entry point
-```
-
-## 💻 Tech Stack
-
-- **Runtime**: Node.js
-- **Language**: TypeScript
-- **Framework**: Express.js
-- **Frontend**: Next.js
-
 ## 🤝 Contributing
 
 We welcome contributions! Please feel free to submit a Pull Request.
+
+[Contributing guides](https://servercn.vercel.app/contributing)
 
 ## 📄 License
 
