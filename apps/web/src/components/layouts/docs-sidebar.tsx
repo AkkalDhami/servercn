@@ -69,7 +69,7 @@ export default function DocsSidebar({
   const navSections = [
     {
       title: ITEM_GROUP_NAMING.guide,
-      items: getRegistryTypeItems("guide") // Guides don't filter by framework
+      items: getRegistryTypeItems("guide")
     },
     {
       title: ITEM_GROUP_NAMING.foundation,
@@ -77,7 +77,7 @@ export default function DocsSidebar({
     },
     {
       title: ITEM_GROUP_NAMING.tooling,
-      items: getRegistryTypeItems("tooling") // Tooling doesn't filter by framework
+      items: getRegistryTypeItems("tooling") 
     },
     {
       title: ITEM_GROUP_NAMING.component,
@@ -151,8 +151,6 @@ export default function DocsSidebar({
 
                 const isNested =
                   item.type === "schema" || item.type === "blueprint";
-
-                // console.log({ item });
 
                 return (
                   <li key={`${item.slug + item.url}`}>

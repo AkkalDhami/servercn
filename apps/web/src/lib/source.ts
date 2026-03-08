@@ -109,7 +109,7 @@ export function getRegistryTypeItems(
     .map(item => ({
       title: item.title,
       description: item.description,
-      url: ["guide", "tooling"].includes(item.type)
+      url: ["guide", "tooling", "contributing"].includes(item.type)
         ? item.docs
         : item.docs.replace("/docs/", `/docs/${framework}/`),
       status: item.status,
