@@ -77,12 +77,15 @@ This generates a <Code>servercn.config.json</Code> file in your project root:
 
 Available starters:
 
+- <Code>express-starter</Code>  
 - <Code>mongoose-starter</Code>  
-- <Code>express-server</Code>  
 - <Code>drizzle-mysql-starter</Code>  
 - <Code>drizzle-pg-starter</Code>  
 
+<PackageManagerTabs command="npx servercn-cli init express-starter" />
+<PackageManagerTabs command="npx servercn-cli init mongoose-starter" />
 <PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
+<PackageManagerTabs command="npx servercn-cli init drizzle-pg-starter" />
 
 Example:
 
@@ -214,7 +217,7 @@ Install a foundational layer that provides core system setup (e.g., base configs
 
 <PackageManagerTabs command="npx servercn-cli add foundation <foundation-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add fd express-server" />
+<PackageManagerTabs command="npx servercn-cli add fd express-starter" />
 
 This integrates the foundation according to your selected architecture and stack configuration.
 
@@ -284,8 +287,8 @@ List available all foundation.
       ]
     },
     {
-      "name": "express-server",
-      "command": "npx servercn-cli init express-server",
+      "name": "express-starter",
+      "command": "npx servercn-cli init express-starter",
       "frameworks": [
         "express"
       ]

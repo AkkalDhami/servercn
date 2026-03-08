@@ -1,7 +1,7 @@
 ---
-title: Express Server | Foundation
-description: The Express Server Foundation is the core starting block provided by servercn.
-command: npx servercn-cli init express-server
+title: Express Starter | Foundation
+description: The Express Starter Foundation is the core starting block provided by servercn.
+command: npx servercn-cli init express-starter
 
 mvc_structure:
   - type: folder
@@ -493,11 +493,29 @@ mvc_structure:
           "esModuleInterop": true,
           "skipLibCheck": true,
           "outDir": "dist",
-          "rootDir": "src"
+          "rootDir": "src",
+          "sourceMap": true,
+          "alwaysStrict": true,
+          "useUnknownInCatchVariables": true,
+          "forceConsistentCasingInFileNames": true,
+          "paths": {
+            "@/*": [
+              "./*"
+            ]
+          }
         },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules"]
+        "tsc-alias": {
+          "resolveFullPaths": true,
+          "verbose": false
+        },
+        "include": [
+          "src/**/*"
+        ],
+        "exclude": [
+          "node_modules"
+        ]
       }
+
 
 feature_structure:
   - type: folder
@@ -1008,24 +1026,42 @@ feature_structure:
           "esModuleInterop": true,
           "skipLibCheck": true,
           "outDir": "dist",
-          "rootDir": "src"
+          "rootDir": "src",
+          "sourceMap": true,
+          "alwaysStrict": true,
+          "useUnknownInCatchVariables": true,
+          "forceConsistentCasingInFileNames": true,
+          "paths": {
+            "@/*": [
+              "./*"
+            ]
+          }
         },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules"]
+        "tsc-alias": {
+          "resolveFullPaths": true,
+          "verbose": false
+        },
+        "include": [
+          "src/**/*"
+        ],
+        "exclude": [
+          "node_modules"
+        ]
       }
+
 ---
 
-# Express Server Foundation
+# Express Starter Foundation
 
-The **Express Server Foundation** is the core starting block provided by **servercn**. It provides a robust, production‑ready Express.js setup with sensible defaults, allowing you to focus on building features rather than boilerplate.
+The **Express Starter Foundation** is the core starting block provided by **servercn**. It provides a robust, production‑ready Express.js setup with sensible defaults, allowing you to focus on building features rather than boilerplate.
 
 This foundation is not a framework; it's a well-structured boilerplate that you fully own and can extend as your project grows.
 
 ## Installation Guide
 
-To install the Express Server Foundation, run the following command:
+To install the Express Starter Foundation, run the following command:
 
-<PackageManagerTabs command="npx servercn-cli init express-server" />
+<PackageManagerTabs command="npx servercn-cli init express-starter" />
 
 ## What This Foundation Solves
 
@@ -1037,7 +1073,7 @@ Most Express projects require the same initial setup:
 - TypeScript configuration
 - Development tooling (hot reload, structured logging)
 
-The Express Server Foundation standardizes these concerns using battle-tested patterns.
+The Express Starter Foundation standardizes these concerns using battle-tested patterns.
 
 ## Architecture Patterns
 
@@ -1120,7 +1156,7 @@ The foundation includes logic to handle **SIGINT** and **SIGTERM** signals, ensu
 
 ## Extending the Foundation
 
-The Express Server Foundation is cumulative. Once initialized, you can easily add:
+The Express Starter Foundation is cumulative. Once initialized, you can easily add:
 
 - **Database Starters**: Mongoose, Drizzle (MySQL/PostgreSQL)
 - **Auth Components**: JWT Utilities, OAuth, RBAC
@@ -1130,7 +1166,7 @@ Each component you add with **servercn add** will automatically align with your 
 
 ## Summary
 
-Use the **Express Server Foundation** when:
+Use the **Express Starter Foundation** when:
 
 - Starting a new production-ready Express API.
 - You want a clean, typed foundation without the weight of a full framework.

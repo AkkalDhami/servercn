@@ -304,13 +304,13 @@
       "docs": "/docs/components/background-jobs"
     },
     {
-      "slug": "express-server",
-      "title": "Basic Express Server",
+      "slug": "express-starter",
+      "title": "Basic Express Starter",
       "description": "A robust Express.js server foundation with TypeScript, error handling, and structured logging.",
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/express-server"
+      "docs": "/docs/foundations/express-starter"
     },
     {
       "slug": "mongoose-starter",

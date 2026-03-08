@@ -24,7 +24,7 @@ Includes:
 > It is not a single feature — it is the base architecture layer.
 
 Some servercn foundations:
- - [Express Server Starter](/docs/foundations/express-server)
+ - [Express Starter Starter](/docs/foundations/express-starter)
  - [Drizzle PostgreSQL Starter](/docs/foundations/drizzle-pg-starter)
  - [Drizzle MySQL Starter](/docs/foundations/drizzle-mysql-starter)
  - [Mongoose Starter](/docs/foundations/mongoose-starter)
@@ -77,14 +77,14 @@ The example below references the demo foundation:
 ```json
 {
   "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
-  "slug": "express-server",
+  "slug": "express-starter",
   "runtimes": {
     "node": {
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "express-server/mvc",
-            "feature": "express-server/feature"
+            "mvc": "express-starter/mvc",
+            "feature": "express-starter/feature"
           },
           "dependencies": {
             "runtime": [
@@ -142,11 +142,11 @@ The example below references the demo foundation:
 - Must be kebab-case.
 - Used internally by CLI commands:
 
-<PackageManagerTabs command="npx servercn-cli add fd express-server" />
+<PackageManagerTabs command="npx servercn-cli add fd express-starter" />
 
 ```json
 {
- "slug": "express-server"
+ "slug": "express-starter"
 }
 ```
 
@@ -214,8 +214,8 @@ Templates define project structure variants.
 ```json
 {
   "templates": {
-    "mvc": "express-server/mvc",
-    "feature": "express-server/feature"
+    "mvc": "express-starter/mvc",
+    "feature": "express-starter/feature"
   }
 }
 ```
