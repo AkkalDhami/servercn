@@ -4,14 +4,17 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 export default function CopyButton({
   handleCopy,
   copied,
-  className
+  className,
+  bg
 }: {
   handleCopy: () => void;
   copied: boolean;
   className?: string;
+  bg?: string;
 }) {
   return (
     <button
+      style={{ backgroundColor: bg }}
       aria-label={copied ? "Copied" : "Copy to clipboard"}
       className={cn(
         "hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute right-0 flex h-auto cursor-pointer items-center justify-center rounded-md p-1.5 transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed",
