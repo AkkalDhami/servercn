@@ -53,15 +53,15 @@ export const AI_QUERIES = [
     label: "DeepSeek",
     name: "deepseek",
     url: (prompt: string) =>
-      `https://deepseek.com/?prompt=${encodeURIComponent(prompt)}`,
-    isAvailable: false
+      `https://chat.deepseek.com/?prompt=${encodeURIComponent(prompt)}`,
+    isAvailable: true
   },
   {
     label: "Gemini",
     name: "gemini",
     url: (prompt: string) =>
       `https://gemini.google.com/?prompt=${encodeURIComponent(prompt)}`,
-    isAvailable: false
+    isAvailable: true
   },
   {
     label: "V0",
