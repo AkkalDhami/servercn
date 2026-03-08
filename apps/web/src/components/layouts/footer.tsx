@@ -68,7 +68,7 @@ export default function Footer() {
             <p>
               &copy; {new Date().getFullYear()} ServerCN | All rights reserved.
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center flex-wrap gap-2">
               Built with <Weapon /> by
               <Link
                 className="hover:text-foreground underline"
@@ -81,7 +81,7 @@ export default function Footer() {
                 className="hover:text-foreground underline"
                 href={"/contributors"}
                 target="_blank">
-                ServerCN Contributors
+               Contributors
               </Link>
             </div>
             <div className="flex items-center gap-3">
