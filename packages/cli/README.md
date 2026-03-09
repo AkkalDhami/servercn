@@ -1,9 +1,8 @@
 # ServerCN
 
-ServerCN is a component registry for building production-ready Node.js backends by composition.
+ServerCN is a component registry for building Node.js backends by composition.
 
-`servercn` helps you scaffold and install **backend components**
-(logging, auth, validation, error handling, etc.) into an existing project — similar in spirit to `shadcn/ui`, but for **backend infrastructure**.
+> The shadcn/ui philosophy for Node.js backends
 
 Visit [ServerCN](https://servercn.vercel.app) for more information.
 
@@ -29,57 +28,6 @@ Add multiple components like this:
 
 ```bash
 npx servercn-cli add logger jwt-utils
-```
-
-## Components
-
-- ### API Error Handler
-
-```bash
-npx servercn-cli add error-handler
-```
-
-- ### API Response Formatter
-
-```bash
-npx servercn-cli add response-formatter
-```
-
-- ### Async Handler
-
-```bash
-npx servercn-cli add async-handler
-```
-
-- ### File Upload Cloudinary
-
-```bash
-npx servercn-cli add file-upload
-```
-
-- ### JWT Utils
-
-```bash
-npx servercn-cli add jwt-utils
-```
-
-- ### Logger
-
-```bash
-npx servercn-cli add logger
-```
-
-
-- ### GitHub and Google OAuth
-
-```bash
-npx servercn-cli add oauth
-```
-
-- ### Health Check
-
-```bash
-npx servercn-cli add health-check
 ```
 
 Visit [ServerCN](https://servercn.vercel.app) for more information.
