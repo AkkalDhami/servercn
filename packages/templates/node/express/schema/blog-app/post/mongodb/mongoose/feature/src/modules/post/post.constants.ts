@@ -1,0 +1,1 @@
+export const POST_STATUSES = ["draft", "published", "archived"] as const;
