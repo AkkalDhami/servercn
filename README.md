@@ -8,7 +8,7 @@
 
 **ServerCN** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
 
-> Shadcn ecosystem for nodejs backend 
+> Shadcn ecosystem for nodejs backend
 
 ---
 
