@@ -6,13 +6,16 @@
         {
           "type": "tooling",
           "path": "commitlint.config.ts",
-          "content": "export default {\n  extends: [\"@commitlint/config-conventional\"],\n  rules: {\n    \"type-enum\": [\n      2,\n      \"always\",\n      [\n        \"feat\",\n        \"fix\",\n        \"docs\",\n        \"style\",\n        \"refactor\",\n        \"perf\",\n        \"test\",\n        \"build\",\n        \"ci\",\n        \"chore\",\n        \"revert\"\n      ]\n    ],\n    \"subject-case\": [2, \"always\", \"sentence-case\"]\n  }\n};\n"
+          "content": "export default {\r\n  extends: [\"@commitlint/config-conventional\"],\r\n  rules: {\r\n    \"type-enum\": [\r\n      2,\r\n      \"always\",\r\n      [\r\n        \"feat\",\r\n        \"fix\",\r\n        \"docs\",\r\n        \"style\",\r\n        \"refactor\",\r\n        \"perf\",\r\n        \"test\",\r\n        \"build\",\r\n        \"ci\",\r\n        \"chore\",\r\n        \"revert\"\r\n      ]\r\n    ],\r\n    \"subject-case\": [2, \"always\", \"sentence-case\"]\r\n  }\r\n};\r\n"
         }
       ]
     }
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["@commitlint/cli", "@commitlint/config-conventional"]
+    "dev": [
+      "@commitlint/cli",
+      "@commitlint/config-conventional"
+    ]
   }
 }

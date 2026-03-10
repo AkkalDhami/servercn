@@ -207,6 +207,13 @@
     },
     {
       "type": "foundation",
+      "slug": "prisma-mongodb-starter",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "foundation",
       "slug": "mongoose-starter",
       "frameworks": [
         "express"

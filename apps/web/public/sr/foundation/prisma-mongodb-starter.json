@@ -1,0 +1,226 @@
+{
+  "slug": "prisma-mongodb-starter",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "pino-pretty",
+              "pino",
+              "dotenv-flow",
+              "cross-env",
+              "source-map-support",
+              "zod",
+              "@prisma/client@6"
+            ],
+            "dev": [
+              "typescript",
+              "tsx",
+              "prisma@6",
+              "tsc-alias",
+              "@types/node",
+              "@types/express",
+              "morgan",
+              "@types/cors",
+              "@types/helmet",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "prettier",
+              "@commitlint/cli",
+              "@commitlint/config-conventional",
+              "@types/source-map-support",
+              "lint-staged"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ],
+          "architectures": {
+            "mvc": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "package.json",
+                  "content": "{\n  \"name\": \"servercn-prisma-mongodb-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx watch src/server.ts\",\n    \"build\": \"tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"db:generate\": \"prisma generate\",\n    \"db:push\": \"prisma db push\",\n    \"db:studio\": \"prisma studio\"\n  },\n  \"devDependencies\": {},\n  \"dependencies\": {}\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/server.ts",
+                  "content": "import app from \"./app\";\r\nimport env from \"./configs/env\";\r\nimport { logger } from \"./utils/logger\";\r\nimport { configureGracefulShutdown } from \"./utils/shutdown\";\r\n\r\nconst port = env.PORT || 9000;\r\n\r\nconst server = app.listen(port, () => {\r\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\r\n});\r\n\r\nconfigureGracefulShutdown(server);\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/app.ts",
+                  "content": "import express, { Express, Request, Response } from \"express\";\r\nimport cors from \"cors\";\r\nimport helmet from \"helmet\";\r\nimport cookieParser from \"cookie-parser\";\r\nimport morgan from \"morgan\";\r\nimport { notFoundHandler } from \"./middlewares/not-found-handler\";\r\nimport { errorHandler } from \"./middlewares/error-handler\";\r\nimport healthRoutes from \"./routes/health.routes\";\r\nimport env from \"./configs/env\";\r\nimport sourceMapSupport from \"source-map-support\";\r\nsourceMapSupport.install();\r\n\r\nconst app: Express = express();\r\n\r\napp.use(express.json());\r\napp.use(express.urlencoded({ extended: true }));\r\napp.use(\r\n  cors({\r\n    origin: env.CORS_ORIGIN,\r\n    credentials: true\r\n  })\r\n);\r\napp.use(helmet());\r\napp.use(cookieParser());\r\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\r\n\r\n// Routes\r\n\r\napp.get(\"/\", (req: Request, res: Response) => {\r\n  res.redirect(\"/api/health\");\r\n});\r\n\r\napp.use(\"/api/health\", healthRoutes);\r\n\r\n// Not found handler (should be after routes)\r\napp.use(notFoundHandler);\r\n\r\n// Global error handler (should be last)\r\napp.use(errorHandler);\r\n\r\nexport default app;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "prisma/schema.prisma",
+                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/shutdown.ts",
+                  "content": "import { Server } from \"http\";\r\nimport { logger } from \"./logger\";\r\n\r\nexport const configureGracefulShutdown = (server: Server) => {\r\n  const signals = [\"SIGTERM\", \"SIGINT\"];\r\n\r\n  signals.forEach(signal => {\r\n    process.on(signal, () => {\r\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\r\n\r\n      server.close(err => {\r\n        if (err) {\r\n          logger.error(err, \"Error during server close\");\r\n          process.exit(1);\r\n        }\r\n\r\n        logger.info(\"HTTP server closed.\");\r\n        process.exit(0);\r\n      });\r\n\r\n      // Force shutdown after 10 seconds\r\n      setTimeout(() => {\r\n        logger.error(\r\n          \"Could not close connections in time, forcefully shutting down\"\r\n        );\r\n        process.exit(1);\r\n      }, 10000);\r\n    });\r\n  });\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/async-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\n\r\nexport type AsyncRouteHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => Promise<unknown>;\r\n\r\nexport function AsyncHandler(fn: AsyncRouteHandler) {\r\n  return function (req: Request, res: Response, next: NextFunction) {\r\n    Promise.resolve(fn(req, res, next)).catch(next);\r\n  };\r\n}\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/api-response.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\nimport type { Response } from \"express\";\r\n\r\ntype ApiResponseParams<T> = {\r\n  success: boolean;\r\n  message: string;\r\n  statusCode: StatusCode;\r\n  data?: T | null;\r\n  errors?: unknown;\r\n};\r\n\r\nexport class ApiResponse<T = unknown> {\r\n  public readonly success: boolean;\r\n  public readonly message: string;\r\n  public readonly statusCode: StatusCode;\r\n  public readonly data?: T | null;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor({\r\n    success,\r\n    message,\r\n    statusCode,\r\n    data = null,\r\n    errors\r\n  }: ApiResponseParams<T>) {\r\n    this.success = success;\r\n    this.message = message;\r\n    this.statusCode = statusCode;\r\n    this.data = data;\r\n    this.errors = errors;\r\n  }\r\n\r\n  send(res: Response): Response {\r\n    return res.status(this.statusCode).json({\r\n      success: this.success,\r\n      message: this.message,\r\n      statusCode: this.statusCode,\r\n      ...(this.data !== undefined && { data: this.data }),\r\n      ...(this.errors !== undefined && { errors: this.errors })\r\n    });\r\n  }\r\n\r\n  static Success<T>(\r\n    res: Response,\r\n    message: string,\r\n    data?: T,\r\n    statusCode: StatusCode = STATUS_CODES.OK\r\n  ): Response {\r\n    return new ApiResponse<T>({\r\n      success: true,\r\n      message,\r\n      data,\r\n      statusCode\r\n    }).send(res);\r\n  }\r\n\r\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\r\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\r\n  }\r\n\r\n  static created<T>(res: Response, message = \"Created\", data?: T) {\r\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * ApiResponse.ok(res, \"OK\", data);\r\n * ApiResponse.created(res, \"Created\", data);\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\n\r\nexport class ApiError extends Error {\r\n  public readonly statusCode: StatusCode;\r\n  public readonly isOperational: boolean;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor(\r\n    statusCode: StatusCode,\r\n    message: string,\r\n    errors?: unknown,\r\n    isOperational = true\r\n  ) {\r\n    super(message);\r\n    this.name = \"ApiError\";\r\n    this.statusCode = statusCode;\r\n    this.errors = errors;\r\n    this.isOperational = isOperational;\r\n\r\n    Error.captureStackTrace(this, this.constructor);\r\n  }\r\n\r\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static unauthorized(message = \"Unauthorized\") {\r\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\r\n  }\r\n\r\n  static forbidden(message = \"Forbidden\") {\r\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\r\n  }\r\n\r\n  static notFound(message = \"Not Found\") {\r\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\r\n  }\r\n\r\n  static conflict(message = \"Conflict\") {\r\n    return new ApiError(STATUS_CODES.CONFLICT, message);\r\n  }\r\n\r\n  static validation(message = \"Validation failed\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static notImplemented(message = \"Not Implemented\") {\r\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\r\n  }\r\n\r\n  static badGateway(message = \"Bad Gateway\") {\r\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\r\n  }\r\n\r\n  static serviceUnavailable(message = \"Service Unavailable\") {\r\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\r\n  }\r\n\r\n  static tooManyRequests(message = \"Too Many Requests\") {\r\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\r\n  }\r\n\r\n  static server(message = \"Internal Server Error\") {\r\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\r\n * throw ApiError.badRequest(\"Bad request\");\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/health.routes.ts",
+                  "content": "import { Router } from \"express\";\r\nimport {\r\n  healthCheck,\r\n  detailedHealthCheck\r\n} from \"../controllers/health.controller\";\r\n\r\nconst router = Router();\r\n\r\nrouter.get(\"/\", healthCheck);\r\nrouter.get(\"/detailed\", detailedHealthCheck);\r\n\r\nexport default router;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport { ApiError } from \"../utils/api-error\";\r\n\r\nexport const notFoundHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => {\r\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport env from \"../configs/env\";\r\n\r\nimport { ApiError } from \"../utils/api-error\";\r\nimport { logger } from \"../utils/logger\";\r\n\r\nexport const errorHandler = (\r\n  err: Error,\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => {\r\n  let statusCode = 500;\r\n  let message = \"Internal server error\";\r\n\r\n  if (err instanceof ApiError) {\r\n    statusCode = err.statusCode;\r\n    message = err.message;\r\n  }\r\n\r\n  logger.error(\r\n    err,\r\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\r\n  );\r\n\r\n  const response = {\r\n    success: false,\r\n    message,\r\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\r\n  };\r\n\r\n  res.status(statusCode).json(response);\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/controllers/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\r\nimport { ApiResponse } from \"../utils/api-response\";\r\nimport { AsyncHandler } from \"../utils/async-handler\";\r\n\r\n/**\r\n * Basic health check endpoint\r\n * GET /api/health\r\n */\r\nexport const healthCheck = AsyncHandler(\r\n  async (_req: Request, res: Response) => {\r\n    return ApiResponse.Success(res, \"Service is healthy\", {\r\n      status: \"healthy\",\r\n      timestamp: new Date().toISOString(),\r\n      uptime: process.uptime()\r\n    });\r\n  }\r\n);\r\n\r\n/**\r\n * Detailed health check with system information\r\n * GET /api/health/detailed\r\n */\r\nexport const detailedHealthCheck = AsyncHandler(\r\n  async (_req: Request, res: Response) => {\r\n    const healthData = {\r\n      status: \"healthy\",\r\n      timestamp: new Date().toISOString(),\r\n      uptime: process.uptime(),\r\n      environment: process.env.NODE_ENV || \"development\",\r\n      version: process.env.npm_package_version || \"1.0.0\",\r\n      memory: {\r\n        used:\r\n          Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /\r\n          100,\r\n        total:\r\n          Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /\r\n          100,\r\n        unit: \"MB\"\r\n      },\r\n      cpu: {\r\n        usage: process.cpuUsage()\r\n      }\r\n    };\r\n\r\n    return ApiResponse.Success(res, \"Service is healthy\", healthData);\r\n  }\r\n);\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\r\n  // 2xx Success\r\n  OK: 200,\r\n  CREATED: 201,\r\n  ACCEPTED: 202,\r\n  NO_CONTENT: 204,\r\n\r\n  // 3xx Redirection\r\n  MOVED_PERMANENTLY: 301,\r\n  FOUND: 302,\r\n  NOT_MODIFIED: 304,\r\n\r\n  // 4xx Client Errors\r\n  BAD_REQUEST: 400,\r\n  UNAUTHORIZED: 401,\r\n  FORBIDDEN: 403,\r\n  NOT_FOUND: 404,\r\n  CONFLICT: 409,\r\n  UNPROCESSABLE_ENTITY: 422,\r\n  TOO_MANY_REQUESTS: 429,\r\n\r\n  // 5xx Server Errors\r\n  INTERNAL_SERVER_ERROR: 500,\r\n  NOT_IMPLEMENTED: 501,\r\n  BAD_GATEWAY: 502,\r\n  SERVICE_UNAVAILABLE: 503,\r\n  GATEWAY_TIMEOUT: 504\r\n} as const;\r\n\r\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/prisma.ts",
+                  "content": "import { PrismaClient } from \"@prisma/client\";\r\nimport env from \"./env\";\r\n\r\nconst prisma = new PrismaClient({\r\n  log: env.NODE_ENV === \"development\" ? [\"query\", \"warn\", \"error\"] : [\"error\"]\r\n});\r\n\r\nexport default prisma;"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\"),\r\n\r\n  CORS_ORIGIN: z.url()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                }
+              ]
+            },
+            "feature": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "package.json",
+                  "content": "{\n  \"name\": \"servercn-prisma-mongodb-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx watch src/server.ts\",\n    \"build\": \"tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"db:generate\": \"prisma generate\",\n    \"db:push\": \"prisma db push\",\n    \"db:studio\": \"prisma studio\"\n  },\n  \"devDependencies\": {},\n  \"dependencies\": {}\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/server.ts",
+                  "content": "import app from \"./app\";\r\nimport env from \"./configs/env\";\r\nimport { logger } from \"./shared/utils/logger\";\r\nimport { configureGracefulShutdown } from \"./shared/utils/shutdown\";\r\n\r\nconst port = env.PORT || 9000;\r\n\r\nconst server = app.listen(port, () => {\r\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\r\n});\r\n\r\nconfigureGracefulShutdown(server);\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/app.ts",
+                  "content": "import express, { Express, Request, Response } from \"express\";\r\nimport \"dotenv/config\";\r\nimport cors from \"cors\";\r\nimport helmet from \"helmet\";\r\nimport cookieParser from \"cookie-parser\";\r\nimport morgan from \"morgan\";\r\nimport sourceMapSupport from \"source-map-support\";\r\nsourceMapSupport.install();\r\n\r\nimport Routes from \"./routes/index\";\r\n\r\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\r\nimport { notFoundHandler } from \"./shared/middlewares/not-found-handler\";\r\nimport env from \"./configs/env\";\r\n\r\nconst app: Express = express();\r\n\r\napp.use(express.json());\r\napp.use(express.urlencoded({ extended: true }));\r\napp.use(\r\n  cors({\r\n    origin: env.CORS_ORIGIN,\r\n    credentials: true\r\n  })\r\n);\r\napp.use(helmet());\r\napp.use(cookieParser());\r\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\r\n\r\n// Routes\r\n\r\napp.get(\"/\", (req: Request, res: Response) => {\r\n  res.redirect(\"/api/health\");\r\n});\r\n\r\napp.use(\"/api\", Routes);\r\n\r\n// Not found handler (should be after routes)\r\napp.use(notFoundHandler);\r\n\r\n// Global error handler (should be last)\r\napp.use(errorHandler);\r\n\r\nexport default app;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "prisma/schema.prisma",
+                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "src/modules/health/health.routes.ts",
+                  "content": "import { Router } from \"express\";\r\nimport { healthCheck, detailedHealthCheck } from \"./health.controller\";\r\n\r\nconst router = Router();\r\n\r\nrouter.get(\"/\", healthCheck);\r\nrouter.get(\"/detailed\", detailedHealthCheck);\r\n\r\nexport default router;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/modules/health/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\r\nimport { ApiResponse } from \"../../shared/utils/api-response\";\r\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\r\n\r\n/**\r\n * Basic health check endpoint\r\n * GET /api/health\r\n */\r\nexport const healthCheck = AsyncHandler(\r\n  async (_req: Request, res: Response) => {\r\n    return ApiResponse.Success(res, \"Service is healthy\", {\r\n      status: \"healthy\",\r\n      timestamp: new Date().toISOString(),\r\n      uptime: process.uptime()\r\n    });\r\n  }\r\n);\r\n\r\n/**\r\n * Detailed health check with system information\r\n * GET /api/health/detailed\r\n */\r\nexport const detailedHealthCheck = AsyncHandler(\r\n  async (_req: Request, res: Response) => {\r\n    const healthData = {\r\n      status: \"healthy\",\r\n      timestamp: new Date().toISOString(),\r\n      uptime: process.uptime(),\r\n      environment: process.env.NODE_ENV || \"development\",\r\n      version: process.env.npm_package_version || \"1.0.0\",\r\n      memory: {\r\n        used:\r\n          Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /\r\n          100,\r\n        total:\r\n          Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /\r\n          100,\r\n        unit: \"MB\"\r\n      },\r\n      cpu: {\r\n        usage: process.cpuUsage()\r\n      }\r\n    };\r\n\r\n    return ApiResponse.Success(res, \"Service is healthy\", healthData);\r\n  }\r\n);\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/prisma.ts",
+                  "content": "import { PrismaClient } from \"@prisma/client\";\r\nimport env from \"./env\";\r\n\r\nconst prisma = new PrismaClient({\r\n  log: env.NODE_ENV === \"development\" ? [\"query\", \"warn\", \"error\"] : [\"error\"]\r\n});\r\n\r\nexport default prisma;"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\"),\r\n\r\n  CORS_ORIGIN: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/index.ts",
+                  "content": "import { Router } from \"express\";\r\nimport HealthRouter from \"../modules/health/health.routes\";\r\n\r\nconst router = Router();\r\n\r\nrouter.use(\"/health\", HealthRouter);\r\n\r\nexport default router;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport { ApiError } from \"../errors/api-error\";\r\n\r\nexport const notFoundHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => {\r\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport env from \"../../configs/env\";\r\n\r\nimport { ApiError } from \"../errors/api-error\";\r\nimport { logger } from \"../utils/logger\";\r\n\r\nexport const errorHandler = (\r\n  err: Error,\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => {\r\n  let statusCode = 500;\r\n  let message = \"Internal server error\";\r\n\r\n  if (err instanceof ApiError) {\r\n    statusCode = err.statusCode;\r\n    message = err.message;\r\n  }\r\n\r\n  logger.error(\r\n    err,\r\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\r\n  );\r\n\r\n  const response = {\r\n    success: false,\r\n    message,\r\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\r\n  };\r\n\r\n  res.status(statusCode).json(response);\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/shutdown.ts",
+                  "content": "import { Server } from \"http\";\r\nimport { logger } from \"./logger\";\r\n\r\nexport const configureGracefulShutdown = (server: Server) => {\r\n  const signals = [\"SIGTERM\", \"SIGINT\"];\r\n\r\n  signals.forEach(signal => {\r\n    process.on(signal, () => {\r\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\r\n\r\n      server.close(err => {\r\n        if (err) {\r\n          logger.error(err, \"Error during server close\");\r\n          process.exit(1);\r\n        }\r\n\r\n        logger.info(\"HTTP server closed.\");\r\n        process.exit(0);\r\n      });\r\n\r\n      // Force shutdown after 10 seconds\r\n      setTimeout(() => {\r\n        logger.error(\r\n          \"Could not close connections in time, forcefully shutting down\"\r\n        );\r\n        process.exit(1);\r\n      }, 10000);\r\n    });\r\n  });\r\n};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\nimport env from \"../../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/async-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\n\r\nexport type AsyncRouteHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => Promise<unknown>;\r\n\r\nexport function AsyncHandler(fn: AsyncRouteHandler) {\r\n  return function (req: Request, res: Response, next: NextFunction) {\r\n    Promise.resolve(fn(req, res, next)).catch(next);\r\n  };\r\n}\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/api-response.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\nimport type { Response } from \"express\";\r\n\r\ntype ApiResponseParams<T> = {\r\n  success: boolean;\r\n  message: string;\r\n  statusCode: StatusCode;\r\n  data?: T | null;\r\n  errors?: unknown;\r\n};\r\n\r\nexport class ApiResponse<T = unknown> {\r\n  public readonly success: boolean;\r\n  public readonly message: string;\r\n  public readonly statusCode: StatusCode;\r\n  public readonly data?: T | null;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor({\r\n    success,\r\n    message,\r\n    statusCode,\r\n    data = null,\r\n    errors\r\n  }: ApiResponseParams<T>) {\r\n    this.success = success;\r\n    this.message = message;\r\n    this.statusCode = statusCode;\r\n    this.data = data;\r\n    this.errors = errors;\r\n  }\r\n\r\n  send(res: Response): Response {\r\n    return res.status(this.statusCode).json({\r\n      success: this.success,\r\n      message: this.message,\r\n      statusCode: this.statusCode,\r\n      ...(this.data !== undefined && { data: this.data }),\r\n      ...(this.errors !== undefined && { errors: this.errors })\r\n    });\r\n  }\r\n\r\n  static Success<T>(\r\n    res: Response,\r\n    message: string,\r\n    data?: T,\r\n    statusCode: StatusCode = STATUS_CODES.OK\r\n  ): Response {\r\n    return new ApiResponse<T>({\r\n      success: true,\r\n      message,\r\n      data,\r\n      statusCode\r\n    }).send(res);\r\n  }\r\n\r\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\r\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\r\n  }\r\n\r\n  static created<T>(res: Response, message = \"Created\", data?: T) {\r\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * ApiResponse.ok(res, \"OK\", data);\r\n * ApiResponse.created(res, \"Created\", data);\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\r\n  // 2xx Success\r\n  OK: 200,\r\n  CREATED: 201,\r\n  ACCEPTED: 202,\r\n  NO_CONTENT: 204,\r\n\r\n  // 3xx Redirection\r\n  MOVED_PERMANENTLY: 301,\r\n  FOUND: 302,\r\n  NOT_MODIFIED: 304,\r\n\r\n  // 4xx Client Errors\r\n  BAD_REQUEST: 400,\r\n  UNAUTHORIZED: 401,\r\n  FORBIDDEN: 403,\r\n  NOT_FOUND: 404,\r\n  CONFLICT: 409,\r\n  UNPROCESSABLE_ENTITY: 422,\r\n  TOO_MANY_REQUESTS: 429,\r\n\r\n  // 5xx Server Errors\r\n  INTERNAL_SERVER_ERROR: 500,\r\n  NOT_IMPLEMENTED: 501,\r\n  BAD_GATEWAY: 502,\r\n  SERVICE_UNAVAILABLE: 503,\r\n  GATEWAY_TIMEOUT: 504\r\n} as const;\r\n\r\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\n\r\nexport class ApiError extends Error {\r\n  public readonly statusCode: StatusCode;\r\n  public readonly isOperational: boolean;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor(\r\n    statusCode: StatusCode,\r\n    message: string,\r\n    errors?: unknown,\r\n    isOperational = true\r\n  ) {\r\n    super(message);\r\n    this.name = \"ApiError\";\r\n    this.statusCode = statusCode;\r\n    this.errors = errors;\r\n    this.isOperational = isOperational;\r\n\r\n    Error.captureStackTrace(this, this.constructor);\r\n  }\r\n\r\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static unauthorized(message = \"Unauthorized\") {\r\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\r\n  }\r\n\r\n  static forbidden(message = \"Forbidden\") {\r\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\r\n  }\r\n\r\n  static notFound(message = \"Not Found\") {\r\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\r\n  }\r\n\r\n  static conflict(message = \"Conflict\") {\r\n    return new ApiError(STATUS_CODES.CONFLICT, message);\r\n  }\r\n\r\n  static validation(message = \"Validation failed\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static notImplemented(message = \"Not Implemented\") {\r\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\r\n  }\r\n\r\n  static badGateway(message = \"Bad Gateway\") {\r\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\r\n  }\r\n\r\n  static serviceUnavailable(message = \"Service Unavailable\") {\r\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\r\n  }\r\n\r\n  static tooManyRequests(message = \"Too Many Requests\") {\r\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\r\n  }\r\n\r\n  static server(message = \"Internal Server Error\") {\r\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\r\n * throw ApiError.badRequest(\"Bad request\");\r\n */\r\n"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

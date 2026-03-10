@@ -5,8 +5,12 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": ["node-cron"],
-            "dev": [""]
+            "runtime": [
+              "node-cron"
+            ],
+            "dev": [
+              ""
+            ]
           },
           "env": [],
           "architectures": {
@@ -15,12 +19,12 @@
                 {
                   "type": "file",
                   "path": "src/jobs/index.ts",
-                  "content": "import { exampleJob } from \"./example.job\";\n\n/**\n * Initialize and start all background jobs\n */\nexport const initJobs = () => {\n  exampleJob.start();\n  console.log(\"Background jobs initialized.\");\n};\n"
+                  "content": "import { exampleJob } from \"./example.job\";\r\n\r\n/**\r\n * Initialize and start all background jobs\r\n */\r\nexport const initJobs = () => {\r\n  exampleJob.start();\r\n  console.log(\"Background jobs initialized.\");\r\n};\r\n"
                 },
                 {
                   "type": "file",
                   "path": "src/jobs/example.job.ts",
-                  "content": "import cron from \"node-cron\";\n\n/**\n * Example background job that runs every minute\n * Format: minute hour day-of-month month day-of-week\n */\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\n  console.log(\"Background job running every minute...\");\n  // Add your task logic here (e.g., database cleanup, sending reports)\n});\n"
+                  "content": "import cron from \"node-cron\";\r\n\r\n/**\r\n * Example background job that runs every minute\r\n * Format: minute hour day-of-month month day-of-week\r\n */\r\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\r\n  console.log(\"Background job running every minute...\");\r\n  // Add your task logic here (e.g., database cleanup, sending reports)\r\n});\r\n"
                 }
               ]
             },
@@ -29,12 +33,12 @@
                 {
                   "type": "file",
                   "path": "src/shared/jobs/index.ts",
-                  "content": "import { exampleJob } from \"./example.job\";\n\n/**\n * Initialize and start all background jobs\n */\nexport const initJobs = () => {\n  exampleJob.start();\n  console.log(\"Background jobs initialized.\");\n};\n"
+                  "content": "import { exampleJob } from \"./example.job\";\r\n\r\n/**\r\n * Initialize and start all background jobs\r\n */\r\nexport const initJobs = () => {\r\n  exampleJob.start();\r\n  console.log(\"Background jobs initialized.\");\r\n};\r\n"
                 },
                 {
                   "type": "file",
                   "path": "src/shared/jobs/example.job.ts",
-                  "content": "import cron from \"node-cron\";\n\n/**\n * Example background job that runs every minute\n */\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\n  console.log(\"Background job running every minute...\");\n});\n"
+                  "content": "import cron from \"node-cron\";\r\n\r\n/**\r\n * Example background job that runs every minute\r\n */\r\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\r\n  console.log(\"Background job running every minute...\");\r\n});\r\n"
                 }
               ]
             }
