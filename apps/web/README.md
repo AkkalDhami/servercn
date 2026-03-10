@@ -1,36 +1,183 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ServerCN
 
-## Getting Started
+> **Backend component registry for Node.js & Typescript**
 
-First, run the development server:
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
+
+**ServerCN** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
+
+> Shadcn ecosystem for nodejs backend
+
+---
+
+![ServerCN Components](./apps/web/public/assets/hero.png)
+
+[Visit website: https://servercn.vercel.app](https://servercn.vercel.app/docs/cli)
+
+[Join discord: https://discord.gg/2fXqnTXF8d](https://discord.gg/2fXqnTXF8d)
+
+## 🛠️ Usage
+
+### 1. Initialize a Project
+
+Start a new project with a recommended, production-ready structure.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx servercn-cli init
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Add Components
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Add specific modules to your existing project. This allows for incremental adoption.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx servercn-cli add [component-name]
+```
 
-## Learn More
+Examples:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npx servercn-cli add logger
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx servercn-cli add oauth
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Components
 
-## Deploy on Vercel
+- ### API Error Handler
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx servercn-cli add error-handler
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- ### API Response Formatter
+
+```bash
+npx servercn-cli add response-formatter
+```
+
+- ### Async Handler
+
+```bash
+npx servercn-cli add async-handler
+```
+
+- ### File Upload provider
+
+```bash
+npx servercn-cli add file-upload
+```
+
+- ### JWT Utils
+
+```bash
+npx servercn-cli add jwt-utils
+```
+
+- ### Logger
+
+```bash
+npx servercn-cli add logger
+```
+
+- ### Rate Limiter
+
+```bash
+npx servercn-cli add rate-limiter
+```
+
+- ### OAuth Provider
+
+```bash
+npx servercn-cli add oauth
+```
+
+- ### Health Check
+
+```bash
+npx servercn-cli add health-check
+```
+
+### And more
+
+### 3. CLI Commands
+
+[Visit for more](https://servercn.vercel.app/docs/cli)
+
+- List all available registry item.
+
+  ```bash
+  npx servercn-cli ls --all
+  ```
+
+- List all available registry item in JSON structure.
+
+  ```bash
+  npx servercn-cli ls --all --json
+  ```
+
+- List all available registry commands.
+
+  ```bash
+  npx servercn-cli list
+  ```
+
+- List all available registry commands in JSON structure.
+
+  ```bash
+  npx servercn-cli ls --json
+  ```
+
+- List available components.
+
+  ```bash
+  npx servercn-cli ls cp
+  ```
+
+- List available all foundation.
+
+  ```bash
+  npx servercn-cli ls fd
+  ```
+
+- List available schema.
+
+  ```bash
+  npx servercn-cli ls sc
+  ```
+
+- List available blueprint.
+
+  ```bash
+  npx servercn-cli ls bp
+  ```
+
+- List available tooling.
+
+  ```bash
+  npx servercn-cli ls tl
+  ```
+
+## 🤝 Contributing
+
+We welcome contributions! Please feel free to submit a Pull Request.
+
+[Contributing guides](https://servercn.vercel.app/contributing)
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/AkkalDhami/servercn.svg?variant=adaptive)](https://starchart.cc/AkkalDhami/servercn)
+
+---
+
+<p align="center">
+  Built with 🗡️ by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a> and the <a target="_blank" href="https://servercn.vercel.app/contributors">ServerCN contributors</a>
+</p>
