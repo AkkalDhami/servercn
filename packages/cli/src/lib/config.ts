@@ -18,7 +18,6 @@ export async function getServerCNConfig(): Promise<IServerCNConfig> {
 
 export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
   switch (foundation) {
-    case "express-server":
     case "mongoose-starter":
       return {
         engine: "mongodb",
