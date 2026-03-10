@@ -7,20 +7,20 @@ import { spinner } from "@/utils/spinner";
 export async function installDependencies({
   runtime = [],
   dev = [],
-  cwd
+  cwd,
+  packageManager
 }: InstallOptions) {
   if (runtime.length === 0 && dev.length === 0) return;
 
-  const pm = detectPackageManager();
+  const pm = packageManager ?? detectPackageManager();
 
   const run = async (packages: string[], isDev: boolean) => {
-    if (packages.length === 0) return;
-
     const label = isDev ? "devDependencies" : "dependencies";
 
     logger.log(`\nInstalling ${label}:`);
     packages.forEach(dep => logger.info(`- ${dep}`));
     logger.break();
+    if (packages.length === 0) return;
 
     const spin = spinner(`Installing ${label} with ${pm}`)?.start();
 
