@@ -6,6 +6,7 @@ import { siteConfig } from "@/lib/config";
 import { ScrollToTopButton } from "@/components/layouts/scroll-to-top";
 import Navbar from "@/components/layouts/navbar";
 import { SERVERCN_URL } from "@/lib/constants";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -58,7 +59,7 @@ export default function RootLayout({
           <ScrollToTopButton />
           <Navbar />
 
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
