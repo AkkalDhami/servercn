@@ -1,5 +1,5 @@
 {
-  "name": "my-express-app",
+  "name": "servercn-prisma-mongodb-starter",
   "version": "1.0.0",
   "main": "dist/server.js",
   "type": "module",
@@ -8,8 +8,9 @@
     "build": "tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "format:check": "npx prettier . --check",
-    "format:fix": "npx prettier . --write"
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
   },
   "devDependencies": {},
   "dependencies": {}
