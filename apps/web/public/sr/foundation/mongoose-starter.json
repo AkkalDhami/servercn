@@ -26,7 +26,6 @@
               "@types/express",
               "morgan",
               "@types/cors",
-              "@types/helmet",
               "@types/morgan",
               "@types/cookie-parser",
               "prettier",
@@ -48,33 +47,8 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "tsconfig.json",
-                  "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2021\",\n    \"module\": \"es2022\",\n    \"moduleResolution\": \"bundler\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"sourceMap\": true,\n    \"alwaysStrict\": true,\n    \"useUnknownInCatchVariables\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"paths\": {\n      \"@/*\": [\"./src/*\"]\n    }\n  },\n  \"tsc-alias\": {\n    \"resolveFullPaths\": true,\n    \"verbose\": false\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n"
-                },
-                {
-                  "type": "file",
                   "path": "package.json",
-                  "content": "{\n  \"name\": \"servercn-mongoose-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"NODE_ENV=development npx tsx --watch src/server.ts\",\n    \"build\": \"tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\"\n  },\n  \"devDependencies\": {},\n  \"dependencies\": {}\n}\n"
-                },
-                {
-                  "type": "file",
-                  "path": "commitlint.config.ts",
-                  "content": "export default {\n  extends: [\"@commitlint/config-conventional\"],\n  rules: {\n    \"type-enum\": [\n      2,\n      \"always\",\n      [\n        \"feat\",\n        \"fix\",\n        \"docs\",\n        \"style\",\n        \"refactor\",\n        \"test\",\n        \"chore\",\n        \"ci\",\n        \"perf\",\n        \"build\",\n        \"release\",\n        \"workflow\",\n        \"security\"\n      ]\n    ],\n\n    \"body-max-length\": [0, \"always\", 500],\n    \"header-max-length\": [0, \"always\", 200]\n  }\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": ".prettierrc",
-                  "content": "{\n  \"singleQuote\": false,\n  \"semi\": true,\n  \"tabWidth\": 2,\n  \"trailingComma\": \"none\",\n  \"bracketSameLine\": false,\n  \"arrowParens\": \"avoid\",\n  \"endOfLine\": \"lf\"\n}\n"
-                },
-                {
-                  "type": "file",
-                  "path": ".prettierignore",
-                  "content": "build\ndist\n.env\nnode_modules"
-                },
-                {
-                  "type": "file",
-                  "path": ".gitignore",
-                  "content": "node_modules\r\n.env\r\ndist\r\nbuild"
+                  "content": "{\n  \"name\": \"servercn-mongoose-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx --watch src/server.ts\",\n    \"build\": \"tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\"\n  },\n  \"devDependencies\": {},\n  \"dependencies\": {}\n}\n"
                 },
                 {
                   "type": "file",
@@ -108,18 +82,18 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/models/user.model.ts",
+                  "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/routes/health.routes.ts",
                   "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/middlewares/not-found-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/middlewares/error-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                  "path": "src/controllers/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../utils/api-response\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = async (_req: Request, res: Response) => {\n  return ApiResponse.Success(res, \"Service is healthy\", {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime()\n  });\n};\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = async (_req: Request, res: Response) => {\n  const healthData = {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime(),\n    environment: process.env.NODE_ENV || \"development\",\n    version: process.env.npm_package_version || \"1.0.0\",\n    memory: {\n      used:\n        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,\n      total:\n        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,\n      unit: \"MB\"\n    },\n    cpu: {\n      usage: process.cpuUsage()\n    }\n  };\n\n  return ApiResponse.Success(res, \"Service is healthy\", healthData);\n};\n"
                 },
                 {
                   "type": "file",
@@ -133,18 +107,18 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/constants/status-codes.ts",
                   "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/models/user.model.ts",
-                  "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/controllers/health.controller.ts",
-                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../utils/api-response\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = async (_req: Request, res: Response) => {\n  return ApiResponse.Success(res, \"Service is healthy\", {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime()\n  });\n};\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = async (_req: Request, res: Response) => {\n  const healthData = {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime(),\n    environment: process.env.NODE_ENV || \"development\",\n    version: process.env.npm_package_version || \"1.0.0\",\n    memory: {\n      used:\n        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,\n      total:\n        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,\n      unit: \"MB\"\n    },\n    cpu: {\n      usage: process.cpuUsage()\n    }\n  };\n\n  return ApiResponse.Success(res, \"Service is healthy\", healthData);\n};\n"
                 }
               ]
             },
@@ -152,33 +126,8 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "tsconfig.json",
-                  "content": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2021\",\n    \"module\": \"es2022\",\n    \"moduleResolution\": \"bundler\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"sourceMap\": true,\n    \"alwaysStrict\": true,\n    \"useUnknownInCatchVariables\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"paths\": {\n      \"@/*\": [\"./src/*\"],\n      \"@/shared/*\": [\"../../shared*\"]\n    }\n  },\n  \"tsc-alias\": {\n    \"resolveFullPaths\": true,\n    \"verbose\": false\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\"]\n}\n"
-                },
-                {
-                  "type": "file",
                   "path": "package.json",
                   "content": "{\n  \"name\": \"servercn-mongoose-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx watch src/server.ts\",\n    \"build\": \"tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\"\n  },\n  \"devDependencies\": {},\n  \"dependencies\": {}\n}\n"
-                },
-                {
-                  "type": "file",
-                  "path": "commitlint.config.ts",
-                  "content": "export default {\n  extends: [\"@commitlint/config-conventional\"],\n  rules: {\n    \"type-enum\": [\n      2,\n      \"always\",\n      [\n        \"feat\",\n        \"fix\",\n        \"docs\",\n        \"style\",\n        \"refactor\",\n        \"test\",\n        \"chore\",\n        \"ci\",\n        \"perf\",\n        \"build\",\n        \"release\",\n        \"workflow\",\n        \"security\"\n      ]\n    ],\n\n    \"body-max-length\": [0, \"always\", 500],\n    \"header-max-length\": [0, \"always\", 200]\n  }\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": ".prettierrc",
-                  "content": "{\n  \"singleQuote\": false,\n  \"semi\": true,\n  \"tabWidth\": 2,\n  \"trailingComma\": \"none\",\n  \"bracketSameLine\": false,\n  \"arrowParens\": \"avoid\",\n  \"endOfLine\": \"lf\"\n}\n"
-                },
-                {
-                  "type": "file",
-                  "path": ".prettierignore",
-                  "content": "build\ndist\n.env\nnode_modules"
-                },
-                {
-                  "type": "file",
-                  "path": ".gitignore",
-                  "content": "node_modules\r\n.env\r\ndist\r\nbuild"
                 },
                 {
                   "type": "file",
@@ -192,28 +141,8 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/db/db.ts",
-                  "content": "import mongoose from \"mongoose\";\nimport env from \"../shared/configs/env\";\nimport { logger } from \"../shared/utils/logger\";\n\nif (!env.DATABASE_URL) {\n  throw new Error(\"Please provide DATABASE_URL in the environment variables\");\n}\n\nexport const connectDB = async (): Promise<void> => {\n  try {\n    const conn = await mongoose.connect(env.DATABASE_URL as string);\n    logger.info(`MongoDB Connected: ${conn.connection.host}`);\n  } catch (error) {\n    logger.error(error, \"MongoDB Connection Failed:\");\n    process.exit(1);\n  }\n};\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/routes/index.ts",
                   "content": "import { Router } from \"express\";\nimport HealthRouter from \"../modules/health/health.routes\";\n\nconst router = Router();\n\nrouter.use(\"/health\", HealthRouter);\n\nexport default router;\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/errors/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/configs/env.ts",
-                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  CORS_ORIGIN: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                 },
                 {
                   "type": "file",
@@ -232,6 +161,31 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/shared/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  CORS_ORIGIN: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/db.ts",
+                  "content": "import mongoose from \"mongoose\";\nimport env from \"../shared/configs/env\";\nimport { logger } from \"../shared/utils/logger\";\n\nif (!env.DATABASE_URL) {\n  throw new Error(\"Please provide DATABASE_URL in the environment variables\");\n}\n\nexport const connectDB = async (): Promise<void> => {\n  try {\n    const conn = await mongoose.connect(env.DATABASE_URL as string);\n    logger.info(`MongoDB Connected: ${conn.connection.host}`);\n  } catch (error) {\n    logger.error(error, \"MongoDB Connection Failed:\");\n    process.exit(1);\n  }\n};\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/modules/user/user.model.ts",
                   "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
                 },
@@ -247,13 +201,8 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/middlewares/not-found-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/middlewares/error-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
                 }
               ]
             }

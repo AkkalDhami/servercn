@@ -33,7 +33,6 @@
               "@types/pg",
               "morgan",
               "@types/cors",
-              "@types/helmet",
               "@types/morgan",
               "@types/cookie-parser",
               "drizzle-kit",
