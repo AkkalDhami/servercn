@@ -278,7 +278,6 @@ async function resolvePromptVariants({
   };
 }
 
-
 function resolveDependencies({
   component,
   framework,

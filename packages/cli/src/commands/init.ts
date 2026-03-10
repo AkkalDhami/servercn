@@ -278,10 +278,10 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         logger.log("Run the following commands:");
 
         if (response.root === ".") {
-          logger.muted(`1. npm run dev\n`);
+          logger.muted(`1. ${response.packageManager || "npm"} run dev\n`);
         } else {
           logger.muted(`1. cd ${response.root}`);
-          logger.muted(`2. npm run dev\n`);
+          logger.muted(`2. ${response.packageManager || "npm"} run dev\n`);
         }
         process.exit(1);
       } catch (e) {

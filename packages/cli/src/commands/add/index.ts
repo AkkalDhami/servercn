@@ -35,7 +35,6 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
   const type: RegistryType = options.type ?? "component";
   const component = await getRegistry(registryItemName, type, options.local);
 
-
   validateCompatibility(component, config);
 
   const resolution = await resolveTemplateResolution({
@@ -62,12 +61,14 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     additionalDevDeps: resolution.additionalDevDeps
   });
 
-  await installDependencies({
-    runtime: runtimeDeps,
-    dev: devDeps,
-    cwd: process.cwd(),
-    packageManager: config.project.packageManager
-  });
+  if (runtimeDeps.length > 0 || devDeps.length > 0) {
+    await installDependencies({
+      runtime: runtimeDeps,
+      dev: devDeps,
+      cwd: process.cwd(),
+      packageManager: config.project.packageManager
+    });
+  }
 
   await runPostInstallHooks({
     registryItemName,
