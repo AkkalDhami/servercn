@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["husky"]
+    "dev": [
+      "husky"
+    ]
   }
 }

@@ -5,8 +5,13 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": ["helmet", "cors"],
-            "dev": ["@types/cors"]
+            "runtime": [
+              "helmet",
+              "cors"
+            ],
+            "dev": [
+              "@types/cors"
+            ]
           },
           "env": [],
           "architectures": {
@@ -15,7 +20,7 @@
                 {
                   "type": "file",
                   "path": "src/middlewares/security-header.ts",
-                  "content": "import cors from \"cors\";\nimport { Express } from \"express\";\nimport helmet from \"helmet\";\n\nexport const configureSecurityHeaders = (app: Express) => {\n  // Use Helmet to set various security-related HTTP headers\n  app.use(helmet());\n\n  // Configure CORS\n  app.use(\n    cors({\n      origin: process.env.CORS_ORIGIN || \"*\",\n      credentials: true,\n      methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\n      allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"]\n    })\n  );\n\n  // Additional custom security headers\n  app.use((req, res, next) => {\n    res.setHeader(\"X-Content-Type-Options\", \"nosniff\");\n    res.setHeader(\"X-Frame-Options\", \"DENY\");\n    res.setHeader(\"X-XSS-Protection\", \"1; mode=block\");\n    next();\n  });\n};\n"
+                  "content": "import cors from \"cors\";\r\nimport { Express } from \"express\";\r\nimport helmet from \"helmet\";\r\n\r\nexport const configureSecurityHeaders = (app: Express) => {\r\n  // Use Helmet to set various security-related HTTP headers\r\n  app.use(helmet());\r\n\r\n  // Configure CORS\r\n  app.use(\r\n    cors({\r\n      origin: process.env.CORS_ORIGIN || \"*\",\r\n      credentials: true,\r\n      methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\r\n      allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"]\r\n    })\r\n  );\r\n\r\n  // Additional custom security headers\r\n  app.use((req, res, next) => {\r\n    res.setHeader(\"X-Content-Type-Options\", \"nosniff\");\r\n    res.setHeader(\"X-Frame-Options\", \"DENY\");\r\n    res.setHeader(\"X-XSS-Protection\", \"1; mode=block\");\r\n    next();\r\n  });\r\n};\r\n"
                 }
               ]
             },
@@ -24,7 +29,7 @@
                 {
                   "type": "file",
                   "path": "src/shared/middlewares/security-header.ts",
-                  "content": "import cors from \"cors\";\nimport { Express } from \"express\";\nimport helmet from \"helmet\";\n\nexport const configureSecurityHeaders = (app: Express) => {\n  // Use Helmet to set various security-related HTTP headers\n  app.use(helmet());\n\n  // Configure CORS\n  app.use(\n    cors({\n      origin: process.env.CORS_ORIGIN || \"*\",\n      credentials: true,\n      methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\n      allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"]\n    })\n  );\n\n  // Additional custom security headers\n  app.use((req, res, next) => {\n    res.setHeader(\"X-Content-Type-Options\", \"nosniff\");\n    res.setHeader(\"X-Frame-Options\", \"DENY\");\n    res.setHeader(\"X-XSS-Protection\", \"1; mode=block\");\n    next();\n  });\n};\n"
+                  "content": "import cors from \"cors\";\r\nimport { Express } from \"express\";\r\nimport helmet from \"helmet\";\r\n\r\nexport const configureSecurityHeaders = (app: Express) => {\r\n  // Use Helmet to set various security-related HTTP headers\r\n  app.use(helmet());\r\n\r\n  // Configure CORS\r\n  app.use(\r\n    cors({\r\n      origin: process.env.CORS_ORIGIN || \"*\",\r\n      credentials: true,\r\n      methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\r\n      allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"]\r\n    })\r\n  );\r\n\r\n  // Additional custom security headers\r\n  app.use((req, res, next) => {\r\n    res.setHeader(\"X-Content-Type-Options\", \"nosniff\");\r\n    res.setHeader(\"X-Frame-Options\", \"DENY\");\r\n    res.setHeader(\"X-XSS-Protection\", \"1; mode=block\");\r\n    next();\r\n  });\r\n};\r\n"
                 }
               ]
             }

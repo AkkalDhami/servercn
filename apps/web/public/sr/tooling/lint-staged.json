@@ -6,13 +6,15 @@
         {
           "type": "tooling",
           "path": ".lintstagedrc.json",
-          "content": "{\n  \"*.{js,ts}\": [\"eslint --fix\", \"prettier --write\"]\n}\n"
+          "content": "{\r\n  \"*.{js,ts}\": [\"eslint --fix\", \"prettier --write\"]\r\n}\r\n"
         }
       ]
     }
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["lint-staged"]
+    "dev": [
+      "lint-staged"
+    ]
   }
 }

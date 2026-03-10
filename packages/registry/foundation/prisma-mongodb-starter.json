@@ -21,12 +21,12 @@
               "cross-env",
               "source-map-support",
               "zod",
-              "@prisma/client"
+              "@prisma/client@6"
             ],
             "dev": [
               "typescript",
               "tsx",
-              "prisma",
+              "prisma@6",
               "tsc-alias",
               "@types/node",
               "@types/express",

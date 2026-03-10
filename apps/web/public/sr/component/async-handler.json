@@ -5,7 +5,9 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": [""],
+            "runtime": [
+              ""
+            ],
             "dev": []
           },
           "env": [],
@@ -15,12 +17,12 @@
                 {
                   "type": "file",
                   "path": "src/utils/async-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\n\r\nexport type AsyncRouteHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => Promise<unknown>;\r\n\r\nexport function AsyncHandler(fn: AsyncRouteHandler) {\r\n  return function (req: Request, res: Response, next: NextFunction) {\r\n    Promise.resolve(fn(req, res, next)).catch(next);\r\n  };\r\n}\r\n"
                 },
                 {
                   "type": "file",
                   "path": "src/routes/user.route.ts",
-                  "content": "import { NextFunction, Request, Response, Router } from \"express\";\nimport { AsyncHandler } from \"../utils/async-handler\";\n\nconst router = Router();\n\nrouter.get(\n  \"/\",\n  AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {\n    /*\n     * business logic\n     * your actual code\n     */\n  })\n);\n\nexport default router;\n"
+                  "content": "import { NextFunction, Request, Response, Router } from \"express\";\r\nimport { AsyncHandler } from \"../utils/async-handler\";\r\n\r\nconst router = Router();\r\n\r\nrouter.get(\r\n  \"/\",\r\n  AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {\r\n    /*\r\n     * business logic\r\n     * your actual code\r\n     */\r\n  })\r\n);\r\n\r\nexport default router;\r\n"
                 }
               ]
             },
@@ -29,12 +31,12 @@
                 {
                   "type": "file",
                   "path": "src/shared/utils/async-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\n\r\nexport type AsyncRouteHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => Promise<unknown>;\r\n\r\nexport function AsyncHandler(fn: AsyncRouteHandler) {\r\n  return function (req: Request, res: Response, next: NextFunction) {\r\n    Promise.resolve(fn(req, res, next)).catch(next);\r\n  };\r\n}\r\n"
                 },
                 {
                   "type": "file",
                   "path": "src/modules/user/user.routes.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
+                  "content": "import { Request, Response, NextFunction } from \"express\";\r\n\r\nexport type AsyncRouteHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => Promise<unknown>;\r\n\r\nexport function AsyncHandler(fn: AsyncRouteHandler) {\r\n  return function (req: Request, res: Response, next: NextFunction) {\r\n    Promise.resolve(fn(req, res, next)).catch(next);\r\n  };\r\n}\r\n"
                 }
               ]
             }

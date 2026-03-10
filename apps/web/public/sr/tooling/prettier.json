@@ -6,7 +6,7 @@
         {
           "type": "tooling",
           "path": ".prettierrc",
-          "content": "{\n  \"singleQuote\": false,\n  \"semi\": true,\n  \"tabWidth\": 2,\n  \"trailingComma\": \"none\",\n  \"bracketSameLine\": true,\n  \"arrowParens\": \"avoid\",\n  \"endOfLine\": \"lf\"\n}\n"
+          "content": "{\r\n  \"singleQuote\": false,\r\n  \"semi\": true,\r\n  \"tabWidth\": 2,\r\n  \"trailingComma\": \"none\",\r\n  \"bracketSameLine\": true,\r\n  \"arrowParens\": \"avoid\",\r\n  \"endOfLine\": \"lf\"\r\n}\r\n"
         },
         {
           "type": "tooling",
@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "runtime": [],
-    "dev": ["prettier"]
+    "dev": [
+      "prettier"
+    ]
   }
 }
