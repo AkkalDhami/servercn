@@ -33,6 +33,11 @@ export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
         engine: "postgresql",
         adapter: "drizzle"
       };
+    case "prisma-mongodb-starter":
+      return {
+        engine: "mongodb",
+        adapter: "prisma"
+      };
     default:
       return null;
   }

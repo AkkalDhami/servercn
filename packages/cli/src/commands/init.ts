@@ -44,6 +44,11 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           value: "mongoose-starter"
         },
         {
+          title: "Express + MongoDB (Prisma)",
+          description: "MongoDB database with Prisma ORM",
+          value: "prisma-mongodb-starter"
+        },
+        {
           title: "Express + MySQL (Drizzle)",
           description: "MySQL database with Drizzle ORM",
           value: "drizzle-mysql-starter"
