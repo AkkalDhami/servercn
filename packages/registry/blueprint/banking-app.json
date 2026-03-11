@@ -45,7 +45,6 @@
                       "@types/cookie-parser",
                       "@types/cors",
                       "@types/express",
-                      "@types/helmet",
                       "@types/jsonwebtoken",
                       "@types/morgan",
                       "@types/multer",
