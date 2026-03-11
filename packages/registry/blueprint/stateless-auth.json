@@ -52,7 +52,6 @@
                       "@types/bcryptjs",
                       "@types/cookie-parser",
                       "@types/cors",
-                      "@types/helmet",
                       "@types/jsonwebtoken",
                       "@types/morgan",
                       "@types/multer",
@@ -145,7 +144,7 @@
                       "@types/bcryptjs",
                       "@types/cookie-parser",
                       "@types/cors",
-                      "@types/helmet",
+
                       "@types/jsonwebtoken",
                       "@types/morgan",
                       "@types/multer",

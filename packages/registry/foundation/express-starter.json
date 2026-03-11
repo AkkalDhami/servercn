@@ -30,7 +30,6 @@
               "tsc-alias",
               "morgan",
               "@types/cors",
-              "@types/helmet",
               "@types/morgan",
               "@types/cookie-parser",
               "prettier",
