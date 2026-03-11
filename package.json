@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@imagekit/nodejs": "^7.2.2",
+    "@prisma/client": "^6.19.2",
     "argon2": "^0.44.0",
     "bcryptjs": "^3.0.3",
     "change-case": "^5.4.4",
