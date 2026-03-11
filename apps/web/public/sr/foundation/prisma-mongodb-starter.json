@@ -27,7 +27,6 @@
               "@types/express",
               "morgan",
               "@types/cors",
-              "@types/helmet",
               "@types/morgan",
               "@types/cookie-parser",
               "prettier",
@@ -54,11 +53,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "prisma/schema.prisma",
-                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}\r\n\r\nmodel User { \r\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\r\n  email String  @unique\r\n  name  String?\r\n  password String\r\n} \r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/server.ts",
                   "content": "import app from \"./app\";\r\nimport env from \"./configs/env\";\r\nimport { logger } from \"./utils/logger\";\r\nimport { configureGracefulShutdown } from \"./utils/shutdown\";\r\n\r\nconst port = env.PORT || 9000;\r\n\r\nconst server = app.listen(port, () => {\r\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\r\n});\r\n\r\nconfigureGracefulShutdown(server);\r\n"
                 },
@@ -66,6 +60,11 @@
                   "type": "file",
                   "path": "src/app.ts",
                   "content": "import express, { Express, Request, Response } from \"express\";\r\nimport cors from \"cors\";\r\nimport helmet from \"helmet\";\r\nimport cookieParser from \"cookie-parser\";\r\nimport morgan from \"morgan\";\r\nimport { notFoundHandler } from \"./middlewares/not-found-handler\";\r\nimport { errorHandler } from \"./middlewares/error-handler\";\r\nimport healthRoutes from \"./routes/health.routes\";\r\nimport env from \"./configs/env\";\r\nimport sourceMapSupport from \"source-map-support\";\r\nsourceMapSupport.install();\r\n\r\nconst app: Express = express();\r\n\r\napp.use(express.json());\r\napp.use(express.urlencoded({ extended: true }));\r\napp.use(\r\n  cors({\r\n    origin: env.CORS_ORIGIN,\r\n    credentials: true\r\n  })\r\n);\r\napp.use(helmet());\r\napp.use(cookieParser());\r\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\r\n\r\n// Routes\r\n\r\napp.get(\"/\", (req: Request, res: Response) => {\r\n  res.redirect(\"/api/health\");\r\n});\r\n\r\napp.use(\"/api/health\", healthRoutes);\r\n\r\n// Not found handler (should be after routes)\r\napp.use(notFoundHandler);\r\n\r\n// Global error handler (should be last)\r\napp.use(errorHandler);\r\n\r\nexport default app;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "prisma/schema.prisma",
+                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}\r\n\r\nmodel User { \r\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\r\n  email String  @unique\r\n  name  String?\r\n  password String\r\n} \r\n"
                 },
                 {
                   "type": "file",
@@ -138,11 +137,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "prisma/schema.prisma",
-                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}\r\n\r\nmodel User { \r\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\r\n  email String  @unique\r\n  name  String?\r\n  password String\r\n} \r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/server.ts",
                   "content": "import app from \"./app\";\r\nimport env from \"./configs/env\";\r\nimport { logger } from \"./shared/utils/logger\";\r\nimport { configureGracefulShutdown } from \"./shared/utils/shutdown\";\r\n\r\nconst port = env.PORT || 9000;\r\n\r\nconst server = app.listen(port, () => {\r\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\r\n});\r\n\r\nconfigureGracefulShutdown(server);\r\n"
                 },
@@ -150,6 +144,11 @@
                   "type": "file",
                   "path": "src/app.ts",
                   "content": "import express, { Express, Request, Response } from \"express\";\r\nimport \"dotenv/config\";\r\nimport cors from \"cors\";\r\nimport helmet from \"helmet\";\r\nimport cookieParser from \"cookie-parser\";\r\nimport morgan from \"morgan\";\r\nimport sourceMapSupport from \"source-map-support\";\r\nsourceMapSupport.install();\r\n\r\nimport Routes from \"./routes/index\";\r\n\r\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\r\nimport { notFoundHandler } from \"./shared/middlewares/not-found-handler\";\r\nimport env from \"./configs/env\";\r\n\r\nconst app: Express = express();\r\n\r\napp.use(express.json());\r\napp.use(express.urlencoded({ extended: true }));\r\napp.use(\r\n  cors({\r\n    origin: env.CORS_ORIGIN,\r\n    credentials: true\r\n  })\r\n);\r\napp.use(helmet());\r\napp.use(cookieParser());\r\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\r\n\r\n// Routes\r\n\r\napp.get(\"/\", (req: Request, res: Response) => {\r\n  res.redirect(\"/api/health\");\r\n});\r\n\r\napp.use(\"/api\", Routes);\r\n\r\n// Not found handler (should be after routes)\r\napp.use(notFoundHandler);\r\n\r\n// Global error handler (should be last)\r\napp.use(errorHandler);\r\n\r\nexport default app;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "prisma/schema.prisma",
+                  "content": "generator client {\r\n  provider = \"prisma-client-js\"\r\n}\r\n\r\ndatasource db {\r\n  provider = \"mongodb\"\r\n  url      = env(\"DATABASE_URL\")\r\n}\r\n\r\nmodel User { \r\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\r\n  email String  @unique\r\n  name  String?\r\n  password String\r\n} \r\n"
                 },
                 {
                   "type": "file",
@@ -188,11 +187,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/errors/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\n\r\nexport class ApiError extends Error {\r\n  public readonly statusCode: StatusCode;\r\n  public readonly isOperational: boolean;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor(\r\n    statusCode: StatusCode,\r\n    message: string,\r\n    errors?: unknown,\r\n    isOperational = true\r\n  ) {\r\n    super(message);\r\n    this.name = \"ApiError\";\r\n    this.statusCode = statusCode;\r\n    this.errors = errors;\r\n    this.isOperational = isOperational;\r\n\r\n    Error.captureStackTrace(this, this.constructor);\r\n  }\r\n\r\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static unauthorized(message = \"Unauthorized\") {\r\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\r\n  }\r\n\r\n  static forbidden(message = \"Forbidden\") {\r\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\r\n  }\r\n\r\n  static notFound(message = \"Not Found\") {\r\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\r\n  }\r\n\r\n  static conflict(message = \"Conflict\") {\r\n    return new ApiError(STATUS_CODES.CONFLICT, message);\r\n  }\r\n\r\n  static validation(message = \"Validation failed\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static notImplemented(message = \"Not Implemented\") {\r\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\r\n  }\r\n\r\n  static badGateway(message = \"Bad Gateway\") {\r\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\r\n  }\r\n\r\n  static serviceUnavailable(message = \"Service Unavailable\") {\r\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\r\n  }\r\n\r\n  static tooManyRequests(message = \"Too Many Requests\") {\r\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\r\n  }\r\n\r\n  static server(message = \"Internal Server Error\") {\r\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\r\n * throw ApiError.badRequest(\"Bad request\");\r\n */\r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/middlewares/not-found-handler.ts",
                   "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport { ApiError } from \"../errors/api-error\";\r\n\r\nexport const notFoundHandler = (\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) => {\r\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\r\n};\r\n"
                 },
@@ -205,6 +199,11 @@
                   "type": "file",
                   "path": "src/shared/constants/status-codes.ts",
                   "content": "export const STATUS_CODES = {\r\n  // 2xx Success\r\n  OK: 200,\r\n  CREATED: 201,\r\n  ACCEPTED: 202,\r\n  NO_CONTENT: 204,\r\n\r\n  // 3xx Redirection\r\n  MOVED_PERMANENTLY: 301,\r\n  FOUND: 302,\r\n  NOT_MODIFIED: 304,\r\n\r\n  // 4xx Client Errors\r\n  BAD_REQUEST: 400,\r\n  UNAUTHORIZED: 401,\r\n  FORBIDDEN: 403,\r\n  NOT_FOUND: 404,\r\n  CONFLICT: 409,\r\n  UNPROCESSABLE_ENTITY: 422,\r\n  TOO_MANY_REQUESTS: 429,\r\n\r\n  // 5xx Server Errors\r\n  INTERNAL_SERVER_ERROR: 500,\r\n  NOT_IMPLEMENTED: 501,\r\n  BAD_GATEWAY: 502,\r\n  SERVICE_UNAVAILABLE: 503,\r\n  GATEWAY_TIMEOUT: 504\r\n} as const;\r\n\r\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\r\n\r\nexport class ApiError extends Error {\r\n  public readonly statusCode: StatusCode;\r\n  public readonly isOperational: boolean;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor(\r\n    statusCode: StatusCode,\r\n    message: string,\r\n    errors?: unknown,\r\n    isOperational = true\r\n  ) {\r\n    super(message);\r\n    this.name = \"ApiError\";\r\n    this.statusCode = statusCode;\r\n    this.errors = errors;\r\n    this.isOperational = isOperational;\r\n\r\n    Error.captureStackTrace(this, this.constructor);\r\n  }\r\n\r\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static unauthorized(message = \"Unauthorized\") {\r\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\r\n  }\r\n\r\n  static forbidden(message = \"Forbidden\") {\r\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\r\n  }\r\n\r\n  static notFound(message = \"Not Found\") {\r\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\r\n  }\r\n\r\n  static conflict(message = \"Conflict\") {\r\n    return new ApiError(STATUS_CODES.CONFLICT, message);\r\n  }\r\n\r\n  static validation(message = \"Validation failed\", errors?: unknown) {\r\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\r\n  }\r\n\r\n  static notImplemented(message = \"Not Implemented\") {\r\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\r\n  }\r\n\r\n  static badGateway(message = \"Bad Gateway\") {\r\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\r\n  }\r\n\r\n  static serviceUnavailable(message = \"Service Unavailable\") {\r\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\r\n  }\r\n\r\n  static tooManyRequests(message = \"Too Many Requests\") {\r\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\r\n  }\r\n\r\n  static server(message = \"Internal Server Error\") {\r\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\r\n  }\r\n}\r\n\r\n/*\r\n * Usage:\r\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\r\n * throw ApiError.badRequest(\"Bad request\");\r\n */\r\n"
                 },
                 {
                   "type": "file",
