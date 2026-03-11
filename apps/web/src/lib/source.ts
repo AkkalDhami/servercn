@@ -118,7 +118,7 @@ export function getRegistryTypeItems(
       meta: {
         databases: item.meta?.databases?.map(db => ({
           ...db,
-          slug: `${framework}/schemas/${db.slug}`
+          slug: `${framework}/${item.type}s/${db.slug}`
         }))
       },
       type: item.type
