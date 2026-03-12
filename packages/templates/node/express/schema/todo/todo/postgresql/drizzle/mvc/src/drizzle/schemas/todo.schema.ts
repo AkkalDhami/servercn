@@ -2,23 +2,20 @@ import {
   boolean,
   text,
   varchar,
-  char,
   index,
   serial,
-  pgTable
+  pgTable,
+  integer
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 import { timestamps } from "./schema.helper";
-
-// import { users } from "./user.schema";
 
 export const todos = pgTable(
   "todos",
   {
     id: serial().primaryKey(),
-    // userId: char("user_id", { length: 36 })
-    //   .notNull()
-    //   .references(() => users.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      //   .references(() => users.id, { onDelete: "cascade" }),
+      .notNull(),
 
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
@@ -27,13 +24,13 @@ export const todos = pgTable(
     ...timestamps
   },
   table => [
-    // index("todo_user_id_idx").on(table.userId),
+    index("todo_user_id_idx").on(table.userId),
     index("todo_completed_idx").on(table.completed)
   ]
 );
 
-//? Relations between
-//? ii. todo and users.
+//TODO: Add Relations between
+//? i. todo and users.
 //? (many-to-one)
 // export const todosRelations = relations(todos, ({ one }) => ({
 //   user: one(users, {
