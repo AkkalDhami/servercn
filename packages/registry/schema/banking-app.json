@@ -39,6 +39,39 @@
               }
             },
 
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "banking-app/index/postgresql/drizzle/mvc",
+                      "feature": "banking-app/index/postgresql/drizzle/feature"
+                    },
+                    "account": {
+                      "mvc": "banking-app/account/postgresql/drizzle/mvc",
+                      "feature": "banking-app/account/postgresql/drizzle/feature"
+                    },
+                    "user": {
+                      "mvc": "banking-app/user/postgresql/drizzle/mvc",
+                      "feature": "banking-app/user/postgresql/drizzle/feature"
+                    },
+                    "transaction": {
+                      "mvc": "banking-app/transaction/postgresql/drizzle/mvc",
+                      "feature": "banking-app/transaction/postgresql/drizzle/feature"
+                    },
+                    "ledger": {
+                      "mvc": "banking-app/ledger/postgresql/drizzle/mvc",
+                      "feature": "banking-app/ledger/postgresql/drizzle/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["drizzle-kit", "@types/pg"]
+                  }
+                }
+              }
+            },
+
             "mongodb": {
               "orms": {
                 "mongoose": {
