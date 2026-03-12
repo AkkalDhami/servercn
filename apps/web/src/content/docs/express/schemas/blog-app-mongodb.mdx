@@ -1,0 +1,1179 @@
+---
+title:  Blog App | MongoDB (Mongoose) | Schema
+description: A detailed look at the MongoDB schema for a modern blog application.
+command: npx servercn-cli add sc blog-app
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: models
+        children:
+          - type: file
+            name: user.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema } from "mongoose";
+
+              interface IFile {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IUser extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                email: string;
+                password?: string;
+                role: "user" | "admin";
+                isEmailVerified: boolean;
+                lastLoginAt?: Date;
+                failedLoginAttempts: number;
+                lockUntil?: Date;
+                avatar?: IFile;
+
+                provider: "local" | "google" | "github";
+                providerId?: string;
+
+                isDeleted: boolean;
+                deletedAt?: Date | null;
+                reActivateAvailableAt?: Date | null;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const userSchema = new Schema<IUser>(
+                {
+                  name: {
+                    type: String,
+                    required: [true, "Name is required"],
+                    trim: true
+                  },
+                  email: {
+                    type: String,
+                    required: [true, "Email is required"],
+                    unique: true,
+                    lowercase: true,
+                    trim: true
+                  },
+                  password: {
+                    type: String,
+                    select: false,
+                    default: null
+                  },
+                  provider: {
+                    type: String,
+                    enum: ["local", "google", "github"],
+                    default: "local"
+                  },
+                  providerId: {
+                    type: String,
+                    default: null
+                  },
+                  role: {
+                    type: String,
+                    enum: ["user", "admin"],
+                    default: "user"
+                  },
+                  avatar: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+                  isEmailVerified: {
+                    type: Boolean,
+                    default: false
+                  },
+                  lastLoginAt: {
+                    type: Date
+                  },
+                  failedLoginAttempts: {
+                    type: Number,
+                    required: true,
+                    default: 0
+                  },
+                  lockUntil: {
+                    type: Date
+                  },
+                  isDeleted: {
+                    type: Boolean,
+                    default: false
+                  },
+                  deletedAt: {
+                    type: Date,
+                    default: null
+                  },
+                  reActivateAvailableAt: {
+                    type: Date,
+                    default: null
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              // Performance Indexes
+              userSchema.index({ provider: 1, providerId: 1 });
+              userSchema.index({ role: 1 });
+              userSchema.index({ isDeleted: 1 });
+
+              const User: Model<IUser> =
+                mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+              export default User;
+
+          - type: file
+            name: post.model.ts
+            content: |
+              import mongoose, { Document, Model, Schema, Types } from "mongoose";
+              import { PostStatus } from "./post.types";
+              import { POST_STATUSES } from "./post.constants";
+
+              interface IFile {
+                public_id: string;
+                url: string;
+                size: number;
+              }
+
+              export interface IPost extends Document {
+                _id: Types.ObjectId;
+
+                title: string;
+                slug: string;
+                content: string;
+
+                excerpt?: string;
+                author: Types.ObjectId;
+                category?: Types.ObjectId;
+                tags?: string[];
+                featuredImage: IFile | null;
+
+                views: number;
+                likes: Types.ObjectId[];
+                likeCount: number;
+
+                status: PostStatus;
+                publishedAt?: Date;
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const postSchema = new Schema<IPost>(
+                {
+                  title: {
+                    type: String,
+                    required: true
+                  },
+
+                  slug: {
+                    type: String,
+                    required: true
+                  },
+
+                  content: {
+                    type: String,
+                    required: true
+                  },
+
+                  excerpt: {
+                    type: String
+                  },
+
+                  author: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: true
+                  },
+
+                  category: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Category"
+                  },
+
+                  tags: {
+                    type: [String],
+                    default: []
+                  },
+
+                  featuredImage: {
+                    public_id: String,
+                    url: String,
+                    size: Number
+                  },
+
+                  views: {
+                    type: Number,
+                    default: 0
+                  },
+
+                  likes: [
+                    {
+                      type: Schema.Types.ObjectId,
+                      ref: "User"
+                    }
+                  ],
+
+                  likeCount: {
+                    type: Number,
+                    default: 0
+                  },
+
+                  status: {
+                    type: String,
+                    enum: POST_STATUSES,
+                    default: "draft"
+                  },
+
+                  publishedAt: {
+                    type: Date
+                  }
+                },
+                {
+                  timestamps: true
+                }
+              );
+
+              postSchema.index({ title: "text", content: "text" });
+              postSchema.index({ author: 1, slug: 1 }, { unique: true });
+              postSchema.index({ category: 1 });
+              postSchema.index({ createdAt: -1 });
+
+              const Post: Model<IPost> =
+                mongoose.models.Post || mongoose.model<IPost>("Post", postSchema);
+
+              export default Post;
+
+          - type: file
+            name: category.model.ts
+            content: |
+              import mongoose, { model, Schema } from "mongoose";
+
+              export interface ICategory extends Document {
+                _id: mongoose.Types.ObjectId;
+                name: string;
+                slug: string;
+                description?: string;
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const categorySchema = new Schema<ICategory>(
+                {
+                  name: {
+                    type: String,
+                    required: true
+                  },
+
+                  slug: {
+                    type: String,
+                    required: true,
+                    unique: true
+                  },
+
+                  description: {
+                    type: String
+                  }
+                },
+                { timestamps: true }
+              );
+
+              categorySchema.index({ slug: 1, name: 1 }, { unique: true });
+
+              const Category = model<ICategory>("Category", categorySchema);
+
+              export default Category;
+
+          - type: file
+            name: comment.model.ts
+            content: |
+              import { model, Schema, Types } from "mongoose";
+
+              export interface IComment extends Document {
+                _id: Types.ObjectId;
+
+                post: Types.ObjectId;
+                author: Types.ObjectId;
+                content: string;
+                parentComment?: Types.ObjectId;
+
+                likes: Types.ObjectId[];
+
+                createdAt: Date;
+                updatedAt: Date;
+              }
+
+              const commentSchema = new Schema<IComment>(
+                {
+                  post: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Post",
+                    required: true
+                  },
+
+                  author: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: true
+                  },
+
+                  content: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                    maxlength: 500,
+                    minlength: 1
+                  },
+
+                  likes: [
+                    {
+                      type: Schema.Types.ObjectId,
+                      ref: "User"
+                    }
+                  ],
+
+                  parentComment: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Comment"
+                  }
+                },
+                { timestamps: true }
+              );
+
+              commentSchema.index({ post: 1 });
+              commentSchema.index({ author: 1 });
+              commentSchema.index({ parentComment: 1 });
+
+              const Comment = model<IComment>("Comment", commentSchema);
+
+              export default Comment;
+
+      - type: folder
+        name: constants
+        children:
+          - type: file
+            name: post.constants.ts
+            content: |
+              export const POST_STATUSES = ["draft", "published", "archived"] as const;
+
+      - type: folder
+        name: types
+        children:
+          - type: file
+            name: post.types.ts
+            content: |
+              import { POST_STATUSES } from "./post.constants";
+
+              export type PostStatus = (typeof POST_STATUSES)[number];
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: modules
+        children:
+          - type: folder
+            name: user
+            children:
+              - type: file
+                name: user.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema } from "mongoose";
+
+                  interface IFile {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IUser extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    email: string;
+                    password?: string;
+                    role: "user" | "admin";
+                    isEmailVerified: boolean;
+                    lastLoginAt?: Date;
+                    failedLoginAttempts: number;
+                    lockUntil?: Date;
+                    avatar?: IFile;
+
+                    provider: "local" | "google" | "github";
+                    providerId?: string;
+
+                    isDeleted: boolean;
+                    deletedAt?: Date | null;
+                    reActivateAvailableAt?: Date | null;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const userSchema = new Schema<IUser>(
+                    {
+                      name: {
+                        type: String,
+                        required: [true, "Name is required"],
+                        trim: true
+                      },
+                      email: {
+                        type: String,
+                        required: [true, "Email is required"],
+                        unique: true,
+                        lowercase: true,
+                        trim: true
+                      },
+                      password: {
+                        type: String,
+                        select: false,
+                        default: null
+                      },
+                      provider: {
+                        type: String,
+                        enum: ["local", "google", "github"],
+                        default: "local"
+                      },
+                      providerId: {
+                        type: String,
+                        default: null
+                      },
+                      role: {
+                        type: String,
+                        enum: ["user", "admin"],
+                        default: "user"
+                      },
+                      avatar: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+                      isEmailVerified: {
+                        type: Boolean,
+                        default: false
+                      },
+                      lastLoginAt: {
+                        type: Date
+                      },
+                      failedLoginAttempts: {
+                        type: Number,
+                        required: true,
+                        default: 0
+                      },
+                      lockUntil: {
+                        type: Date
+                      },
+                      isDeleted: {
+                        type: Boolean,
+                        default: false
+                      },
+                      deletedAt: {
+                        type: Date,
+                        default: null
+                      },
+                      reActivateAvailableAt: {
+                        type: Date,
+                        default: null
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  userSchema.index({ provider: 1, providerId: 1 });
+                  userSchema.index({ role: 1 });
+                  userSchema.index({ isDeleted: 1 });
+
+                  const User: Model<IUser> =
+                    mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+                  export default User;
+
+          - type: folder
+            name: post
+            children:
+              - type: file
+                name: post.model.ts
+                content: |
+                  import mongoose, { Document, Model, Schema, Types } from "mongoose";
+                  import { PostStatus } from "./post.types";
+                  import { POST_STATUSES } from "./post.constants";
+
+                  interface IFile {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export interface IPost extends Document {
+                    _id: Types.ObjectId;
+
+                    title: string;
+                    slug: string;
+                    content: string;
+
+                    excerpt?: string;
+                    author: Types.ObjectId;
+                    category?: Types.ObjectId;
+                    tags?: string[];
+                    featuredImage: IFile | null;
+
+                    views: number;
+                    likes: Types.ObjectId[];
+                    likeCount: number;
+
+                    status: PostStatus;
+                    publishedAt?: Date;
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const postSchema = new Schema<IPost>(
+                    {
+                      title: {
+                        type: String,
+                        required: true
+                      },
+
+                      slug: {
+                        type: String,
+                        required: true
+                      },
+
+                      content: {
+                        type: String,
+                        required: true
+                      },
+
+                      excerpt: {
+                        type: String
+                      },
+
+                      author: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: true
+                      },
+
+                      category: {
+                        type: Schema.Types.ObjectId,
+                        ref: "Category"
+                      },
+
+                      tags: {
+                        type: [String],
+                        default: []
+                      },
+
+                      featuredImage: {
+                        public_id: String,
+                        url: String,
+                        size: Number
+                      },
+
+                      views: {
+                        type: Number,
+                        default: 0
+                      },
+
+                      likes: [
+                        {
+                          type: Schema.Types.ObjectId,
+                          ref: "User"
+                        }
+                      ],
+
+                      likeCount: {
+                        type: Number,
+                        default: 0
+                      },
+
+                      status: {
+                        type: String,
+                        enum: POST_STATUSES,
+                        default: "draft"
+                      },
+
+                      publishedAt: {
+                        type: Date
+                      }
+                    },
+                    {
+                      timestamps: true
+                    }
+                  );
+
+                  postSchema.index({ title: "text", content: "text" });
+                  postSchema.index({ author: 1, slug: 1 }, { unique: true });
+                  postSchema.index({ category: 1 });
+                  postSchema.index({ createdAt: -1 });
+
+                  const Post: Model<IPost> =
+                    mongoose.models.Post || mongoose.model<IPost>("Post", postSchema);
+
+                  export default Post;
+
+              - type: file
+                name: post.constants.ts
+                content: |
+                  export const POST_STATUSES = ["draft", "published", "archived"] as const;
+
+              - type: file
+                name: post.types.ts
+                content: |
+                  import { POST_STATUSES } from "./post.constants";
+
+                  export type PostStatus = (typeof POST_STATUSES)[number];
+
+          - type: folder
+            name: category
+            children:
+              - type: file
+                name: category.model.ts
+                content: |
+                  import mongoose, { model, Schema } from "mongoose";
+
+                  export interface ICategory extends Document {
+                    _id: mongoose.Types.ObjectId;
+                    name: string;
+                    slug: string;
+                    description?: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const categorySchema = new Schema<ICategory>(
+                    {
+                      name: {
+                        type: String,
+                        required: true
+                      },
+
+                      slug: {
+                        type: String,
+                        required: true,
+                        unique: true
+                      },
+
+                      description: {
+                        type: String
+                      }
+                    },
+                    { timestamps: true }
+                  );
+
+                  categorySchema.index({ slug: 1, name: 1 }, { unique: true });
+
+                  const Category = model<ICategory>("Category", categorySchema);
+
+                  export default Category;
+
+          - type: folder
+            name: comment
+            children:
+              - type: file
+                name: comment.model.ts
+                content: |
+                  import { model, Schema, Types } from "mongoose";
+
+                  export interface IComment extends Document {
+                    _id: Types.ObjectId;
+
+                    post: Types.ObjectId;
+                    author: Types.ObjectId;
+                    content: string;
+                    parentComment?: Types.ObjectId;
+
+                    likes: Types.ObjectId[];
+
+                    createdAt: Date;
+                    updatedAt: Date;
+                  }
+
+                  const commentSchema = new Schema<IComment>(
+                    {
+                      post: {
+                        type: Schema.Types.ObjectId,
+                        ref: "Post",
+                        required: true
+                      },
+
+                      author: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: true
+                      },
+
+                      content: {
+                        type: String,
+                        required: true,
+                        trim: true,
+                        maxlength: 500,
+                        minlength: 1
+                      },
+
+                      likes: [
+                        {
+                          type: Schema.Types.ObjectId,
+                          ref: "User"
+                        }
+                      ],
+
+                      parentComment: {
+                        type: Schema.Types.ObjectId,
+                        ref: "Comment"
+                      }
+                    },
+                    { timestamps: true }
+                  );
+
+                  commentSchema.index({ post: 1 });
+                  commentSchema.index({ author: 1 });
+                  commentSchema.index({ parentComment: 1 });
+
+                  const Comment = model<IComment>("Comment", commentSchema);
+
+                  export default Comment;
+
+---
+
+# Blog App (MongoDB with Mongoose)
+
+This document outlines the MongoDB database schema for a sample blog application. The schema is designed to be efficient, scalable, and easy to understand. We use **Mongoose** for defining our data models with TypeScript.
+
+The core of our application revolves around four main collections: <Code>User</Code>, <Code>Post</Code>, <Code>Category</Code>, and <Code>Comment</Code>.
+
+## Installation Guide
+
+To add these schemas to your project, run:
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app" />
+
+## 1. User Schema
+
+The <Code>User</Code> schema stores essential information about blog authors and administrators, including authentication details and profile information.
+
+**MVC Path:** <Code>src/models/user.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/user/user.model.ts</Code>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+interface IFile {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IFile;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null
+    },
+    reActivateAvailableAt: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ provider: 1, providerId: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 });
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/user" />
+
+## 2. Post Schema
+
+The <Code>Post</Code> schema stores blog posts with support for titles, content, excerpts, featured images, and publication status. Includes text search capabilities and like tracking.
+
+**MVC Path:** <Code>src/models/post.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/post/post.model.ts</Code>
+
+```ts
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import { PostStatus } from "./post.types";
+import { POST_STATUSES } from "./post.constants";
+
+interface IFile {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IPost extends Document {
+  _id: Types.ObjectId;
+
+  title: string;
+  slug: string;
+  content: string;
+
+  excerpt?: string;
+  author: Types.ObjectId;
+  category?: Types.ObjectId;
+  tags?: string[];
+  featuredImage: IFile | null;
+
+  views: number;
+  likes: Types.ObjectId[];
+  likeCount: number;
+
+  status: PostStatus;
+  publishedAt?: Date;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const postSchema = new Schema<IPost>(
+  {
+    title: {
+      type: String,
+      required: true
+    },
+
+    slug: {
+      type: String,
+      required: true
+    },
+
+    content: {
+      type: String,
+      required: true
+    },
+
+    excerpt: {
+      type: String
+    },
+
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: "Category"
+    },
+
+    tags: {
+      type: [String],
+      default: []
+    },
+
+    featuredImage: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+
+    views: {
+      type: Number,
+      default: 0
+    },
+
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
+
+    likeCount: {
+      type: Number,
+      default: 0
+    },
+
+    status: {
+      type: String,
+      enum: POST_STATUSES,
+      default: "draft"
+    },
+
+    publishedAt: {
+      type: Date
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Text search index
+postSchema.index({ title: "text", content: "text" });
+
+// Unique compound index
+postSchema.index({ author: 1, slug: 1 }, { unique: true });
+
+// Query optimization indexes
+postSchema.index({ category: 1 });
+postSchema.index({ createdAt: -1 });
+
+const Post: Model<IPost> =
+  mongoose.models.Post || mongoose.model<IPost>("Post", postSchema);
+
+export default Post;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/post" />
+
+## 3. Category Schema
+
+The <Code>Category</Code> schema organizes blog posts into hierarchical categories with names, slugs, and descriptions.
+
+**MVC Path:** <Code>src/models/category.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/category/category.model.ts</Code>
+
+```ts
+import mongoose, { model, Schema } from "mongoose";
+
+export interface ICategory extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  slug: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const categorySchema = new Schema<ICategory>(
+  {
+    name: {
+      type: String,
+      required: true
+    },
+
+    slug: {
+      type: String,
+      required: true,
+      unique: true
+    },
+
+    description: {
+      type: String
+    }
+  },
+  { timestamps: true }
+);
+
+categorySchema.index({ slug: 1, name: 1 }, { unique: true });
+
+const Category = model<ICategory>("Category", categorySchema);
+
+export default Category;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/category" />
+
+## 4. Comment Schema
+
+The <Code>Comment</Code> schema enables user engagement through comments on blog posts, with support for nested replies and likes.
+
+**MVC Path:** <Code>src/models/comment.model.ts</Code>
+
+**Feature Path:** <Code>src/modules/comment/comment.model.ts</Code>
+
+```ts
+import { model, Schema, Types } from "mongoose";
+
+export interface IComment extends Document {
+  _id: Types.ObjectId;
+
+  post: Types.ObjectId;
+  author: Types.ObjectId;
+  content: string;
+  parentComment?: Types.ObjectId;
+
+  likes: Types.ObjectId[];
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const commentSchema = new Schema<IComment>(
+  {
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      required: true
+    },
+
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 500,
+      minlength: 1
+    },
+
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
+
+    parentComment: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment"
+    }
+  },
+  { timestamps: true }
+);
+
+// Indexes for query performance
+commentSchema.index({ post: 1 });
+commentSchema.index({ author: 1 });
+commentSchema.index({ parentComment: 1 });
+
+const Comment = model<IComment>("Comment", commentSchema);
+
+export default Comment;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment" />
+
+## Key Features
+
+### Post Status Workflow
+
+Posts support three states:
+
+- **Draft**: Initial state, not visible to public
+- **Published**: Visible to all users
+- **Archived**: Hidden from main listings but retained
+
+### Text Search
+
+The Post collection includes a text index on <Code>title</Code> and <Code>content</Code> fields for full-text search capabilities.
+
+### Nested Comments
+
+Comments support threaded discussions through the <Code>parentComment</Code> field, enabling unlimited nesting levels.
+
+### Like System
+
+Both posts and comments track likes using arrays of user ObjectIds, with cached counts for performance.
+
+### Soft Delete Support
+
+User schema includes fields for soft delete functionality:
+
+- <Code>isDeleted</Code>: Flag to mark deleted users
+- <Code>deletedAt</Code>: Timestamp of deletion
+- <Code>reActivateAvailableAt</Code>: When reactivation becomes available
+
+### Security Features
+
+- Password field excluded by default with <Code>select: false</Code>
+- Account lockout support with <Code>failedLoginAttempts</Code> and <Code>lockUntil</Code>
+- Email verification tracking with <Code>isEmailVerified</Code>
+
