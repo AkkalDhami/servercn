@@ -2,6 +2,609 @@
 title:  Banking | PostgreSQL (Drizzle) | Schema
 description: A detailed look at the PostgreSQL schema for a modern banking application using Drizzle ORM.
 command: npx servercn-cli add schema banking-app
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: account.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    boolean,
+                    index,
+                    serial,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+
+                  export const ACCOUNT_TYPES = ["savings", "current"] as const;
+                  export const ACCOUNT_CURRENCIES = ["NPR", "INR", "USD"] as const;
+                  export const ACCOUNT_STATUS = ["active", "frozen", "closed"] as const;
+
+                  const currencyEnum = pgEnum("currency", ACCOUNT_CURRENCIES);
+                  const accountTypeEnum = pgEnum("type", ACCOUNT_TYPES);
+                  const statusEnum = pgEnum("status", ACCOUNT_STATUS);
+
+
+                  export const accounts = pgTable(
+                    "accounts",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      userId: serial("user_id")
+                        .notNull()
+                        .references(() => users.id),
+                      currency: currencyEnum("currency").notNull().default("NPR"),
+                      type: accountTypeEnum("type").notNull().default("savings"),
+                      status: statusEnum("status").default("active").notNull(),
+                      systemAccount: boolean("system_account").default(false).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("status_idx").on(table.status),
+                      index("type_idx").on(table.type)
+                    ]
+                  );
+
+                  // Account types
+                  export type Account = typeof accounts.$inferSelect;
+                  export type NewAccount = typeof accounts.$inferInsert;                
+
+              - type: file
+                name: ledger.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    integer,
+                    pgEnum,
+                    index,
+                    decimal,
+                    serial
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+
+                  // Ledger entry types
+                  export const LEDGER_ENTRY_TYPES = ["debit", "credit"] as const;
+
+                  const entryTypeEnum = pgEnum("entry_type", LEDGER_ENTRY_TYPES);
+
+                  export const ledgers = pgTable(
+                    "ledgers",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      accountId: serial("account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      transactionId: serial("transaction_id")
+                        .references(() => transactions.id)
+                        .notNull(),
+                      entryType: entryTypeEnum("entry_type").notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("account_id_idx").on(table.accountId),
+                      index("transaction_id_idx").on(table.transactionId),
+                      index("entry_type_idx").on(table.entryType)
+                    ]
+                  );
+
+                  // Ledger types
+                  export type Ledger = typeof ledgers.$inferSelect;
+                  export type NewLedger = typeof ledgers.$inferInsert;              
+
+              - type: file
+                name: relations.ts
+                content: |
+                  import { relations } from "drizzle-orm";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+                  import { ledgers } from "./ledger.schema";
+                  import { users } from "./user.schema";
+
+                  // User relations
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    accounts: many(accounts)
+                  }));
+
+                  // Account relations
+                  export const accountsRelations = relations(accounts, ({ one, many }) => ({
+                    user: one(users, {
+                      fields: [accounts.userId],
+                      references: [users.id]
+                    }),
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Transaction relations
+                  export const transactionsRelations = relations(transactions, ({ many }) => ({
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Ledger relations
+                  export const ledgersRelations = relations(ledgers, ({ one }) => ({
+                    account: one(accounts, {
+                      fields: [ledgers.accountId],
+                      references: [accounts.id]
+                    }),
+                    transaction: one(transactions, {
+                      fields: [ledgers.transactionId],
+                      references: [transactions.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+         
+              - type: file
+                name: transaction.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    varchar,
+                    integer,
+                    pgEnum,
+                    index,
+                    uniqueIndex,
+                    decimal,
+                    serial
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+
+                  // Transaction status
+                  export const TRANSACTION_STATUS = [
+                    "pending",
+                    "completed",
+                    "failed",
+                    "reversed"
+                  ] as const;
+
+                  const statusEnum = pgEnum("status", TRANSACTION_STATUS);
+
+                  export const transactions = pgTable(
+                    "transactions",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      fromAccountId: serial("from_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      toAccountId: serial("to_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      status: statusEnum("status").default("pending").notNull(),
+                      idempotencyKey: varchar("idempotency_key", { length: 255 })
+                        .notNull()
+                        .unique(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("from_account_id_idx").on(table.fromAccountId),
+                      index("to_account_id_idx").on(table.toAccountId),
+                      index("status_idx").on(table.status),
+                      uniqueIndex("idempotency_key_idx").on(table.idempotencyKey)
+                    ]
+                  );
+
+                  // Transaction types
+                  export type Transaction = typeof transactions.$inferSelect;
+                  export type NewTransaction = typeof transactions.$inferInsert;
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    integer,
+                    jsonb,
+                    uniqueIndex,
+                    index,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+
+                  export const roleEnum = pgEnum("role", ["user", "admin"]);
+                  export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export const users = pgTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: roleEnum("role").default("user").notNull(),
+
+                      // OAuth Provider
+                      provider: providerEnum("provider").default("local").notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      // Profile
+                      avatar: jsonb("avatar").$type<IAvatar>(),
+
+                      // Auth Metadata
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      // Soft Delete
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      //? Timestamps
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("provider_idx").on(table.provider, table.providerId),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/ledger.schema";
+              export * from "./schemas/transaction.schema";
+              export * from "./schemas/account.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "postgresql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: account.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    boolean,
+                    index,
+                    serial,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+
+                  export const ACCOUNT_TYPES = ["savings", "current"] as const;
+                  export const ACCOUNT_CURRENCIES = ["NPR", "INR", "USD"] as const;
+                  export const ACCOUNT_STATUS = ["active", "frozen", "closed"] as const;
+
+                  const currencyEnum = pgEnum("currency", ACCOUNT_CURRENCIES);
+                  const accountTypeEnum = pgEnum("type", ACCOUNT_TYPES);
+                  const statusEnum = pgEnum("status", ACCOUNT_STATUS);
+
+
+                  export const accounts = pgTable(
+                    "accounts",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      userId: serial("user_id")
+                        .notNull()
+                        .references(() => users.id),
+                      currency: currencyEnum("currency").notNull().default("NPR"),
+                      type: accountTypeEnum("type").notNull().default("savings"),
+                      status: statusEnum("status").default("active").notNull(),
+                      systemAccount: boolean("system_account").default(false).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("status_idx").on(table.status),
+                      index("type_idx").on(table.type)
+                    ]
+                  );
+
+                  // Account types
+                  export type Account = typeof accounts.$inferSelect;
+                  export type NewAccount = typeof accounts.$inferInsert;                
+
+              - type: file
+                name: ledger.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    integer,
+                    pgEnum,
+                    index,
+                    decimal,
+                    serial
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+
+                  // Ledger entry types
+                  export const LEDGER_ENTRY_TYPES = ["debit", "credit"] as const;
+
+                  const entryTypeEnum = pgEnum("entry_type", LEDGER_ENTRY_TYPES);
+
+                  export const ledgers = pgTable(
+                    "ledgers",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      accountId: serial("account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      transactionId: serial("transaction_id")
+                        .references(() => transactions.id)
+                        .notNull(),
+                      entryType: entryTypeEnum("entry_type").notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("account_id_idx").on(table.accountId),
+                      index("transaction_id_idx").on(table.transactionId),
+                      index("entry_type_idx").on(table.entryType)
+                    ]
+                  );
+
+                  // Ledger types
+                  export type Ledger = typeof ledgers.$inferSelect;
+                  export type NewLedger = typeof ledgers.$inferInsert;              
+
+              - type: file
+                name: relations.ts
+                content: |
+                  import { relations } from "drizzle-orm";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+                  import { ledgers } from "./ledger.schema";
+                  import { users } from "./user.schema";
+
+                  // User relations
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    accounts: many(accounts)
+                  }));
+
+                  // Account relations
+                  export const accountsRelations = relations(accounts, ({ one, many }) => ({
+                    user: one(users, {
+                      fields: [accounts.userId],
+                      references: [users.id]
+                    }),
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Transaction relations
+                  export const transactionsRelations = relations(transactions, ({ many }) => ({
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Ledger relations
+                  export const ledgersRelations = relations(ledgers, ({ one }) => ({
+                    account: one(accounts, {
+                      fields: [ledgers.accountId],
+                      references: [accounts.id]
+                    }),
+                    transaction: one(transactions, {
+                      fields: [ledgers.transactionId],
+                      references: [transactions.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/pg-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at")
+                      .defaultNow()
+                      .$onUpdate(() => new Date())
+                      .notNull()
+                  };
+         
+              - type: file
+                name: transaction.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    varchar,
+                    integer,
+                    pgEnum,
+                    index,
+                    uniqueIndex,
+                    decimal,
+                    serial
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+
+                  // Transaction status
+                  export const TRANSACTION_STATUS = [
+                    "pending",
+                    "completed",
+                    "failed",
+                    "reversed"
+                  ] as const;
+
+                  const statusEnum = pgEnum("status", TRANSACTION_STATUS);
+
+                  export const transactions = pgTable(
+                    "transactions",
+                    {
+                      id: serial("id").primaryKey().notNull(),
+                      fromAccountId: serial("from_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      toAccountId: serial("to_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      status: statusEnum("status").default("pending").notNull(),
+                      idempotencyKey: varchar("idempotency_key", { length: 255 })
+                        .notNull()
+                        .unique(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("from_account_id_idx").on(table.fromAccountId),
+                      index("to_account_id_idx").on(table.toAccountId),
+                      index("status_idx").on(table.status),
+                      uniqueIndex("idempotency_key_idx").on(table.idempotencyKey)
+                    ]
+                  );
+
+                  // Transaction types
+                  export type Transaction = typeof transactions.$inferSelect;
+                  export type NewTransaction = typeof transactions.$inferInsert;
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    pgTable,
+                    serial,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    integer,
+                    jsonb,
+                    uniqueIndex,
+                    index,
+                    pgEnum
+                  } from "drizzle-orm/pg-core";
+                  import { timestamps } from "./schema.helper";
+
+                  export const roleEnum = pgEnum("role", ["user", "admin"]);
+                  export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+                  export interface IAvatar {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export const users = pgTable(
+                    "users",
+                    {
+                      id: serial("id").primaryKey(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: roleEnum("role").default("user").notNull(),
+
+                      // OAuth Provider
+                      provider: providerEnum("provider").default("local").notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      // Profile
+                      avatar: jsonb("avatar").$type<IAvatar>(),
+
+                      // Auth Metadata
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      // Soft Delete
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      //? Timestamps
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("provider_idx").on(table.provider, table.providerId),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/ledger.schema";
+              export * from "./schemas/transaction.schema";
+              export * from "./schemas/account.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "postgresql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+
 ---
 
 # Banking App (PostgreSQL with Drizzle ORM)
@@ -112,6 +715,7 @@ import {
   boolean,
   index,
   serial,
+  integer,
   pgEnum
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./schema.helper";
@@ -129,7 +733,7 @@ export const accounts = pgTable(
   "accounts",
   {
     id: serial("id").primaryKey().notNull(),
-    userId: serial("user_id")
+    userId: integer("user_id")
       .notNull()
       .references(() => users.id),
     currency: currencyEnum("currency").notNull().default("NPR"),
@@ -167,7 +771,8 @@ import {
   index,
   uniqueIndex,
   decimal,
-  serial
+  serial,
+  integer
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./schema.helper";
 import { accounts } from "./account.schema";
@@ -186,10 +791,10 @@ export const transactions = pgTable(
   "transactions",
   {
     id: serial("id").primaryKey().notNull(),
-    fromAccountId: serial("from_account_id")
+    fromAccountId: integer("from_account_id")
       .references(() => accounts.id)
       .notNull(),
-    toAccountId: serial("to_account_id")
+    toAccountId: integer("to_account_id")
       .references(() => accounts.id)
       .notNull(),
     amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
@@ -244,10 +849,10 @@ export const ledgers = pgTable(
   "ledgers",
   {
     id: serial("id").primaryKey().notNull(),
-    accountId: serial("account_id")
+    accountId: integer("account_id")
       .references(() => accounts.id)
       .notNull(),
-    transactionId: serial("transaction_id")
+    transactionId: integer("transaction_id")
       .references(() => transactions.id)
       .notNull(),
     entryType: entryTypeEnum("entry_type").notNull(),
@@ -313,9 +918,35 @@ export const ledgersRelations = relations(ledgers, ({ one }) => ({
 }));
 ```
 
+## 6. Export all schemas
 
-**Notes:**
+All database schemas must be re-exported from a single entry point.
+This allows Drizzle to load every table definition from one file during migration generation.
 
-- Ledger entries are immutable
-- All update and delete operations are blocked to preserve audit integrity
+**File Path:** <Code children="src/drizzle/index.ts" />
 
+```ts
+export * from "./schemas/user.schema";
+export * from "./schemas/ledger.schema";
+export * from "./schemas/transaction.schema";
+export * from "./schemas/account.schema";
+```
+
+## 7. drizzle.config.ts
+
+<Code>drizzle.config.ts</Code>
+
+```ts
+import { Config, defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  out: "./src/drizzle/migrations",
+  schema: "./src/drizzle/index.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!
+  },
+  verbose: true,
+  strict: true
+}) satisfies Config;
+```

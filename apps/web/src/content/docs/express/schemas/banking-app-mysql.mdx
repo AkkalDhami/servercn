@@ -2,6 +2,599 @@
 title:  Banking | MySQL (Drizzle) | Schema
 description: A detailed look at the MySQL schema for a modern banking application using Drizzle ORM.
 command: npx servercn-cli add schema banking-app
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: account.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    boolean,
+                    int,
+                    mysqlEnum,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+
+                  //? Account types
+                  export const ACCOUNT_TYPES = ["savings", "current"] as const;
+                  export type AccountType = (typeof ACCOUNT_TYPES)[number];
+
+                  //? Account currencies
+                  export const ACCOUNT_CURRENCIES = ["NPR", "INR", "USD"] as const;
+                  export type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number];
+
+                  //? Account status
+                  export const ACCOUNT_STATUS = ["active", "frozen", "closed"] as const;
+                  export type AccountStatus = (typeof ACCOUNT_STATUS)[number];
+
+                  export const accounts = mysqlTable(
+                    "accounts",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      userId: int("user_id")
+                        .references(() => users.id)
+                        .notNull(),
+                      type: mysqlEnum("type", ACCOUNT_TYPES).notNull(),
+                      currency: mysqlEnum("currency", ACCOUNT_CURRENCIES)
+                        .default("NPR")
+                        .notNull(),
+                      status: mysqlEnum("status", ACCOUNT_STATUS).default("active").notNull(),
+                      systemAccount: boolean("system_account").default(false).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("status_idx").on(table.status),
+                      index("type_idx").on(table.type)
+                    ]
+                  );
+
+                  // Account types
+                  export type Account = typeof accounts.$inferSelect;
+                  export type NewAccount = typeof accounts.$inferInsert;
+
+              - type: file
+                name: ledger.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    int,
+                    mysqlEnum,
+                    index,
+                    decimal
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+
+                  // Ledger entry types
+                  export const LEDGER_ENTRY_TYPES = ["debit", "credit"] as const;
+                  export type LedgerEntryType = (typeof LEDGER_ENTRY_TYPES)[number];
+
+                  export const ledgers = mysqlTable(
+                    "ledgers",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      accountId: int("account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      transactionId: int("transaction_id")
+                        .references(() => transactions.id)
+                        .notNull(),
+                      entryType: mysqlEnum("entry_type", LEDGER_ENTRY_TYPES).notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("account_id_idx").on(table.accountId),
+                      index("transaction_id_idx").on(table.transactionId),
+                      index("entry_type_idx").on(table.entryType)
+                    ]
+                  );
+
+                  // Ledger types
+                  export type Ledger = typeof ledgers.$inferSelect;
+                  export type NewLedger = typeof ledgers.$inferInsert;                
+
+              - type: file
+                name: relations.ts
+                content: |
+                  import { relations } from "drizzle-orm";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+                  import { ledgers } from "./ledger.schema";
+                  import { users } from "./user.schema";
+
+                  // User relations
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    accounts: many(accounts)
+                  }));
+
+                  // Account relations
+                  export const accountsRelations = relations(accounts, ({ one, many }) => ({
+                    user: one(users, {
+                      fields: [accounts.userId],
+                      references: [users.id]
+                    }),
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Transaction relations
+                  export const transactionsRelations = relations(transactions, ({ many }) => ({
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Ledger relations
+                  export const ledgersRelations = relations(ledgers, ({ one }) => ({
+                    account: one(accounts, {
+                      fields: [ledgers.accountId],
+                      references: [accounts.id]
+                    }),
+                    transaction: one(transactions, {
+                      fields: [ledgers.transactionId],
+                      references: [transactions.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+         
+         
+              - type: file
+                name: transaction.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    int,
+                    mysqlEnum,
+                    index,
+                    uniqueIndex,
+                    decimal
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+
+                  // Transaction status
+                  export const TRANSACTION_STATUS = [
+                    "pending",
+                    "completed",
+                    "failed",
+                    "reversed"
+                  ] as const;
+                  export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
+
+                  export const transactions = mysqlTable(
+                    "transactions",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      fromAccountId: int("from_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      toAccountId: int("to_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      status: mysqlEnum("status", TRANSACTION_STATUS)
+                        .default("pending")
+                        .notNull(),
+                      idempotencyKey: varchar("idempotency_key", { length: 255 })
+                        .notNull()
+                        .unique(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("from_account_id_idx").on(table.fromAccountId),
+                      index("to_account_id_idx").on(table.toAccountId),
+                      index("status_idx").on(table.status),
+                      uniqueIndex("idempotency_key_idx").on(table.idempotencyKey)
+                    ]
+                  );
+
+                  // Transaction types
+                  export type Transaction = typeof transactions.$inferSelect;
+                  export type NewTransaction = typeof transactions.$inferInsert;
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { todos } from "./todo.schema";
+                  import { timestamps } from "./schema.helper";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  //? User type
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/ledger.schema";
+              export * from "./schemas/transaction.schema";
+              export * from "./schemas/account.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: account.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    boolean,
+                    int,
+                    mysqlEnum,
+                    index
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+
+                  //? Account types
+                  export const ACCOUNT_TYPES = ["savings", "current"] as const;
+                  export type AccountType = (typeof ACCOUNT_TYPES)[number];
+
+                  //? Account currencies
+                  export const ACCOUNT_CURRENCIES = ["NPR", "INR", "USD"] as const;
+                  export type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number];
+
+                  //? Account status
+                  export const ACCOUNT_STATUS = ["active", "frozen", "closed"] as const;
+                  export type AccountStatus = (typeof ACCOUNT_STATUS)[number];
+
+                  export const accounts = mysqlTable(
+                    "accounts",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      userId: int("user_id")
+                        .references(() => users.id)
+                        .notNull(),
+                      type: mysqlEnum("type", ACCOUNT_TYPES).notNull(),
+                      currency: mysqlEnum("currency", ACCOUNT_CURRENCIES)
+                        .default("NPR")
+                        .notNull(),
+                      status: mysqlEnum("status", ACCOUNT_STATUS).default("active").notNull(),
+                      systemAccount: boolean("system_account").default(false).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("user_id_idx").on(table.userId),
+                      index("status_idx").on(table.status),
+                      index("type_idx").on(table.type)
+                    ]
+                  );
+
+                  // Account types
+                  export type Account = typeof accounts.$inferSelect;
+                  export type NewAccount = typeof accounts.$inferInsert;
+
+              - type: file
+                name: ledger.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    int,
+                    mysqlEnum,
+                    index,
+                    decimal
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+
+                  // Ledger entry types
+                  export const LEDGER_ENTRY_TYPES = ["debit", "credit"] as const;
+                  export type LedgerEntryType = (typeof LEDGER_ENTRY_TYPES)[number];
+
+                  export const ledgers = mysqlTable(
+                    "ledgers",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      accountId: int("account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      transactionId: int("transaction_id")
+                        .references(() => transactions.id)
+                        .notNull(),
+                      entryType: mysqlEnum("entry_type", LEDGER_ENTRY_TYPES).notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("account_id_idx").on(table.accountId),
+                      index("transaction_id_idx").on(table.transactionId),
+                      index("entry_type_idx").on(table.entryType)
+                    ]
+                  );
+
+                  // Ledger types
+                  export type Ledger = typeof ledgers.$inferSelect;
+                  export type NewLedger = typeof ledgers.$inferInsert;                
+
+              - type: file
+                name: relations.ts
+                content: |
+                  import { relations } from "drizzle-orm";
+                  import { accounts } from "./account.schema";
+                  import { transactions } from "./transaction.schema";
+                  import { ledgers } from "./ledger.schema";
+                  import { users } from "./user.schema";
+
+                  // User relations
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    accounts: many(accounts)
+                  }));
+
+                  // Account relations
+                  export const accountsRelations = relations(accounts, ({ one, many }) => ({
+                    user: one(users, {
+                      fields: [accounts.userId],
+                      references: [users.id]
+                    }),
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Transaction relations
+                  export const transactionsRelations = relations(transactions, ({ many }) => ({
+                    ledgers: many(ledgers)
+                  }));
+
+                  // Ledger relations
+                  export const ledgersRelations = relations(ledgers, ({ one }) => ({
+                    account: one(accounts, {
+                      fields: [ledgers.accountId],
+                      references: [accounts.id]
+                    }),
+                    transaction: one(transactions, {
+                      fields: [ledgers.transactionId],
+                      references: [transactions.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+         
+         
+              - type: file
+                name: transaction.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    int,
+                    mysqlEnum,
+                    index,
+                    uniqueIndex,
+                    decimal
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { accounts } from "./account.schema";
+
+                  // Transaction status
+                  export const TRANSACTION_STATUS = [
+                    "pending",
+                    "completed",
+                    "failed",
+                    "reversed"
+                  ] as const;
+                  export type TransactionStatus = (typeof TRANSACTION_STATUS)[number];
+
+                  export const transactions = mysqlTable(
+                    "transactions",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      fromAccountId: int("from_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      toAccountId: int("to_account_id")
+                        .references(() => accounts.id)
+                        .notNull(),
+                      amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+                      status: mysqlEnum("status", TRANSACTION_STATUS)
+                        .default("pending")
+                        .notNull(),
+                      idempotencyKey: varchar("idempotency_key", { length: 255 })
+                        .notNull()
+                        .unique(),
+                      ...timestamps
+                    },
+                    table => [
+                      index("from_account_id_idx").on(table.fromAccountId),
+                      index("to_account_id_idx").on(table.toAccountId),
+                      index("status_idx").on(table.status),
+                      uniqueIndex("idempotency_key_idx").on(table.idempotencyKey)
+                    ]
+                  );
+
+                  // Transaction types
+                  export type Transaction = typeof transactions.$inferSelect;
+                  export type NewTransaction = typeof transactions.$inferInsert;
+
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { relations } from "drizzle-orm";
+                  import { todos } from "./todo.schema";
+                  import { timestamps } from "./schema.helper";
+
+                  export interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    table => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  //? User type
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/ledger.schema";
+              export * from "./schemas/transaction.schema";
+              export * from "./schemas/account.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
 ---
 
 # Banking App (MySQL with Drizzle ORM)
@@ -307,8 +900,40 @@ export const ledgersRelations = relations(ledgers, ({ one }) => ({
 }));
 ```
 
-**Notes:**
+## 6. Export all schemas
 
-- Ledger entries are immutable
-- All update and delete operations are blocked to preserve audit integrity
+All database schemas must be re-exported from a single entry point.
+This allows Drizzle to load every table definition from one file during migration generation.
 
+**File Path:** <Code children="src/drizzle/index.ts" />
+
+```ts
+export * from "./schemas/user.schema";
+export * from "./schemas/ledger.schema";
+export * from "./schemas/transaction.schema";
+export * from "./schemas/account.schema";
+```
+
+
+## 7. drizzle.config.ts
+
+Create a <Code children="drizzle.config.ts" /> file at the project root.
+This file defines how Drizzle connects to the database and where it should read schemas and write migrations.
+
+**File Path:** <Code children="drizzle.config.ts" />
+
+```ts
+import { Config, defineConfig } from "drizzle-kit";
+import env from "./src/configs/env";
+
+export default defineConfig({
+  out: "./src/drizzle/migrations", // Directory where migrations are generated
+  schema: "./src/drizzle/index.ts", // Central schema entry point
+  dialect: "mysql", // Database dialect
+  dbCredentials: {
+    url: env.DATABASE_URL!
+  },
+  verbose: true, // Enable detailed logs
+  strict: true // Enforce strict schema validation
+}) satisfies Config;
+```
