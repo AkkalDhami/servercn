@@ -1,12 +1,14 @@
+import { APP_NAME } from "@/lib/constants";
+import { LucideTerminal } from "lucide-react";
 import Link from "next/link";
 
 export default function Logo() {
   return (
-    <Link href="/" className="relative text-lg font-medium sm:text-xl">
-      <span>ServerCN</span>
-      <span className="bg-foreground text-accent absolute -top-1 -right-10 rounded-md px-1 py-0 text-sm">
-        beta
-      </span>
+    <Link
+      href="/"
+      className="relative flex items-center gap-1 text-lg font-medium sm:text-xl">
+      <span>{APP_NAME}</span>
+      <LucideTerminal className="size-5" />
     </Link>
   );
 }

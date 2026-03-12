@@ -486,7 +486,7 @@ feature_structure:
 A <Code children="global error handler" /> is a core part of any production-ready Express application.  
 It ensures that **all errors—expected or unexpected—are handled consistently**, securely, and predictably.
 
-ServerCN provides a structured approach using:
+Servercn provides a structured approach using:
 
 - <Code children="ApiError" /> for operational errors
 - <Code children="ApiResponse" /> for consistent responses
@@ -495,11 +495,11 @@ ServerCN provides a structured approach using:
 
 ## Installation Guide
 
-This component requires additional ServerCN components.
+This component requires additional Servercn components.
 
 **_👉 Note:_** _You do not need to install any servercn dependencies manually. Installing this component will automatically install all required servercn dependencies. Manual installation is optional if you prefer to manage dependencies yourself._
 
-### 1. Install ServerCN components(Optional)
+### 1. Install Servercn components(Optional)
 
 - **HTTP Status Codes:**
 
@@ -544,7 +544,7 @@ With a global error handler:
 - Clear separation of **operational** vs **programmer** errors
 - Easier logging and monitoring
 
-## Error Flow in ServerCN
+## Error Flow in Servercn
 
 - Route or service throws an error (**ApiError** or native error)
 - Error bubbles through **AsyncHandler**

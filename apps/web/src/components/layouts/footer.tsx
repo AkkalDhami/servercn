@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Route } from "next";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { GiCrossedAxes } from "react-icons/gi";
-import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
+import { APP_NAME, BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
 type FooterLink = {
   title: string;
   href: string;
@@ -28,9 +28,8 @@ export default function Footer() {
             <AnimatedContainer className="w-full max-w-sm min-w-2xs space-y-4">
               <Logo />
               <p className="text-muted-foreground mt-8 text-sm md:mt-4">
-                ServerCN , the backend component registry for Node.js inspired
-                by shadcn/ui. ServerCN standardizes backend patterns so you can
-                focus on business logic, not boilerplate.
+                {APP_NAME} , the backend component registry for node.js inspired
+                by shadcn/ui.
               </p>
             </AnimatedContainer>
             {footerLinkGroups.map((group, index) => (
@@ -66,7 +65,7 @@ export default function Footer() {
           <div className="text-muted-foreground relative flex flex-col items-center justify-between gap-2 border-t py-4 text-sm md:flex-row">
             <div className="via-muted-secondary/40 absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent to-transparent"></div>
             <p>
-              &copy; {new Date().getFullYear()} ServerCN | All rights reserved.
+              &copy; {new Date().getFullYear()} {APP_NAME} | All rights reserved.
             </p>
             <div className="flex items-center flex-wrap gap-2">
               Built with <Weapon /> by
