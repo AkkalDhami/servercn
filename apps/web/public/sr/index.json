@@ -193,6 +193,13 @@
     },
     {
       "type": "schema",
+      "slug": "blog-app",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "schema",
       "slug": "banking-app",
       "frameworks": [
         "express"
