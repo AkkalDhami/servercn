@@ -1,0 +1,967 @@
+---
+title:  Blog App | MySQL (Drizzle) | Schema
+description: A detailed look at the MySQL schema for a modern blog application using Drizzle ORM.
+command: npx servercn-cli add schema blog-app
+
+mvc_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { posts } from "./post.schema";
+                  import { postLikes } from "./post-like.schema";
+                  import { commentLikes } from "./comment-like.schema";
+                  import { comments } from "./comment.schema";
+
+                  interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    posts: many(posts),
+                    postLikes: many(postLikes),
+                    commentLikes: many(commentLikes),
+                    comments: many(comments)
+                  }));
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+              - type: file
+                name: post.schema.ts
+                content: |
+                  import {
+                    index,
+                    int,
+                    json,
+                    mysqlEnum,
+                    mysqlTable,
+                    timestamp,
+                    uniqueIndex,
+                    varchar
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+                  import { relations } from "drizzle-orm";
+                  import { categories } from "./category.schema";
+                  import { postLikes } from "./post-like.schema";
+
+                  const POST_STATUSES = ["draft", "published", "archived"] as const;
+
+                  interface IFile {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export const posts = mysqlTable(
+                    "posts",
+                    {
+                      id: int().primaryKey().autoincrement(),
+                      title: varchar("title", { length: 100 }).notNull(),
+                      slug: varchar("slug").notNull().unique(),
+                      content: varchar("description"),
+                      excerpt: varchar("excerpt"),
+                      authorId: int("author_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      categoryId: int("category_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tags: json("tags").$type<string[]>(),
+                      featuredImage: json("featured_image").$type<IFile>(),
+                      views: int("views").default(0).notNull(),
+                      status: mysqlEnum("status", POST_STATUSES).default("draft").notNull(),
+                      publishedAt: timestamp("published_at"),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("author_id_slug_unique").on(table.authorId, table.slug),
+                      index("category_idx").on(table.categoryId),
+                      index("status_idx").on(table.status)
+                    ]
+                  );
+
+                  export const postsRelations = relations(posts, ({ one, many }) => ({
+                    author: one(users, {
+                      fields: [posts.authorId],
+                      references: [users.id]
+                    }),
+                    category: one(categories, {
+                      fields: [posts.categoryId],
+                      references: [categories.id]
+                    }),
+                    postLikes: many(postLikes)
+                  }));
+
+                  export type NewPost = typeof posts.$inferInsert;
+                  export type Post = typeof posts.$inferSelect;
+
+              - type: file
+                name: category.schema.ts
+                content: |
+                  import { int, mysqlTable, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { posts } from "./post.schema";
+
+                  export const categories = mysqlTable(
+                    "categories",
+                    {
+                      id: int().primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      slug: varchar("slug").notNull().unique(),
+                      description: varchar("description"),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("slug_idx").on(table.slug),
+                      uniqueIndex("name_idx").on(table.name)
+                    ]
+                  );
+
+                  export const categoriesRelations = relations(categories, ({ many }) => ({
+                    posts: many(posts)
+                  }));
+
+                  export type NewCategory = typeof categories.$inferInsert;
+                  export type Category = typeof categories.$inferSelect;
+
+              - type: file
+                name: comment.schema.ts
+                content: |
+                  import { mysqlTable, int, text } from "drizzle-orm/mysql-core";
+                  import { posts } from "./post.schema";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { commentLikes } from "./comment-like.schema";
+
+                  export const comments = mysqlTable("comments", {
+                    id: int("id").primaryKey().autoincrement(),
+                    postId: int("post_id")
+                      .notNull()
+                      .references(() => posts.id),
+                    authorId: int("author_id")
+                      .notNull()
+                      .references(() => users.id),
+                    content: text("content").notNull(),
+                    parentCommentId: int("parent_comment_id"),
+                    ...timestamps
+                  });
+
+                  export const commentsRelations = relations(comments, ({ one, many }) => ({
+                    post: one(posts, {
+                      fields: [comments.postId],
+                      references: [posts.id]
+                    }),
+                    author: one(users, {
+                      fields: [comments.authorId],
+                      references: [users.id]
+                    }),
+                    parentComment: one(comments, {
+                      fields: [comments.parentCommentId],
+                      references: [comments.id]
+                    }),
+                    replies: many(comments),
+                    likes: many(commentLikes)
+                  }));
+
+              - type: file
+                name: post-like.schema.ts
+                content: |
+                  import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+                  import { users } from "./user.schema";
+                  import { posts } from "./post.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+
+                  export const postLikes = mysqlTable(
+                    "post_likes",
+                    {
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      postId: int("post_id")
+                        .references(() => posts.id, { onDelete: "cascade" })
+                        .notNull(),
+                      ...timestamps
+                    },
+                    (table) => [uniqueIndex("unique_like").on(table.userId, table.postId)]
+                  );
+
+                  export const postLikesRelations = relations(postLikes, ({ one }) => ({
+                    user: one(users, {
+                      fields: [postLikes.userId],
+                      references: [users.id]
+                    }),
+                    post: one(posts, {
+                      fields: [postLikes.postId],
+                      references: [posts.id]
+                    })
+                  }));
+
+              - type: file
+                name: comment-like.schema.ts
+                content: |
+                  import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+                  import { comments } from "./comment.schema";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+
+                  export const commentLikes = mysqlTable(
+                    "comment_likes",
+                    {
+                      userId: int("user_id")
+                        .notNull()
+                        .references(() => users.id),
+                      commentId: int("comment_id")
+                        .notNull()
+                        .references(() => comments.id),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("unique_comment_like").on(table.userId, table.commentId)
+                    ]
+                  );
+
+                  export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
+                    user: one(users, {
+                      fields: [commentLikes.userId],
+                      references: [users.id]
+                    }),
+                    comment: one(comments, {
+                      fields: [commentLikes.commentId],
+                      references: [comments.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/post.schema";
+              export * from "./schemas/category.schema";
+              export * from "./schemas/comment.schema";
+              export * from "./schemas/post-like.schema";
+              export * from "./schemas/comment-like.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+feature_structure:
+  - type: folder
+    name: src
+    children:
+      - type: folder
+        name: drizzle
+        children:
+          - type: folder
+            name: schemas
+            children:
+              - type: file
+                name: user.schema.ts
+                content: |
+                  import {
+                    mysqlTable,
+                    varchar,
+                    boolean,
+                    timestamp,
+                    int,
+                    json,
+                    uniqueIndex,
+                    index,
+                    mysqlEnum
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { posts } from "./post.schema";
+                  import { postLikes } from "./post-like.schema";
+                  import { commentLikes } from "./comment-like.schema";
+                  import { comments } from "./comment.schema";
+
+                  interface IAvatar {
+                    public_id?: string;
+                    url: string;
+                    size?: number;
+                  }
+
+                  export const users = mysqlTable(
+                    "users",
+                    {
+                      id: int("id").primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      email: varchar("email", { length: 255 }).notNull().unique(),
+                      password: varchar("password", { length: 255 }),
+                      role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+                      provider: mysqlEnum("provider", ["local", "google", "github"])
+                        .default("local")
+                        .notNull(),
+                      providerId: varchar("provider_id", { length: 255 }),
+
+                      avatar: json("avatar").$type<IAvatar>(),
+
+                      isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+                      lastLoginAt: timestamp("last_login_at"),
+                      failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+                      lockUntil: timestamp("lock_until"),
+
+                      isDeleted: boolean("is_deleted").default(false).notNull(),
+                      deletedAt: timestamp("deleted_at"),
+                      reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("email_idx").on(table.email),
+                      index("role_idx").on(table.role),
+                      index("is_deleted_idx").on(table.isDeleted)
+                    ]
+                  );
+
+                  export const usersRelations = relations(users, ({ many }) => ({
+                    posts: many(posts),
+                    postLikes: many(postLikes),
+                    commentLikes: many(commentLikes),
+                    comments: many(comments)
+                  }));
+
+                  export type User = typeof users.$inferSelect;
+                  export type NewUser = typeof users.$inferInsert;
+
+              - type: file
+                name: post.schema.ts
+                content: |
+                  import {
+                    index,
+                    int,
+                    json,
+                    mysqlEnum,
+                    mysqlTable,
+                    timestamp,
+                    uniqueIndex,
+                    varchar
+                  } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { users } from "./user.schema";
+                  import { relations } from "drizzle-orm";
+                  import { categories } from "./category.schema";
+                  import { postLikes } from "./post-like.schema";
+
+                  const POST_STATUSES = ["draft", "published", "archived"] as const;
+
+                  interface IFile {
+                    public_id: string;
+                    url: string;
+                    size: number;
+                  }
+
+                  export const posts = mysqlTable(
+                    "posts",
+                    {
+                      id: int().primaryKey().autoincrement(),
+                      title: varchar("title", { length: 100 }).notNull(),
+                      slug: varchar("slug").notNull().unique(),
+                      content: varchar("description"),
+                      excerpt: varchar("excerpt"),
+                      authorId: int("author_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      categoryId: int("category_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      tags: json("tags").$type<string[]>(),
+                      featuredImage: json("featured_image").$type<IFile>(),
+                      views: int("views").default(0).notNull(),
+                      status: mysqlEnum("status", POST_STATUSES).default("draft").notNull(),
+                      publishedAt: timestamp("published_at"),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("author_id_slug_unique").on(table.authorId, table.slug),
+                      index("category_idx").on(table.categoryId),
+                      index("status_idx").on(table.status)
+                    ]
+                  );
+
+                  export const postsRelations = relations(posts, ({ one, many }) => ({
+                    author: one(users, {
+                      fields: [posts.authorId],
+                      references: [users.id]
+                    }),
+                    category: one(categories, {
+                      fields: [posts.categoryId],
+                      references: [categories.id]
+                    }),
+                    postLikes: many(postLikes)
+                  }));
+
+                  export type NewPost = typeof posts.$inferInsert;
+                  export type Post = typeof posts.$inferSelect;
+
+              - type: file
+                name: category.schema.ts
+                content: |
+                  import { int, mysqlTable, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { posts } from "./post.schema";
+
+                  export const categories = mysqlTable(
+                    "categories",
+                    {
+                      id: int().primaryKey().autoincrement(),
+                      name: varchar("name", { length: 100 }).notNull(),
+                      slug: varchar("slug").notNull().unique(),
+                      description: varchar("description"),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("slug_idx").on(table.slug),
+                      uniqueIndex("name_idx").on(table.name)
+                    ]
+                  );
+
+                  export const categoriesRelations = relations(categories, ({ many }) => ({
+                    posts: many(posts)
+                  }));
+
+                  export type NewCategory = typeof categories.$inferInsert;
+                  export type Category = typeof categories.$inferSelect;
+
+              - type: file
+                name: comment.schema.ts
+                content: |
+                  import { mysqlTable, int, text } from "drizzle-orm/mysql-core";
+                  import { posts } from "./post.schema";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+                  import { commentLikes } from "./comment-like.schema";
+
+                  export const comments = mysqlTable("comments", {
+                    id: int("id").primaryKey().autoincrement(),
+                    postId: int("post_id")
+                      .notNull()
+                      .references(() => posts.id),
+                    authorId: int("author_id")
+                      .notNull()
+                      .references(() => users.id),
+                    content: text("content").notNull(),
+                    parentCommentId: int("parent_comment_id"),
+                    ...timestamps
+                  });
+
+                  export const commentsRelations = relations(comments, ({ one, many }) => ({
+                    post: one(posts, {
+                      fields: [comments.postId],
+                      references: [posts.id]
+                    }),
+                    author: one(users, {
+                      fields: [comments.authorId],
+                      references: [users.id]
+                    }),
+                    parentComment: one(comments, {
+                      fields: [comments.parentCommentId],
+                      references: [comments.id]
+                    }),
+                    replies: many(comments),
+                    likes: many(commentLikes)
+                  }));
+
+              - type: file
+                name: post-like.schema.ts
+                content: |
+                  import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+                  import { users } from "./user.schema";
+                  import { posts } from "./post.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+
+                  export const postLikes = mysqlTable(
+                    "post_likes",
+                    {
+                      userId: int("user_id")
+                        .references(() => users.id, { onDelete: "cascade" })
+                        .notNull(),
+                      postId: int("post_id")
+                        .references(() => posts.id, { onDelete: "cascade" })
+                        .notNull(),
+                      ...timestamps
+                    },
+                    (table) => [uniqueIndex("unique_like").on(table.userId, table.postId)]
+                  );
+
+                  export const postLikesRelations = relations(postLikes, ({ one }) => ({
+                    user: one(users, {
+                      fields: [postLikes.userId],
+                      references: [users.id]
+                    }),
+                    post: one(posts, {
+                      fields: [postLikes.postId],
+                      references: [posts.id]
+                    })
+                  }));
+
+              - type: file
+                name: comment-like.schema.ts
+                content: |
+                  import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+                  import { comments } from "./comment.schema";
+                  import { users } from "./user.schema";
+                  import { timestamps } from "./schema.helper";
+                  import { relations } from "drizzle-orm";
+
+                  export const commentLikes = mysqlTable(
+                    "comment_likes",
+                    {
+                      userId: int("user_id")
+                        .notNull()
+                        .references(() => users.id),
+                      commentId: int("comment_id")
+                        .notNull()
+                        .references(() => comments.id),
+                      ...timestamps
+                    },
+                    (table) => [
+                      uniqueIndex("unique_comment_like").on(table.userId, table.commentId)
+                    ]
+                  );
+
+                  export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
+                    user: one(users, {
+                      fields: [commentLikes.userId],
+                      references: [users.id]
+                    }),
+                    comment: one(comments, {
+                      fields: [commentLikes.commentId],
+                      references: [comments.id]
+                    })
+                  }));
+
+              - type: file
+                name: schema.helper.ts
+                content: |
+                  import { timestamp } from "drizzle-orm/mysql-core";
+
+                  export const timestamps = {
+                    createdAt: timestamp("created_at").defaultNow().notNull(),
+                    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull()
+                  };
+
+          - type: file
+            name: index.ts
+            content: |
+              export * from "./schemas/user.schema";
+              export * from "./schemas/post.schema";
+              export * from "./schemas/category.schema";
+              export * from "./schemas/comment.schema";
+              export * from "./schemas/post-like.schema";
+              export * from "./schemas/comment-like.schema";
+
+  - type: file
+    name: drizzle.config.ts
+    content: |
+      import { Config, defineConfig } from "drizzle-kit";
+
+      export default defineConfig({
+        out: "./src/drizzle/migrations",
+        schema: "./src/drizzle/index.ts",
+        dialect: "mysql",
+        dbCredentials: {
+          url: process.env.DATABASE_URL!
+        },
+        verbose: true,
+        strict: true
+      }) satisfies Config;
+
+---
+
+# Blog App (MySQL with Drizzle ORM)
+
+This document outlines the MySQL database schema for a sample blog application. The schema is designed to be efficient, scalable, and easy to understand. We use **Drizzle ORM** for defining our data models with TypeScript.
+
+The core of our application revolves around six main tables: <Code>User</Code>, <Code>Post</Code>, <Code>Category</Code>, <Code>Comment</Code>, <Code>PostLike</Code>, and <Code>CommentLike</Code>.
+
+## Installation Guide
+
+To add these schemas to your project, run:
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app" />
+
+<Note text="If you install schema individually, the relationships between them won't be automatic—you'll need to implement them manually." />
+
+## 1. User Schema
+
+The <Code>User</Code> schema stores essential information about blog authors and administrators, including authentication details and profile information.
+
+**Path:** <Code>src/drizzle/schemas/user.schema.ts</Code>
+
+```ts
+import {
+  mysqlTable,
+  varchar,
+  boolean,
+  timestamp,
+  int,
+  json,
+  uniqueIndex,
+  index,
+  mysqlEnum
+} from "drizzle-orm/mysql-core";
+import { timestamps } from "./schema.helper";
+
+interface IAvatar {
+  public_id?: string;
+  url: string;
+  size?: number;
+}
+
+export const users = mysqlTable(
+  "users",
+  {
+    id: int("id").primaryKey().autoincrement(),
+    name: varchar("name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }),
+    role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+
+    provider: mysqlEnum("provider", ["local", "google", "github"])
+      .default("local")
+      .notNull(),
+    providerId: varchar("provider_id", { length: 255 }),
+
+    avatar: json("avatar").$type<IAvatar>(),
+
+    isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+    lastLoginAt: timestamp("last_login_at"),
+    failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+    lockUntil: timestamp("lock_until"),
+
+    isDeleted: boolean("is_deleted").default(false).notNull(),
+    deletedAt: timestamp("deleted_at"),
+    reActivateAvailableAt: timestamp("re_activate_available_at"),
+
+    ...timestamps
+  },
+  (table) => [
+    uniqueIndex("email_idx").on(table.email),
+    index("role_idx").on(table.role),
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
+);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/user" />
+
+## 2. Post Schema
+
+The <Code>Post</Code> schema stores blog posts with support for titles, content, excerpts, featured images, and publication status.
+
+**Path:** <Code>src/drizzle/schemas/post.schema.ts</Code>
+
+```ts
+import {
+  index,
+  int,
+  json,
+  mysqlEnum,
+  mysqlTable,
+  timestamp,
+  uniqueIndex,
+  varchar
+} from "drizzle-orm/mysql-core";
+import { timestamps } from "./schema.helper";
+import { users } from "./user.schema";
+import { categories } from "./category.schema";
+
+const POST_STATUSES = ["draft", "published", "archived"] as const;
+
+interface IFile {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export const posts = mysqlTable(
+  "posts",
+  {
+    id: int().primaryKey().autoincrement(),
+    title: varchar("title", { length: 100 }).notNull(),
+    slug: varchar("slug").notNull().unique(),
+    content: varchar("description"),
+    excerpt: varchar("excerpt"),
+    authorId: int("author_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    categoryId: int("category_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    tags: json("tags").$type<string[]>(),
+    featuredImage: json("featured_image").$type<IFile>(),
+    views: int("views").default(0).notNull(),
+    status: mysqlEnum("status", POST_STATUSES).default("draft").notNull(),
+    publishedAt: timestamp("published_at"),
+    ...timestamps
+  },
+  (table) => [
+    uniqueIndex("author_id_slug_unique").on(table.authorId, table.slug),
+    index("category_idx").on(table.categoryId),
+    index("status_idx").on(table.status)
+  ]
+);
+
+export type NewPost = typeof posts.$inferInsert;
+export type Post = typeof posts.$inferSelect;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/post" />
+
+## 3. Category Schema
+
+The <Code>Category</Code> schema organizes blog posts into hierarchical categories with names, slugs, and descriptions.
+
+**Path:** <Code>src/drizzle/schemas/category.schema.ts</Code>
+
+```ts
+import { int, mysqlTable, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { timestamps } from "./schema.helper";
+
+export const categories = mysqlTable(
+  "categories",
+  {
+    id: int().primaryKey().autoincrement(),
+    name: varchar("name", { length: 100 }).notNull(),
+    slug: varchar("slug").notNull().unique(),
+    description: varchar("description"),
+    ...timestamps
+  },
+  (table) => [
+    uniqueIndex("slug_idx").on(table.slug),
+    uniqueIndex("name_idx").on(table.name)
+  ]
+);
+
+export type NewCategory = typeof categories.$inferInsert;
+export type Category = typeof categories.$inferSelect;
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/category" />
+
+## 4. Comment Schema
+
+The <Code>Comment</Code> schema enables user engagement through comments on blog posts, with support for nested replies.
+
+**Path:** <Code>src/drizzle/schemas/comment.schema.ts</Code>
+
+```ts
+import { mysqlTable, int, text } from "drizzle-orm/mysql-core";
+import { posts } from "./post.schema";
+import { users } from "./user.schema";
+import { timestamps } from "./schema.helper";
+
+export const comments = mysqlTable("comments", {
+  id: int("id").primaryKey().autoincrement(),
+  postId: int("post_id")
+    .notNull()
+    .references(() => posts.id),
+  authorId: int("author_id")
+    .notNull()
+    .references(() => users.id),
+  content: text("content").notNull(),
+  parentCommentId: int("parent_comment_id"),
+  ...timestamps
+});
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment" />
+
+## 5. Post Like Schema
+
+The <Code>PostLike</Code> schema tracks user likes on blog posts with a composite unique index.
+
+**Path:** <Code>src/drizzle/schemas/post-like.schema.ts</Code>
+
+```ts
+import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+import { users } from "./user.schema";
+import { posts } from "./post.schema";
+import { timestamps } from "./schema.helper";
+
+export const postLikes = mysqlTable(
+  "post_likes",
+  {
+    userId: int("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    postId: int("post_id")
+      .references(() => posts.id, { onDelete: "cascade" })
+      .notNull(),
+    ...timestamps
+  },
+  (table) => [uniqueIndex("unique_like").on(table.userId, table.postId)]
+);
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/post-like" />
+
+## 6. Comment Like Schema
+
+The <Code>CommentLike</Code> schema tracks user likes on comments with a composite unique index.
+
+**Path:** <Code>src/drizzle/schemas/comment-like.schema.ts</Code>
+
+```ts
+import { mysqlTable, int, uniqueIndex } from "drizzle-orm/mysql-core";
+import { comments } from "./comment.schema";
+import { users } from "./user.schema";
+import { timestamps } from "./schema.helper";
+
+export const commentLikes = mysqlTable(
+  "comment_likes",
+  {
+    userId: int("user_id")
+      .notNull()
+      .references(() => users.id),
+    commentId: int("comment_id")
+      .notNull()
+      .references(() => comments.id),
+    ...timestamps
+  },
+  (table) => [
+    uniqueIndex("unique_comment_like").on(table.userId, table.commentId)
+  ]
+);
+```
+
+#### Installation
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment-like" />
+
+## 7. Export all schemas
+
+All database schemas must be re-exported from a single entry point.
+This allows Drizzle to load every table definition from one file during migration generation.
+
+**File Path:** <Code children="src/drizzle/index.ts" />
+
+```ts
+export * from "./schemas/user.schema";
+export * from "./schemas/post.schema";
+export * from "./schemas/category.schema";
+export * from "./schemas/comment.schema";
+export * from "./schemas/post-like.schema";
+export * from "./schemas/comment-like.schema";
+```
+
+## 8. drizzle.config.ts
+
+Create a <Code children="drizzle.config.ts" /> file at the project root.
+This file defines how Drizzle connects to the database and where it should read schemas and write migrations.
+
+**File Path:** <Code children="drizzle.config.ts" />
+
+```ts
+import { Config, defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  out: "./src/drizzle/migrations",
+  schema: "./src/drizzle/index.ts",
+  dialect: "mysql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!
+  },
+  verbose: true,
+  strict: true
+}) satisfies Config;
+```
+

@@ -487,6 +487,31 @@
           }
         ]
       }
+    },
+    {
+      "slug": "blog-app",
+      "title": "Blog Application",
+      "description": "A production-ready Blog schema with support for MongoDB, PostgreSQL, and MySQL.",
+      "type": "schema",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/schemas/blog-app",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "blog-app-mongodb"
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "blog-app-mysql"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "blog-app-postgresql"
+          }
+        ]
+      }
     }
   ]
 }
