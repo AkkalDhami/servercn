@@ -321,8 +321,325 @@
                     }
                   },
                   "dependencies": {
-                    "runtime": ["mysql2", "drizzle-orm"],
-                    "dev": ["drizzle-kit"]
+                    "runtime": [
+                      "mysql2",
+                      "drizzle-orm"
+                    ],
+                    "dev": [
+                      "drizzle-kit"
+                    ]
+                  }
+                }
+              }
+            },
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "architectures": {
+                        "mvc": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";\nexport * from \"./schemas/ledger.schema\";\nexport * from \"./schemas/transaction.schema\";\nexport * from \"./schemas/account.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  jsonb,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\", { mode: \"string\" }).defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\", { mode: \"string\" })\n    .defaultNow()\n    .$onUpdate(() => new Date().toISOString())\n    .notNull()\n};\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    // OAuth Provider\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    // Profile\n    avatar: jsonb(\"avatar\").$type<IAvatar>(),\n\n    // Auth Metadata\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    // Soft Delete\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    //? Timestamps\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"provider_idx\").on(table.provider, table.providerId),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/transaction.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  varchar,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  uniqueIndex,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { accounts } from \"./account.schema\";\r\n\r\n// Transaction status\r\nexport const TRANSACTION_STATUS = [\r\n  \"pending\",\r\n  \"completed\",\r\n  \"failed\",\r\n  \"reversed\"\r\n] as const;\r\n\r\nconst statusEnum = pgEnum(\"status\", TRANSACTION_STATUS);\r\n\r\nexport const transactions = pgTable(\r\n  \"transactions\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    fromAccountId: serial(\"from_account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    toAccountId: serial(\"to_account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    status: statusEnum(\"status\").default(\"pending\").notNull(),\r\n    idempotencyKey: varchar(\"idempotency_key\", { length: 255 })\r\n      .notNull()\r\n      .unique(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"from_account_id_idx\").on(table.fromAccountId),\r\n    index(\"to_account_id_idx\").on(table.toAccountId),\r\n    index(\"status_idx\").on(table.status),\r\n    uniqueIndex(\"idempotency_key_idx\").on(table.idempotencyKey)\r\n  ]\r\n);\r\n\r\n// Transaction types\r\nexport type Transaction = typeof transactions.$inferSelect;\r\nexport type NewTransaction = typeof transactions.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/relations.ts",
+                              "content": "import { relations } from \"drizzle-orm\";\r\nimport { accounts } from \"./account.schema\";\r\nimport { transactions } from \"./transaction.schema\";\r\nimport { ledgers } from \"./ledger.schema\";\r\nimport { users } from \"./user.schema\";\r\n\r\n// User relations\r\nexport const usersRelations = relations(users, ({ many }) => ({\r\n  accounts: many(accounts)\r\n}));\r\n\r\n// Account relations\r\nexport const accountsRelations = relations(accounts, ({ one, many }) => ({\r\n  user: one(users, {\r\n    fields: [accounts.userId],\r\n    references: [users.id]\r\n  }),\r\n  ledgers: many(ledgers)\r\n}));\r\n\r\n// Transaction relations\r\nexport const transactionsRelations = relations(transactions, ({ many }) => ({\r\n  ledgers: many(ledgers)\r\n}));\r\n\r\n// Ledger relations\r\nexport const ledgersRelations = relations(ledgers, ({ one }) => ({\r\n  account: one(accounts, {\r\n    fields: [ledgers.accountId],\r\n    references: [accounts.id]\r\n  }),\r\n  transaction: one(transactions, {\r\n    fields: [ledgers.transactionId],\r\n    references: [transactions.id]\r\n  })\r\n}));\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/ledger.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { accounts } from \"./account.schema\";\r\nimport { transactions } from \"./transaction.schema\";\r\n\r\n// Ledger entry types\r\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\r\n\r\nconst entryTypeEnum = pgEnum(\"entry_type\", LEDGER_ENTRY_TYPES);\r\n\r\nexport const ledgers = pgTable(\r\n  \"ledgers\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    accountId: serial(\"account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    transactionId: serial(\"transaction_id\")\r\n      .references(() => transactions.id)\r\n      .notNull(),\r\n    entryType: entryTypeEnum(\"entry_type\").notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"account_id_idx\").on(table.accountId),\r\n    index(\"transaction_id_idx\").on(table.transactionId),\r\n    index(\"entry_type_idx\").on(table.entryType)\r\n  ]\r\n);\r\n\r\n// Ledger types\r\nexport type Ledger = typeof ledgers.$inferSelect;\r\nexport type NewLedger = typeof ledgers.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/account.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  boolean,\r\n  index,\r\n  serial,\r\n  pgEnum\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { users } from \"./user.schema\";\r\n\r\nexport const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\r\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\r\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\r\n\r\nconst currencyEnum = pgEnum(\"currency\", ACCOUNT_CURRENCIES);\r\nconst accountTypeEnum = pgEnum(\"type\", ACCOUNT_TYPES);\r\nconst statusEnum = pgEnum(\"status\", ACCOUNT_STATUS);\r\n\r\n\r\nexport const accounts = pgTable(\r\n  \"accounts\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    userId: serial(\"user_id\")\r\n      .notNull()\r\n      .references(() => users.id),\r\n    currency: currencyEnum(\"currency\").notNull().default(\"NPR\"),\r\n    type: accountTypeEnum(\"type\").notNull().default(\"savings\"),\r\n    status: statusEnum(\"status\").default(\"active\").notNull(),\r\n    systemAccount: boolean(\"system_account\").default(false).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"user_id_idx\").on(table.userId),\r\n    index(\"status_idx\").on(table.status),\r\n    index(\"type_idx\").on(table.type)\r\n  ]\r\n);\r\n\r\n// Account types\r\nexport type Account = typeof accounts.$inferSelect;\r\nexport type NewAccount = typeof accounts.$inferInsert;\r\n"
+                            }
+                          ]
+                        },
+                        "feature": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";\nexport * from \"./schemas/ledger.schema\";\nexport * from \"./schemas/transaction.schema\";\nexport * from \"./schemas/account.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  jsonb,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\", { mode: \"string\" }).defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\", { mode: \"string\" })\n    .defaultNow()\n    .$onUpdate(() => new Date().toISOString())\n    .notNull()\n};\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    // OAuth Provider\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    // Profile\n    avatar: jsonb(\"avatar\").$type<IAvatar>(),\n\n    // Auth Metadata\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    // Soft Delete\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    //? Timestamps\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"provider_idx\").on(table.provider, table.providerId),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/transaction.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  varchar,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  uniqueIndex,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { accounts } from \"./account.schema\";\r\n\r\n// Transaction status\r\nexport const TRANSACTION_STATUS = [\r\n  \"pending\",\r\n  \"completed\",\r\n  \"failed\",\r\n  \"reversed\"\r\n] as const;\r\n\r\nconst statusEnum = pgEnum(\"status\", TRANSACTION_STATUS);\r\n\r\nexport const transactions = pgTable(\r\n  \"transactions\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    fromAccountId: serial(\"from_account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    toAccountId: serial(\"to_account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    status: statusEnum(\"status\").default(\"pending\").notNull(),\r\n    idempotencyKey: varchar(\"idempotency_key\", { length: 255 })\r\n      .notNull()\r\n      .unique(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"from_account_id_idx\").on(table.fromAccountId),\r\n    index(\"to_account_id_idx\").on(table.toAccountId),\r\n    index(\"status_idx\").on(table.status),\r\n    uniqueIndex(\"idempotency_key_idx\").on(table.idempotencyKey)\r\n  ]\r\n);\r\n\r\n// Transaction types\r\nexport type Transaction = typeof transactions.$inferSelect;\r\nexport type NewTransaction = typeof transactions.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/relations.ts",
+                              "content": "import { relations } from \"drizzle-orm\";\r\nimport { accounts } from \"./account.schema\";\r\nimport { transactions } from \"./transaction.schema\";\r\nimport { ledgers } from \"./ledger.schema\";\r\nimport { users } from \"./user.schema\";\r\n\r\n// User relations\r\nexport const usersRelations = relations(users, ({ many }) => ({\r\n  accounts: many(accounts)\r\n}));\r\n\r\n// Account relations\r\nexport const accountsRelations = relations(accounts, ({ one, many }) => ({\r\n  user: one(users, {\r\n    fields: [accounts.userId],\r\n    references: [users.id]\r\n  }),\r\n  ledgers: many(ledgers)\r\n}));\r\n\r\n// Transaction relations\r\nexport const transactionsRelations = relations(transactions, ({ many }) => ({\r\n  ledgers: many(ledgers)\r\n}));\r\n\r\n// Ledger relations\r\nexport const ledgersRelations = relations(ledgers, ({ one }) => ({\r\n  account: one(accounts, {\r\n    fields: [ledgers.accountId],\r\n    references: [accounts.id]\r\n  }),\r\n  transaction: one(transactions, {\r\n    fields: [ledgers.transactionId],\r\n    references: [transactions.id]\r\n  })\r\n}));\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/ledger.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { accounts } from \"./account.schema\";\r\nimport { transactions } from \"./transaction.schema\";\r\n\r\n// Ledger entry types\r\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\r\n\r\nconst entryTypeEnum = pgEnum(\"entry_type\", LEDGER_ENTRY_TYPES);\r\n\r\nexport const ledgers = pgTable(\r\n  \"ledgers\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    accountId: serial(\"account_id\")\r\n      .references(() => accounts.id)\r\n      .notNull(),\r\n    transactionId: serial(\"transaction_id\")\r\n      .references(() => transactions.id)\r\n      .notNull(),\r\n    entryType: entryTypeEnum(\"entry_type\").notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"account_id_idx\").on(table.accountId),\r\n    index(\"transaction_id_idx\").on(table.transactionId),\r\n    index(\"entry_type_idx\").on(table.entryType)\r\n  ]\r\n);\r\n\r\n// Ledger types\r\nexport type Ledger = typeof ledgers.$inferSelect;\r\nexport type NewLedger = typeof ledgers.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/account.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  boolean,\r\n  index,\r\n  serial,\r\n  pgEnum\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\nimport { users } from \"./user.schema\";\r\n\r\nexport const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\r\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\r\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\r\n\r\nconst currencyEnum = pgEnum(\"currency\", ACCOUNT_CURRENCIES);\r\nconst accountTypeEnum = pgEnum(\"type\", ACCOUNT_TYPES);\r\nconst statusEnum = pgEnum(\"status\", ACCOUNT_STATUS);\r\n\r\n\r\nexport const accounts = pgTable(\r\n  \"accounts\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    userId: serial(\"user_id\")\r\n      .notNull()\r\n      .references(() => users.id),\r\n    currency: currencyEnum(\"currency\").notNull().default(\"NPR\"),\r\n    type: accountTypeEnum(\"type\").notNull().default(\"savings\"),\r\n    status: statusEnum(\"status\").default(\"active\").notNull(),\r\n    systemAccount: boolean(\"system_account\").default(false).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"user_id_idx\").on(table.userId),\r\n    index(\"status_idx\").on(table.status),\r\n    index(\"type_idx\").on(table.type)\r\n  ]\r\n);\r\n\r\n// Account types\r\nexport type Account = typeof accounts.$inferSelect;\r\nexport type NewAccount = typeof accounts.$inferInsert;\r\n"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "account": {
+                      "architectures": {
+                        "mvc": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/account.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/account.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  boolean,\r\n  index,\r\n  serial,\r\n  pgEnum\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\nexport const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\r\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\r\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\r\n\r\nconst currencyEnum = pgEnum(\"currency\", ACCOUNT_CURRENCIES);\r\nconst accountTypeEnum = pgEnum(\"type\", ACCOUNT_TYPES);\r\nconst statusEnum = pgEnum(\"status\", ACCOUNT_STATUS);\r\n\r\n\r\nexport const accounts = pgTable(\r\n  \"accounts\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    userId: serial(\"user_id\")\r\n    // .references(() => users.id),\r\n    .notNull(),\r\n    currency: currencyEnum(\"currency\").notNull().default(\"NPR\"),\r\n    type: accountTypeEnum(\"type\").notNull().default(\"savings\"),\r\n    status: statusEnum(\"status\").default(\"active\").notNull(),\r\n    systemAccount: boolean(\"system_account\").default(false).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"user_id_idx\").on(table.userId),\r\n    index(\"status_idx\").on(table.status),\r\n    index(\"type_idx\").on(table.type)\r\n  ]\r\n);\r\n\r\n// Account types\r\nexport type Account = typeof accounts.$inferSelect;\r\nexport type NewAccount = typeof accounts.$inferInsert;\r\n"
+                            }
+                          ]
+                        },
+                        "feature": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/account.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/account.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  boolean,\r\n  index,\r\n  serial,\r\n  pgEnum\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\nexport const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\r\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\r\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\r\n\r\nconst currencyEnum = pgEnum(\"currency\", ACCOUNT_CURRENCIES);\r\nconst accountTypeEnum = pgEnum(\"type\", ACCOUNT_TYPES);\r\nconst statusEnum = pgEnum(\"status\", ACCOUNT_STATUS);\r\n\r\n\r\nexport const accounts = pgTable(\r\n  \"accounts\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    userId: serial(\"user_id\")\r\n    // .references(() => users.id),\r\n    .notNull(),\r\n    currency: currencyEnum(\"currency\").notNull().default(\"NPR\"),\r\n    type: accountTypeEnum(\"type\").notNull().default(\"savings\"),\r\n    status: statusEnum(\"status\").default(\"active\").notNull(),\r\n    systemAccount: boolean(\"system_account\").default(false).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"user_id_idx\").on(table.userId),\r\n    index(\"status_idx\").on(table.status),\r\n    index(\"type_idx\").on(table.type)\r\n  ]\r\n);\r\n\r\n// Account types\r\nexport type Account = typeof accounts.$inferSelect;\r\nexport type NewAccount = typeof accounts.$inferInsert;\r\n"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "user": {
+                      "architectures": {
+                        "mvc": {
+                          "files": []
+                        },
+                        "feature": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";"
+                            },
+                            {
+                              "type": "file",
+                              "path": "feature/drizzle/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";"
+                            },
+                            {
+                              "type": "file",
+                              "path": "feature/drizzle/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  jsonb,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\", { mode: \"string\" }).defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\", { mode: \"string\" })\n    .defaultNow()\n    .$onUpdate(() => new Date().toISOString())\n    .notNull()\n};\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    // OAuth Provider\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    // Profile\n    avatar: jsonb(\"avatar\").$type<IAvatar>(),\n\n    // Auth Metadata\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    // Soft Delete\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    //? Timestamps\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"provider_idx\").on(table.provider, table.providerId),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "feature/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  jsonb,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\", { mode: \"string\" }).defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\", { mode: \"string\" })\n    .defaultNow()\n    .$onUpdate(() => new Date().toISOString())\n    .notNull()\n};\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    // OAuth Provider\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    // Profile\n    avatar: jsonb(\"avatar\").$type<IAvatar>(),\n\n    // Auth Metadata\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    // Soft Delete\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    //? Timestamps\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"provider_idx\").on(table.provider, table.providerId),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "transaction": {
+                      "architectures": {
+                        "mvc": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/transaction.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/transaction.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  varchar,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  uniqueIndex,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\n// Transaction status\r\nexport const TRANSACTION_STATUS = [\r\n  \"pending\",\r\n  \"completed\",\r\n  \"failed\",\r\n  \"reversed\"\r\n] as const;\r\n\r\nconst statusEnum = pgEnum(\"status\", TRANSACTION_STATUS);\r\n\r\nexport const transactions = pgTable(\r\n  \"transactions\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    fromAccountId: serial(\"from_account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    toAccountId: serial(\"to_account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    status: statusEnum(\"status\").default(\"pending\").notNull(),\r\n    idempotencyKey: varchar(\"idempotency_key\", { length: 255 })\r\n      .notNull()\r\n      .unique(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"from_account_id_idx\").on(table.fromAccountId),\r\n    index(\"to_account_id_idx\").on(table.toAccountId),\r\n    index(\"status_idx\").on(table.status),\r\n    uniqueIndex(\"idempotency_key_idx\").on(table.idempotencyKey)\r\n  ]\r\n);\r\n\r\n// Transaction types\r\nexport type Transaction = typeof transactions.$inferSelect;\r\nexport type NewTransaction = typeof transactions.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            }
+                          ]
+                        },
+                        "feature": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/transaction.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/transaction.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  varchar,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  uniqueIndex,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\n// Transaction status\r\nexport const TRANSACTION_STATUS = [\r\n  \"pending\",\r\n  \"completed\",\r\n  \"failed\",\r\n  \"reversed\"\r\n] as const;\r\n\r\nconst statusEnum = pgEnum(\"status\", TRANSACTION_STATUS);\r\n\r\nexport const transactions = pgTable(\r\n  \"transactions\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    fromAccountId: serial(\"from_account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    toAccountId: serial(\"to_account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    status: statusEnum(\"status\").default(\"pending\").notNull(),\r\n    idempotencyKey: varchar(\"idempotency_key\", { length: 255 })\r\n      .notNull()\r\n      .unique(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"from_account_id_idx\").on(table.fromAccountId),\r\n    index(\"to_account_id_idx\").on(table.toAccountId),\r\n    index(\"status_idx\").on(table.status),\r\n    uniqueIndex(\"idempotency_key_idx\").on(table.idempotencyKey)\r\n  ]\r\n);\r\n\r\n// Transaction types\r\nexport type Transaction = typeof transactions.$inferSelect;\r\nexport type NewTransaction = typeof transactions.$inferInsert;\r\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "ledger": {
+                      "architectures": {
+                        "mvc": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/ledger.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/ledger.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\n// Ledger entry types\r\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\r\n\r\nconst entryTypeEnum = pgEnum(\"entry_type\", LEDGER_ENTRY_TYPES);\r\n\r\nexport const ledgers = pgTable(\r\n  \"ledgers\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    accountId: serial(\"account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    transactionId: serial(\"transaction_id\")\r\n      // .references(() => transactions.id)\r\n      .notNull(),\r\n    entryType: entryTypeEnum(\"entry_type\").notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"account_id_idx\").on(table.accountId),\r\n    index(\"transaction_id_idx\").on(table.transactionId),\r\n    index(\"entry_type_idx\").on(table.entryType)\r\n  ]\r\n);\r\n\r\n// Ledger types\r\nexport type Ledger = typeof ledgers.$inferSelect;\r\nexport type NewLedger = typeof ledgers.$inferInsert;\r\n"
+                            }
+                          ]
+                        },
+                        "feature": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/drizzle/migrations\",\n  schema: \"./src/drizzle/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/index.ts",
+                              "content": "export * from \"./schemas/ledger.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/drizzle/schemas/ledger.schema.ts",
+                              "content": "import {\r\n  pgTable,\r\n  integer,\r\n  pgEnum,\r\n  index,\r\n  decimal,\r\n  serial\r\n} from \"drizzle-orm/pg-core\";\r\nimport { timestamps } from \"./schema.helper\";\r\n\r\n// Ledger entry types\r\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\r\n\r\nconst entryTypeEnum = pgEnum(\"entry_type\", LEDGER_ENTRY_TYPES);\r\n\r\nexport const ledgers = pgTable(\r\n  \"ledgers\",\r\n  {\r\n    id: serial(\"id\").primaryKey().notNull(),\r\n    accountId: serial(\"account_id\")\r\n      // .references(() => accounts.id)\r\n      .notNull(),\r\n    transactionId: serial(\"transaction_id\")\r\n      // .references(() => transactions.id)\r\n      .notNull(),\r\n    entryType: entryTypeEnum(\"entry_type\").notNull(),\r\n    amount: decimal(\"amount\", { precision: 15, scale: 2 }).notNull(),\r\n    ...timestamps\r\n  },\r\n  table => [\r\n    index(\"account_id_idx\").on(table.accountId),\r\n    index(\"transaction_id_idx\").on(table.transactionId),\r\n    index(\"entry_type_idx\").on(table.entryType)\r\n  ]\r\n);\r\n\r\n// Ledger types\r\nexport type Ledger = typeof ledgers.$inferSelect;\r\nexport type NewLedger = typeof ledgers.$inferInsert;\r\n"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": [
+                      "pg",
+                      "drizzle-orm"
+                    ],
+                    "dev": [
+                      "drizzle-kit",
+                      "@types/pg"
+                    ]
                   }
                 }
               }
@@ -335,16 +652,6 @@
                       "architectures": {
                         "mvc": {
                           "files": [
-                            {
-                              "type": "file",
-                              "path": "src/constants/auth.ts",
-                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
-                            },
-                            {
-                              "type": "file",
-                              "path": "src/constants/account.ts",
-                              "content": "export const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\n\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\n\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\n\nexport const TRANSACTION_STATUS = [\n  \"pending\",\n  \"completed\",\n  \"failed\",\n  \"reversed\"\n] as const;\n\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\n"
-                            },
                             {
                               "type": "file",
                               "path": "src/types/user.d.ts",
@@ -374,6 +681,16 @@
                               "type": "file",
                               "path": "src/models/account.model.ts",
                               "content": "import { Schema, model, Types } from \"mongoose\";\nimport {\n  ACCOUNT_CURRENCIES,\n  ACCOUNT_STATUS,\n  ACCOUNT_TYPES\n} from \"../constants/account\";\nimport { AccountCurrency, AccountStatus, AccountType } from \"../types/account\";\n\nexport interface IAccount {\n  _id: Types.ObjectId;\n  userId: Types.ObjectId;\n  type: AccountType;\n  currency: AccountCurrency;\n  status: AccountStatus;\n\n  systemAccount: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst AccountSchema = new Schema<IAccount>(\n  {\n    userId: {\n      type: Schema.Types.ObjectId,\n      ref: \"User\",\n      required: true,\n      index: true\n    },\n    type: {\n      type: String,\n      enum: ACCOUNT_TYPES,\n      required: true\n    },\n    currency: {\n      type: String,\n      enum: ACCOUNT_CURRENCIES,\n      default: \"NPR\"\n    },\n    status: {\n      type: String,\n      enum: ACCOUNT_STATUS,\n      default: \"active\",\n      index: true\n    },\n    systemAccount: {\n      type: Boolean,\n      default: false,\n      select: false,\n      immutable: true\n    }\n  },\n  { timestamps: true }\n);\n\nconst Account = model<IAccount>(\"Account\", AccountSchema);\n\nexport default Account;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/constants/auth.ts",
+                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/constants/account.ts",
+                              "content": "export const ACCOUNT_TYPES = [\"savings\", \"current\"] as const;\n\nexport const ACCOUNT_CURRENCIES = [\"NPR\", \"INR\", \"USD\"] as const;\n\nexport const ACCOUNT_STATUS = [\"active\", \"frozen\", \"closed\"] as const;\n\nexport const TRANSACTION_STATUS = [\n  \"pending\",\n  \"completed\",\n  \"failed\",\n  \"reversed\"\n] as const;\n\nexport const LEDGER_ENTRY_TYPES = [\"debit\", \"credit\"] as const;\n"
                             }
                           ]
                         },
@@ -429,13 +746,13 @@
                           "files": [
                             {
                               "type": "file",
-                              "path": "src/models/account.model.ts",
-                              "content": "import { Schema, model, Types } from \"mongoose\";\nimport {\n  ACCOUNT_CURRENCIES,\n  ACCOUNT_STATUS,\n  ACCOUNT_TYPES\n} from \"../constants/account\";\nimport { AccountCurrency, AccountStatus, AccountType } from \"../types/account\";\n\nexport interface IAccount {\n  _id: Types.ObjectId;\n  userId: Types.ObjectId;\n  type: AccountType;\n  currency: AccountCurrency;\n  status: AccountStatus;\n\n  systemAccount: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst AccountSchema = new Schema<IAccount>(\n  {\n    userId: {\n      type: Schema.Types.ObjectId,\n      ref: \"User\",\n      required: true,\n      index: true\n    },\n    type: {\n      type: String,\n      enum: ACCOUNT_TYPES,\n      required: true\n    },\n    currency: {\n      type: String,\n      enum: ACCOUNT_CURRENCIES,\n      default: \"NPR\"\n    },\n    status: {\n      type: String,\n      enum: ACCOUNT_STATUS,\n      default: \"active\",\n      index: true\n    },\n    systemAccount: {\n      type: Boolean,\n      default: false,\n      select: false,\n      immutable: true\n    }\n  },\n  { timestamps: true }\n);\n\nconst Account = model<IAccount>(\"Account\", AccountSchema);\n\nexport default Account;\n"
+                              "path": "src/types/account.d.ts",
+                              "content": "import {\n  ACCOUNT_CURRENCIES,\n  ACCOUNT_STATUS,\n  ACCOUNT_TYPES,\n  LEDGER_ENTRY_TYPES,\n  TRANSACTION_STATUS\n} from \"../constants/account\";\n\nexport type AccountType = (typeof ACCOUNT_TYPES)[number];\n\nexport type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number];\n\nexport type AccountStatus = (typeof ACCOUNT_STATUS)[number];\n\nexport type TransactionStatus = (typeof TRANSACTION_STATUS)[number];\n\nexport type LedgerEntryType = (typeof LEDGER_ENTRY_TYPES)[number];\n\nexport interface IAccount {\n  _id: string;\n  type: string;\n  currency: string;\n  status: string;\n  createdAt?: string;\n  updatedAt?: string;\n}\n\nexport interface IPagination {\n  page: number;\n  limit: number;\n  total: number;\n  pages: number;\n}\n"
                             },
                             {
                               "type": "file",
-                              "path": "src/types/account.d.ts",
-                              "content": "import {\n  ACCOUNT_CURRENCIES,\n  ACCOUNT_STATUS,\n  ACCOUNT_TYPES,\n  LEDGER_ENTRY_TYPES,\n  TRANSACTION_STATUS\n} from \"../constants/account\";\n\nexport type AccountType = (typeof ACCOUNT_TYPES)[number];\n\nexport type AccountCurrency = (typeof ACCOUNT_CURRENCIES)[number];\n\nexport type AccountStatus = (typeof ACCOUNT_STATUS)[number];\n\nexport type TransactionStatus = (typeof TRANSACTION_STATUS)[number];\n\nexport type LedgerEntryType = (typeof LEDGER_ENTRY_TYPES)[number];\n\nexport interface IAccount {\n  _id: string;\n  type: string;\n  currency: string;\n  status: string;\n  createdAt?: string;\n  updatedAt?: string;\n}\n\nexport interface IPagination {\n  page: number;\n  limit: number;\n  total: number;\n  pages: number;\n}\n"
+                              "path": "src/models/account.model.ts",
+                              "content": "import { Schema, model, Types } from \"mongoose\";\nimport {\n  ACCOUNT_CURRENCIES,\n  ACCOUNT_STATUS,\n  ACCOUNT_TYPES\n} from \"../constants/account\";\nimport { AccountCurrency, AccountStatus, AccountType } from \"../types/account\";\n\nexport interface IAccount {\n  _id: Types.ObjectId;\n  userId: Types.ObjectId;\n  type: AccountType;\n  currency: AccountCurrency;\n  status: AccountStatus;\n\n  systemAccount: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst AccountSchema = new Schema<IAccount>(\n  {\n    userId: {\n      type: Schema.Types.ObjectId,\n      ref: \"User\",\n      required: true,\n      index: true\n    },\n    type: {\n      type: String,\n      enum: ACCOUNT_TYPES,\n      required: true\n    },\n    currency: {\n      type: String,\n      enum: ACCOUNT_CURRENCIES,\n      default: \"NPR\"\n    },\n    status: {\n      type: String,\n      enum: ACCOUNT_STATUS,\n      default: \"active\",\n      index: true\n    },\n    systemAccount: {\n      type: Boolean,\n      default: false,\n      select: false,\n      immutable: true\n    }\n  },\n  { timestamps: true }\n);\n\nconst Account = model<IAccount>(\"Account\", AccountSchema);\n\nexport default Account;\n"
                             },
                             {
                               "type": "file",
@@ -476,13 +793,13 @@
                             },
                             {
                               "type": "file",
-                              "path": "src/models/user.model.ts",
-                              "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password?: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n  lastLoginAt?: Date;\n  failedLoginAttempts: number;\n  lockUntil?: Date;\n  avatar?: IAvatar;\n\n  provider: \"local\" | \"google\" | \"github\";\n  providerId?: string;\n\n  isDeleted: boolean;\n  deletedAt?: Date | null;\n  reActivateAvailableAt?: Date | null;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    provider: {\n      type: String,\n      enum: [\"local\", \"google\", \"github\"],\n      default: \"local\"\n    },\n    providerId: {\n      type: String,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    avatar: {\n      public_id: String,\n      url: String,\n      size: Number\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    },\n    lastLoginAt: {\n      type: Date\n    },\n    failedLoginAttempts: {\n      type: Number,\n      required: true,\n      default: 0\n    },\n    lockUntil: {\n      type: Date\n    },\n    isDeleted: {\n      type: Boolean,\n      default: false\n    },\n    deletedAt: {\n      type: Date,\n      default: null\n    },\n    reActivateAvailableAt: {\n      type: Date,\n      default: null\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\n// Performance Indexes\nuserSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth\nuserSchema.index({ role: 1 });\nuserSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries\n\nconst User: Model<IUser> =\n  mongoose.models.User || mongoose.model<IUser>(\"User\", userSchema);\n\nexport default User;\n"
+                              "path": "src/constants/auth.ts",
+                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
                             },
                             {
                               "type": "file",
-                              "path": "src/constants/auth.ts",
-                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
+                              "path": "src/models/user.model.ts",
+                              "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password?: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n  lastLoginAt?: Date;\n  failedLoginAttempts: number;\n  lockUntil?: Date;\n  avatar?: IAvatar;\n\n  provider: \"local\" | \"google\" | \"github\";\n  providerId?: string;\n\n  isDeleted: boolean;\n  deletedAt?: Date | null;\n  reActivateAvailableAt?: Date | null;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    provider: {\n      type: String,\n      enum: [\"local\", \"google\", \"github\"],\n      default: \"local\"\n    },\n    providerId: {\n      type: String,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    avatar: {\n      public_id: String,\n      url: String,\n      size: Number\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    },\n    lastLoginAt: {\n      type: Date\n    },\n    failedLoginAttempts: {\n      type: Number,\n      required: true,\n      default: 0\n    },\n    lockUntil: {\n      type: Date\n    },\n    isDeleted: {\n      type: Boolean,\n      default: false\n    },\n    deletedAt: {\n      type: Date,\n      default: null\n    },\n    reActivateAvailableAt: {\n      type: Date,\n      default: null\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\n// Performance Indexes\nuserSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth\nuserSchema.index({ role: 1 });\nuserSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries\n\nconst User: Model<IUser> =\n  mongoose.models.User || mongoose.model<IUser>(\"User\", userSchema);\n\nexport default User;\n"
                             }
                           ]
                         },
@@ -553,7 +870,9 @@
                     }
                   },
                   "dependencies": {
-                    "runtime": ["mongoose"],
+                    "runtime": [
+                      "mongoose"
+                    ],
                     "dev": []
                   }
                 }

@@ -2,7 +2,7 @@ import {
   boolean,
   text,
   varchar,
-  char,
+  integer,
   index,
   serial,
   pgTable
@@ -15,7 +15,7 @@ export const todos = pgTable(
   "todos",
   {
     id: serial().primaryKey(),
-    userId: char("user_id", { length: 36 })
+    userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     title: varchar("title", { length: 255 }).notNull(),
