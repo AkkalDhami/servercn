@@ -20,7 +20,7 @@ mvc_structure:
 
                 signals.forEach((signal) => {
                   process.on(signal, () => {
-                    console.log(<Code children="\n${signal} signal received. Shutting down gracefully..." />);
+                    console.log(`${signal} signal received. Shutting down gracefully...`);
 
                     server.close((err) => {
                       if (err) {
@@ -39,6 +39,22 @@ mvc_structure:
                   });
                 });
               };
+
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import { logger } from "./utils/logger";
+          import { configureGracefulShutdown } from "./utils/shutdown";
+
+          const port = process.env.PORT || 9000;
+
+          const server = app.listen(port, () => {
+            logger.info(`[server]: Server is running at http://localhost:${port}`);
+          });
+
+          configureGracefulShutdown(server);
+
 
 feature_structure:
   - type: folder
@@ -60,7 +76,7 @@ feature_structure:
 
                     signals.forEach((signal) => {
                       process.on(signal, () => {
-                        console.log(<Code children="\n${signal} signal received. Shutting down gracefully..." />);
+                        console.log(`\n${signal} signal received. Shutting down gracefully...`);
 
                         server.close((err) => {
                           if (err) {
@@ -79,6 +95,21 @@ feature_structure:
                       });
                     });
                   };
+
+      - type: file
+        name: server.ts
+        content: |
+          import app from "./app";
+          import { logger } from "./shared/utils/logger";
+          import { configureGracefulShutdown } from "./shared/utils/shutdown";
+
+          const port = process.env.PORT || 9000;
+
+          const server = app.listen(port, () => {
+            logger.info(`[server]: Server is running at http://localhost:${port}`);
+          });
+
+          configureGracefulShutdown(server);
 ---
 
 # Graceful Shutdown Handler
@@ -152,7 +183,7 @@ export const configureGracefulShutdown = (server: Server) => {
 
 Import and apply the shutdown handler in your main entry file (usually <Code children="server.ts" />).
 
-```ts
+```ts {3, 14}
 import http from "http";
 import app from "./app";
 import { configureGracefulShutdown } from "./utils/shutdown";
@@ -171,7 +202,7 @@ configureGracefulShutdown(server);
 
 ## Best Practices
 
-### Release Database Connections
+#### 1. Release Database Connections
 
 You should extend the <Code children="server.close" /> callback to include logic for closing your database connections.
 
@@ -184,7 +215,7 @@ server.close(async err => {
 });
 ```
 
-### Environment Signals
+#### 2. Environment Signals
 
 In modern cloud environments:
 
