@@ -100,7 +100,7 @@ export function SearchCommand({
             size === "lg" ? "block" : "hidden"
           )}>
           <span className="group-hover:text-accent-foreground text-muted-foreground font-normal duration-300">
-            Search documentaion...
+            Search docs...
           </span>
         </div>
 

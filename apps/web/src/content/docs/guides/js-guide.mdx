@@ -1,0 +1,189 @@
+---
+title: Using Servercn in a JavaScript Project
+description: Learn how to build and use Servercn TypeScript components in your JavaScript Node.js projects
+---
+
+# Using Servercn in a JavaScript Project
+
+Servercn components are written in TypeScript, but JavaScript developers can still use them by building the components and using the compiled JavaScript output.
+
+If you encounter any issues while following the steps, feel free to join our [Discord server](https://discord.gg/2fXqnTXF8d) for help and support.
+
+Follow the steps below to use servercn components in your Node.js + JavaScript project.
+
+<Steps>
+<Step>Set Up Your Development Environment</Step>
+
+First, let's ensure you have the necessary tools installed globally:
+
+<PackageManagerTabs command="npm install -g typescript" />
+
+This installs:
+- **TypeScript compiler** (<Code>tsc</Code>) - to compile TypeScript to JavaScript
+
+Verify the installation:
+
+```bash
+tsc --version
+```
+
+You should see the TypeScript version number (e.g., <Code>Version 5.x.x</Code>).
+
+<Step>Install Servercn Foundation</Step>
+
+First, initialize **Servercn** in your project.
+
+<PackageManagerTabs command="npx servercn-cli init" />
+
+You will be prompted to choose a project foundation:
+
+```
+? Select a project foundation:  » - Use arrow-keys. Return to submit.
+> Express Starter - Minimal Express server setup
+  Express + Mongoose
+  Express + MongoDB (Prisma)
+  Express + MySQL (Drizzle)
+  Express + PostgreSQL (Drizzle)
+```
+
+Select the foundation that matches your preferred **database and ORM stack**.
+
+After selecting the foundation, you will be prompted with a few additional setup options:
+
+```
+√ Project root directory ... test
+√ Select architecture » MVC (controllers, services, models)
+√ Select package manager » npm
+√ Initialize git repository? ... no
+```
+
+Configure these options based on your project preferences. Once completed, **Servercn will generate the project structure and install the required dependencies**.
+
+<Step>Configure Environment Variables</Step>
+
+Configure your env variables in <Code>.env</Code>
+
+```bash
+LOG_LEVEL='info'
+
+NODE_ENV='development'
+
+PORT='1111'
+
+CORS_ORIGIN='http://localhost:3000'
+
+DATABASE_URL='mongodb://127.0.0.1:27017/myDatabase'
+```
+
+> If you encounter any issues while following the steps, feel free to join our [Discord server](https://discord.gg/2fXqnTXF8d) for help and support.
+
+<Step>Verify Package Scripts</Step>
+
+Before starting the server, ensure that your <Code>package.json</Code> contains the following scripts:
+
+```json {3-6}
+{ 
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npx tsx --watch src/server.ts",
+    "build": "rm -rf build && tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
+  }
+}
+```
+
+These scripts handle development, production, type checking, and code formatting for your project.
+
+<Step>Start Your Server</Step>
+
+Start the development server by running:
+
+```bash
+npm run dev
+```
+
+Once the server starts successfully, you should see output similar to this:
+
+```bash
+[2026-03-12 14:43:55] INFO: MongoDB Connected: 127.0.0.1
+[2026-03-12 14:43:55] INFO: Server is running on http://localhost:1111
+```
+
+This means your backend is running successfully.
+
+<Step>Configure tsconfig.json</Step>
+
+Update your <Code>tsconfig.json</Code> file by replacing its content with the following:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "outDir": "dist",
+    "rootDir": "src",
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": [ "./*", "./src/*" ],
+      "@/shared/*": [ "../../shared/*" ]
+    }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  },
+  "include": [ "src/**/*" ],
+  "exclude": [ "node_modules" ]
+}
+```
+
+<Step>Add Servercn Component, Schema..</Step>
+
+Now add the component you want.
+
+<PackageManagerTabs command="npx servercn-cli add error-handler" />
+<PackageManagerTabs command="npx servercn-cli add oauth" />
+<PackageManagerTabs command="npx servercn-cli add email-service" />
+<PackageManagerTabs command="npx servercn-cli add file-upload" />
+
+- [View Components](https://servercn.vercel.app/components)
+- [View Blueprints](https://servercn.vercel.app/blueprints)
+- [View Schemas](https://servercn.vercel.app/schemas)
+
+<Step>Compile Your Server</Step>
+
+After adding or updating any component, always run:
+
+```bash
+npm run build
+```
+
+This will generate the <Code>dist</Code> folder containing the compiled server files.
+
+<Step>Copy JavaScript Code</Step>
+
+Now, you can copy the compiled JavaScript code from the <Code>dist</Code> folder into your JavaScript project — no TypeScript knowledge required.
+
+<Step>Repeat Component Addition</Step>
+
+Repeat the steps from **Add Servercn Component** for any additional components you want to include in your project.
+
+</Steps>
+
+
+If you encounter any issues while following the steps, feel free to join our [Discord server](https://discord.gg/2fXqnTXF8d) for help and support.
+
+
+## Getting Help
+
+- **Documentation**: Check component-specific docs in <Code children="/docs/**" />
+- **Issues**: Report issues on [GitHub](https://github.com/AkkalDhami/servercn/issues/new)
+- **Community**: Join our [community discussions](https://github.com/AkkalDhami/servercn/discussions)
+- **Discord**: Join our  [Discord](https://discord.gg/2fXqnTXF8d) community.
+
+
+<Note text="While this guide helps you use Servercn in JavaScript projects, consider learning TypeScript basics. It'll make integrating Servercn components even easier and unlock better IDE support!" />
