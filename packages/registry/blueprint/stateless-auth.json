@@ -72,7 +72,6 @@
                       "@typescript-eslint/eslint-plugin",
                       "@typescript-eslint/parser",
                       "eslint",
-                      "eslint-config-prettier",
                       "eslint-plugin-prettier"
                     ]
                   },
@@ -165,7 +164,6 @@
                       "@typescript-eslint/eslint-plugin",
                       "@typescript-eslint/parser",
                       "eslint",
-                      "eslint-config-prettier",
                       "eslint-plugin-prettier"
                     ]
                   },
