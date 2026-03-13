@@ -1,7 +1,6 @@
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
-import prettierPlugin from "eslint-plugin-prettier";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
+import prettierPlugin from "eslint-plugin-prettier/recommended";
 
 export default [
   {
@@ -28,5 +27,4 @@ export default [
       "prettier/prettier": "error"
     }
   },
-  eslintConfigPrettier
 ];
