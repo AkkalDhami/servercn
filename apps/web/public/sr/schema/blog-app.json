@@ -973,7 +973,7 @@
                             {
                               "type": "file",
                               "path": "src/constants/auth.ts",
-                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
+                              "content": "export const OTP_MAX_ATTEMPTS = 5;\n\nexport const OTP_TYPES = [\n  \"signin\",\n  \"email-verification\",\n  \"password-reset\",\n  \"password-change\"\n] as const;\n\nexport const NEXT_OTP_DELAY = 1 * 60 * 1000; // 1 minute\n\nexport const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const OTP_CODE_LENGTH = 6 as const;\n\nexport const OTP_EXPIRES_IN = 5 * 60 * 1000; // 5 minutes\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 24 * 60 * 60 * 1000; // 24 hours\n"
                             }
                           ]
                         },
@@ -992,7 +992,7 @@
                             {
                               "type": "file",
                               "path": "src/modules/auth/auth.constants.ts",
-                              "content": "export const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours\n"
+                              "content": "export const LOGIN_MAX_ATTEMPTS = 5 as const;\n\nexport const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours\n\nexport const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes\n\nexport const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days\n\nexport const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes\n\nexport const REACTIVATION_AVAILABLE_AT = 24 * 60 * 60 * 1000; // 24 hours\n"
                             }
                           ]
                         }
