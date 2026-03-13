@@ -82,6 +82,7 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "pino": "^10.1.0",
+    "pino-http": "^11.0.0",
     "resend": "^6.9.1",
     "servercn": "^1.0.0",
     "source-map-support": "^0.5.21",
