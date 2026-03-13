@@ -1,4 +1,3 @@
-import { index } from "drizzle-orm/mysql-core";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { REFRESH_TOKEN_EXPIRY } from "../constants/auth";
 

@@ -22,6 +22,6 @@ export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export const RESET_PASSWORD_TOKEN_EXPIRY = 5 * 60 * 1000; // 5 minutes
 
-export const REACTIVATION_AVAILABLE_AT = 1 * 60 * 1000; // 24 hours
+export const REACTIVATION_AVAILABLE_AT = 24 * 60 * 60 * 1000; // 24 hours
 
 export const OTP_SPAM_LOCK = 1 * 60 * 60 * 1000; // 1 hour
