@@ -129,8 +129,9 @@ mvc_structure:
             name: post.model.ts
             content: |
               import mongoose, { Document, Model, Schema, Types } from "mongoose";
-              import { PostStatus } from "./post.types";
-              import { POST_STATUSES } from "./post.constants";
+
+              const POST_STATUSES = ["draft", "published", "archived"] as const;
+              type PostStatus = (typeof POST_STATUSES)[number];
 
               interface IFile {
                 public_id: string;
@@ -350,24 +351,6 @@ mvc_structure:
               const Comment = model<IComment>("Comment", commentSchema);
 
               export default Comment;
-
-      - type: folder
-        name: constants
-        children:
-          - type: file
-            name: post.constants.ts
-            content: |
-              export const POST_STATUSES = ["draft", "published", "archived"] as const;
-
-      - type: folder
-        name: types
-        children:
-          - type: file
-            name: post.types.ts
-            content: |
-              import { POST_STATUSES } from "./post.constants";
-
-              export type PostStatus = (typeof POST_STATUSES)[number];
 
 feature_structure:
   - type: folder
@@ -889,8 +872,9 @@ The <Code>Post</Code> schema stores blog posts with support for titles, content,
 
 ```ts
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
-import { PostStatus } from "./post.types";
-import { POST_STATUSES } from "./post.constants";
+
+const POST_STATUSES = ["draft", "published", "archived"] as const;
+type PostStatus = (typeof POST_STATUSES)[number];
 
 interface IFile {
   public_id: string;
