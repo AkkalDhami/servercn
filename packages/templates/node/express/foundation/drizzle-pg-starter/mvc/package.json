@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development npx tsx watch src/server.ts",
-    "build": "tsc && tsc-alias",
+    "build": "rm -rf dist && tsc && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
