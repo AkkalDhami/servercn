@@ -70,7 +70,7 @@ feature_structure:
 
 # Background Jobs (Cron)
 
-The **Background Jobs** component provides a standardized way to schedule and manage recurring tasks in your ServerCN application using <Code children="node-cron" />.
+The **Background Jobs** component provides a standardized way to schedule and manage recurring tasks in your Servercn application using <Code children="node-cron" />.
 
 Background jobs are essential for tasks like:
 
@@ -83,7 +83,7 @@ Background jobs are essential for tasks like:
 
 ## Installation Guide
 
-Install the component using the ServerCN CLI:
+Install the component using the Servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add background-jobs" />
 
@@ -300,4 +300,4 @@ export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
 
 ## Summary
 
-The **Background Jobs** component using <Code children="node-cron" /> is a powerful and lightweight solution for adding scheduled tasks to your ServerCN application without the complexity of a full-blown message queue.
+The **Background Jobs** component using <Code children="node-cron" /> is a powerful and lightweight solution for adding scheduled tasks to your Servercn application without the complexity of a full-blown message queue.

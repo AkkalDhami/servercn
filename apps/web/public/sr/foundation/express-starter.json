@@ -134,13 +134,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/routes/index.ts",
-                  "content": "import { Router } from \"express\";\nimport HealthRouter from \"../modules/health/health.routes\";\n\nconst router = Router();\n\nrouter.use(\"/health\", HealthRouter);\n\nexport default router;\n"
+                  "path": "src/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/configs/env.ts",
-                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                  "path": "src/routes/index.ts",
+                  "content": "import { Router } from \"express\";\nimport HealthRouter from \"../modules/health/health.routes\";\n\nconst router = Router();\n\nrouter.use(\"/health\", HealthRouter);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",

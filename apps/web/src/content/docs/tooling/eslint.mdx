@@ -9,7 +9,7 @@ command: npx servercn-cli add tooling eslint
 
 ESLint is a **static code analysis and linting tool** that detects problematic patterns, enforces best practices, and ensures consistent coding standards across a codebase.
 
-In ServerCN projects, ESLint is treated as a **first-line quality gate** that:
+In Servercn projects, ESLint is treated as a **first-line quality gate** that:
 
 * Prevents common runtime bugs
 * Enforces consistent coding conventions
@@ -22,7 +22,7 @@ This configuration is tailored specifically for **Node.js, TypeScript, and Expre
 
 ## Installation
 
-Install the ESLint configuration using the ServerCN CLI:
+Install the ESLint configuration using the Servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add tooling eslint" />
 
@@ -44,7 +44,7 @@ The component installs and configures the following core packages:
 
 ## ESLint Configuration
 
-ServerCN provides a **sensible default configuration** focused on backend correctness rather than frontend stylistic noise.
+Servercn provides a **sensible default configuration** focused on backend correctness rather than frontend stylistic noise.
 
 Below is the canonical configuration with inline explanations.
 
@@ -105,7 +105,7 @@ Add the following scripts to your <Code children="package.json" /> to standardiz
 
 ## Prettier Compatibility
 
-ServerCN intentionally separates **code formatting** from **code correctness**:
+Servercn intentionally separates **code formatting** from **code correctness**:
 
 * ESLint focuses on logic, safety, and best practices
 * Prettier handles formatting and stylistic concerns
@@ -131,7 +131,7 @@ This prevents the common ESLint–Prettier conflict and keeps responsibilities c
 
 ## Summary
 
-The ServerCN ESLint component provides:
+The Servercn ESLint component provides:
 
 * A clean, production-ready baseline
 * Strong TypeScript guarantees

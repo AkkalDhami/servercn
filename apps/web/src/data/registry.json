@@ -1,21 +1,21 @@
 {
   "$schema": "https://servercn.vercel.app/schema/registry.json",
-  "name": "ServerCN",
+  "name": "Servercn",
   "homepage": "https://servercn.vercel.app",
   "author": "Akkal Dhami",
   "items": [
     {
       "slug": "introduction",
       "title": "Introduction",
-      "description": "ServerCN is a component-based backend development system for Node.js and TypeScript.",
+      "description": "Servercn is a component-based backend development system for Node.js and TypeScript.",
       "type": "guide",
       "status": "stable",
       "docs": "/docs/introduction"
     },
     {
       "slug": "cli",
-      "title": "ServerCN CLI",
-      "description": "The ServerCN CLI provides a set of commands to help you manage your ServerCN projects.",
+      "title": "Servercn CLI",
+      "description": "The Servercn CLI provides a set of commands to help you manage your Servercn projects.",
       "type": "guide",
       "status": "stable",
       "docs": "/docs/cli"
@@ -23,11 +23,20 @@
     {
       "slug": "installation",
       "title": "Installation",
-      "description": "Learn how to install and set up ServerCN in your project.",
+      "description": "Learn how to install and set up Servercn in your project.",
       "type": "guide",
       "status": "stable",
       "docs": "/docs/installation"
     },
+    {
+      "slug": "js-guide",
+      "title": "JavaScript Guide",
+      "description": "JavaScript guide for developers who are comfortable with JavaScript and want to use Servercn components without diving into TypeScrip",
+      "type": "guide",
+      "status": "stable",
+      "docs": "/docs/guides/js-guide"
+    },
+
     {
       "slug": "component",
       "title": "Component",
@@ -47,7 +56,7 @@
     {
       "slug": "foundation",
       "title": "Foundation",
-      "description": "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of ServerCN.",
+      "description": "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of Servercn.",
       "type": "contributing",
       "status": "stable",
       "docs": "/docs/contributing/foundation"
@@ -108,7 +117,7 @@
     {
       "slug": "password-hashing",
       "title": "Password Hashing",
-      "description": "The Password Hashing component provides a standardized way to hash passwords in ServerCN using bcryptjs, argon2, pbkdf2, scrypt.",
+      "description": "The Password Hashing component provides a standardized way to hash passwords in Servercn using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -144,7 +153,7 @@
     {
       "slug": "file-upload-cloudinary",
       "title": "File Upload (Cloudinary)",
-      "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using Cloudinary as the storage provider.",
+      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudinary as the storage provider.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -153,7 +162,7 @@
     {
       "slug": "file-upload-imagekit",
       "title": "File Upload (ImageKit)",
-      "description": "The File Upload component provides a standardized way to handle file uploads in ServerCN using ImageKit as the storage provider.",
+      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using ImageKit as the storage provider.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -162,7 +171,7 @@
     {
       "slug": "email-service",
       "title": "Email Service",
-      "description": "The Send Email component provides a standardized way to send emails in ServerCN using nodemailer as the email service provider.",
+      "description": "The Send Email component provides a standardized way to send emails in Servercn using nodemailer as the email service provider.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -171,7 +180,7 @@
     {
       "slug": "not-found-handler",
       "title": "Not Found Handler",
-      "description": "The Not Found Handler component provides a standardized way to handle not found routes in ServerCN.",
+      "description": "The Not Found Handler component provides a standardized way to handle not found routes in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -180,7 +189,7 @@
     {
       "slug": "request-validator",
       "title": "Request Validator (Zod)",
-      "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in ServerCN using Zod.",
+      "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in Servercn using Zod.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -198,7 +207,7 @@
     {
       "slug": "google-oauth",
       "title": "Google OAuth",
-      "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in ServerCN.",
+      "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -207,7 +216,7 @@
     {
       "slug": "shutdown-handler",
       "title": "Graceful Shutdown Handler",
-      "description": "The Graceful Shutdown Handler ensures that your ServerCN application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",
+      "description": "The Graceful Shutdown Handler ensures that your Servercn application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -216,7 +225,7 @@
     {
       "slug": "rbac",
       "title": "Role Based Access Control",
-      "description": "The Role Based Access Control component provides a standardized way to handle role based access control in ServerCN.",
+      "description": "The Role Based Access Control component provides a standardized way to handle role based access control in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -225,7 +234,7 @@
     {
       "slug": "rate-limiter",
       "title": "Rate Limiter",
-      "description": "The Rate Limiter component provides a standardized way to handle rate limiting in ServerCN.",
+      "description": "The Rate Limiter component provides a standardized way to handle rate limiting in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -234,7 +243,7 @@
     {
       "slug": "github-google-oauth",
       "title": "GitHub & Google OAuth",
-      "description": "The GitHub & Google OAuth component provides a standardized way to handle GitHub & Google OAuth authentication in ServerCN.",
+      "description": "The GitHub & Google OAuth component provides a standardized way to handle GitHub & Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -243,7 +252,7 @@
     {
       "slug": "github-oauth",
       "title": "GitHub OAuth",
-      "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in ServerCN.",
+      "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -270,7 +279,7 @@
     {
       "slug": "security-header",
       "title": "Security Headers",
-      "description": "The Security Headers component provides a standardized way to handle security headers in ServerCN.",
+      "description": "The Security Headers component provides a standardized way to handle security headers in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -279,7 +288,7 @@
     {
       "slug": "validate-objectid",
       "title": "Validate ObjectId Middleware",
-      "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in ServerCN.",
+      "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in Servercn.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -297,7 +306,7 @@
     {
       "slug": "background-jobs",
       "title": "Background Jobs (Cron)",
-      "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and background jobs in ServerCN using node-cron.",
+      "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and background jobs in Servercn using node-cron.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -390,7 +399,7 @@
     {
       "slug": "stateless-auth",
       "title": "Stateless Authentication",
-      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in ServerCN using JWT access tokens and refresh tokens.",
+      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in Servercn using JWT access tokens and refresh tokens.",
       "type": "blueprint",
       "status": "stable",
       "frameworks": ["express"],
@@ -484,6 +493,31 @@
           {
             "label": "PostgreSQL (Drizzle)",
             "slug": "banking-app-postgresql"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "blog-app",
+      "title": "Blog Application",
+      "description": "A production-ready Blog schema with support for MongoDB, PostgreSQL, and MySQL.",
+      "type": "schema",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/schemas/blog-app",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "blog-app-mongodb"
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "blog-app-mysql"
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "blog-app-postgresql"
           }
         ]
       }

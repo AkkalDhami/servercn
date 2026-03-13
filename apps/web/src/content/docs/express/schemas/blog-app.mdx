@@ -1,0 +1,53 @@
+---
+title: Blog App Schema
+description: Production-ready Blog schemas with support for MongoDB, PostgreSQL, and MySQL databases.
+command: npx servercn-cli add sc blog-app
+---
+
+# Blog App Schema
+
+The Blog App Schema is a comprehensive schema for a blogging platform. It includes support for MongoDB, PostgreSQL, and MySQL databases with features like posts, categories, comments, and likes.
+
+## Database Support
+
+- [MongoDB(Mongoose)](/docs/express/schemas/blog-app-mongodb)
+- [PostgreSQL(Drizzle)](/docs/express/schemas/blog-app-postgresql)
+- [MySQL(Drizzle)](/docs/express/schemas/blog-app-mysql)
+
+## Installation all schemas
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app" />
+
+## Installation individual schema
+
+<Note text="If you install schema individually, the relationships between them won't be automatic—you'll need to implement them manually." />
+
+### 1. User
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/user" />
+
+### 2. Post
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/post" />
+
+### 3. Category
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/category" />
+
+### 4. Comment
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment" />
+
+### 5. Post Like
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/post-like" />
+
+### 6. Comment Like
+
+<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment-like" />
+
+## Learn more
+
+- [MongoDB(Mongoose)](/docs/express/schemas/blog-app-mongodb)
+- [PostgreSQL(Drizzle)](/docs/express/schemas/blog-app-postgresql)
+- [MySQL(Drizzle)](/docs/express/schemas/blog-app-mysql)

@@ -51,6 +51,10 @@ export const CODE_THEMES: ITheme[] = [
     value: "poimandres"
   },
   {
+    label: "Plastic",
+    value: "plastic"
+  },
+  {
     label: "Tokyo Night",
     value: "tokyo-night"
   },
@@ -73,6 +77,12 @@ export const CODE_THEMES: ITheme[] = [
     light: true
   },
   {
+    label: "Slack Ochin",
+    value: "slack-ochin",
+    light: true,
+    favorite: true
+  },
+  {
     label: "Gruvbox Dark Hard",
     value: "gruvbox-dark-hard"
   },
@@ -81,8 +91,14 @@ export const CODE_THEMES: ITheme[] = [
     value: "material-theme"
   },
   {
+    label: "Monokai",
+    value: "monokai",
+    favorite: true
+  },
+  {
     label: "Material Theme Darker",
-    value: "material-theme-darker"
+    value: "material-theme-darker",
+    favorite: true
   },
   {
     label: "Material Theme Ocean",
@@ -99,6 +115,24 @@ export const CODE_THEMES: ITheme[] = [
     value: "github-light-default",
     light: true
   },
+  {
+    label: "One Light",
+    value: "one-light",
+    light: true,
+    favorite: true
+  },
+  {
+    label: "Min Light",
+    value: "min-light",
+    light: true
+  },
+
+  {
+    label: "Min Dark",
+    value: "min-dark",
+    favorite: true
+  },
+
   {
     label: "GitHub Dark High Contrast",
     value: "github-dark-high-contrast"
@@ -118,6 +152,10 @@ export const CODE_THEMES: ITheme[] = [
   {
     label: "Dark Plus",
     value: "dark-plus"
+  },
+  {
+    label: "Solarized Dark",
+    value: "solarized-dark"
   },
   {
     label: "Night Owl",
@@ -151,11 +189,18 @@ export const THEME_PRIMARY_BG = {
   "vitesse-black": "#000000",
   vesper: "#101010",
   poimandres: "#1b1e28",
+  plastic: "#21252b",
+  monokai: "#282923",
+
   "tokyo-night": "#1a1b26",
+  "solarized-dark": "#002b36",
   "synthwave-84": "#262335",
   "kanagawa-dragon": "#181616",
   "kanagawa-wave": "#1f1f28",
   "light-plus": "#ffffff",
+  "one-light": "#fafafa",
+  "min-light": "#ffffff",
+  "min-dark": "#1f1f1f",
   "gruvbox-dark-hard": "#1d2021",
   "material-theme": "#263238",
   "material-theme-darker": "#212121",
@@ -164,6 +209,7 @@ export const THEME_PRIMARY_BG = {
   "github-light-default": "#ffffff",
   "github-dark-high-contrast": "#0a0c10",
   "slack-dark": "#222222",
+  "slack-ochin": "#ffffff",
   "rose-pine-moon": "#232136",
   "rose-pine": "#191724",
   "dark-plus": "#1e1e1e",

@@ -5,29 +5,27 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getRegistryTypeItems } from "@/lib/source";
+import { APP_NAME } from "@/lib/constants";
 
 export const generateMetadata = (): Metadata => {
   return {
     title: "Schemas",
-    description:
-      "Production-ready ServerCN schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.",
+    description: `Production-ready ${APP_NAME} schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.`,
     keywords: [
-      "ServerCN",
+      `${APP_NAME}`,
       "Schemas",
-      "ServerCN Schemas",
-      "ServerCN Schemas for building scalable backends"
+      `${APP_NAME} Schemas`,
+      `${APP_NAME} Schemas for building scalable backends`
     ],
     openGraph: {
       title: "Schemas",
-      description:
-        "Production-ready ServerCN schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.",
+      description: `Production-ready ${APP_NAME} schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.`,
       type: "website",
       locale: "en"
     },
     twitter: {
       title: "Schemas",
-      description:
-        "Production-ready ServerCN schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.",
+      description: `Production-ready ${APP_NAME } schemas for building scalable backends. Here you can find all the schemas available in the library. We are working on adding more schemas.`,
       card: "summary_large_image"
     },
     icons: {
@@ -41,9 +39,9 @@ export default function SchemaPage() {
   return (
     <Container className="mt-16 min-h-screen">
       <div className="mb-6">
-        <Heading className="tracking-tight">ServerCN Schemas</Heading>
+        <Heading className="tracking-tight capitalize">{APP_NAME} Schemas</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN schemas for building scalable backends. Here
+          Production-ready {APP_NAME} schemas for building scalable backends. Here
           you can find all the schemas available in the library. We are working
           on adding more schemas.
         </SubHeading>

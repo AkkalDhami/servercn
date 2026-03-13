@@ -4,29 +4,27 @@ import { SubHeading } from "@/components/ui/sub-heading";
 import { Heading } from "@/components/ui/heading";
 import ComponentCard from "@/components/docs/component-card";
 import { getRegistryTypeItems } from "@/lib/source";
+import { APP_NAME } from "@/lib/constants";
 
 export const generateMetadata = (): Metadata => {
   return {
     title: "Foundations",
-    description:
-      "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+    description: `Production-ready ${APP_NAME} foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.`,
     keywords: [
-      "ServerCN",
+      `${APP_NAME}`,
       "Foundations",
-      "ServerCN Foundations",
-      "ServerCN Foundations for building scalable backends"
+      `${APP_NAME} Foundations`,
+      `${APP_NAME} Foundations for building scalable backends`
     ],
     openGraph: {
       title: "Foundations",
-      description:
-        "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+      description: `Production-ready ${APP_NAME} foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.`,
       type: "website",
       locale: "en"
     },
     twitter: {
       title: "Foundations",
-      description:
-        "Production-ready ServerCN foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.",
+      description: `Production-ready ${APP_NAME} foundations for building scalable backends. Here you can find all the foundations available in the library. We are working on adding more foundations.`,
       card: "summary_large_image"
     },
     icons: {
@@ -41,9 +39,9 @@ export default function FoundationsPage() {
   return (
     <Container className="mt-16 min-h-screen">
       <div className="mb-6">
-        <Heading className="tracking-tight">ServerCN Foundations</Heading>
+        <Heading className="tracking-tight capitalize">{APP_NAME} Foundations</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready ServerCN foundations for building scalable backends.
+          Production-ready {APP_NAME} foundations for building scalable backends.
           Here you can find all the foundations available in the library. We are
           working on adding more foundations.
         </SubHeading>

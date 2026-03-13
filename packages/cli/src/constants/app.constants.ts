@@ -7,7 +7,7 @@ export const SERVERCN_URL = "https://servercn.vercel.app";
 
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 
-export const APP_NAME = "ServerCN";
+export const APP_NAME = "servercn";
 
 export const LATEST_VERSION = packageJson.version || "1.0.0";
 

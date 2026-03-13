@@ -565,11 +565,33 @@ mvc_structure:
           "esModuleInterop": true,
           "skipLibCheck": true,
           "outDir": "dist",
-          "rootDir": "src"
+          "rootDir": "src",
+          "sourceMap": true,
+          "alwaysStrict": true,
+          "useUnknownInCatchVariables": true,
+          "forceConsistentCasingInFileNames": true,
+          "paths": {
+            "@/*": [
+              "./*",
+              "./src/*"
+            ],
+            "@/shared/*": [
+              "../../shared/*"
+            ]
+          }
         },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules"]
+        "tsc-alias": {
+          "resolveFullPaths": true,
+          "verbose": false
+        },
+        "include": [
+          "src/**/*"
+        ],
+        "exclude": [
+          "node_modules"
+        ]
       }
+
 
 feature_structure:
   - type: folder
@@ -1156,26 +1178,45 @@ feature_structure:
           "esModuleInterop": true,
           "skipLibCheck": true,
           "outDir": "dist",
-          "rootDir": "src"
+          "rootDir": "src",
+          "sourceMap": true,
+          "alwaysStrict": true,
+          "useUnknownInCatchVariables": true,
+          "forceConsistentCasingInFileNames": true,
+          "paths": {
+            "@/*": [
+              "./*",
+              "./src/*"
+            ],
+            "@/shared/*": [
+              "../../shared/*"
+            ]
+          }
         },
-        "include": ["src/**/*"],
-        "exclude": ["node_modules"]
+        "tsc-alias": {
+          "resolveFullPaths": true,
+          "verbose": false
+        },
+        "include": [
+          "src/**/*"
+        ],
+        "exclude": [
+          "node_modules"
+        ]
       }
+
 ---
 
 # Drizzle MySQL Starter
 
-The **Drizzle MySQL Starter** is a database foundation provided by **servercn** for projects that use **MySQL with Drizzle ORM**. When you run:
+The **Drizzle MySQL Starter** is a database foundation provided by **servercn** for projects that use **MySQL with Drizzle ORM**.
+
+[Drizzle Official Docs](https://orm.drizzle.team/docs/get-started/mysql-new)
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
 
-you get a **production‑ready MySQL + Drizzle setup** that integrates cleanly with the Express Starter Foundation.
-
-This starter focuses on **type‑safe database access, clear schema ownership, and predictable migrations**, without hiding SQL or introducing heavy abstractions.
-
-[Official Docs](https://orm.drizzle.team/docs/express/get-started)
 
 ## What This Starter Solves
 

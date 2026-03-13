@@ -1,6 +1,6 @@
 ---
 title: Email Service
-description: Production-ready email service for sending emails in ServerCN using nodemailer with support for multiple providers (Gmail, SMTP, SendGrid, etc.).
+description: Production-ready email service for sending emails in Servercn using nodemailer with support for multiple providers (Gmail, SMTP, SendGrid, etc.).
 command: npx servercn-cli add email-service
 
 mvc_structure:
@@ -303,7 +303,7 @@ feature_structure:
 
 # Email Service
 
-The **Email Service** component provides a production-ready solution for sending emails in ServerCN using **nodemailer**. It supports multiple email providers including Gmail, SMTP servers, SendGrid, and more.
+The **Email Service** component provides a production-ready solution for sending emails in Servercn using **nodemailer**. It supports multiple email providers including Gmail, SMTP servers, SendGrid, and more.
 
 ## Features
 
@@ -487,13 +487,13 @@ export async function sendEmail({
 import { sendEmail } from "../utils/send-mail";
 
 const html = `
-  <h1>Welcome to ServerCN</h1>
+  <h1>Welcome to Servercn</h1>
   <p>Thank you for joining us!</p>
 `;
 
 await sendEmail({
   email: "john.doe@example.com",
-  subject: "Welcome to ServerCN",
+  subject: "Welcome to Servercn",
   html
 });
 ```
@@ -511,7 +511,7 @@ await sendEmail({
   email: "john.doe@example.com",
   subject: "Reset Your Password",
   html,
-  from: "ServerCN <servercn@example.com>"
+  from: "Servercn <servercn@example.com>"
 });
 ```
 

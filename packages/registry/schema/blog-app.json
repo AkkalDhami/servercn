@@ -1,0 +1,128 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/schema.registry.json",
+  "slug": "blog-app",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "blog-app/index/mysql/drizzle/mvc",
+                      "feature": "blog-app/index/mysql/drizzle/feature"
+                    },
+                    "category": {
+                      "mvc": "blog-app/category/mysql/drizzle/mvc",
+                      "feature": "blog-app/category/mysql/drizzle/feature"
+                    },
+                    "user": {
+                      "mvc": "blog-app/user/mysql/drizzle/mvc",
+                      "feature": "blog-app/user/mysql/drizzle/feature"
+                    },
+                    "comment": {
+                      "mvc": "blog-app/comment/mysql/drizzle/mvc",
+                      "feature": "blog-app/comment/mysql/drizzle/feature"
+                    },
+                    "comment-like": {
+                      "mvc": "blog-app/comment-like/mysql/drizzle/mvc",
+                      "feature": "blog-app/comment-like/mysql/drizzle/feature"
+                    },
+                    "post": {
+                      "mvc": "blog-app/post/mysql/drizzle/mvc",
+                      "feature": "blog-app/post/mysql/drizzle/feature"
+                    },
+                    "post-like": {
+                      "mvc": "blog-app/post-like/mysql/drizzle/mvc",
+                      "feature": "blog-app/post-like/mysql/drizzle/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mysql2", "drizzle-orm"],
+                    "dev": ["drizzle-kit"]
+                  }
+                }
+              }
+            },
+
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "mvc": "blog-app/index/postgresql/drizzle/mvc",
+                      "feature": "blog-app/index/postgresql/drizzle/feature"
+                    },
+                    "category": {
+                      "mvc": "blog-app/category/postgresql/drizzle/mvc",
+                      "feature": "blog-app/category/postgresql/drizzle/feature"
+                    },
+                    "user": {
+                      "mvc": "blog-app/user/postgresql/drizzle/mvc",
+                      "feature": "blog-app/user/postgresql/drizzle/feature"
+                    },
+                    "comment": {
+                      "mvc": "blog-app/comment/postgresql/drizzle/mvc",
+                      "feature": "blog-app/comment/postgresql/drizzle/feature"
+                    },
+                    "comment-like": {
+                      "mvc": "blog-app/comment-like/postgresql/drizzle/mvc",
+                      "feature": "blog-app/comment-like/postgresql/drizzle/feature"
+                    },
+                    "post": {
+                      "mvc": "blog-app/post/postgresql/drizzle/mvc",
+                      "feature": "blog-app/post/postgresql/drizzle/feature"
+                    },
+                    "post-like": {
+                      "mvc": "blog-app/post-like/postgresql/drizzle/mvc",
+                      "feature": "blog-app/post-like/postgresql/drizzle/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["drizzle-kit", "@types/pg"]
+                  }
+                }
+              }
+            },
+
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "index": {
+                      "mvc": "blog-app/index/mongodb/mongoose/mvc",
+                      "feature": "blog-app/index/mongodb/mongoose/feature"
+                    },
+                    "category": {
+                      "mvc": "blog-app/category/mongodb/mongoose/mvc",
+                      "feature": "blog-app/category/mongodb/mongoose/feature"
+                    },
+                    "user": {
+                      "mvc": "blog-app/user/mongodb/mongoose/mvc",
+                      "feature": "blog-app/user/mongodb/mongoose/feature"
+                    },
+                    "comment": {
+                      "mvc": "blog-app/comment/mongodb/mongoose/mvc",
+                      "feature": "blog-app/comment/mongodb/mongoose/feature"
+                    },
+                    "post": {
+                      "mvc": "blog-app/post/mongodb/mongoose/mvc",
+                      "feature": "blog-app/post/mongodb/mongoose/feature"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mongoose"],
+                    "dev": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

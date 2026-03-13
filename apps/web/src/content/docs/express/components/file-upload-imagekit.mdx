@@ -1,6 +1,6 @@
 ---
 title: File Upload (ImageKit)
-description: The File Upload component provides a standardized way to handle file uploads in ServerCN using ImageKit as the storage provider.
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using ImageKit as the storage provider.
 
 command: npx servercn-cli add file-upload
 
@@ -1117,9 +1117,9 @@ feature_structure:
 
 # File Upload (ImageKit)
 
-The **File Upload** component provides a standardized way to handle file uploads in ServerCN using **ImageKit** as the storage provider.
+The **File Upload** component provides a standardized way to handle file uploads in Servercn using **ImageKit** as the storage provider.
 
-It abstracts common concerns such as multipart handling, ImageKit configuration, and secure uploads, while integrating cleanly with the rest of the ServerCN backend utilities.
+It abstracts common concerns such as multipart handling, ImageKit configuration, and secure uploads, while integrating cleanly with the rest of the Servercn backend utilities.
 
 [Official ImageKit Documentation](https://imagekit.io/), [ImageKit Node.js SDK](https://github.com/imagekit-developer/imagekit-nodejs)
 
@@ -1133,12 +1133,12 @@ It abstracts common concerns such as multipart handling, ImageKit configuration,
 
 ## Installation Guide
 
-This component requires additional ServerCN components.
-<Note text="👉 You do not need to install any ServerCN components manually.
+This component requires additional Servercn components.
+<Note text="👉 You do not need to install any Servercn components manually.
 Running this component installer will automatically install all required components.
 Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
-### 1. Install ServerCN components(Optional)
+### 1. Install Servercn components(Optional)
 
 - [HTTP Status Codes](/docs/express/components/http-status-codes)
 - [Api Response Handler](/docs/express/components/response-formatter)
@@ -1225,7 +1225,7 @@ export default imagekitClient;
 
 ### 2. Upload Middleware
 
-ServerCN uses **multer** to handle multipart file uploads.
+Servercn uses **multer** to handle multipart file uploads.
 
 **MVC:** <Code children="src/middlewares/upload-file.ts" />
 

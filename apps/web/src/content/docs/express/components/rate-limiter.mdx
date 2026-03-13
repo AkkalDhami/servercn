@@ -431,13 +431,13 @@ Built on top of <Code children="express-rate-limit" />, it provides a standardiz
 
 ## Installation Guide
 
-This component requires additional ServerCN components.
+This component requires additional Servercn components.
 
-<Note text="👉 You do not need to install any ServerCN components manually.
+<Note text="👉 You do not need to install any Servercn components manually.
 Running this component installer will automatically install all required components.
 Manual installation is optional and only recommended if you prefer fine-grained components control" />
 
-### 1. Install ServerCN components(Optional)
+### 1. Install Servercn components(Optional)
 
 - [HTTP Status Codes](/docs/express/components/http-status-codes)
 
@@ -456,7 +456,7 @@ The rate limiter can be customized to fit your application's needs:
 - **windowMs**: The timeframe for which requests are checked (in milliseconds).
 - **max**: The maximum number of connections to allow during the <Code children="windowMs" /> before returning a 429 error.
 - **standardHeaders**: Enables the <Code children="RateLimit-*" /> headers in the response.
-- **handler**: A custom function to execute when the limit is reached. In ServerCN, we use it to forward the error to our global error handler.
+- **handler**: A custom function to execute when the limit is reached. In Servercn, we use it to forward the error to our global error handler.
 
 ## Basic Implementation
 
