@@ -28,9 +28,14 @@ export default function ContributingPage() {
             key={guide.title}
             href={guide.docs as Route}
             className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
-            <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
-              {guide.title}
-            </h3>
+            <div className="flex items-center gap-4">
+              <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
+                {guide.title}
+              </h3>
+              {guide.meta?.new && (
+                <span className={`size-2 rounded-full bg-blue-500`} />
+              )}
+            </div>
 
             <p className="text-muted-primary mt-2 line-clamp-4 text-sm">
               {guide.description}

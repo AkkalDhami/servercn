@@ -53,8 +53,12 @@ export default function SchemaPage() {
             <div key={component.slug} className="flex flex-col gap-2">
               <Link
                 href={`${component.url}` as Route}
-                className="text-lg font-medium duration-300 hover:underline sm:text-xl">
+                className="text-lg flex items-center gap-3 font-medium duration-300 hover:underline sm:text-xl">
                 {component.title}
+
+                {component.meta?.new && (
+                  <span className={`size-2 rounded-full bg-blue-500`} />
+                )}
               </Link>
               <p className="text-muted-primary mt-2 line-clamp-2 text-base">
                 {component.description}
@@ -69,11 +73,16 @@ export default function SchemaPage() {
                         <Link
                           href={modelPath as Route}
                           className={cn(
-                            "relative block capitalize underline underline-offset-2 transition-colors",
+                            "relative capitalize underline underline-offset-2 flex items-center gap-3 transition-colors",
                             "text-muted-secondary hover:text-primary",
                             "font-medium"
                           )}>
                           {index + 1}. {database.label}
+                          {database?.new && (
+                            <span
+                              className={`size-2 rounded-full bg-blue-500`}
+                            />
+                          )}
                         </Link>
                       </li>
                     );
