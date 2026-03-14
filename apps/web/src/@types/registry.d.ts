@@ -1,6 +1,7 @@
-interface ISchema {
+export interface ISchema {
   label: string;
   slug: string;
+  new?: boolean;
 }
 
 export type Framework = "express" | "nestjs";
@@ -15,7 +16,7 @@ export interface IRegistryItems {
   docs?: string;
   url?: string;
   meta?: {
-    models?: ISchema[];
+    new?: boolean;
     databases?: ISchema[];
     adapters?: string[];
     useCases?: string[];
