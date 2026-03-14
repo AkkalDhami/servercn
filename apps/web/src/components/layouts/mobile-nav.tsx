@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle
+} from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DocsSidebar from "./docs-sidebar";
@@ -17,6 +22,7 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-75 p-0">
+        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <div className="h-full py-6 pr-2 pl-4">
           <DocsSidebar onLinkClickAction={() => setOpen(false)} />
         </div>
