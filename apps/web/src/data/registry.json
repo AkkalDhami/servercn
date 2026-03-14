@@ -18,7 +18,10 @@
       "description": "The Servercn CLI provides a set of commands to help you manage your Servercn projects.",
       "type": "guide",
       "status": "stable",
-      "docs": "/docs/cli"
+      "docs": "/docs/cli",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "installation",
@@ -34,7 +37,10 @@
       "description": "JavaScript guide for developers who are comfortable with JavaScript and want to use Servercn components without diving into TypeScrip",
       "type": "guide",
       "status": "stable",
-      "docs": "/docs/guides/js-guide"
+      "docs": "/docs/guides/js-guide",
+      "meta": {
+        "new": true
+      }
     },
 
     {
@@ -43,7 +49,10 @@
       "description": "Contribute reusable backend components for Node.js projects. Learn about component structure, testing, and submission guidelines.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/component"
+      "docs": "/docs/contributing/component",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "blueprint",
@@ -51,7 +60,10 @@
       "description": "Create and share complete project blueprints. Understand blueprint architecture and how to design scalable application templates.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/blueprint"
+      "docs": "/docs/contributing/blueprint",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "foundation",
@@ -59,7 +71,10 @@
       "description": "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of Servercn.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/foundation"
+      "docs": "/docs/contributing/foundation",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "schema",
@@ -67,7 +82,10 @@
       "description": "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/schema"
+      "docs": "/docs/contributing/schema",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "jwt-utils",
@@ -121,7 +139,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/password-hashing"
+      "docs": "/docs/components/password-hashing",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "http-status-codes",
@@ -148,7 +169,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/logger"
+      "docs": "/docs/components/logger",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "file-upload-cloudinary",
@@ -157,7 +181,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/file-upload-cloudinary"
+      "docs": "/docs/components/file-upload-cloudinary",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "file-upload-imagekit",
@@ -166,7 +193,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/file-upload-imagekit"
+      "docs": "/docs/components/file-upload-imagekit",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "email-service",
@@ -175,7 +205,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/email-service"
+      "docs": "/docs/components/email-service",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "not-found-handler",
@@ -211,7 +244,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/google-oauth"
+      "docs": "/docs/components/google-oauth",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "shutdown-handler",
@@ -247,7 +283,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/github-google-oauth"
+      "docs": "/docs/components/github-google-oauth",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "github-oauth",
@@ -256,7 +295,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/github-oauth"
+      "docs": "/docs/components/github-oauth",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "env-config",
@@ -274,7 +316,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/swagger-docs"
+      "docs": "/docs/components/swagger-docs",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "security-header",
