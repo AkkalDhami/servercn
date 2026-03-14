@@ -20,19 +20,8 @@ export const findNeighbour = (
 ): { prev: IRegistryItems | undefined; next: IRegistryItems | undefined } => {
   // First, check if this slug is a nested model (e.g., auth-user, auth-otp)
   let parentItem: IRegistryItems | undefined;
-  let nestedModels: { label: string; slug: string }[] = [];
+  const nestedModels: { label: string; slug: string }[] = [];
 
-  for (const item of registry.items as unknown as IRegistryItems[]) {
-    const models = item.meta?.models || item.meta?.databases;
-    if (
-      models &&
-      models.some((m: { label: string; slug: string }) => m.slug === slug)
-    ) {
-      parentItem = item;
-      nestedModels = models;
-      break;
-    }
-  }
 
   // If it's a nested model, navigate within the parent's models only
   if (parentItem && nestedModels.length > 0) {
@@ -53,7 +42,7 @@ export const findNeighbour = (
         type: parentItem!.type,
         docs: `/docs/${typePath}/${model.slug}`,
         description: "",
-        status: parentItem!.status
+        status: parentItem!.status,
       } as IRegistryItems;
     };
 
@@ -116,9 +105,10 @@ export function getRegistryTypeItems(
       slug: item.slug,
       frameworks: item.frameworks,
       meta: {
+        new: item.meta?.new,
         databases: item.meta?.databases?.map(db => ({
           ...db,
-          slug: `${framework}/${item.type}s/${db.slug}`
+          slug: `${framework}/${item.type}s/${db.slug}`,
         }))
       },
       type: item.type
