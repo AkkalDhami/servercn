@@ -158,7 +158,7 @@ Ensure your templates:
 **Before submitting:**
 
 ```bash
-npm run build:cli
+npm run dev:cli
 ```
 
 <PackageManagerTabs command="npx servercn-cli add bp blueprint-name --local" />
@@ -172,20 +172,6 @@ npm run build:cli
 - Environment variables are correctly identified
 </LNote>
 
-
-<Step>Build the Registry Items</Step>
-
-Before opening your pull request, ensure the registry output is generated and up to date.
-<PackageManagerTabs command="npx servercn-cli build" />
-
-#### What This Does:
-<LNote>
-  - Compiles all registry items
-  - Validates schema structure
-  - Outputs generated files into: <Code>apps/web/public/sr/</Code>
-</LNote>
-
-<Warning text="Don't forget to run `npx servercn-cli build` before submitting your pull request." />
 
 <Step>Register in registry.json</Step>
 
