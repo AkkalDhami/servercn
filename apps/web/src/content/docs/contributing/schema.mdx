@@ -162,7 +162,7 @@ Ensure your templates:
 **Before submitting:**
 
 ```bash
-npm run build:cli
+npm run dev:cli
 ```
 
 <PackageManagerTabs command="npx servercn-cli add sc schema-name --local" />
@@ -176,13 +176,6 @@ npm run build:cli
 - Database drivers match the implementation
 </LNote>
 
-
-<Step>Build the Registry Items</Step>
-
-Before opening your pull request, ensure the registry output is generated and up to date.
-<PackageManagerTabs command="npx servercn-cli build" />
-
-<Warning text="Don't forget to run `npx servercn-cli build` before submitting your pull request." />
 
 <Step>Register in registry.json</Step>
 
