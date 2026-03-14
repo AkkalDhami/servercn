@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ServerCN Config",
-  "description": "Advanced configuration schema for ServerCN projects",
+  "title": "Servercn Config",
+  "description": "Advanced configuration schema for Servercn projects",
   "type": "object",
   "required": ["version", "project", "stack", "meta"],
   "additionalProperties": false,

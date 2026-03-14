@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ServerCN Tooling Registry Schema",
-  "description": "Validates ServerCN tooling registry entries (runtime-agnostic tools like eslint, prettier, husky, commitlint).",
+  "title": "Servercn Tooling Registry Schema",
+  "description": "Validates Servercn tooling registry entries (runtime-agnostic tools like eslint, prettier, husky, commitlint).",
   "type": "object",
 
   "required": ["slug", "templates", "dependencies"],

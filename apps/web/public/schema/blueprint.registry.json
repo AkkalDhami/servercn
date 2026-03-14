@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ServerCN Blueprint Registry Schema",
-  "description": "Validates ServerCN blueprint registry (runtime → framework → database → orm → architecture).",
+  "title": "Servercn Blueprint Registry Schema",
+  "description": "Validates Servercn blueprint registry (runtime → framework → database → orm → architecture).",
   "type": "object",
 
   "required": ["slug", "runtimes"],

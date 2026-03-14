@@ -355,7 +355,10 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/prisma-mongodb-starter"
+      "docs": "/docs/foundations/prisma-mongodb-starter",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "eslint",
@@ -490,6 +493,7 @@
       "frameworks": ["express"],
       "docs": "/docs/schemas/banking-app",
       "meta": {
+        "new": true,
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
@@ -501,7 +505,8 @@
           },
           {
             "label": "PostgreSQL (Drizzle)",
-            "slug": "banking-app-postgresql"
+            "slug": "banking-app-postgresql",
+            "new": true
           }
         ]
       }
@@ -522,10 +527,12 @@
           },
           {
             "label": "MySQL (Drizzle)",
-            "slug": "blog-app-mysql"
+            "slug": "blog-app-mysql",
+            "new": true
           },
           {
             "label": "PostgreSQL (Drizzle)",
+            "new": true,
             "slug": "blog-app-postgresql"
           }
         ]

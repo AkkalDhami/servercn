@@ -4,27 +4,27 @@
   "schemas": [
     {
       "name": "registry:servercn.config",
-      "description": "Configuration schema for a ServerCN project",
+      "description": "Configuration schema for a Servercn project",
       "url": "https://servercn.vercel.app/schema/servercn.config.json"
     },
     {
       "name": "registry:component",
-      "description": "Registry schema that defines individual ServerCN components",
+      "description": "Registry schema that defines individual Servercn components",
       "url": "https://servercn.vercel.app/schema/component.registry.json"
     },
     {
       "name": "registry:blueprint",
-      "description": "Registry schema that defines ServerCN blueprints",
+      "description": "Registry schema that defines Servercn blueprints",
       "url": "https://servercn.vercel.app/schema/blueprint.registry.json"
     },
     {
       "name": "registry:foundation",
-      "description": "Registry schema that defines ServerCN project foundations",
+      "description": "Registry schema that defines Servercn project foundations",
       "url": "https://servercn.vercel.app/schema/foundation.registry.json"
     },
     {
       "name": "registry:tooling",
-      "description": "Registry schema that defines ServerCN development tooling",
+      "description": "Registry schema that defines Servercn development tooling",
       "url": "https://servercn.vercel.app/schema/tooling.registry.json"
     },
     {

@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ServerCN Registry Component Schema",
+  "title": "Servercn Registry Component Schema",
   "type": "object",
-  "description": "Validates ServerCN components supporting both simple and variant-based framework definitions.",
+  "description": "Validates Servercn components supporting both simple and variant-based framework definitions.",
   "required": ["$schema", "slug", "runtimes"],
   "additionalProperties": false,
 

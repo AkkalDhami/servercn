@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ServerCN Registry Schema",
-  "description": "Validates ServerCN registry schema (runtime → framework → database → orm → module → architecture).",
+  "title": "Servercn Registry Schema",
+  "description": "Validates Servercn registry schema (runtime → framework → database → orm → module → architecture).",
   "type": "object",
 
   "required": ["slug", "runtimes"],

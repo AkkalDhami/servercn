@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://servercn.vercel.app/schema/registry.json",
-  "title": "ServerCN Registry Schema",
-  "description": "Schema definition for the ServerCN documentation and registry configuration file.",
+  "title": "Servercn Registry Schema",
+  "description": "Schema definition for the Servercn documentation and registry configuration file.",
   "type": "object",
   "additionalProperties": false,
   "required": ["$schema", "name", "homepage", "author", "items"],
@@ -93,35 +93,40 @@
           "$ref": "#/$defs/meta"
         }
       },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "type": { "enum": ["blueprint", "schema"] }
+      "dependentSchemas": {
+        "meta": {
+          "properties": {
+            "meta": {
+              "dependentSchemas": {
+                "databases": {
+                  "properties": {
+                    "type": {
+                      "enum": ["schema", "blueprint"]
+                    }
+                  }
+                }
+              }
             }
-          },
-          "then": {
-            "required": ["meta"]
-          },
-          "else": {
-            "not": { "required": ["meta"] }
           }
         }
-      ]
+      }
     },
     "meta": {
       "type": "object",
-      "description": "Additional configuration metadata for blueprint or schema types.",
+      "description": "Additional configuration metadata.",
       "additionalProperties": false,
-      "required": ["databases"],
       "properties": {
+        "new": {
+          "type": "boolean",
+          "description": "Marks an entry as newly introduced.",
+          "default": false
+        },
         "databases": {
           "type": "array",
           "description": "List of supported database implementations.",
           "minItems": 1,
           "items": {
             "type": "object",
-            "description": "Database configuration entry.",
             "additionalProperties": false,
             "required": ["label", "slug"],
             "properties": {
