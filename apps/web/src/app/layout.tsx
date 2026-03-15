@@ -7,6 +7,7 @@ import { ScrollToTopButton } from "@/components/layouts/scroll-to-top";
 import Navbar from "@/components/layouts/navbar";
 import { SERVERCN_URL } from "@/lib/constants";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Footer from "@/components/layouts/footer";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -54,12 +55,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={fontVariables}>
       <body
-        className={`selection:bg-primary selection:text-primary-foreground mx-auto max-w-387.5 scroll-pt-10 scroll-smooth antialiased`}>
+        className={`selection:bg-primary selection:text-primary-foreground scroll-pt-10 scroll-smooth antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <ScrollToTopButton />
-          <Navbar />
-
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <Navbar />
+            {children}
+            <Footer />
+            <ScrollToTopButton />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

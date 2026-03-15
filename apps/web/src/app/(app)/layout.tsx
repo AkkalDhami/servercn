@@ -1,4 +1,3 @@
-import Footer from "@/components/layouts/footer";
 import React from "react";
 
 export default async function PublicLayout({
@@ -8,9 +7,8 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <div className="mx-auto max-w-360 p-3 sm:p-4">
+      <div className="max-w-svw w-full overflow-x-hidden">
         {children}
-        <Footer />
       </div>
     </>
   );
