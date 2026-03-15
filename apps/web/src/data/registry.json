@@ -65,6 +65,7 @@
         "new": true
       }
     },
+
     {
       "slug": "foundation",
       "title": "Foundation",
@@ -477,6 +478,15 @@
           }
         ]
       }
+    },
+    {
+      "slug": "banking-app",
+      "title": "Banking Application",
+      "description": "A simple banking application that integrates MongoDB through Mongoose for data management.",
+      "type": "blueprint",
+      "status": "beta",
+      "frameworks": ["express"],
+      "docs": "/docs/blueprints/banking-app"
     },
 
     {
