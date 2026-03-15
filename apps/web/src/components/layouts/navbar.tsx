@@ -45,7 +45,7 @@ export default function Navbar() {
           )}>
           <Logo />
 
-          <ul className="hidden items-center gap-4 md:flex">
+          <ul className="hidden items-center gap-4 lg:flex">
             {links.map(link => {
               const active = isActiveLink(path, link.href);
               return (
@@ -82,7 +82,7 @@ export default function Navbar() {
             <Button
               asChild
               size="icon"
-              className="hidden md:flex"
+              className="hidden lg:flex"
               variant="secondary">
               <Link href={GITHUB_URL} target="_blank">
                 <FaGithub className="size-4" />
@@ -92,7 +92,7 @@ export default function Navbar() {
             <Button
               onClick={() => setOpen(prev => !prev)}
               variant="outline"
-              className="px-2 py-1 md:hidden">
+              className="px-2 py-1 lg:hidden">
               <motion.div
                 animate={{ rotate: open ? 90 : 0 }}
                 transition={{ duration: 0.2 }}>
@@ -141,7 +141,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
         stiffness: 260,
         damping: 25
       }}
-      className="bg-background/90 fixed top-0 right-0 z-50 h-full w-90 backdrop-blur-md md:hidden">
+      className="bg-background/90 fixed top-0 right-0 z-50 h-full w-70 backdrop-blur-md lg:hidden">
       <Button
         variant="secondary"
         onClick={onClose}

@@ -14,14 +14,14 @@ import DemoVideo from "./demo";
 export default function HeroSection() {
   return (
     <section id="hero" className="relative mt-4 overflow-hidden sm:mt-12">
-      <div className="relative px-4 pt-18 pb-20 md:pt-22 md:pb-28">
+      <div className="relative sm:px-4 pt-18 pb-20 md:pt-22 md:pb-28">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="sm:max-w-1/2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="">
+              className="hidden sm:inline-block">
               <HeaderBadge className="px-0 shadow-none py-1 pl-3 bg-background text-sm">
                 <Link
                   href={"/docs/installation"}

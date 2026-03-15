@@ -48,7 +48,7 @@ export default async function PackageManagerTabs({
             style={{ backgroundColor: bg }}>
             <Image
               src={`/${managersIcons[m as keyof typeof managersIcons]}`}
-              className={cn("hidden size-3.5 sm:block")}
+              className={cn("size-3.5")}
               width={20}
               height={20}
               alt={m}
