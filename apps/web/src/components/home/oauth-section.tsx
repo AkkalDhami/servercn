@@ -7,11 +7,10 @@ import { FileNode } from "../file-viewer/file-tree";
 import InstallComponentCommands from "../command/install-component-command";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
+import { Section } from "@/components/ui/section";
 export default function OAuthSection() {
   return (
-    <section
-      id="google-oauth-section"
-      className="mx-auto hidden w-full max-w-368 overflow-x-auto py-20 md:block">
+    <Section id="google-oauth-section" className="hidden md:block">
       <div className="mb-12 text-center">
         <Heading className="text-3xl font-bold">OAuth Component</Heading>
         <SubHeading className="text-muted-foreground mt-4">
@@ -29,6 +28,6 @@ export default function OAuthSection() {
           className="col-span-3"
         />
       </div>
-    </section>
+    </Section>
   );
 }

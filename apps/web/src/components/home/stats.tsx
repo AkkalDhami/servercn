@@ -1,3 +1,5 @@
+import { Section } from "@/components/ui/section";
+
 interface Stat {
   title: string;
   value: number;
@@ -21,28 +23,30 @@ const STATISTICS: Stat[] = [
     suffix: "+"
   },
   {
-    title: "Blueprint",
-    value: 1,
-    suffix: ""
+    title: "Blueprints",
+    value: 2,
+    suffix: "+"
   }
 ];
 
 export default function Stats() {
   return (
-    <section
-      id="stats"
-      className="relative mx-auto mb-18 flex flex-col justify-between gap-y-4 rounded-xl px-4 py-20">
-      <div className="flex items-start justify-around gap-y-8">
+    <Section id="stats">
+      <div className="flex items-start flex-wrap justify-around gap-8">
         {STATISTICS.map((stat, index) => (
           <div key={index} className="pl-5">
             <div className="flex items-start gap-1">
               <h3 className="text-6xl font-bold">{stat.value}</h3>
-              <p className="text-4xl text-muted-primary font-semibold">{stat.suffix}</p>
+              <p className="text-muted-primary text-4xl font-semibold">
+                {stat.suffix}
+              </p>
             </div>
-            <p className="text-base uppercase text-muted-foreground font-medium">{stat.title}</p>
+            <p className="text-muted-foreground text-base font-medium uppercase">
+              {stat.title}
+            </p>
           </div>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }
