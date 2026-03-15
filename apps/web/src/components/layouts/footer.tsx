@@ -5,9 +5,14 @@ import Logo from "./logo";
 import { getRegistryTypeItems } from "@/lib/source";
 import Link from "next/link";
 import { Route } from "next";
-import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { GiCrossedAxes } from "react-icons/gi";
-import { APP_NAME, BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
+import {
+  APP_NAME,
+  BASE_GITHUB_URL,
+  DISCORD_URL,
+  GITHUB_URL
+} from "@/lib/constants";
+import { cn } from "@/lib/utils";
 type FooterLink = {
   title: string;
   href: string;
@@ -21,13 +26,21 @@ type FooterLinkGroup = {
 
 export default function Footer() {
   return (
-    <footer className="font-inter relative mt-8 w-full border-t">
-      <div className="w-full">
-        <div className="relative flex size-full flex-col justify-between gap-5 px-4">
-          <div className="flex flex-col gap-4 pt-12 sm:gap-8 md:flex-row">
+    <footer
+      className={cn(
+        "bg-background relative z-10 w-full max-w-svw overflow-x-hidden pt-0 pb-8"
+      )}>
+      <div
+        className={cn(
+          "relative mx-auto w-full max-w-360 py-4",
+          "screen-line-before screen-line-after",
+          "border-x border-edge"
+        )}>
+        <div className="relative flex size-full flex-col justify-between gap-5">
+          <div className="flex flex-col gap-4 px-4 sm:gap-8 md:flex-row">
             <AnimatedContainer className="w-full max-w-sm min-w-2xs space-y-4">
               <Logo />
-              <p className="text-muted-foreground mt-8 text-sm md:mt-4">
+              <p className="text-muted-foreground mt-8 text-sm">
                 {APP_NAME} , the backend component registry for node.js inspired
                 by shadcn/ui.
               </p>
@@ -58,16 +71,16 @@ export default function Footer() {
             ))}
           </div>
 
-          <div className="relative mt-10 mask-b-from-5%">
-            <TextHoverEffect text="SERVERCN" automatic={true} />
-          </div>
+          <p className="screen-line-before mask-b-from-0.5 pt-6 text-center text-5xl font-bold tracking-widest text-neutral-300 uppercase sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl dark:text-neutral-700">
+            SERVERCN
+          </p>
 
-          <div className="text-muted-foreground relative flex flex-col items-center justify-between gap-2 border-t py-4 text-sm md:flex-row">
-            <div className="via-muted-secondary/40 absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent to-transparent"></div>
-            <p>
-              &copy; {new Date().getFullYear()} {APP_NAME} | All rights reserved.
+          <div className="text-muted-foreground screen-line-before relative flex flex-col items-center justify-between gap-2 px-4 pt-4 text-sm md:flex-row">
+            <p className="capitalize">
+              &copy; {new Date().getFullYear()} | {APP_NAME} | All rights
+              reserved.
             </p>
-            <div className="flex items-center flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               Built with <Weapon /> by
               <Link
                 className="hover:text-foreground underline"
@@ -80,7 +93,7 @@ export default function Footer() {
                 className="hover:text-foreground underline"
                 href={"/contributors"}
                 target="_blank">
-               Contributors
+                Contributors
               </Link>
             </div>
             <div className="flex items-center gap-3">
@@ -104,10 +117,10 @@ export default function Footer() {
   );
 }
 
-const components = getRegistryTypeItems("component", "express");
-const foundations = getRegistryTypeItems("foundation", "express");
-const blueprints = getRegistryTypeItems("blueprint", "express");
-const models = getRegistryTypeItems("schema", "express");
+export const components = getRegistryTypeItems("component", "express");
+export const foundations = getRegistryTypeItems("foundation", "express");
+export const blueprints = getRegistryTypeItems("blueprint", "express");
+export const models = getRegistryTypeItems("schema", "express");
 
 const footerLinkGroups: FooterLinkGroup[] = [
   {
