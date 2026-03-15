@@ -37,24 +37,26 @@ const foundations = getRegistryTypeItems("foundation", "express");
 
 export default function FoundationsPage() {
   return (
-    <Container className="mt-16 min-h-screen">
-      <div className="mb-6">
-        <Heading className="tracking-tight capitalize">{APP_NAME} Foundations</Heading>
+    <Container className="border-edge w-full max-w-360 border-x px-0 pt-18">
+      <div className="mb-6 px-4">
+        <Heading className="tracking-tight capitalize">
+          {APP_NAME} Foundations
+        </Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
-          Production-ready {APP_NAME} foundations for building scalable backends.
-          Here you can find all the foundations available in the library. We are
-          working on adding more foundations.
+          Production-ready {APP_NAME} foundations for building scalable
+          backends. Here you can find all the foundations available in the
+          library. We are working on adding more foundations.
         </SubHeading>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="screen-line-after &>*]:border grid divide-x sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(3n)]:border-r-0 [&>*:nth-child(3n+1)]:border-l-0">
         {foundations.map(component => (
           <ComponentCard key={component.slug} component={component} />
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-end">
-        <p className="text-muted-foreground text-sm">
+      <div className="mt-6 flex items-center justify-end px-4">
+        <p className="text-muted-foreground text-base">
           Total foundations: {foundations.length}
         </p>
       </div>

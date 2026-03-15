@@ -3,9 +3,9 @@ import { Container } from "@/components/ui/container";
 
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Heading } from "@/components/ui/heading";
-import ComponentCard from "@/components/docs/component-card";
 import { getRegistryTypeItems } from "@/lib/source";
 import { APP_NAME } from "@/lib/constants";
+import { ItemWithDBCard } from "../schemas/page";
 
 export const generateMetadata = (): Metadata => {
   return {
@@ -40,9 +40,11 @@ const blueprints = getRegistryTypeItems("blueprint", "express");
 
 export default function BlueprintsPage() {
   return (
-    <Container className="mt-16 min-h-screen w-full max-w-360">
-      <div className="mb-6">
-        <Heading className="tracking-tight capitalize">{APP_NAME} Blueprints</Heading>
+    <Container className="border-edge border-x px-0 pt-18">
+      <div className="mb-6 px-4">
+        <Heading className="tracking-tight capitalize">
+          {APP_NAME} Blueprints
+        </Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
           Production-ready {APP_NAME} blueprints for building scalable backends.
           Here you can find all the blueprints available in the library. We are
@@ -50,14 +52,14 @@ export default function BlueprintsPage() {
         </SubHeading>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="screen-line-after &>*]:border grid divide-x sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(3n)]:border-r-0 [&>*:nth-child(3n+1)]:border-l-0">
         {blueprints.map(component => (
-          <ComponentCard key={component.slug} component={component} />
+          <ItemWithDBCard key={component.slug} item={component} />
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-end">
-        <p className="text-muted-foreground text-sm">
+      <div className="mt-6 px-4 flex items-center justify-end">
+        <p className="text-muted-foreground">
           Total blueprints: {blueprints.length}
         </p>
       </div>
