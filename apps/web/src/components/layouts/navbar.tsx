@@ -36,8 +36,13 @@ export default function Navbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="bg-background fixed top-0 left-0 z-40 w-full">
-        <nav className="mx-auto flex max-w-368 items-center justify-between px-4 py-2 md:py-3">
+        className="bg-background pt-2 fixed top-0 left-0 z-40 w-full">
+        <nav
+          className={cn(
+            "mx-auto flex max-w-360 items-center justify-between px-4 py-2.5",
+            "border-edge border-x",
+            "screen-line-before screen-line-after"
+          )}>
           <Logo />
 
           <ul className="hidden items-center gap-4 md:flex">

@@ -44,7 +44,7 @@ export const ContributorCard: React.FC<ContributorCardProps> = ({
 }) => {
   const badge = getContributionBadge(contributor.contributions);
   return (
-    <div className="border-hover flex flex-col items-center rounded-lg border p-4 shadow-sm duration-200">
+    <div className="border-hover border-edge screen-line-before flex flex-col items-center border-x p-4 duration-300">
       <img
         src={contributor.avatar_url}
         alt={contributor.login}

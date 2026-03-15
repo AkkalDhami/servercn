@@ -1,9 +1,13 @@
 import { ContributorCard } from "@/components/contributor/contributor-card";
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
+import { GITHUB_URL } from "@/lib/constants";
 
 import { Metadata } from "next";
+import Link from "next/link";
+import { FaGithub } from "react-icons/fa6";
 
 export const metadata: Metadata = {
   title: `Contributors`,
@@ -49,18 +53,44 @@ export default async function Page() {
   }
 
   return (
-    <Container className="mt-16 min-h-screen w-full max-w-360">
-      <div className="mb-6">
+    <Container className="border-edge border-x px-0 pt-18">
+      <div className="mb-6 px-4">
         <Heading className="tracking-tight">Our Contributors</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
           Meet the contributors who worked on this project.
         </SubHeading>
       </div>
-      <h1 className="mb-6 text-center text-3xl font-bold"></h1>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-        {contributors.map(contributor => (
-          <ContributorCard key={contributor.id} contributor={contributor} />
-        ))}
+      <h1 className="mb-6 px-4 text-center text-3xl font-bold"></h1>
+      <div className="screen-line-after grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+        <>
+          {contributors.map(contributor => (
+            <ContributorCard key={contributor.id} contributor={contributor} />
+          ))}
+        </>
+        {contributors.length === 0 && (
+          <div className="col-span-12 flex items-center justify-center">
+            <p className="text-muted-foreground">
+              No contributors found. Be the first to contribute!
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="screen-line-after flex flex-col items-center justify-center space-y-4 p-4">
+        <p className="text-muted-foreground text-xl">
+          This project is open-source and welcomes contributions from the
+          community. Help improve features, fix bugs, or enhance documentation.
+        </p>
+        <Button asChild>
+          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <FaGithub size={16} />
+            Contribute on GitHub
+          </Link>
+        </Button>
+      </div>
+      <div className="mt-6 flex items-center justify-end px-4">
+        <p className="text-muted-foreground">
+          Total contributors: {contributors.length}
+        </p>
       </div>
     </Container>
   );

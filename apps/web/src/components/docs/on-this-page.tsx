@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import GithubSlugger from "github-slugger";
 import { cn } from "@/lib/utils";
 
@@ -13,36 +14,55 @@ type Heading = {
 export function OnThisPage() {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const previousPathname = useRef<string | null>(null);
 
-  useEffect(() => {
-    const container = document.getElementById("docs-content");
-    if (!container) return;
+  // Use useLayoutEffect for DOM measurements to avoid flicker
+  useLayoutEffect(() => {
+    // Check if pathname actually changed
+    if (previousPathname.current === pathname) {
+      return;
+    }
+    previousPathname.current = pathname;
 
-    const slugger = new GithubSlugger();
+    const extractAndSetHeadings = () => {
+      const container = document.getElementById("docs-content");
+      if (!container) {
+        setHeadings([]);
+        setActiveId(null);
+        return;
+      }
 
-    const elements = Array.from(
-      container.querySelectorAll("h2, h3")
-    ) as HTMLHeadingElement[];
+      const slugger = new GithubSlugger();
 
-    const list: Heading[] = elements
-      .map(el => {
-        const text = el.textContent?.trim() ?? "";
-        if (!text) return null;
+      const elements = Array.from(
+        container.querySelectorAll("h2, h3")
+      ) as HTMLHeadingElement[];
 
-        const id = el.id || slugger.slug(text);
-        el.id = id;
+      const list: Heading[] = elements
+        .map(el => {
+          const text = el.textContent?.trim() ?? "";
+          if (!text) return null;
 
-        return {
-          id,
-          text,
-          level: Number(el.tagName[1])
-        };
-      })
-      .filter(Boolean) as Heading[];
+          const id = el.id || slugger.slug(text);
+          el.id = id;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHeadings(list);
-  }, []);
+          return {
+            id,
+            text,
+            level: Number(el.tagName[1])
+          };
+        })
+        .filter(Boolean) as Heading[];
+
+      // Update state based on external system (DOM) read
+      setHeadings(list);
+      setActiveId(null);
+    };;
+
+    // Wait for React to render before reading DOM
+    requestAnimationFrame(extractAndSetHeadings);
+  }, [pathname]);
 
   useEffect(() => {
     if (headings.length === 0) return;
@@ -73,7 +93,7 @@ export function OnThisPage() {
   if (headings.length === 0) return null;
 
   return (
-    <nav className="hidden w-56 md:block">
+    <nav className="hidden w-56 px-2 md:block">
       <h4 className="mb-2 text-sm font-semibold">On This Page</h4>
 
       <ul className="space-y-2 text-sm">

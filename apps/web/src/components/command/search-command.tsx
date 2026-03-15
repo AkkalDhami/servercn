@@ -91,7 +91,7 @@ export function SearchCommand({
         variant={"outline"}
         onClick={() => setOpen(open => !open)}
         className={cn(
-          "group hover:bg-card-hover px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5",
+          "group hover:bg-card-hover border px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5 dark:border-neutral-800",
           className
         )}>
         <div

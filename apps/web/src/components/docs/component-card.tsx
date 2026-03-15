@@ -10,7 +10,7 @@ export default function ComponentCard({
   return (
     <Link
       href={component.url as Route}
-      className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
+      className="group last:border-r border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300">
       {component.status !== "stable" && (
         <>
           <span
@@ -22,7 +22,7 @@ export default function ComponentCard({
         </>
       )}
       <div className="flex items-center gap-4">
-        <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
+        <h3 className="text-lg underline-offset-4 group-hover:underline">
           {component.title}
         </h3>
         {component.meta?.new && (

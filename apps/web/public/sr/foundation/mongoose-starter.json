@@ -107,11 +107,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/models/user.model.ts",
-                  "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  CORS_ORIGIN: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                 },

@@ -31,6 +31,10 @@ export const siteConfig = {
     {
       label: "Contributing",
       href: "/contributing"
+    },
+    {
+      label: "Contributors",
+      href: "/contributors"
     }
   ],
 

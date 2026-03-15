@@ -126,7 +126,7 @@ export default function DocsSidebar({
   };
 
   return (
-    <nav className="no-scrollbar font-inter sticky top-18 left-0 z-10 h-full max-h-[calc(100vh-2rem)] w-full space-y-6 overflow-y-auto px-3 pb-14">
+    <nav className="no-scrollbar font-inter sticky top-20 left-0 z-10 h-full max-h-[calc(100vh-2rem)] space-y-6 overflow-y-auto px-3 py-0 pb-14 text-sm lg:mb-10">
       <CodeTheme />
       <SelectFramework />
 
@@ -134,7 +134,7 @@ export default function DocsSidebar({
         if (!section.items.length) return null;
         return (
           <div key={section.title}>
-            <h3 className="w-11/12 pb-4 text-sm font-[450] uppercase">
+            <h3 className="text-muted-foreground pb-4 text-xs font-medium tracking-wider uppercase">
               {section.title}
             </h3>
 
@@ -157,7 +157,7 @@ export default function DocsSidebar({
                       onClick={onLinkClickAction}
                       href={itemUrl as Route}
                       className={cn(
-                        "relative flex w-full cursor-pointer items-center gap-4 pl-4 text-base font-medium transition-colors",
+                        "relative flex w-full cursor-pointer items-center gap-4 pl-4 text-base transition-colors",
                         isActive
                           ? "text-accent-foreground"
                           : "text-muted-primary hover:text-primary"
@@ -205,7 +205,7 @@ export default function DocsSidebar({
                                   className={cn(
                                     "relative flex items-center gap-2 text-sm capitalize transition-colors",
                                     subActive
-                                      ? "text-accent-foreground font-medium"
+                                      ? "text-accent-foreground"
                                       : "text-muted-secondary hover:text-primary"
                                   )}>
                                   {subActive && (

@@ -16,6 +16,7 @@ import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Section } from "@/components/ui/section";
 
 interface IFeature {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -57,13 +58,13 @@ const features: IFeature[] = [
     title: "Opinionated, Yet Flexible",
     description:
       "Production-ready defaults that follow best practices while remaining fully customizable.",
-    className: "md:col-span-2"
-  },
-  {
-    icon: Puzzle,
-    title: "Composable Components",
-    description:
-      "Add only what you need—auth, validation, hashing, errors—without coupling your entire stack."
+    },
+    {
+      icon: Puzzle,
+      title: "Composable Components",
+      description:
+      "Add only what you need—auth, validation, hashing, errors—without coupling your entire stack.",
+      className: "md:col-span-2"
   },
   {
     icon: ShieldCheck,
@@ -82,21 +83,20 @@ const features: IFeature[] = [
     title: "Non-Destructive Updates",
     description:
       "Existing files are respected—only missing pieces are added, never overwritten silently.",
-    className: "md:col-span-2"
   },
   {
     icon: Database,
     title: "Database-Aware Setup",
     description:
       "Components integrate cleanly with MongoDB, PostgreSQL, MySQL, and other common databases.",
-    className: "md:col-span-2"
-  },
-  {
-    icon: Package,
-    title: "Dependency-Safe Installs",
-    description:
-      "Dependencies are installed only when required and at the correct project scope."
-  },
+    },
+    {
+      icon: Package,
+      title: "Dependency-Safe Installs",
+      description:
+      "Dependencies are installed only when required and at the correct project scope.",
+      className: "md:col-span-2"
+    },
   {
     icon: BookOpen,
     title: "Transparent & Documented",
@@ -107,7 +107,7 @@ const features: IFeature[] = [
 
 export default function WhyServerCN() {
   return (
-    <section id="feature" className="py-20">
+    <Section id="feature" className="px-0">
       <div className="mb-12 text-center">
         <Heading className="text-3xl font-bold">Why ServerCN</Heading>
         <SubHeading className="text-muted-foreground mt-4">
@@ -115,12 +115,12 @@ export default function WhyServerCN() {
         </SubHeading>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid divide-x divide-edge border-l border-edge sm:grid-cols-2 md:grid-cols-4 screen-line-after lg:grid-cols-5">
         {features.map((item: IFeature) => (
           <FeatureCard key={item.title} item={item} />
         ))}
       </div>
-    </section>
+    </Section>
   );
 }
 
@@ -129,7 +129,9 @@ export function FeatureCard({ item }: { item: IFeature }) {
     <div
       key={item.title}
       className={cn(
-        "hover:bg-card-hover bg-background border-hover relative rounded-xl border p-6",
+        "hover:bg-card-hover relative p-4 duration-300",
+        "last:border-r border-edge",
+        "screen-line-before",
         item.className
       )}>
       <div className="relative">

@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export default function ContributingPage() {
   return (
-    <Container className="mt-16 min-h-screen w-full max-w-360">
-      <div className="mb-6">
+    <Container className="border-edge border-x px-0 pt-18">
+      <div className="mb-6 px-4">
         <Heading className="tracking-tight">Contributing to {APP_NAME}</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
           Help us build the future of backend development. Choose a contribution
@@ -22,12 +22,12 @@ export default function ContributingPage() {
         </SubHeading>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="screen-line-after divide-edge grid divide-x md:grid-cols-2 lg:grid-cols-3">
         {contributingGuides.map(guide => (
           <Link
             key={guide.title}
             href={guide.docs as Route}
-            className="group bg-background border-hover hover:bg-card-hover relative rounded-xl border p-5">
+            className="group screen-line-before border-hover hover:bg-card-hover border-edge relative p-4 last:border-r">
             <div className="flex items-center gap-4">
               <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
                 {guide.title}

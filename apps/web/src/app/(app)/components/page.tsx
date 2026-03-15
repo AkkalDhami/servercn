@@ -41,8 +41,8 @@ const stableComponents = components.filter(
 
 export default function ComponentsPage() {
   return (
-    <Container className="mt-16 min-h-screen w-full max-w-360">
-      <div className="mb-6">
+    <Container className="border-edge border-x px-0 pt-18">
+      <div className="mb-6 px-4">
         <Heading className="tracking-tight capitalize">
           {APP_NAME} Components
         </Heading>
@@ -53,14 +53,14 @@ export default function ComponentsPage() {
         </SubHeading>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="screen-line-after &>*]:border divide-x grid sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(3n+1)]:border-l-0 [&>*:nth-child(3n)]:border-r-0">
         {components.map(component => (
           <ComponentCard key={component.slug} component={component} />
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-end">
-        <p className="text-muted-foreground text-sm">
+      <div className="mt-6 flex items-center justify-end px-4">
+        <p className="text-muted-foreground">
           Total components: {components.length} | Stable components:{" "}
           {stableComponents.length}
         </p>
