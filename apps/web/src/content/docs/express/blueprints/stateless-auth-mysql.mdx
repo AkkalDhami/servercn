@@ -1,6 +1,7 @@
 ---
 title: Stateless Auth | MySQL (Drizzle)
 description: Production-ready stateless authentication implementation using Express, MySQL, and Drizzle ORM.
+command: npx servercn-cli add blueprint stateless-auth
 ---
 
 # Stateless Auth (MySQL)
@@ -31,6 +32,8 @@ This blueprint comes packed with production-ready features organized into a clea
 
 The blueprint implements a highly organized directory structure designed for scalability and maintainability:
 
+### MVC Structure
+
 ```text
 src/
 ├── configs/          # Database, social auth, and environment setup
@@ -46,30 +49,43 @@ src/
 └── validators/       # Zod schemas for request validation
 ```
 
----
+### Feature Structure
 
-## Architecture Support
-
-This blueprint supports both **MVC** and **Feature-based** architectures.
-
-### MVC Structure
-
-```text
-src/
-├── controllers/
-│   └── auth.controller.ts
-├── drizzle/
-│   ├── schema/
-│   │   ├── user.schema.ts
-│   │   └── refresh-token.schema.ts
-│   └── index.ts
-├── services/
-│   └── auth.service.ts
-├── middlewares/
-│   └── verify-auth.ts
-└── utils/
-    └── jwt.ts
 ```
+src/
+├─ cron/
+│  └─ cleanup-refresh-tokens.cron.ts
+├─ docs/
+│  └─ swagger.json
+├─ drizzle/
+│  ├─ migrations/
+│  └─ schemas/
+│     ├─ refresh-token.schema.ts
+│     ├─ schema.helper.ts
+│     ├─ user.schema.ts
+│     └─ index.ts
+├─ email-templates/
+│  ├─ email-verification.ejs
+│  └─ forgot-password.ejs
+├─ modules/
+│  ├─ auth/
+│  ├─ health/
+│  ├─ oauth/
+│  ├─ otp/
+│  └─ upload/
+├─ routes/
+│  └─ index.ts
+├─ shared/
+│  ├─ configs/
+│  ├─ constants/
+│  ├─ helpers/
+│  ├─ middlewares/
+│  └─ utils/
+└─ types/
+   ├─ global.d.ts
+   ├─ app.ts
+   └─ server.ts
+```   
 
 ---
 
@@ -79,3 +95,12 @@ src/
 - **Token Rotation**: Every refresh cycle invalidates the previous token.
 - **Type Safety**: Full TypeScript support with Drizzle ORM.
 - **Secure Cookies**: HTTP-only and Secure flags for production environments.
+
+
+## Contributing
+
+Found a bug or want to suggest improvements? Please contribute to the Servercn project!
+
+## Support
+
+Need help? Join our [Discord community](https://discord.gg/2fXqnTXF8d) or open an issue on [GitHub](https://github.com/akkaldhami/servercn).

@@ -1,0 +1,157 @@
+---
+title: Banking App with MongoDB
+description: Complete guide to using the Banking Application blueprint with MongoDB and Mongoose, including schema design and database operations
+command: npx servercn-cli add bp banking-app
+---
+
+# Banking Application with MongoDB (Mongoose)
+
+This guide covers the MongoDB-specific implementation of the Banking Application blueprint using Mongoose ODM. Learn about schema design, indexing strategies, and database operations specific to MongoDB.
+
+## Overview
+
+The MongoDB version of the banking app uses **Mongoose** for schema validation, data modeling, and database operations. This implementation provides flexibility while maintaining data integrity through Mongoose schemas and middleware.
+
+## Installation
+
+<PackageManagerTabs command="npx servercn-cli add bp banking-app" />
+
+---
+
+## Architecture Support
+
+### 1. MVC 
+
+The banking app follows the traditional Model-View-Controller pattern:
+
+```
+banking-app/
+├── src/
+│   ├── controllers/       # Request handlers
+│   │   ├── auth.controller.ts
+│   │   ├── account.controller.ts
+│   │   ├── transaction.controller.ts
+│   │   └── ledger.controller.ts
+│   ├── models/           # MongoDB schemas
+│   │   ├── User.ts
+│   │   ├── Account.ts
+│   │   ├── Transaction.ts
+│   │   └── Ledger.ts
+│   ├── services/         # Business logic layer
+│   │   ├── auth.service.ts
+│   │   ├── account.service.ts
+│   │   └── transaction.service.ts
+│   ├── routes/           # API route definitions
+│   │   ├── auth.routes.ts
+│   │   ├── account.routes.ts
+│   │   └── transaction.routes.ts
+│   ├── middlewares/      # Express middlewares
+│   │   ├── auth.middleware.ts
+│   │   ├── validation.middleware.ts
+│   │   └── error.middleware.ts
+│   ├── validators/       # Zod schemas
+│   │   ├── auth.validator.ts
+│   │   └── account.validator.ts
+│   ├── utils/            # Utility functions
+│   │   ├── apiResponse.ts
+│   │   ├── catchAsync.ts
+│   │   └── AppError.ts
+│   ├── config/           # Configuration files
+│   │   ├── database.ts
+│   │   └── env.ts
+│   └── app.ts            # Express app setup
+├── package.json
+└── tsconfig.json
+```
+
+### 2. Feature-Based(Modules)
+
+For better scalability and maintainability:
+
+```
+banking-app/
+├── src/
+│   ├── modules/          # Feature modules
+│   │   ├── auth/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── auth.model.ts
+│   │   │   └── auth.validator.ts
+│   │   ├── account/
+│   │   │   ├── account.controller.ts
+│   │   │   ├── account.service.ts
+│   │   │   ├── account.routes.ts
+│   │   │   ├── account.model.ts
+│   │   │   └── account.dto.ts
+│   │   ├── transaction/
+│   │   ├── ledger/
+│   │   ├── otp/
+│   │   └── oauth/
+│   ├── shared/           # Shared utilities
+│   │   ├── middlewares/
+│   │   ├── utils/
+│   │   └── constants/
+│   ├── config/
+│   ├── types/
+│   └── app.ts
+├── package.json
+└── tsconfig.json
+```
+
+---
+
+## Scripts
+
+```bash
+# Start the development server
+npm run dev
+
+# Build the project for production
+npm run build
+
+# Start the production server
+npm run start
+
+# Run TypeScript type checking
+npm run typecheck
+
+# Generate api documentation
+npm run docs
+
+# Check for linting issues
+npm run lint:check
+
+# Automatically fix linting issues
+npm run lint:fix
+
+# Check code formatting
+npm run format:check
+
+# Automatically fix code formatting
+npm run format:fix
+```
+
+---
+
+## Security Considerations
+
+1. **Password Hashing** - bcrypt with salt rounds
+2. **JWT Tokens** - Short-lived access tokens, long-lived refresh tokens
+3. **Rate Limiting** - Per-IP and per-user limits
+4. **Input Validation** - All inputs validated with Zod
+5. **SQL Injection Prevention** - MongoDB prevents SQL injection
+6. **XSS Protection** - Helmet middleware
+7. **CORS Configuration** - Configurable allowed origins
+8. **Request Sanitization** - Mongo-sanitize for NoSQL injection prevention
+
+<br />
+---
+
+## Contributing
+
+Found a bug or want to suggest improvements? Please contribute to the Servercn project!
+
+## Support
+
+Need help? Join our [Discord community](https://discord.gg/2fXqnTXF8d) or open an issue on [GitHub](https://github.com/akkaldhami/servercn).
