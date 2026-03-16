@@ -49,7 +49,7 @@ export const users = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("email_idx").on(table.email),
     index("role_idx").on(table.role),
     index("is_deleted_idx").on(table.isDeleted)

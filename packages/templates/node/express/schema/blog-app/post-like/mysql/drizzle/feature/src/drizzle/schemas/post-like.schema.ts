@@ -14,12 +14,11 @@ export const postLikes = mysqlTable(
       .notNull(),
     ...timestamps
   },
-  (table) => [uniqueIndex("unique_like").on(table.userId, table.postId)]
+  table => [uniqueIndex("unique_like").on(table.userId, table.postId)]
 );
 
 //* relations:
 export const postLikesRelations = relations(postLikes, ({ one }) => ({
   //TODO: relation with users: one like belongs to one user
-
   //TODO: relation with posts: one like belongs to one post
 }));

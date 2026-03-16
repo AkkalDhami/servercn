@@ -45,7 +45,7 @@ export const posts = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("author_id_slug_unique").on(table.authorId, table.slug),
     index("category_idx").on(table.categoryId),
     index("status_idx").on(table.status)
@@ -55,9 +55,7 @@ export const posts = mysqlTable(
 //* relations:
 export const postsRelations = relations(posts, ({ one, many }) => ({
   //?TODO: relation with users: post belongs to one user
-
   //?TODO: relation with categories: Post belongs to one category
-
   //?TODO: relation with post_likes: one post has many likes
 }));
 

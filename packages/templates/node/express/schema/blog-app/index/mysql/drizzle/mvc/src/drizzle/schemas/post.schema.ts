@@ -48,7 +48,7 @@ export const posts = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("author_id_slug_unique").on(table.authorId, table.slug),
     index("category_idx").on(table.categoryId),
     index("status_idx").on(table.status)

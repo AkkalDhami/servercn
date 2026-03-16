@@ -13,7 +13,7 @@ export const categories = pgTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("slug_idx").on(table.slug),
     uniqueIndex("name_idx").on(table.name)
   ]

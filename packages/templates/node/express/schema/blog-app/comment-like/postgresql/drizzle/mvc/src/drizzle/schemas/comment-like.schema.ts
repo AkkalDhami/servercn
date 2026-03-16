@@ -6,16 +6,16 @@ export const commentLikes = pgTable(
   "comment_likes",
   {
     userId: integer("user_id")
-    // .references(() => users.id),
+      // .references(() => users.id),
       .notNull(),
 
     commentId: integer("comment_id")
-    // .references(() => comments.id),
+      // .references(() => comments.id),
       .notNull(),
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("unique_comment_like").on(table.userId, table.commentId)
   ]
 );
@@ -23,6 +23,5 @@ export const commentLikes = pgTable(
 //* relations:
 export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
   //TODO: relation with users: one like belongs to one user
-
   //TODO: relation with comments: one like belongs to one comment
 }));
