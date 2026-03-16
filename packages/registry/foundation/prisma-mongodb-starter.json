@@ -21,7 +21,9 @@
               "cross-env",
               "source-map-support",
               "zod",
-              "@prisma/client@6"
+              "@prisma/client@6",
+              "swagger-autogen",
+              "swagger-ui-express"
             ],
             "dev": [
               "typescript",
@@ -38,7 +40,12 @@
               "@commitlint/cli",
               "@commitlint/config-conventional",
               "@types/source-map-support",
-              "lint-staged"
+              "lint-staged",
+              "@typescript-eslint/eslint-plugin",
+              "@typescript-eslint/parser",
+              "eslint",
+              "eslint-plugin-prettier",
+              "@types/swagger-ui-express"
             ]
           },
           "env": [
