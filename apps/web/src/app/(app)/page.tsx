@@ -8,7 +8,7 @@ import Stats from "@/components/home/stats";
 
 export default function Home() {
   return (
-    <main className="border-edge text-muted-foreground relative mx-auto max-w-360 border-x px-4">
+    <main className="border-edge relative mx-auto max-w-360 border-x px-4">
       <HeroSection />
       <Stats />
       <JSGuideCTA />

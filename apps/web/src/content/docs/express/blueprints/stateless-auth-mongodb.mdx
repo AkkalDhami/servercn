@@ -5024,64 +5024,65 @@ feature_structure:
                   export type RequestOtpType = z.infer<typeof RequestOtpSchema>;
                   export type VerifyOtpType = z.infer<typeof VerifyOtpSchema>;
 
-      - type: folder
-        name: upload
-        children:
-          - type: file
-            name: cloudinary.service.ts
-            content: |
-              import { DeleteApiResponse } from "cloudinary";
-              import cloudinary from "../../shared/configs/cloudinary";
+          - type: folder
+            name: upload
+            children:
+              - type: file
+                name: cloudinary.service.ts
+                content: |
+                  import { DeleteApiResponse } from "cloudinary";
+                  import cloudinary from "../../shared/configs/cloudinary";
 
-              export interface UploadOptions {
-                folder: string;
-                resource_type?: "image" | "video" | "raw" | "auto";
-              }
+                  export interface UploadOptions {
+                    folder: string;
+                    resource_type?: "image" | "video" | "raw" | "auto";
+                  }
 
-              export interface CloudinaryUploadResult {
-                url: string;
-                public_id: string;
-                size: number;
-              }
+                  export interface CloudinaryUploadResult {
+                    url: string;
+                    public_id: string;
+                    size: number;
+                  }
 
-              export const uploadToCloudinary = (
-                buffer: Buffer,
-                options: UploadOptions
-              ): Promise<CloudinaryUploadResult> => {
-                return new Promise((resolve, reject) => {
-                  const stream = cloudinary.uploader.upload_stream(
-                    {
-                      folder: options.folder || "uploads",
-                      resource_type: options.resource_type || "auto"
-                    },
-                    (error, result) => {
-                      if (error || !result) {
-                        return reject(error);
-                      }
-                      resolve({
-                        url: result.secure_url,
-                        public_id: result.public_id,
-                        size: result.bytes
+                  export const uploadToCloudinary = (
+                    buffer: Buffer,
+                    options: UploadOptions
+                  ): Promise<CloudinaryUploadResult> => {
+                    return new Promise((resolve, reject) => {
+                      const stream = cloudinary.uploader.upload_stream(
+                        {
+                          folder: options.folder || "uploads",
+                          resource_type: options.resource_type || "auto"
+                        },
+                        (error, result) => {
+                          if (error || !result) {
+                            return reject(error);
+                          }
+                          resolve({
+                            url: result.secure_url,
+                            public_id: result.public_id,
+                            size: result.bytes
+                          });
+                        }
+                      );
+
+                      stream.end(buffer);
+                    });
+                  };
+
+                  export const deleteFileFromCloudinary = (
+                    publicIds: string[]
+                  ): Promise<DeleteApiResponse> => {
+                    return new Promise((resolve, reject) => {
+                      cloudinary.api.delete_resources(publicIds, (error, result) => {
+                        if (error || !result) {
+                          return reject(error);
+                        }
+                        resolve(result);
                       });
-                    }
-                  );
+                    });
+                  };
 
-                  stream.end(buffer);
-                });
-              };
-
-              export const deleteFileFromCloudinary = (
-                publicIds: string[]
-              ): Promise<DeleteApiResponse> => {
-                return new Promise((resolve, reject) => {
-                  cloudinary.api.delete_resources(publicIds, (error, result) => {
-                    if (error || !result) {
-                      return reject(error);
-                    }
-                    resolve(result);
-                  });
-                });
-              };
 
       - type: folder
         name: routes
@@ -6267,5 +6268,5 @@ This blueprint supports both **MVC** and **Feature-based** architectures.
 
 - **Token Rotation**: New refresh token issued on every refresh.
 - **Reuse Detection**: Old refresh tokens are invalidated if reused.
-- **Secure Storage**: tokens stored in `httpOnly` cookies.
+- **Secure Storage**: tokens stored in <Code>httpOnly</Code> cookies.
 - **Hashed Tokens**: Refresh tokens are hashed before storage.
