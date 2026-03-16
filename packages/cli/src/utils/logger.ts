@@ -24,6 +24,7 @@ export const logger = {
   },
   muted: (msg: string) => console.log(highlighter.mute(msg)),
   create: (msg: string) => console.log(highlighter.create("CREATE: " + msg)),
-  skip: (msg: string) => console.log(highlighter.warn("SKIP: " + msg + " (exists)")),
+  skip: (msg: string) =>
+    console.log(highlighter.warn("SKIP: " + msg + " (exists)")),
   overwrite: (msg: string) => console.log(highlighter.info("OVERWRITE: " + msg))
 };

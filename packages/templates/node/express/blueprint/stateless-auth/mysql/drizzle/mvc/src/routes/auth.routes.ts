@@ -12,7 +12,7 @@ import {
   signupUser,
   updateProfile,
   verifyForgotPasswordOtp,
-  verifyUser,
+  verifyUser
 } from "../controllers/auth.controller";
 import { validateRequest } from "../middlewares/validate-request";
 import {
@@ -22,7 +22,7 @@ import {
   SigninSchema,
   SignupSchema,
   UpdateProfileSchema,
-  VerifyOtpSchema,
+  VerifyOtpSchema
 } from "../validators/auth";
 import { verifyAuthentication } from "../middlewares/verify-auth";
 import upload from "../middlewares/upload-file";
@@ -31,7 +31,7 @@ import {
   deleteAccountLimiter,
   resetPasswordLimiter,
   signinRateLimiter,
-  signupRateLimiter,
+  signupRateLimiter
 } from "../middlewares/rate-limiter";
 import { checkUserAccountRestriction } from "../middlewares/user-account-restriction";
 
@@ -41,7 +41,7 @@ router.post(
   "/signup",
   validateRequest(SignupSchema),
   signupRateLimiter,
-  signupUser,
+  signupUser
 );
 
 router.post("/verify-user", validateRequest(VerifyOtpSchema), verifyUser);
@@ -50,7 +50,7 @@ router.post(
   "/signin",
   validateRequest(SigninSchema),
   signinRateLimiter,
-  loginUser,
+  loginUser
 );
 
 router.get("/profile", verifyAuthentication, getUserProfile);
@@ -61,7 +61,7 @@ router.patch(
   upload.single("avatar"),
   validateRequest(UpdateProfileSchema),
   checkUserAccountRestriction,
-  updateProfile,
+  updateProfile
 );
 
 router.post("/refresh-token", refreshToken);
@@ -69,20 +69,20 @@ router.post("/refresh-token", refreshToken);
 router.post(
   "/forgot-password",
   validateRequest(VerifyOtpSchema.pick({ email: true })),
-  forgotPassword,
+  forgotPassword
 );
 
 router.post(
   "/verify-forgot-password",
   validateRequest(VerifyOtpSchema),
-  verifyForgotPasswordOtp,
+  verifyForgotPasswordOtp
 );
 
 router.post(
   "/reset-password",
   validateRequest(ResetPasswordSchema),
   resetPasswordLimiter,
-  resetPassword,
+  resetPassword
 );
 
 router.post(
@@ -91,7 +91,7 @@ router.post(
   validateRequest(ChangePasswordSchema),
   changePasswordLimiter,
   checkUserAccountRestriction,
-  changePassword,
+  changePassword
 );
 
 router.post("/logout", verifyAuthentication, logoutUser);
@@ -102,7 +102,7 @@ router.delete(
   validateRequest(DeleteAccountSchema),
   checkUserAccountRestriction,
   deleteAccountLimiter,
-  deleteAccount,
+  deleteAccount
 );
 
 router.put("/reactivate-account", verifyAuthentication, reactivateAccount);

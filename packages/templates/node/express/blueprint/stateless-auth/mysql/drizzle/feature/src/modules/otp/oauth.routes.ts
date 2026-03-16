@@ -6,33 +6,33 @@ const router = Router();
 
 router.get(
   "/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
 router.get(
   "/github/callback",
   passport.authenticate("github", {
     failureRedirect: "/login", //? redirect route if authenticated is failed,
-    session: false,
+    session: false
   }),
-  githubOAuth,
+  githubOAuth
 );
 
 router.get(
   "/google",
   passport.authenticate("google", {
     scope: ["email", "profile", "openid"],
-    prompt: "consent",
-  }),
+    prompt: "consent"
+  })
 );
 
 router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/login", //? redirect route if authenticated is failed
-    session: false,
+    session: false
   }),
-  googleOAuth,
+  googleOAuth
 );
 
 export default router;

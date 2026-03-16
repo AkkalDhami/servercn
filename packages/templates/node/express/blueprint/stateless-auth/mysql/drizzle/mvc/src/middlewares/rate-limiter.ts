@@ -11,11 +11,11 @@ export const rateLimiter = rateLimit({
     success: false,
     message:
       "Too many requests from this IP, please try again after 15 minutes",
-    statusCode: 429,
+    statusCode: 429
   },
   handler: (req, res, next, options) => {
     next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));
-  },
+  }
 });
 
 /**
@@ -27,10 +27,10 @@ export const authRateLimiter = rateLimit({
   handler: (req, res, next, options) => {
     next(
       ApiError.tooManyRequests(
-        "Too many login attempts, please try again after an hour",
-      ),
+        "Too many login attempts, please try again after an hour"
+      )
     );
-  },
+  }
 });
 
 /**
@@ -42,10 +42,10 @@ export const signinRateLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many login attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 /**
@@ -57,10 +57,10 @@ export const signupRateLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many registration attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 export const otpRequestLimiter = rateLimit({
@@ -69,10 +69,10 @@ export const otpRequestLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many OTP requests. Please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 export const otpVerificationLimiter = rateLimit({
@@ -81,10 +81,10 @@ export const otpVerificationLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many OTP verification attempts. Please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 export const resetPasswordLimiter = rateLimit({
@@ -93,10 +93,10 @@ export const resetPasswordLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many password reset attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 export const deleteAccountLimiter = rateLimit({
@@ -105,10 +105,10 @@ export const deleteAccountLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many account deletion attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });
 
 export const changePasswordLimiter = rateLimit({
@@ -117,8 +117,8 @@ export const changePasswordLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many password change attempts, please try again later.",
-    statusCode: 429,
+    statusCode: 429
   },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: false
 });

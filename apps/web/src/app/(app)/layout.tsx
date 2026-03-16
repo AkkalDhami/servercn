@@ -7,9 +7,7 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <div className="max-w-svw w-full overflow-x-hidden">
-        {children}
-      </div>
+      <div className="w-full max-w-svw overflow-x-hidden">{children}</div>
     </>
   );
 }

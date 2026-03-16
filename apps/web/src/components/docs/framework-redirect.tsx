@@ -24,12 +24,12 @@ export function FrameworkRedirect() {
   useEffect(() => {
     // Only run on client side after hydration
     if (typeof window === "undefined") return;
-    
+
     // Don't redirect if no framework preference is set
     if (!framework) return;
 
     const segments = pathname.split("/").filter(Boolean);
-    
+
     // Check if we're on a docs page
     if (segments[0] !== "docs") return;
 
@@ -38,7 +38,7 @@ export function FrameworkRedirect() {
       // Framework already in URL
       // If it matches the stored framework, no redirect needed
       if (segments[1] === framework) return;
-      
+
       // If it doesn't match, update the stored framework to match URL
       // This syncs the store with the URL
       return;

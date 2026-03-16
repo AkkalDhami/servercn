@@ -6,7 +6,7 @@ import {
   ResetPasswordType,
   SigninUserType,
   SignupUserType,
-  VerifyOtpType,
+  VerifyOtpType
 } from "../validators/auth";
 import { ApiError } from "../utils/api-error";
 import { refreshTokens, users } from "../drizzle";
@@ -17,7 +17,7 @@ import {
   OTP_CODE_LENGTH,
   OTP_EXPIRES_IN,
   REACTIVATION_AVAILABLE_AT,
-  REFRESH_TOKEN_EXPIRY,
+  REFRESH_TOKEN_EXPIRY
 } from "../constants/auth";
 import { OtpService } from "./otp.service";
 import { generateHashedToken, generateOTP } from "../helpers/token.helpers";
@@ -26,11 +26,11 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyAccessToken,
-  verifyRefreshToken,
+  verifyRefreshToken
 } from "../utils/jwt";
 import {
   deleteFileFromCloudinary,
-  uploadToCloudinary,
+  uploadToCloudinary
 } from "./cloudinary.service";
 import { IUser } from "../types/user";
 
@@ -61,7 +61,7 @@ export class AuthService {
       name,
       email,
       role,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     await OtpService.sendOtp({
@@ -69,11 +69,11 @@ export class AuthService {
       email,
       templateName: "email-verification",
       code,
-      hashCode,
+      hashCode
     });
 
     await redis.set(redisKey, userData, {
-      EX: OTP_EXPIRES_IN / 1000,
+      EX: OTP_EXPIRES_IN / 1000
     });
 
     return;
@@ -99,7 +99,7 @@ export class AuthService {
         email: userEmail,
         role,
         password,
-        isEmailVerified: true,
+        isEmailVerified: true
       })
       .$returningId();
 
@@ -110,7 +110,7 @@ export class AuthService {
       name,
       email,
       role: role || "user",
-      isEmailVerified: true,
+      isEmailVerified: true
     };
   }
 
@@ -131,13 +131,13 @@ export class AuthService {
 
     if (existingUser.lockUntil && new Date() < existingUser.lockUntil) {
       throw ApiError.forbidden(
-        `Your account has been locked. Please try again after ${Math.ceil((existingUser.lockUntil.getTime() - Date.now()) / (1000 * 60))} minutes.`,
+        `Your account has been locked. Please try again after ${Math.ceil((existingUser.lockUntil.getTime() - Date.now()) / (1000 * 60))} minutes.`
       );
     }
 
     const isPasswordValid = await verifyPassword(
       password,
-      existingUser.password || "",
+      existingUser.password || ""
     );
 
     if (!isPasswordValid) {
@@ -153,7 +153,7 @@ export class AuthService {
         .update(users)
         .set({
           failedLoginAttempts: newAttempts,
-          lockUntil,
+          lockUntil
         })
         .where(eq(users.id, existingUser.id));
 
@@ -165,16 +165,16 @@ export class AuthService {
       .set({
         failedLoginAttempts: 0,
         lockUntil: null,
-        lastLoginAt: new Date(),
+        lastLoginAt: new Date()
       })
       .where(eq(users.id, existingUser.id));
 
     await AuthService.handleUserToken(
       {
         id: existingUser.id,
-        role: existingUser.role,
+        role: existingUser.role
       },
-      setCookie,
+      setCookie
     );
 
     return {
@@ -182,7 +182,7 @@ export class AuthService {
       name: existingUser.name,
       email: existingUser.email,
       role: existingUser.role,
-      isEmailVerified: existingUser.isEmailVerified,
+      isEmailVerified: existingUser.isEmailVerified
     };
   }
 
@@ -194,16 +194,13 @@ export class AuthService {
       role: user.role,
       avatar: user.avatar,
       isEmailVerified: user.isEmailVerified,
-      lastLoginAt: user.lastLoginAt,
+      lastLoginAt: user.lastLoginAt
     };
   }
 
   static async updateUserProfile(
     userId: number,
-    {
-      name,
-      avatar,
-    }: { name: string; avatar?: Express.Multer.File | undefined },
+    { name, avatar }: { name: string; avatar?: Express.Multer.File | undefined }
   ) {
     const [existingUser] = await db
       .select()
@@ -222,7 +219,7 @@ export class AuthService {
     if (avatar?.buffer) {
       const file = await uploadToCloudinary(avatar.buffer, {
         folder: "uploads/files",
-        resource_type: "auto",
+        resource_type: "auto"
       });
       avatarUrl = file.url;
 
@@ -232,8 +229,8 @@ export class AuthService {
           avatar: {
             public_id: file.public_id,
             url: file.url,
-            size: file.size,
-          },
+            size: file.size
+          }
         })
         .where(eq(users.id, userId));
     }
@@ -248,17 +245,17 @@ export class AuthService {
       role: existingUser.role,
       avatar: avatarUrl,
       isEmailVerified: existingUser.isEmailVerified,
-      lastLoginAt: existingUser.lastLoginAt,
+      lastLoginAt: existingUser.lastLoginAt
     };
   }
 
   static async handleUserToken(
     user: Pick<IUser, "id" | "role">,
-    context: CookieOptionsType,
+    context: CookieOptionsType
   ) {
     const accessToken = generateAccessToken({
       id: user.id,
-      role: user.role,
+      role: user.role
     });
 
     const newRefreshToken = generateRefreshToken(user.id);
@@ -268,7 +265,7 @@ export class AuthService {
     await db.insert(refreshTokens).values({
       userId: user.id,
       tokenHash: hashedNewRefreshToken,
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
     });
 
     context.setAuthCookie &&
@@ -326,7 +323,7 @@ export class AuthService {
 
     const newAccessToken = generateAccessToken({
       id: user.id,
-      role: user.role,
+      role: user.role
     });
 
     const newRefreshToken = generateRefreshToken(user.id);
@@ -338,19 +335,19 @@ export class AuthService {
       .set({
         isRevoked: true,
         revokedAt: new Date(),
-        replacedByTokenHash: hashedNewRefreshToken,
+        replacedByTokenHash: hashedNewRefreshToken
       })
       .where(eq(refreshTokens.tokenHash, refreshTokenHash));
 
     await db.insert(refreshTokens).values({
       userId: user.id,
       tokenHash: hashedNewRefreshToken,
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
     });
 
     return {
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      refreshToken: newRefreshToken
     };
   }
 
@@ -362,7 +359,7 @@ export class AuthService {
 
     if (!existingUser) {
       throw ApiError.badRequest(
-        "If this email is registered, check your inbox.",
+        "If this email is registered, check your inbox."
       );
     }
 
@@ -376,7 +373,7 @@ export class AuthService {
       email,
       templateName: "forgot-password",
       code,
-      hashCode,
+      hashCode
     });
   }
 
@@ -385,7 +382,7 @@ export class AuthService {
     await OtpService.verifyOtp(hashCode, email);
     const redisKey = `forgot-password:${email}`;
     await redis.set(redisKey, "true", {
-      EX: 60 * 5, // 5 minutes
+      EX: 60 * 5 // 5 minutes
     });
   }
 
@@ -397,7 +394,7 @@ export class AuthService {
 
     if (!existingUser) {
       throw ApiError.badRequest(
-        "If this email is registered, check your inbox.",
+        "If this email is registered, check your inbox."
       );
     }
 
@@ -409,7 +406,7 @@ export class AuthService {
 
     const isOldPassword = await verifyPassword(
       newPassword,
-      existingUser.password || "",
+      existingUser.password || ""
     );
 
     if (isOldPassword) {
@@ -421,7 +418,7 @@ export class AuthService {
     await db
       .update(users)
       .set({
-        password: hashedPassword,
+        password: hashedPassword
       })
       .where(eq(users.email, email));
 
@@ -434,7 +431,7 @@ export class AuthService {
 
   static async changePassword(
     userId: number,
-    { oldPassword, newPassword }: ChangePasswordType,
+    { oldPassword, newPassword }: ChangePasswordType
   ) {
     const [existingUser] = await db
       .select()
@@ -451,7 +448,7 @@ export class AuthService {
 
     const isPasswordValid = await verifyPassword(
       oldPassword,
-      existingUser.password || "",
+      existingUser.password || ""
     );
 
     if (!isPasswordValid) {
@@ -460,7 +457,7 @@ export class AuthService {
 
     const isOldPassword = await verifyPassword(
       newPassword,
-      existingUser.password || "",
+      existingUser.password || ""
     );
 
     if (isOldPassword) {
@@ -472,7 +469,7 @@ export class AuthService {
     await db
       .update(users)
       .set({
-        password: hashedPassword,
+        password: hashedPassword
       })
       .where(eq(users.id, userId));
   }
@@ -485,8 +482,8 @@ export class AuthService {
           isDeleted: true,
           deletedAt: new Date(),
           reActivateAvailableAt: new Date(
-            Date.now() + REACTIVATION_AVAILABLE_AT,
-          ),
+            Date.now() + REACTIVATION_AVAILABLE_AT
+          )
         })
         .where(eq(users.id, userId));
     } else {
@@ -504,8 +501,8 @@ export class AuthService {
     if (user.lockUntil && new Date(user.lockUntil) > new Date()) {
       throw ApiError.badRequest(
         `Your account has been locked. Please try again after ${Math.ceil(
-          (user.lockUntil.getTime() - Date.now()) / (1000 * 60),
-        )} minutes.`,
+          (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
+        )} minutes.`
       );
     }
 
@@ -519,8 +516,8 @@ export class AuthService {
     ) {
       throw ApiError.unauthorized(
         `Reactivation not available yet. Please try again after ${Math.ceil(
-          (user.reActivateAvailableAt.getTime() - Date.now()) / (1000 * 60),
-        )} minutes.`,
+          (user.reActivateAvailableAt.getTime() - Date.now()) / (1000 * 60)
+        )} minutes.`
       );
     }
 
@@ -529,7 +526,7 @@ export class AuthService {
       .set({
         isDeleted: false,
         deletedAt: null,
-        reActivateAvailableAt: null,
+        reActivateAvailableAt: null
       })
       .where(eq(users.id, userId));
   }

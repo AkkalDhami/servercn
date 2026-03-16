@@ -6,7 +6,7 @@ export default function DocsLayout({
   children
 }: {
   children: React.ReactNode;
-  }) {
+}) {
   return (
     <div className="border-edge relative mx-auto flex max-w-360 flex-col justify-between gap-3 divide-x border-x px-2 py-1 md:flex-row">
       <div className="fixed right-0 bottom-4 left-0 z-20 flex h-10 items-center px-4 lg:hidden">
@@ -19,7 +19,7 @@ export default function DocsLayout({
         {children}
       </main>
       <aside className="docs-content no-scrollbar sticky top-20 hidden max-h-[calc(100vh-2rem)] space-y-4 overflow-y-auto xl:block">
-        <OnThisPage  />
+        <OnThisPage />
       </aside>
     </div>
   );

@@ -8,7 +8,7 @@ export default function Logo() {
       href="/"
       className="relative flex items-center gap-1 text-lg font-medium sm:text-xl">
       <span>{APP_NAME}</span>
-      <LucideTerminal className="size-5 mt-1" />
+      <LucideTerminal className="mt-1 size-5" />
     </Link>
   );
 }

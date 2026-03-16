@@ -9,8 +9,8 @@ const router = Router();
 
 router.use("/v1/health", healthRoutes);
 router.use("/v1/auth", authRoutes);
-router.use("/auth", oauthRoutes); 
-router.use("/v1/accounts", accountRoutes); 
-router.use("/v1/transactions", transactionRoutes); 
+router.use("/auth", oauthRoutes);
+router.use("/v1/accounts", accountRoutes);
+router.use("/v1/transactions", transactionRoutes);
 
 export default router;

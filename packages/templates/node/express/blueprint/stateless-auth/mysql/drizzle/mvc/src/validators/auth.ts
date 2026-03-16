@@ -81,7 +81,9 @@ export const DeleteAccountSchema = z.object({
   userId: z.number().min(1, {
     message: "User id is required"
   }),
-  type: z.enum(["soft", "hard"], { error: "Type must be either soft or hard" }).default("soft")
+  type: z
+    .enum(["soft", "hard"], { error: "Type must be either soft or hard" })
+    .default("soft")
 });
 
 export type SignupUserType = z.infer<typeof SignupSchema>;

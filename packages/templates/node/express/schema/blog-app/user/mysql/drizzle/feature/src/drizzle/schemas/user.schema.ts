@@ -45,7 +45,7 @@ export const users = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("email_idx").on(table.email),
     index("role_idx").on(table.role),
     index("is_deleted_idx").on(table.isDeleted)
@@ -55,11 +55,8 @@ export const users = mysqlTable(
 //* relations:
 export const usersRelations = relations(users, ({ many }) => ({
   //TODO: relation with posts: user has many posts
-
   //TODO: relation with post_likes: user has many likes
-
   //TODO: relation with comment_likes: user has many comment likes
-
   //TODO: relation with comments: user has many comments
 }));
 

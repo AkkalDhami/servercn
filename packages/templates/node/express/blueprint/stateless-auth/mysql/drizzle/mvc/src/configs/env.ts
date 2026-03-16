@@ -2,7 +2,9 @@ import "dotenv-flow/config";
 import { z } from "zod";
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
   PORT: z.string().default("9000"),
   DATABASE_URL: z.string(),
 

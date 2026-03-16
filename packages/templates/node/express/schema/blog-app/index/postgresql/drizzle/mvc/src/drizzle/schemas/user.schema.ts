@@ -36,9 +36,7 @@ export const users = pgTable(
     password: varchar("password", { length: 255 }),
     role: roleEnum("role").default("user").notNull(),
 
-    provider: providerEnum("provider")
-      .default("local")
-      .notNull(),
+    provider: providerEnum("provider").default("local").notNull(),
     providerId: varchar("provider_id", { length: 255 }),
 
     avatar: json("avatar").$type<IAvatar>(),
@@ -54,7 +52,7 @@ export const users = pgTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("email_idx").on(table.email),
     index("role_idx").on(table.role),
     index("is_deleted_idx").on(table.isDeleted)

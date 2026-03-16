@@ -37,9 +37,7 @@ async function main() {
     .description("Build the project")
     .option("--name <name>", "App name, website name")
     .option("--url <url>", "App URL, website URL")
-    .action(
-      async (options: buildTypeProps) => await build(options)
-    );
+    .action(async (options: buildTypeProps) => await build(options));
 
   program
     .command("add <components...>")

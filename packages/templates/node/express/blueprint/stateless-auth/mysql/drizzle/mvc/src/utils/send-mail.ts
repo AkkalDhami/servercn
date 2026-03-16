@@ -11,7 +11,13 @@ type sendMail = {
   templateName: string;
 };
 
-export async function sendEmail({ from, email, subject, data, templateName }: sendMail) {
+export async function sendEmail({
+  from,
+  email,
+  subject,
+  data,
+  templateName
+}: sendMail) {
   const transporter = getTransporter();
 
   const html = await renderEmailTemplates(templateName, data);

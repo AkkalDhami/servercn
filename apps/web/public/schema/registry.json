@@ -139,6 +139,11 @@
                 "type": "string",
                 "description": "Unique kebab-case identifier for the database variant.",
                 "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              "new": {
+                "type": "boolean",
+                "description": "Marks a database variant as newly introduced.",
+                "default": false
               }
             }
           }

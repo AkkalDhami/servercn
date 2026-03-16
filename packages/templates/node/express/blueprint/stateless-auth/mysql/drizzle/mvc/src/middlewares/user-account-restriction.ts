@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm";
 export async function checkUserAccountRestriction(
   req: UserRequest,
   _res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> {
   try {
     if (!req.user?.id) {
@@ -32,19 +32,19 @@ export async function checkUserAccountRestriction(
 
     if (user.lockUntil && user.lockUntil.getTime() > Date.now()) {
       const minutesLeft = Math.ceil(
-        (user.lockUntil.getTime() - Date.now()) / (1000 * 60),
+        (user.lockUntil.getTime() - Date.now()) / (1000 * 60)
       );
 
       return next(
         ApiError.forbidden(
-          `Your account has been locked. Please try again after ${minutesLeft} minutes.`,
-        ),
+          `Your account has been locked. Please try again after ${minutesLeft} minutes.`
+        )
       );
     }
 
     if (!user.isEmailVerified) {
       return next(
-        ApiError.forbidden("Email not verified. Please verify your email."),
+        ApiError.forbidden("Email not verified. Please verify your email.")
       );
     }
 

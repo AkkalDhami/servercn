@@ -67,7 +67,7 @@ function TreeNode({
         </button>
 
         {open && (
-          <div className="pl-3 space-y-1">
+          <div className="space-y-1 pl-3">
             {node?.children?.map(child => (
               <TreeNode
                 key={child.name}

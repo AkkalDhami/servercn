@@ -1,8 +1,6 @@
 export default {
-  "extends": [
-    "@commitlint/config-conventional"
-  ],
-  "rules": {
+  extends: ["@commitlint/config-conventional"],
+  rules: {
     "type-enum": [
       2,
       "always",
@@ -22,12 +20,6 @@ export default {
         "security"
       ]
     ],
-    "subject-case": [
-      2,
-      "always",
-      [
-        "lower-case"
-      ]
-    ]
+    "subject-case": [2, "always", ["lower-case"]]
   }
-}
+};

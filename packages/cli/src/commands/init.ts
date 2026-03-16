@@ -22,6 +22,7 @@ import { getDatabaseConfig } from "@/lib/config";
 import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
 import { paths } from "@/lib/paths";
+import { eslintConfig } from "@/configs/eslint.config";
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
@@ -247,6 +248,11 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         await fs.writeFile(
           path.join(rootPath, "commitlint.config.ts"),
           `export default ${JSON.stringify(commitlintConfig, null, 2)}`
+        );
+
+        await fs.writeFile(
+          path.join(rootPath, "eslint.config.mjs"),
+          eslintConfig
         );
 
         const filterEnvs =

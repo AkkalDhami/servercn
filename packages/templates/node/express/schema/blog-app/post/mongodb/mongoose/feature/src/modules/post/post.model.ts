@@ -41,7 +41,7 @@ const postSchema = new Schema<IPost>(
 
     slug: {
       type: String,
-      required: true,
+      required: true
     }, // SEO-friendly URL slug
 
     content: {

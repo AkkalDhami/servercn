@@ -26,5 +26,5 @@ export default [
       quotes: ["error", "double"],
       "prettier/prettier": "error"
     }
-  },
+  }
 ];

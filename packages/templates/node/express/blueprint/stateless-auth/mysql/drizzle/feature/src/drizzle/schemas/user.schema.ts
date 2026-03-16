@@ -8,7 +8,7 @@ import {
   json,
   uniqueIndex,
   index,
-  mysqlEnum,
+  mysqlEnum
 } from "drizzle-orm/mysql-core";
 import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
@@ -45,17 +45,17 @@ export const users = mysqlTable(
     deletedAt: timestamp("deleted_at"),
     reActivateAvailableAt: timestamp("re_activate_available_at"),
 
-    ...timestamps,
+    ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("email_idx").on(table.email),
     index("role_idx").on(table.role),
-    index("is_deleted_idx").on(table.isDeleted),
-  ],
+    index("is_deleted_idx").on(table.isDeleted)
+  ]
 );
 
 export const usersRelations = relations(users, ({ many }) => ({
-  refreshTokens: many(refreshTokens),
+  refreshTokens: many(refreshTokens)
 }));
 
 export type User = typeof users.$inferSelect;

@@ -58,7 +58,7 @@ export function OnThisPage() {
       // Update state based on external system (DOM) read
       setHeadings(list);
       setActiveId(null);
-    };;
+    };
 
     // Wait for React to render before reading DOM
     requestAnimationFrame(extractAndSetHeadings);

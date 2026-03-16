@@ -52,7 +52,7 @@ refreshTokenSchema.index({ isRevoked: 1 });
 refreshTokenSchema.index(
   { createdAt: 1 },
   { expireAfterSeconds: REFRESH_TOKEN_EXPIRY / 1000 } // 7 days
-); 
+);
 
 const RefreshToken: Model<IRefreshToken> =
   mongoose.models.RefreshToken ||

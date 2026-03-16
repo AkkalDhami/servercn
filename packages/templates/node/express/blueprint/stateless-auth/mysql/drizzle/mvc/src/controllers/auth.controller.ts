@@ -6,7 +6,7 @@ import {
   ResetPasswordType,
   SigninUserType,
   SignupUserType,
-  VerifyOtpType,
+  VerifyOtpType
 } from "../validators/auth";
 import { ApiResponse } from "../utils/api-response";
 import { ApiError } from "../utils/api-error";
@@ -27,14 +27,14 @@ export const signupUser = AsyncHandler(
       email,
       password,
       role,
-      name,
+      name
     });
 
     return ApiResponse.created(
       res,
-      "User registered successfully. Please check your email for verification",
+      "User registered successfully. Please check your email for verification"
     );
-  },
+  }
 );
 
 //? VERIFY USER
@@ -49,7 +49,7 @@ export const verifyUser = AsyncHandler(
     await AuthService.verifyUser({ email, code });
 
     return ApiResponse.ok(res, "User verified successfully");
-  },
+  }
 );
 
 //? LOGIN USER
@@ -64,13 +64,13 @@ export const loginUser = AsyncHandler(
     const result = await AuthService.loginUser(
       {
         email,
-        password,
+        password
       },
       {
         setAuthCookie(accessToken, refreshToken) {
           setAuthCookies(res, accessToken, refreshToken);
-        },
-      },
+        }
+      }
     );
 
     if (!result) {
@@ -78,7 +78,7 @@ export const loginUser = AsyncHandler(
     }
 
     return ApiResponse.ok(res, "User logged in successfully", result);
-  },
+  }
 );
 
 //? GET USER PROFILE
@@ -101,10 +101,10 @@ export const getUserProfile = AsyncHandler(
         role: user.role,
         avatar: user.avatar,
         isEmailVerified: user.isEmailVerified,
-        lastLoginAt: user.lastLoginAt,
-      },
+        lastLoginAt: user.lastLoginAt
+      }
     });
-  },
+  }
 );
 
 //? UPDATE PROFILE
@@ -124,7 +124,7 @@ export const updateProfile = AsyncHandler(
 
     const updatedUser = await AuthService.updateUserProfile(req.user.id, {
       name,
-      avatar: req.file,
+      avatar: req.file
     });
 
     if (!updatedUser) {
@@ -134,9 +134,9 @@ export const updateProfile = AsyncHandler(
     return ApiResponse.Success(
       res,
       "Profile updated successfully!",
-      updatedUser,
+      updatedUser
     );
-  },
+  }
 );
 
 //? REFRESH TOKENS
@@ -156,7 +156,7 @@ export const refreshToken = AsyncHandler(
     setAuthCookies(res, newAccessToken, newRefreshToken);
 
     return ApiResponse.Success(res, "Tokens refreshed successfully!");
-  },
+  }
 );
 
 //? FORGOT PASSWORD
@@ -170,7 +170,7 @@ export const forgotPassword = AsyncHandler(
     await AuthService.forgotPassword(email);
 
     return ApiResponse.ok(res, `Otp sent to ${email} successfully!`);
-  },
+  }
 );
 
 //? VERIFY FORGOT PASSWORD OTP
@@ -184,7 +184,7 @@ export const verifyForgotPasswordOtp = AsyncHandler(
     await AuthService.verifyForgotPasswordOtp({ email, code });
 
     return ApiResponse.ok(res, `Otp verified successfully!`);
-  },
+  }
 );
 
 //? RESET PASSWORD
@@ -198,7 +198,7 @@ export const resetPassword = AsyncHandler(
     await AuthService.resetPassword({ email, newPassword });
 
     return ApiResponse.ok(res, `Password reset successfully!`);
-  },
+  }
 );
 
 //? CHANGE PASSWORD
@@ -207,7 +207,7 @@ export const changePassword = AsyncHandler(
     const { oldPassword, newPassword }: ChangePasswordType = req.body;
     if (!oldPassword || !newPassword) {
       return next(
-        ApiError.badRequest("Old password and new password are required!"),
+        ApiError.badRequest("Old password and new password are required!")
       );
     }
 
@@ -218,11 +218,11 @@ export const changePassword = AsyncHandler(
 
     await AuthService.changePassword(userId, {
       oldPassword,
-      newPassword,
+      newPassword
     });
 
     return ApiResponse.ok(res, `Password changed successfully!`);
-  },
+  }
 );
 
 //? LOGOUT
@@ -237,7 +237,7 @@ export const logoutUser = AsyncHandler(
     clearAuthCookies(res);
 
     return ApiResponse.ok(res, "User logged out successfully!");
-  },
+  }
 );
 
 //? DELETE/DEACTIVATE ACCOUNT
@@ -257,7 +257,7 @@ export const deleteAccount = AsyncHandler(
 
     if (userId !== reqUserId) {
       return next(
-        ApiError.unauthorized("you are not authorized to perform this action"),
+        ApiError.unauthorized("you are not authorized to perform this action")
       );
     }
 
@@ -266,9 +266,9 @@ export const deleteAccount = AsyncHandler(
 
     return ApiResponse.Success(
       res,
-      `Account ${type === "soft" ? "deactivated" : "deleted"} successfully!`,
+      `Account ${type === "soft" ? "deactivated" : "deleted"} successfully!`
     );
-  },
+  }
 );
 
 //? REACTIVATE ACCOUNT
@@ -283,5 +283,5 @@ export const reactivateAccount = AsyncHandler(
     await AuthService.reactivateAccount(reqUserId);
 
     return ApiResponse.Success(res, `Account reactivated successfully!`);
-  },
+  }
 );

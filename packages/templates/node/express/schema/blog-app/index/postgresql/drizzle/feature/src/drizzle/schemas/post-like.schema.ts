@@ -16,7 +16,7 @@ export const postLikes = pgTable(
       .notNull(),
     ...timestamps
   },
-  (table) => [uniqueIndex("unique_like").on(table.userId, table.postId)]
+  table => [uniqueIndex("unique_like").on(table.userId, table.postId)]
 );
 
 //* relations:

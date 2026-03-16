@@ -457,7 +457,7 @@
     {
       "slug": "stateless-auth",
       "title": "Stateless Authentication",
-      "description": "The Stateless Authentication component provides a standardized way to handle stateless authentication in Servercn using JWT access tokens and refresh tokens.",
+      "description": "A stateless authentication blueprint with support for JWT access tokens and refresh tokens.",
       "type": "blueprint",
       "status": "stable",
       "frameworks": ["express"],
@@ -469,12 +469,43 @@
             "slug": "stateless-auth-mongodb"
           },
           {
-            "label": "PostgreSQL (Drizzle)",
-            "slug": "stateless-auth-postgresql"
-          },
-          {
             "label": "MySQL (Drizzle)",
             "slug": "stateless-auth-mysql"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "stateful-auth",
+      "title": "Stateful Authentication",
+      "description": "Session-based authentication blueprint with secure login, logout, and server-managed session flow.",
+      "type": "blueprint",
+      "status": "beta",
+      "frameworks": ["express"],
+      "docs": "/docs/blueprints/stateful-authentication",
+      "meta": {
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "stateful-authentication-mongodb"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "hybrid-auth",
+      "title": "Hybrid Authentication",
+      "description": "Hybrid authentication blueprint combining access/refresh token flows with secure session-aware patterns.",
+      "type": "blueprint",
+      "status": "beta",
+      "frameworks": ["express"],
+      "docs": "/docs/blueprints/hybrid-auth",
+      "meta": {
+        "new": true,
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "hybrid-auth-mongodb"
           }
         ]
       }
@@ -486,7 +517,16 @@
       "type": "blueprint",
       "status": "beta",
       "frameworks": ["express"],
-      "docs": "/docs/blueprints/banking-app"
+      "docs": "/docs/blueprints/banking-app",
+      "meta": {
+        "new": true,
+        "databases": [
+          {
+            "label": "MongoDB (Mongoose)",
+            "slug": "banking-app-mongodb"
+          }
+        ]
+      }
     },
 
     {

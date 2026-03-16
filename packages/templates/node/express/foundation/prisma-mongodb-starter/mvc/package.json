@@ -9,7 +9,19 @@
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write",
+    "docs": "node swagger.config.ts"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
   },
   "devDependencies": {},
   "dependencies": {}

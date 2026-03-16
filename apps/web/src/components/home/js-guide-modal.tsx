@@ -34,7 +34,7 @@ export default function JSGuideModal({
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="capitalize text-xl sm:text-2xl font-medium">
+          <DialogTitle className="text-xl font-medium capitalize sm:text-2xl">
             Using {APP_NAME} with JavaScript
           </DialogTitle>
           <DialogDescription className="pt-4 text-base sm:text-lg">

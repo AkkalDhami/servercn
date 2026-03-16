@@ -20,7 +20,9 @@
               "pino",
               "pino-pretty",
               "source-map-support",
-              "zod"
+              "zod",
+              "swagger-autogen",
+              "swagger-ui-express"
             ],
             "dev": [
               "@types/express",
@@ -36,7 +38,12 @@
               "@commitlint/cli",
               "@commitlint/config-conventional",
               "@types/source-map-support",
-              "lint-staged"
+              "lint-staged",
+              "@typescript-eslint/eslint-plugin",
+              "@typescript-eslint/parser",
+              "eslint",
+              "eslint-plugin-prettier",
+              "@types/swagger-ui-express"
             ]
           },
           "env": ["LOG_LEVEL", "NODE_ENV", "PORT", "CORS_ORIGIN"]

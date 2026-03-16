@@ -19,15 +19,13 @@ export const generateMetadata = (): Metadata => {
     ],
     openGraph: {
       title: "Blueprints",
-      description:
-        `Production-ready ${APP_NAME} blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are working on adding more blueprints.`,
+      description: `Production-ready ${APP_NAME} blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are working on adding more blueprints.`,
       type: "website",
       locale: "en"
     },
     twitter: {
       title: "Blueprints",
-      description:
-        `Production-ready ${APP_NAME} blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are working on adding more blueprints.`,
+      description: `Production-ready ${APP_NAME} blueprints for building scalable backends. Here you can find all the blueprints available in the library. We are working on adding more blueprints.`,
       card: "summary_large_image"
     },
     icons: {
@@ -58,7 +56,7 @@ export default function BlueprintsPage() {
         ))}
       </div>
 
-      <div className="mt-6 px-4 flex items-center justify-end">
+      <div className="mt-6 flex items-center justify-end px-4">
         <p className="text-muted-foreground">
           Total blueprints: {blueprints.length}
         </p>

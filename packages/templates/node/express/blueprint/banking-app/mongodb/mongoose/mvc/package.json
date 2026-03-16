@@ -9,7 +9,11 @@
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "typecheck": "tsc --noEmit",
     "docs": "node swagger.config.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
   },
   "lint-staged": {
     "src/**/*.ts": [

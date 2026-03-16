@@ -15,7 +15,7 @@ export class OAuthService {
     const existingUser = await User.findOne({ email: user.email });
 
     if (existingUser) {
-       await User.findByIdAndUpdate(existingUser._id, {
+      await User.findByIdAndUpdate(existingUser._id, {
         provider: user.provider,
         providerId: user.providerId,
         isEmailVerified: user.isEmailVerified,

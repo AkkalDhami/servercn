@@ -57,14 +57,14 @@ const features: IFeature[] = [
     icon: Settings,
     title: "Opinionated, Yet Flexible",
     description:
-      "Production-ready defaults that follow best practices while remaining fully customizable.",
-    },
-    {
-      icon: Puzzle,
-      title: "Composable Components",
-      description:
+      "Production-ready defaults that follow best practices while remaining fully customizable."
+  },
+  {
+    icon: Puzzle,
+    title: "Composable Components",
+    description:
       "Add only what you need—auth, validation, hashing, errors—without coupling your entire stack.",
-      className: "md:col-span-2"
+    className: "md:col-span-2"
   },
   {
     icon: ShieldCheck,
@@ -82,21 +82,21 @@ const features: IFeature[] = [
     icon: RefreshCw,
     title: "Non-Destructive Updates",
     description:
-      "Existing files are respected—only missing pieces are added, never overwritten silently.",
+      "Existing files are respected—only missing pieces are added, never overwritten silently."
   },
   {
     icon: Database,
     title: "Database-Aware Setup",
     description:
-      "Components integrate cleanly with MongoDB, PostgreSQL, MySQL, and other common databases.",
-    },
-    {
-      icon: Package,
-      title: "Dependency-Safe Installs",
-      description:
+      "Components integrate cleanly with MongoDB, PostgreSQL, MySQL, and other common databases."
+  },
+  {
+    icon: Package,
+    title: "Dependency-Safe Installs",
+    description:
       "Dependencies are installed only when required and at the correct project scope.",
-      className: "md:col-span-2"
-    },
+    className: "md:col-span-2"
+  },
   {
     icon: BookOpen,
     title: "Transparent & Documented",
@@ -115,7 +115,7 @@ export default function WhyServerCN() {
         </SubHeading>
       </div>
 
-      <div className="grid divide-x divide-edge border-l border-edge sm:grid-cols-2 md:grid-cols-4 screen-line-after lg:grid-cols-5">
+      <div className="divide-edge border-edge screen-line-after grid divide-x border-l sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
         {features.map((item: IFeature) => (
           <FeatureCard key={item.title} item={item} />
         ))}
@@ -130,7 +130,7 @@ export function FeatureCard({ item }: { item: IFeature }) {
       key={item.title}
       className={cn(
         "hover:bg-card-hover relative p-4 duration-300",
-        "last:border-r border-edge",
+        "border-edge last:border-r",
         "screen-line-before",
         item.className
       )}>

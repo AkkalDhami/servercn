@@ -22,7 +22,6 @@ export const findNeighbour = (
   let parentItem: IRegistryItems | undefined;
   const nestedModels: { label: string; slug: string }[] = [];
 
-
   // If it's a nested model, navigate within the parent's models only
   if (parentItem && nestedModels.length > 0) {
     const sortedModels = [...nestedModels].sort((a, b) =>
@@ -42,7 +41,7 @@ export const findNeighbour = (
         type: parentItem!.type,
         docs: `/docs/${typePath}/${model.slug}`,
         description: "",
-        status: parentItem!.status,
+        status: parentItem!.status
       } as IRegistryItems;
     };
 
@@ -108,7 +107,7 @@ export function getRegistryTypeItems(
         new: item.meta?.new,
         databases: item.meta?.databases?.map(db => ({
           ...db,
-          slug: `${framework}/${item.type}s/${db.slug}`,
+          slug: `${framework}/${item.type}s/${db.slug}`
         }))
       },
       type: item.type

@@ -6,7 +6,7 @@ import {
   timestamp,
   index,
   bigint,
-  text,
+  text
 } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
@@ -24,14 +24,14 @@ export const refreshTokens = mysqlTable(
     isRevoked: boolean("is_revoked").default(false).notNull(),
     revokedAt: timestamp("revoked_at"),
     replacedByTokenHash: varchar("replaced_by_token_hash", { length: 255 }),
-    ...timestamps,
+    ...timestamps
   },
-  (table) => [
+  table => [
     index("user_id_idx").on(table.userId),
     index("token_hash_idx").on(table.tokenHash),
     index("is_revoked_idx").on(table.isRevoked),
-    index("expires_at_idx").on(table.expiresAt),
-  ],
+    index("expires_at_idx").on(table.expiresAt)
+  ]
 );
 
 export const refreshTokensRelations = relations(
@@ -40,10 +40,10 @@ export const refreshTokensRelations = relations(
     return {
       user: one(users, {
         fields: [refreshTokens.userId],
-        references: [users.id],
-      }),
+        references: [users.id]
+      })
     };
-  },
+  }
 );
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
