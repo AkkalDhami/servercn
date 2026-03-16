@@ -1,4 +1,10 @@
-import type { Architecture, DatabaseType, FrameworkType, OrmType, RegistryItem } from "@/types";
+import type {
+  Architecture,
+  DatabaseType,
+  FrameworkType,
+  OrmType,
+  RegistryItem
+} from "@/types";
 
 /**
  * Extracts files from a built registry item based on the template path.
@@ -8,11 +14,13 @@ export function findFilesByPath(
   component: RegistryItem,
   templatePath: string,
   selectedProvider?: string
-): {
-  type: string;
-  path: string;
-  content: string
-}[] | null {
+):
+  | {
+      type: string;
+      path: string;
+      content: string;
+    }[]
+  | null {
   const parts = templatePath.split("/");
   const [type] = parts;
   if (type === "tooling" && "templates" in component) {
@@ -73,7 +81,11 @@ export function findFilesByPath(
                     architectures?: Record<
                       Architecture,
                       {
-                        files: { type: string; path: string; content: string }[];
+                        files: {
+                          type: string;
+                          path: string;
+                          content: string;
+                        }[];
                       }
                     >;
                   }
@@ -94,13 +106,15 @@ export function findFilesByPath(
 
     // 2. Check variants (Variant component)
     if (fw.variants && selectedProvider !== undefined) {
-      return fw?.variants[selectedProvider as string]?.architectures[archKey as Architecture].files;
+      return fw?.variants[selectedProvider as string]?.architectures[
+        archKey as Architecture
+      ].files;
     }
 
     // 3. Check databases/ORMs (Blueprint/Schema)
     if (fw.databases) {
       if (type === "blueprint") {
-        const [, , , db, orm, arch] = parts
+        const [, , , db, orm, arch] = parts;
         const database = fw.databases?.[db as DatabaseType];
         if (!database) return null;
         const ormConfig = database.orms?.[orm as OrmType];
@@ -109,9 +123,8 @@ export function findFilesByPath(
         const architecture = ormConfig.architectures?.[arch as Architecture];
         if (!architecture) return null;
         return architecture.files ?? null;
-
       } else if (type === "schema") {
-        const [, , , db, orm, variant, arch] = parts
+        const [, , , db, orm, variant, arch] = parts;
         const database = fw.databases?.[db as DatabaseType];
         if (!database) return null;
 
