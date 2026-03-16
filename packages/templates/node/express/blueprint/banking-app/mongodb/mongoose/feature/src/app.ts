@@ -21,6 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
 
+//? Swagger setup
+setupSwagger(app);
+
 //? Routes
 app.get("/", (req: Request, res: Response) => {
   res.redirect("/api/v1/health");
@@ -28,8 +31,6 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api", Routes);
 
-//? Swagger setup
-setupSwagger(app);
 
 //? Not-found-handler (should be after routes)
 app.use(notFoundHandler);

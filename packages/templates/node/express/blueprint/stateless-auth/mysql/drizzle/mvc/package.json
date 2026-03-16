@@ -11,7 +11,11 @@
     "docs": "node swagger.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
   },
   "devDependencies": {},
   "dependencies": {}

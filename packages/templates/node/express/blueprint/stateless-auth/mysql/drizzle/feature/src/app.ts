@@ -27,15 +27,16 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
 
-// Routes
+//? Swagger Setup
+setupSwagger(app);
 
+//? Routes
 app.get("/", (req: Request, res: Response) => {
   res.redirect("/api/v1/health");
 });
 
 app.use("/api", Routes);
 
-setupSwagger(app);
 
 startRefreshTokenCleanupJob();
 

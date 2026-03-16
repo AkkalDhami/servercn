@@ -6,7 +6,7 @@ const doc = {
     description: "Bank Application",
     version: "1.0.0"
   },
-  host: `localhost:${process.env.PORT || 9000}`,
+  host: `localhost:3000`,
   schemes: ["http"]
 };
 

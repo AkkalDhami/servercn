@@ -10,6 +10,8 @@ connectDB();
 
 const server = app.listen(port, () => {
   logger.info(`[server]: Server is running at http://localhost:${port}`);
+  logger.info(`[server]: Environment: ${env.NODE_ENV}`);
+  logger.info(`[server]: Swagger docs are available at http://localhost:${port}/api/docs`);
 });
 
 configureGracefulShutdown(server);
