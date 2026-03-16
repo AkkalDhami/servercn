@@ -40,7 +40,7 @@ export function OpenInAi() {
         <SelectTrigger className="text-primary w-full md:w-44">
           <SelectValue
             placeholder={
-              <div className="text-primary font-medium flex items-center justify-center space-x-2">
+              <div className="text-primary flex items-center justify-center space-x-2 font-medium">
                 <SparklesIcon size={16} className="text-primary" />
                 <p>Open in AI</p>
               </div>

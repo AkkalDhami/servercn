@@ -12,7 +12,7 @@ import { NewUser } from "../../drizzle";
 
 const getProvider: Record<string, "github" | "google" | "local"> = {
   github: "github",
-  google: "google",
+  google: "google"
 };
 
 //? login with github
@@ -31,23 +31,23 @@ export const githubOAuth = AsyncHandler(
       email: data.emails ? (data.emails[0].value as string) : "",
       isEmailVerified: true,
       avatar: {
-        url: data.photos ? (data.photos[0].value as string) : "",
-      },
+        url: data.photos ? (data.photos[0].value as string) : ""
+      }
     };
 
     const result = await OAuthService.handleOAuthLogin(user, {
       setAuthCookie: (accessToken: string, refreshToken: string) => {
         setAuthCookies(res, accessToken, refreshToken);
-      },
+      }
     });
 
     ApiResponse.ok(res, "Auth Successfull", {
       user: {
         ...user,
-        id: result.id,
-      },
+        id: result.id
+      }
     });
-  },
+  }
 );
 
 //? login with google
@@ -68,21 +68,21 @@ export const googleOAuth = AsyncHandler(
         ? (data.emails[0].verified as boolean)
         : false,
       avatar: {
-        url: data.profileUrl || (data.photos ? data.photos[0].value : ""),
-      },
+        url: data.profileUrl || (data.photos ? data.photos[0].value : "")
+      }
     };
 
     const result = await OAuthService.handleOAuthLogin(userInfo, {
       setAuthCookie: (accessToken: string, refreshToken: string) => {
         setAuthCookies(res, accessToken, refreshToken);
-      },
+      }
     });
 
     ApiResponse.ok(res, "Auth Successfull", {
       user: {
         ...userInfo,
-        id: result.id,
-      },
+        id: result.id
+      }
     });
-  },
+  }
 );

@@ -1,5 +1,8 @@
 import { Response } from "express";
-import { ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY } from "../../modules/auth/auth.constants";
+import {
+  ACCESS_TOKEN_EXPIRY,
+  REFRESH_TOKEN_EXPIRY
+} from "../../modules/auth/auth.constants";
 import env from "../configs/env";
 
 const isProduction = env.NODE_ENV === "production";

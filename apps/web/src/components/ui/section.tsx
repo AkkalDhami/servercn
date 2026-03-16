@@ -6,7 +6,7 @@ export function Section({
   ...props
 }: React.ComponentProps<"section">) {
   return (
-    <section {...props} className={cn("py-8 screen-line-before", className)}>
+    <section {...props} className={cn("screen-line-before py-8", className)}>
       {children}
     </section>
   );

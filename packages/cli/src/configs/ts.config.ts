@@ -14,12 +14,12 @@ export const tsConfig = {
     forceConsistentCasingInFileNames: true,
     paths: {
       "@/*": ["./*", "./src/*"],
-      "@/shared/*": ["../../shared/*"]
+      "@/shared/*": ["../../shared/*"],
     },
   },
   "tsc-alias": {
-    "resolveFullPaths": true,
-    "verbose": false
+    resolveFullPaths: true,
+    verbose: false,
   },
   include: ["src/**/*"],
   exclude: ["node_modules"],

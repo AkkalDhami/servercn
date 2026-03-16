@@ -11,14 +11,13 @@ export const categories = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("slug_idx").on(table.slug),
     uniqueIndex("name_idx").on(table.name)
   ]
 );
 
 //TODO: relation with posts: one category has many posts
-
 
 export type NewCategory = typeof categories.$inferInsert;
 export type Category = typeof categories.$inferSelect;

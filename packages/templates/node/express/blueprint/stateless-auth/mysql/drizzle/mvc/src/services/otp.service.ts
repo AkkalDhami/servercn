@@ -4,7 +4,7 @@ import {
   OTP_COOL_DOWN,
   OTP_EXPIRES_IN,
   OTP_MAX_COUNTS,
-  OTP_SPAM_LOCK,
+  OTP_SPAM_LOCK
 } from "../constants/auth";
 import { generateOTP } from "../helpers/token.helpers";
 import { ApiError } from "../utils/api-error";
@@ -33,19 +33,19 @@ export class OtpService {
     const otpLock = await redis.get(`otp_lock:${email}`);
     if (otpLock) {
       throw ApiError.badRequest(
-        "Your Account is locked due to multiple failed attempts. Please try again after 30 minutes.",
+        "Your Account is locked due to multiple failed attempts. Please try again after 30 minutes."
       );
     }
 
     if (await redis.get(`otp_spam_lock:${email}`)) {
       throw ApiError.tooManyRequests(
-        "Too many otp requests. Please try again after 1 hour before requesting again.",
+        "Too many otp requests. Please try again after 1 hour before requesting again."
       );
     }
 
     if (await redis.get(`otp_cooldown:${email}`)) {
       throw ApiError.tooManyRequests(
-        "Too many otp requests. Please try again after 1 minute before requesting new otp.",
+        "Too many otp requests. Please try again after 1 minute before requesting new otp."
       );
     }
   }
@@ -55,15 +55,15 @@ export class OtpService {
     let otpRequestsCount = parseInt((await redis.get(otpRequestKey)) || "0");
     if (otpRequestsCount >= OTP_MAX_COUNTS) {
       await redis.set(`otp_spam_lock:${email}`, "locked", {
-        EX: OTP_SPAM_LOCK / 1000,
+        EX: OTP_SPAM_LOCK / 1000
       });
       throw ApiError.tooManyRequests(
-        "Too many otp requests. Please try again after 1 hour before requesting again.",
+        "Too many otp requests. Please try again after 1 hour before requesting again."
       );
     }
 
     await redis.set(otpRequestKey, otpRequestsCount + 1, {
-      EX: OTP_SPAM_LOCK / 1000,
+      EX: OTP_SPAM_LOCK / 1000
     });
   }
 
@@ -72,7 +72,7 @@ export class OtpService {
     email,
     templateName,
     code,
-    hashCode,
+    hashCode
   }: SendOtpType) {
     const newOtp = generateOTP(OTP_CODE_LENGTH);
 
@@ -84,17 +84,17 @@ export class OtpService {
           : "Verify your OTP",
       data: {
         code: code ? code : newOtp.code,
-        name,
+        name
       },
-      templateName,
+      templateName
     });
 
     await redis.set(`otp:${email}`, hashCode ? hashCode : newOtp.hashCode, {
-      EX: OTP_EXPIRES_IN / 1000,
+      EX: OTP_EXPIRES_IN / 1000
     });
 
     await redis.set(`otp_cooldown:${email}`, OTP_COOL_DOWN, {
-      EX: OTP_COOL_DOWN,
+      EX: OTP_COOL_DOWN
     });
   }
 
@@ -107,23 +107,23 @@ export class OtpService {
 
     const failedAttemptsKey = `otp_attempts:${email}`;
     const failedAttempts = parseInt(
-      (await redis.get(failedAttemptsKey)) || "0",
+      (await redis.get(failedAttemptsKey)) || "0"
     );
 
     if (hashOtpCodeKey !== hashCode) {
       if (failedAttempts >= OTP_MAX_COUNTS) {
         await redis.set(`otp_lock:${email}`, "locked", {
-          EX: OTP_SPAM_LOCK / 1000,
+          EX: OTP_SPAM_LOCK / 1000
         });
         throw ApiError.tooManyRequests(
-          "Too many failed attempts. Please try again after 1 hour.",
+          "Too many failed attempts. Please try again after 1 hour."
         );
       }
       await redis.set(failedAttemptsKey, failedAttempts + 1, {
-        EX: OTP_EXPIRES_IN / 1000,
+        EX: OTP_EXPIRES_IN / 1000
       });
       throw ApiError.badRequest(
-        `Incorrect OTP. ${OTP_MAX_COUNTS - failedAttempts} attempts left.`,
+        `Incorrect OTP. ${OTP_MAX_COUNTS - failedAttempts} attempts left.`
       );
     }
 

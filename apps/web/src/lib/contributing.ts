@@ -14,8 +14,8 @@ export const contributingGuides: ContributingGuideType[] = [
       "Contribute reusable backend components for Node.js projects. Learn about component structure, testing, and submission guidelines.",
     docs: "/docs/contributing/component",
     meta: {
-      new: true,
-    },
+      new: true
+    }
   },
   {
     title: "Blueprint",
@@ -23,8 +23,8 @@ export const contributingGuides: ContributingGuideType[] = [
       "Create and share complete project blueprints. Understand blueprint architecture and how to design scalable application templates.",
     docs: "/docs/contributing/blueprint",
     meta: {
-      new: true,
-    },
+      new: true
+    }
   },
   {
     title: "Foundation",
@@ -32,8 +32,8 @@ export const contributingGuides: ContributingGuideType[] = [
       "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of Servercn.",
     docs: "/docs/contributing/foundation",
     meta: {
-      new: true,
-    },
+      new: true
+    }
   },
   {
     title: "Schema",
@@ -41,7 +41,7 @@ export const contributingGuides: ContributingGuideType[] = [
       "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
     docs: "/docs/contributing/schema",
     meta: {
-      new: true,
-    },
+      new: true
+    }
   }
 ];

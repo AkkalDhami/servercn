@@ -10,7 +10,7 @@ export default function ComponentCard({
   return (
     <Link
       href={component.url as Route}
-      className="group last:border-r border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300">
+      className="group border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300 last:border-r">
       {component.status !== "stable" && (
         <>
           <span

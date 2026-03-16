@@ -13,7 +13,12 @@ import { OtpService } from "../otp/otp.service";
 import { SignupUserType } from "./auth.validator";
 import { ApiError } from "../../shared/errors/api-error";
 import { IUser } from "./auth.types";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../../shared/utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
+} from "../../shared/utils/jwt";
 import { generateHashedToken } from "../../shared/helpers/token.helpers";
 import RefreshToken from "./refresh-token.model";
 import { deleteFileFromCloudinary } from "../upload/cloudinary.service";

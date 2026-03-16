@@ -11,6 +11,7 @@ import { errorHandler } from "./shared/middlewares/error-handler";
 import env from "./shared/configs/env";
 
 import sourceMapSupport from "source-map-support";
+import { setupSwagger } from "./shared/configs/swagger";
 sourceMapSupport.install();
 
 const app: Express = express();
@@ -22,6 +23,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
+
+//? Swagger Setup
+setupSwagger(app);
 
 //? Routes
 app.get("/", (req: Request, res: Response) => {

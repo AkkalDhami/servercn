@@ -1,5 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
+} from "../utils/jwt";
 import { ApiError } from "../utils/api-error";
 import { logger } from "../utils/logger";
 import { setAuthCookies } from "../helpers/cookie.helper";
@@ -11,7 +16,11 @@ import { refreshTokens, users } from "../../drizzle";
 
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
-export async function verifyAuthentication(req: UserRequest, res: Response, next: NextFunction): Promise<void> {
+export async function verifyAuthentication(
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   const accessToken = req.cookies?.accessToken;
   const refreshToken = req.cookies?.refreshToken;
 
@@ -39,7 +48,10 @@ export async function verifyAuthentication(req: UserRequest, res: Response, next
 
     const refreshTokenHash = generateHashedToken(refreshToken);
 
-    const [storedToken] = await db.select().from(refreshTokens).where(eq(refreshTokens.tokenHash, refreshTokenHash));
+    const [storedToken] = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.tokenHash, refreshTokenHash));
 
     //? Reuse detection
     if (!storedToken) {
@@ -51,7 +63,9 @@ export async function verifyAuthentication(req: UserRequest, res: Response, next
         })
         .where(eq(refreshTokens.userId, decodedRefresh.userId));
 
-      return next(ApiError.unauthorized("Token reuse detected. Please login again."));
+      return next(
+        ApiError.unauthorized("Token reuse detected. Please login again.")
+      );
     }
 
     if (storedToken.isRevoked) {
@@ -62,7 +76,10 @@ export async function verifyAuthentication(req: UserRequest, res: Response, next
       return next(ApiError.unauthorized("Refresh token expired."));
     }
 
-    const [user] = await db.select({ id: users.id, role: users.role }).from(users).where(eq(users.id, decodedRefresh.userId));
+    const [user] = await db
+      .select({ id: users.id, role: users.role })
+      .from(users)
+      .where(eq(users.id, decodedRefresh.userId));
     if (!user) {
       return next(ApiError.unauthorized("User not found."));
     }

@@ -104,7 +104,7 @@ const userSchema = new Schema<IUser>(
 userSchema.index({
   provider: 1,
   providerId: 1
-}); 
+});
 userSchema.index({
   role: 1
 });

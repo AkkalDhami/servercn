@@ -16,19 +16,19 @@ export function startRefreshTokenCleanupJob() {
           .where(
             or(
               lt(refreshTokens.expiresAt, now),
-              eq(refreshTokens.isRevoked, true),
-            ),
+              eq(refreshTokens.isRevoked, true)
+            )
           );
 
         logger.info(
-          `Refresh token cleanup completed. Deleted ${result.affectedRows} records`,
+          `Refresh token cleanup completed. Deleted ${result.affectedRows} records`
         );
       } catch (error) {
         logger.error(error, "Refresh token cleanup failed");
       }
     },
     {
-      timezone: "Asia/Kathmandu",
-    },
+      timezone: "Asia/Kathmandu"
+    }
   );
 }

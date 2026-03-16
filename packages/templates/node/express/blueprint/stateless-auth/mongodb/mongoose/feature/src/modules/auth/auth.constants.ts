@@ -1,6 +1,5 @@
 export const LOGIN_MAX_ATTEMPTS = 5 as const;
 
-
 export const LOCK_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes

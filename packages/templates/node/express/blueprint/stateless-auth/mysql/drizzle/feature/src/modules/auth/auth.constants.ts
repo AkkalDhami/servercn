@@ -2,7 +2,12 @@ export const OTP_MAX_ATTEMPTS = 5;
 
 export const OTP_MAX_COUNTS = 3;
 
-export const OTP_TYPES = ["signin", "email-verification", "password-reset", "password-change"] as const;
+export const OTP_TYPES = [
+  "signin",
+  "email-verification",
+  "password-reset",
+  "password-change"
+] as const;
 
 export const OTP_COOL_DOWN = 60;
 

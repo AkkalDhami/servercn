@@ -12,7 +12,9 @@ export const envSchema = z.object({
 
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-    .default("info")
+    .default("info"),
+
+  CORS_ORIGIN: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;

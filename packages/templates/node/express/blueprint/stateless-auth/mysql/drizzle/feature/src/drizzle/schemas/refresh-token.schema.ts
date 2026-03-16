@@ -1,4 +1,13 @@
-import { mysqlTable, serial, varchar, boolean, timestamp, index, bigint, text } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  serial,
+  varchar,
+  boolean,
+  timestamp,
+  index,
+  bigint,
+  text
+} from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 import { timestamps } from "./schema.helper";
@@ -25,14 +34,17 @@ export const refreshTokens = mysqlTable(
   ]
 );
 
-export const refreshTokensRelations = relations(refreshTokens, ({ one, many }) => {
-  return {
-    user: one(users, {
-      fields: [refreshTokens.userId],
-      references: [users.id]
-    })
-  };
-});
+export const refreshTokensRelations = relations(
+  refreshTokens,
+  ({ one, many }) => {
+    return {
+      user: one(users, {
+        fields: [refreshTokens.userId],
+        references: [users.id]
+      })
+    };
+  }
+);
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type NewRefreshToken = typeof refreshTokens.$inferInsert;

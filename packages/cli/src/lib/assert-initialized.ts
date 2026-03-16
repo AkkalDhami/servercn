@@ -18,22 +18,24 @@ export async function assertInitialized() {
     logger.log("Run the following command first:");
     logger.log(`> ${highlighter.create("npx servercn-cli init")}`);
     logger.break();
-    logger.log(`For express starter:\n> ${highlighter.create('npx servercn-cli init express-server')}`);
-    logger.break();
-    logger.log(`For (express + mongoose) starter:\n> ${highlighter.create('npx servercn-cli init mongoose-starter')}`);
-    logger.break();
     logger.log(
-      `For (drizzle + mysql) starter:\n> ${highlighter.create('npx servercn-cli init drizzle-mysql-starter')}`
+      `For express starter:\n> ${highlighter.create("npx servercn-cli init express-server")}`
     );
     logger.break();
     logger.log(
-      `For (drizzle + postgresql) starter:\n> ${highlighter.create('npx servercn-cli init drizzle-pg-starter')}`
+      `For (express + mongoose) starter:\n> ${highlighter.create("npx servercn-cli init mongoose-starter")}`
+    );
+    logger.break();
+    logger.log(
+      `For (drizzle + mysql) starter:\n> ${highlighter.create("npx servercn-cli init drizzle-mysql-starter")}`
+    );
+    logger.break();
+    logger.log(
+      `For (drizzle + postgresql) starter:\n> ${highlighter.create("npx servercn-cli init drizzle-pg-starter")}`
     );
     logger.break();
 
-    logger.info(
-      `Visit ${SERVERCN_URL}/docs/installation for more information`
-    );
+    logger.info(`Visit ${SERVERCN_URL}/docs/installation for more information`);
     logger.break();
     process.exit(1);
   }

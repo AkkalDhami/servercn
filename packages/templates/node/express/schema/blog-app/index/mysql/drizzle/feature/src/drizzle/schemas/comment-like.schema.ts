@@ -17,7 +17,7 @@ export const commentLikes = mysqlTable(
 
     ...timestamps
   },
-  (table) => [
+  table => [
     uniqueIndex("unique_comment_like").on(table.userId, table.commentId)
   ]
 );

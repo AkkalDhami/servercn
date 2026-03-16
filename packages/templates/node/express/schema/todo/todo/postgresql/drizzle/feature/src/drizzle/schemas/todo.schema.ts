@@ -14,8 +14,8 @@ export const todos = pgTable(
   {
     id: serial().primaryKey(),
     userId: integer("user_id")
-    //   .references(() => users.id, { onDelete: "cascade" }),
-    .notNull(),
+      //   .references(() => users.id, { onDelete: "cascade" }),
+      .notNull(),
 
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
