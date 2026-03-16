@@ -49,10 +49,7 @@
       "description": "Contribute reusable backend components for Node.js projects. Learn about component structure, testing, and submission guidelines.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/component",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/contributing/component"
     },
     {
       "slug": "blueprint",
@@ -60,10 +57,7 @@
       "description": "Create and share complete project blueprints. Understand blueprint architecture and how to design scalable application templates.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/blueprint",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/contributing/blueprint"
     },
 
     {
@@ -72,10 +66,7 @@
       "description": "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of Servercn.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/foundation",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/contributing/foundation"
     },
     {
       "slug": "schema",
@@ -83,10 +74,7 @@
       "description": "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
       "type": "contributing",
       "status": "stable",
-      "docs": "/docs/contributing/schema",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/contributing/schema"
     },
     {
       "slug": "jwt-utils",
@@ -470,7 +458,8 @@
           },
           {
             "label": "MySQL (Drizzle)",
-            "slug": "stateless-auth-mysql"
+            "slug": "stateless-auth-mysql",
+            "new": true
           }
         ]
       }
@@ -515,7 +504,7 @@
       "title": "Banking Application",
       "description": "A simple banking application that integrates MongoDB through Mongoose for data management.",
       "type": "blueprint",
-      "status": "beta",
+      "status": "stable",
       "frameworks": ["express"],
       "docs": "/docs/blueprints/banking-app",
       "meta": {

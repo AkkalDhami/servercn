@@ -1,0 +1,204 @@
+---
+title: Banking Application Blueprint
+description: A production-ready banking application blueprint with MongoDB and Mongoose featuring accounts, transactions, and ledger management
+
+command: npx servercn-cli add bp banking-app
+---
+
+# Banking Application Blueprint
+
+The **Banking Application** is a comprehensive, production-ready blueprint that demonstrates how to build a complete financial services backend using Express.js and MongoDB. This blueprint includes account management, fund transfers, transaction tracking, and a double-entry ledger system.
+
+## What You'll Build
+
+A fully functional banking API with:
+
+- **User Account Management** - Create and manage bank accounts
+- **Deposit & Withdrawal** - Handle cash operations with validation
+- **Fund Transfers** - Secure internal and external transfers
+- **Transaction History** - Complete audit trail of all operations
+- **Double-Entry Ledger** - Professional accounting system implementation
+- **OTP Verification** - Secure critical operations with one-time passwords
+- **OAuth Integration** - Support for third-party authentication providers
+- **File Upload** - Document upload functionality for KYC and more
+
+## Features
+
+### Core Banking Features
+
+- ✅ **Account Management** - Create multiple account types (savings, checking, business)
+- ✅ **Balance Operations** - Deposit, withdraw, and check balance with validations
+- ✅ **Fund Transfers** - Internal transfers between accounts with real-time updates
+- ✅ **Transaction Tracking** - Complete history with filtering and pagination
+- ✅ **Ledger System** - Double-entry bookkeeping for financial accuracy
+- ✅ **Audit Trail** - Comprehensive logging of all financial operations
+
+### Security & Authentication
+
+- ✅ **JWT Authentication** - Secure access tokens with refresh mechanism
+- ✅ **OTP Verification** - Two-factor authentication for sensitive operations
+- ✅ **OAuth 2.0** - Google and GitHub authentication support
+- ✅ **Role-Based Access** - Different permissions for users and admins
+- ✅ **Rate Limiting** - Protection against brute-force attacks
+- ✅ **Input Validation** - Comprehensive validation using Zod schemas
+
+### Technical Features
+
+- ✅ **MVC Architecture** - Clean separation of concerns
+- ✅ **Feature-Based Modules** - Domain-driven organization option
+- ✅ **Swagger Documentation** - Auto-generated API docs
+- ✅ **Error Handling** - Centralized error handling with custom errors
+- ✅ **Logging** - Winston-based structured logging
+- ✅ **TypeScript** - Full type safety and IntelliSense support
+
+## Installation
+
+Generate a new banking app project using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add blueprint banking-app" />
+
+This will create a complete banking application with all the necessary modules, models, and routes.
+
+## Project Structure
+
+### MVC Architecture
+
+The banking app follows the traditional Model-View-Controller pattern:
+
+```
+banking-app/
+├── src/
+│   ├── controllers/       # Request handlers
+│   │   ├── auth.controller.ts
+│   │   ├── account.controller.ts
+│   │   ├── transaction.controller.ts
+│   │   └── ledger.controller.ts
+│   ├── models/           # MongoDB schemas
+│   │   ├── User.ts
+│   │   ├── Account.ts
+│   │   ├── Transaction.ts
+│   │   └── Ledger.ts
+│   ├── services/         # Business logic layer
+│   │   ├── auth.service.ts
+│   │   ├── account.service.ts
+│   │   └── transaction.service.ts
+│   ├── routes/           # API route definitions
+│   │   ├── auth.routes.ts
+│   │   ├── account.routes.ts
+│   │   └── transaction.routes.ts
+│   ├── middlewares/      # Express middlewares
+│   │   ├── auth.middleware.ts
+│   │   ├── validation.middleware.ts
+│   │   └── error.middleware.ts
+│   ├── validators/       # Zod schemas
+│   │   ├── auth.validator.ts
+│   │   └── account.validator.ts
+│   ├── utils/            # Utility functions
+│   │   ├── apiResponse.ts
+│   │   ├── catchAsync.ts
+│   │   └── AppError.ts
+│   ├── config/           # Configuration files
+│   │   ├── database.ts
+│   │   └── env.ts
+│   └── app.ts            # Express app setup
+├── package.json
+└── tsconfig.json
+```
+
+### Feature-Based Architecture
+
+For better scalability and maintainability:
+
+```
+banking-app/
+├── src/
+│   ├── modules/          # Feature modules
+│   │   ├── auth/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── auth.model.ts
+│   │   │   └── auth.validator.ts
+│   │   ├── account/
+│   │   │   ├── account.controller.ts
+│   │   │   ├── account.service.ts
+│   │   │   ├── account.routes.ts
+│   │   │   ├── account.model.ts
+│   │   │   └── account.dto.ts
+│   │   ├── transaction/
+│   │   ├── ledger/
+│   │   ├── otp/
+│   │   └── oauth/
+│   ├── shared/           # Shared utilities
+│   │   ├── middlewares/
+│   │   ├── utils/
+│   │   └── constants/
+│   ├── config/
+│   ├── types/
+│   └── app.ts
+├── package.json
+└── tsconfig.json
+```
+
+
+## Running the Application
+
+
+```bash
+## Development Mode
+npm run dev
+
+## Production Build
+npm run build
+
+## Start production server
+npm start
+
+##Type Checking
+npm run typecheck
+
+## Generate API Documentation
+npm run docs
+## This generates Swagger documentation at /api/docs.
+```
+
+
+## API Documentation
+
+Once running, access the interactive API documentation at: <Code>http://localhost:3000/api/docs</Code>
+
+
+The Swagger UI provides:
+- Interactive API testing
+- Request/response examples
+- Authentication helpers
+- Schema definitions
+
+
+## Security Considerations
+
+1. **Password Hashing** - bcrypt with salt rounds
+2. **JWT Tokens** - Short-lived access tokens, long-lived refresh tokens
+3. **Rate Limiting** - Per-IP and per-user limits
+4. **Input Validation** - All inputs validated with Zod
+5. **SQL Injection Prevention** - MongoDB prevents SQL injection
+6. **XSS Protection** - Helmet middleware
+7. **CORS Configuration** - Configurable allowed origins
+8. **Request Sanitization** - Mongo-sanitize for NoSQL injection prevention
+
+### Best Practices Followed
+
+- Never log sensitive data (passwords, tokens)
+- Use HTTPS in production
+- Rotate secrets regularly
+- Implement account lockout after failed attempts
+- Monitor for suspicious activity
+
+
+## Contributing
+
+Found a bug or want to suggest improvements? Please contribute to the Servercn project!
+
+## Support
+
+Need help? Join our [Discord community](https://discord.gg/2fXqnTXF8d) or open an issue on [GitHub](https://github.com/akkaldhami/servercn).

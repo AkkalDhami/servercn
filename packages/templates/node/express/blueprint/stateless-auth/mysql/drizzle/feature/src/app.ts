@@ -9,7 +9,7 @@ import Routes from "./routes/index";
 import { startRefreshTokenCleanupJob } from "./cron/cleanup-refresh-tokens.cron";
 
 import { rateLimiter } from "./shared/middlewares/rate-limiter";
-import { setupSwagger } from "./config/swagger";
+import { setupSwagger } from "./shared/configs/swagger";
 import sourceMapSupport from "source-map-support";
 sourceMapSupport.install();
 
