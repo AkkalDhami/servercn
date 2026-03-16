@@ -1,6 +1,5 @@
 import { Framework, IRegistryItems, ItemType } from "@/@types/registry";
 import registry from "@/data/registry.json";
-import { GITHUB_URL } from "./constants";
 
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
   "installation",
@@ -14,6 +13,8 @@ export const FRAMEWORK_SECTIONS = [
   "foundations",
   "schemas"
 ];
+
+const STABLE_REGISTRY = registry.items.filter(item => item.status === "stable");
 
 export const findNeighbour = (
   slug: string
@@ -54,7 +55,7 @@ export const findNeighbour = (
     };
   }
 
-  const currentItem = registry.items.find(item => item.slug === slug);
+  const currentItem = STABLE_REGISTRY.find(item => item.slug === slug);
 
   if (!currentItem) {
     return {
@@ -63,7 +64,7 @@ export const findNeighbour = (
     };
   }
 
-  const sameTypeItems = registry.items
+  const sameTypeItems = STABLE_REGISTRY
     .filter(item => item.type === currentItem.type)
     .sort((a, b) => a.title.localeCompare(b.title));
 
