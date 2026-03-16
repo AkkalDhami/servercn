@@ -42,7 +42,10 @@ export default function InstallComponentCommands({
           &nbsp; GitHub Google + GitHub
         </TypingAnimation>
         {files.map((file, index) => (
-          <AnimatedSpan key={index} delay={index * 50} className="text-sm text-blue-500">
+          <AnimatedSpan
+            key={index}
+            delay={index * 50}
+            className="text-sm text-blue-500">
             <p>CREATE: {file}</p>
           </AnimatedSpan>
         ))}

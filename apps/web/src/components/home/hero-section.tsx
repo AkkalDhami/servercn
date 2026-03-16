@@ -14,18 +14,18 @@ import DemoVideo from "./demo";
 export default function HeroSection() {
   return (
     <section id="hero" className="relative mt-4 overflow-hidden sm:mt-12">
-      <div className="relative sm:px-4 pt-18 pb-20 md:pt-22 md:pb-28">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="relative pt-18 pb-20 sm:px-4 md:pt-22 md:pb-28">
+        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div className="sm:max-w-1/2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="hidden sm:inline-block">
-              <HeaderBadge className="px-0 shadow-none py-1 pl-3 bg-background text-sm">
+              <HeaderBadge className="bg-background px-0 py-1 pl-3 text-sm shadow-none">
                 <Link
                   href={"/docs/installation"}
-                  className="flex bg-background items-center gap-2">
+                  className="bg-background flex items-center gap-2">
                   <span>The shadcn philosophy for Node.js backends</span>
                   <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
                     <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
@@ -95,7 +95,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="border rounded-md overflow-hidden">
+          <div className="overflow-hidden rounded-md border">
             <DemoVideo />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mt-8 flex justify-center items-center sm:mt-10">
+          className="mt-8 flex items-center justify-center sm:mt-10">
           <InitCopyButton />
         </motion.div>
       </div>

@@ -34,7 +34,7 @@ export default function Footer() {
         className={cn(
           "relative mx-auto w-full max-w-360 py-4",
           "screen-line-before screen-line-after",
-          "border-x border-edge"
+          "border-edge border-x"
         )}>
         <div className="relative flex size-full flex-col justify-between gap-5">
           <div className="flex flex-col gap-4 px-4 sm:gap-8 md:flex-row">

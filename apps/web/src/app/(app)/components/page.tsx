@@ -9,8 +9,7 @@ import { APP_NAME } from "@/lib/constants";
 export const generateMetadata = (): Metadata => {
   return {
     title: "Components",
-    description:
-      `Production-ready ${APP_NAME} components for building scalable backends. Here you can find all the components available in the library. We are working on adding more components.`,
+    description: `Production-ready ${APP_NAME} components for building scalable backends. Here you can find all the components available in the library. We are working on adding more components.`,
     keywords: [
       `${APP_NAME}`,
       "Components",
@@ -53,7 +52,7 @@ export default function ComponentsPage() {
         </SubHeading>
       </div>
 
-      <div className="screen-line-after &>*]:border divide-x grid sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(3n+1)]:border-l-0 [&>*:nth-child(3n)]:border-r-0">
+      <div className="screen-line-after &>*]:border grid divide-x sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(3n)]:border-r-0 [&>*:nth-child(3n+1)]:border-l-0">
         {components.map(component => (
           <ComponentCard key={component.slug} component={component} />
         ))}

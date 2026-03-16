@@ -15,10 +15,7 @@ export const Container: React.FC<ContainerProps> = ({
 }) => {
   return (
     <section
-      className={cn(
-        "container mx-auto pb-6 w-full max-w-360 px-4",
-        className
-      )}
+      className={cn("container mx-auto w-full max-w-360 px-4 pb-6", className)}
       {...props}>
       {children}
     </section>

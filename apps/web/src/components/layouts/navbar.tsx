@@ -36,7 +36,7 @@ export default function Navbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="bg-background pt-2 fixed top-0 left-0 z-40 w-full">
+        className="bg-background fixed top-0 left-0 z-40 w-full pt-2">
         <nav
           className={cn(
             "mx-auto flex max-w-360 items-center justify-between px-4 py-2.5",

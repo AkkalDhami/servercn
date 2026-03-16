@@ -1,4 +1,4 @@
-export const APP_NAME = "servercn"
+export const APP_NAME = "servercn";
 
 export const STORAGE_THEME_KEY = "servercn-code-theme";
 export const COOKIE_THEME_KEY = "servercn-code-theme";
