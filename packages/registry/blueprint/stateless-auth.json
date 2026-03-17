@@ -46,8 +46,6 @@
                       "@types/express",
                       "drizzle-kit",
                       "@types/ejs",
-                      "@types/jsonwebtoken",
-                      "@types/bcryptjs",
                       "@types/cookie-parser",
                       "@types/cors",
                       "@types/jsonwebtoken",
