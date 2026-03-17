@@ -469,14 +469,15 @@
       "title": "Stateful Authentication",
       "description": "Session-based authentication blueprint with secure login, logout, and server-managed session flow.",
       "type": "blueprint",
-      "status": "unstable",
+      "status": "stable",
       "frameworks": ["express"],
       "docs": "/docs/blueprints/stateful-authentication",
       "meta": {
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
-            "slug": "stateful-authentication-mongodb"
+            "slug": "stateful-authentication-mongodb",
+            "new": true
           }
         ]
       }
