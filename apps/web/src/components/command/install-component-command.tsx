@@ -28,9 +28,11 @@ export default function InstallComponentCommands({
 }) {
   return (
     <div className={cn("h-full", className)}>
-      <Terminal className="mx-auto h-full min-h-140 min-w-xl text-sm sm:text-base">
+      <Terminal
+        command="npx servercn-cli add oauth"
+        className="mx-auto h-full min-h-142 min-w-xl text-sm sm:text-base">
         <TypingAnimation className="text-sm sm:text-base">
-          &gt; npx servercn-cli add oauth
+          $ npx servercn-cli add oauth
         </TypingAnimation>
         <TypingAnimation className="text-sm sm:text-base">
           ? Select OAuth provider:
@@ -39,7 +41,7 @@ export default function InstallComponentCommands({
           &gt; Google
         </TypingAnimation>
         <TypingAnimation className="text-sm sm:text-base">
-          &nbsp; GitHub Google + GitHub
+          &nbsp; GitHub
         </TypingAnimation>
         {files.map((file, index) => (
           <AnimatedSpan

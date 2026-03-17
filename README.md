@@ -12,7 +12,7 @@
 
 ---
 
-![ServerCN Components](./apps/web/public/assets/hero.png)
+![ServerCN Components](./apps/web/public/og-image.png)
 
 [Visit website: https://servercn.vercel.app](https://servercn.vercel.app/docs/cli)
 

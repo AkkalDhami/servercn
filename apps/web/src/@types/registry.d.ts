@@ -5,6 +5,12 @@ export interface ISchema {
 }
 
 export type Framework = "express" | "nestjs";
+export type StatusType =
+  | "stable"
+  | "unstable"
+  | "beta"
+  | "experimental"
+  | "deprecated";
 
 export interface IRegistryItems {
   slug: string;
