@@ -139,7 +139,9 @@ export default function DocsSidebar({
             </h3>
 
             <ul className="mb-3 space-y-3.5 border-l border-zinc-200 dark:border-zinc-800">
-              {(section.items as IRegistryItems[]).map((item, i: number) => {
+              {(section.items as IRegistryItems[])
+                .filter(item => item.status === "stable")
+                .map((item, i: number) => {
                 const itemUrl = injectFramework(item.url as string, item.type);
                 // Check if current pathname matches the item (with or without framework)
                 const isActive =
