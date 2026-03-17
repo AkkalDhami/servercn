@@ -5,6 +5,7 @@ import CallToAction from "@/components/home/cta-section";
 import OAuthSection from "@/components/home/oauth-section";
 import JSGuideCTA from "@/components/home/js-guide-cta";
 import Stats from "@/components/home/stats";
+import SupportedFrameworks from "@/components/home/supported-frameworks";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <HeroSection />
       <Stats />
       <JSGuideCTA />
+      <SupportedFrameworks />
       <OAuthSection />
       <WhyServerCN />
       <CallToAction />
