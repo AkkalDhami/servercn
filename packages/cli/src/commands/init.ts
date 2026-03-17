@@ -23,6 +23,7 @@ import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
 import { paths } from "@/lib/paths";
 import { eslintConfig } from "@/configs/eslint.config";
+import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
@@ -124,6 +125,12 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         }
       ]);
 
+      logger.break();
+
+      const toolingChoices = await getToolingChoices();
+
+      const devDeps = getToolingDepsFromChoices(toolingChoices);
+
       const rootPath = path.resolve(cwd, response.root);
 
       if (response.root !== "." && fs.pathExistsSync(rootPath)) {
@@ -148,7 +155,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         }
       }
 
-      logger.info();
       try {
         const component: RegistryFoundation = await getRegistry(
           foundation,
@@ -275,7 +281,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
         await installDependencies({
           runtime: baseConfig?.dependencies?.runtime || [],
-          dev: baseConfig?.dependencies?.dev || [],
+          dev: [...devDeps, baseConfig?.dependencies?.dev || []].flat(),
           cwd: rootPath,
           packageManager: response.packageManager
         });

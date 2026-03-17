@@ -24,6 +24,7 @@ import { resolveTemplateResolution } from "./add.handlers";
 import { spinner } from "@/utils/spinner";
 import { execa } from "execa";
 import { updateEnvKeys } from "@/utils/update-env";
+import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
 
 export async function add(registryItemName: string, options: AddOptions = {}) {
   await assertInitialized();
@@ -31,6 +32,12 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
 
   const config = await getServerCNConfig();
   validateStack(config);
+
+  let toolingDeps;
+  if (["blueprint", "tooling"].includes(options?.type || "")) {
+    const toolingChoices = await getToolingChoices();
+    toolingDeps = getToolingDepsFromChoices(toolingChoices);
+  }
 
   const type: RegistryType = options.type ?? "component";
   const component = await getRegistry(registryItemName, type, options.local);
@@ -64,7 +71,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
   if (runtimeDeps.length > 0 || devDeps.length > 0) {
     await installDependencies({
       runtime: runtimeDeps,
-      dev: devDeps,
+      dev: [...toolingDeps || [], ...devDeps],
       cwd: process.cwd(),
       packageManager: config.project.packageManager
     });
