@@ -14,7 +14,7 @@ export const FRAMEWORK_SECTIONS = [
   "schemas"
 ];
 
-const STABLE_REGISTRY = registry.items.filter(item => item.status === "stable");
+const STABLE_REGISTRY = registry.items;
 
 export const findNeighbour = (
   slug: string
@@ -84,8 +84,8 @@ export function getRegistryTypeItems(
   const items = registry.items
     .sort((a, b) => a.title.localeCompare(b.title))
     .filter(item => {
-      // Filter by type and status
-      if (item.type !== type || item.status !== "stable") return false;
+      // Filter by type
+      if (item.type !== type) return false;
 
       // If no framework filter or item has no framework restrictions, include it
       if (!framework || !item.frameworks || item.frameworks.length === 0) {

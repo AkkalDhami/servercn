@@ -4,7 +4,7 @@ import mvcData from "../../data/google-oauth.json";
 import BackendStructureViewer from "@/components/file-viewer/backend-structure-viewer";
 
 import { FileNode } from "../file-viewer/file-tree";
-import InstallComponentCommands from "../command/install-component-command";
+import InstallComponentCommands from "@/components/command/install-component-command";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Section } from "@/components/ui/section";
