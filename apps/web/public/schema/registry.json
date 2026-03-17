@@ -82,7 +82,7 @@
         "status": {
           "type": "string",
           "description": "Indicates the stability level of the entry.",
-          "enum": ["stable", "beta", "experimental", "deprecated"]
+          "enum": ["stable", "unstable", "beta", "experimental", "deprecated"]
         },
         "docs": {
           "type": "string",
@@ -144,6 +144,17 @@
                 "type": "boolean",
                 "description": "Marks a database variant as newly introduced.",
                 "default": false
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the stability level of the database variant.",
+                "enum": [
+                  "stable",
+                  "unstable",
+                  "beta",
+                  "experimental",
+                  "deprecated"
+                ]
               }
             }
           }

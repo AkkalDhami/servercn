@@ -67,12 +67,26 @@ export default function SchemaPage() {
 
 export function ItemWithDBCard({ item }: { item: IRegistryItems }) {
   return (
-    <div className="hover:bg-card-hover screen-line-before border-edge flex flex-col gap-2 p-4 duration-300 last:border-r">
+    <div
+      className={cn(
+        "hover:bg-card-hover screen-line-before border-edge flex flex-col gap-2 p-4 duration-300 last:border-r",
+        item.status !== "stable" && "pointer-events-none"
+      )}>
       <Link
-        href={`${item.url}` as Route}
+        href={(item.status === "stable" ? item.url : "") as Route}
         className="flex items-center gap-3 text-lg duration-300 hover:underline">
         {item.title}
 
+        {item.status !== "stable" && (
+          <>
+            <span
+              className={`absolute top-4 right-4 hidden rounded-full border border-amber-400 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 md:block dark:border-amber-600`}>
+              upcoming
+            </span>
+            <span
+              className={`absolute top-4 right-4 block size-2 rounded-full bg-amber-500 md:hidden`}></span>
+          </>
+        )}
         {item.meta?.new && (
           <span className={`size-2 rounded-full bg-blue-500`} />
         )}

@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4 px-4 sm:gap-8 md:flex-row">
             <AnimatedContainer className="w-full max-w-sm min-w-2xs space-y-4">
               <Logo />
-              <p className="text-muted-foreground mt-8 text-sm">
+              <p className="text-muted-foreground mt-4 text-sm">
                 {APP_NAME} , the backend component registry for node.js inspired
                 by shadcn/ui.
               </p>

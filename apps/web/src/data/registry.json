@@ -469,7 +469,7 @@
       "title": "Stateful Authentication",
       "description": "Session-based authentication blueprint with secure login, logout, and server-managed session flow.",
       "type": "blueprint",
-      "status": "beta",
+      "status": "unstable",
       "frameworks": ["express"],
       "docs": "/docs/blueprints/stateful-authentication",
       "meta": {
@@ -486,11 +486,10 @@
       "title": "Hybrid Authentication",
       "description": "Hybrid authentication blueprint combining access/refresh token flows with secure session-aware patterns.",
       "type": "blueprint",
-      "status": "beta",
+      "status": "unstable",
       "frameworks": ["express"],
       "docs": "/docs/blueprints/hybrid-auth",
       "meta": {
-        "new": true,
         "databases": [
           {
             "label": "MongoDB (Mongoose)",

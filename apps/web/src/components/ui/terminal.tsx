@@ -12,6 +12,7 @@ import {
 import { motion, MotionProps, useInView } from "motion/react";
 
 import { cn } from "@/lib/utils";
+import CopyButton from "../docs/copy-button";
 
 interface SequenceContextValue {
   completeItem: (index: number) => void;
@@ -49,14 +50,26 @@ export const AnimatedSpan = ({
   const sequence = useSequence();
   const itemIndex = useItemIndex();
   const [hasStarted, setHasStarted] = useState(false);
+
   useEffect(() => {
     if (!sequence || itemIndex === null) return;
     if (!sequence.sequenceStarted) return;
     if (hasStarted) return;
-    if (sequence.activeIndex === itemIndex) {
-      setHasStarted(true);
+
+    const shouldStart = sequence.activeIndex === itemIndex;
+    if (shouldStart) {
+      // Use requestAnimationFrame to defer state update
+      requestAnimationFrame(() => {
+        setHasStarted(true);
+      });
     }
-  }, [sequence?.activeIndex, sequence?.sequenceStarted, hasStarted, itemIndex]);
+  }, [
+    sequence?.activeIndex,
+    sequence?.sequenceStarted,
+    hasStarted,
+    itemIndex,
+    sequence
+  ]);
 
   const shouldAnimate = sequence ? hasStarted : startOnView ? isInView : true;
 
@@ -126,8 +139,12 @@ export const TypingAnimation = ({
     if (sequence && itemIndex !== null) {
       if (!sequence.sequenceStarted) return;
       if (started) return;
-      if (sequence.activeIndex === itemIndex) {
-        setStarted(true);
+
+      const shouldStart = sequence.activeIndex === itemIndex;
+      if (shouldStart) {
+        requestAnimationFrame(() => {
+          setStarted(true);
+        });
       }
       return;
     }
@@ -148,7 +165,8 @@ export const TypingAnimation = ({
     started,
     sequence?.activeIndex,
     sequence?.sequenceStarted,
-    itemIndex
+    itemIndex,
+    sequence
   ]);
 
   useEffect(() => {
@@ -170,7 +188,7 @@ export const TypingAnimation = ({
     return () => {
       clearInterval(typingEffect);
     };
-  }, [children, duration, started]);
+  }, [children, duration, started, sequence, itemIndex]);
 
   return (
     <MotionComponent
@@ -185,6 +203,7 @@ export const TypingAnimation = ({
 interface TerminalProps {
   children: React.ReactNode;
   className?: string;
+  command?: string;
   sequence?: boolean;
   startOnView?: boolean;
 }
@@ -193,8 +212,20 @@ export const Terminal = ({
   children,
   className,
   sequence = true,
-  startOnView = true
+  startOnView = true,
+  command
 }: TerminalProps) => {
+  const [copied, setCopied] = useState<boolean>(false);
+  const inputRef = useRef<HTMLDivElement>(null);
+
+  const handleCopy = () => {
+    if (inputRef.current) {
+      navigator.clipboard.writeText(inputRef.current.innerText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(containerRef as React.RefObject<Element>, {
     amount: 0.3,
@@ -229,14 +260,30 @@ export const Terminal = ({
     <div
       ref={containerRef}
       className={cn(
-        "border-border bg-background z-0 h-full max-h-100 w-full max-w-lg rounded-xl border",
+        "border-border bg-background z-0 h-full max-h-100 w-full max-w-lg rounded-xl border relative",
         className
       )}>
-      <div className="border-border flex flex-col gap-y-2 border-b p-4">
+      <div className="border-border flex items-center justify-between gap-x-4 gap-y-2 border-b p-4">
         <div className="flex flex-row gap-x-2">
           <div className="h-2 w-2 rounded-full bg-red-500"></div>
           <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
           <div className="h-2 w-2 rounded-full bg-green-500"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <p
+            ref={inputRef}
+            className={cn(
+              "text-muted-secondary font-mono",
+              "group-hover:text-accent-foreground duration-200",
+              copied && "text-accent-foreground"
+            )}>
+            {command}
+          </p>
+          <CopyButton
+            handleCopy={handleCopy}
+            copied={copied}
+            className="group-hover:text-accent-foreground relative"
+          />
         </div>
       </div>
       <pre className="p-4">
