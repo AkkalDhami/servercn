@@ -222,7 +222,7 @@
       "title": "Health Check Endpoint",
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
-      "status": "stable",
+      "status": "experimental",
       "frameworks": ["express", "nestjs"],
       "docs": "/docs/components/health-check"
     },
@@ -471,12 +471,12 @@
       "type": "blueprint",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/blueprints/stateful-authentication",
+      "docs": "/docs/blueprints/stateful-auth",
       "meta": {
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
-            "slug": "stateful-authentication-mongodb",
+            "slug": "stateful-auth-mongodb",
             "new": true
           }
         ]
