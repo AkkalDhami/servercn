@@ -13,7 +13,7 @@ export const tsConfig = {
     useUnknownInCatchVariables: true,
     forceConsistentCasingInFileNames: true,
     paths: {
-      "@/*": ["./*", "./src/*"],
+      "@/*": ["./src/*"],
       "@/shared/*": ["../../shared/*"],
     },
   },
