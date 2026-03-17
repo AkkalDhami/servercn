@@ -1,4 +1,5 @@
 import { IRegistryItems } from "@/@types/registry";
+import { cn } from "@/lib/utils";
 import { Route } from "next";
 import Link from "next/link";
 
@@ -9,16 +10,13 @@ export default function ComponentCard({
 }) {
   return (
     <Link
-      href={component.url as Route}
-      className="group border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300 last:border-r">
+      href={(component.status !== "stable" ? component.url : "") as Route}
+      className={cn("group border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300 last:border-r", component.status !== "stable" && "pointer-events-none")}>
       {component.status !== "stable" && (
         <>
+         
           <span
-            className={`absolute top-4 right-4 hidden rounded-full border border-amber-400 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 md:block dark:border-amber-600`}>
-            {component.status}
-          </span>
-          <span
-            className={`absolute top-4 right-4 block size-2 rounded-full bg-amber-500 md:hidden`}></span>
+            className={`absolute top-4 right-4 size-2 rounded-full bg-amber-500`}></span>
         </>
       )}
       <div className="flex items-center gap-4">
