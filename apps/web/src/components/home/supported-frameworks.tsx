@@ -132,7 +132,7 @@ export default function SupportedFrameworks() {
                       stats.blueprints > 0 &&
                       stats.foundations > 0 &&
                       stats.schemas > 0 && (
-                        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <div className="mt-2 grid grid-cols-2 gap-2">
                           <p className="text-muted-foreground text-sm">
                             <span className="text-foreground font-bold">
                               {stats.components}+{" "}

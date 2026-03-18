@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRightIcon, TerminalIcon } from "lucide-react";
+import { TerminalIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import { cn } from "@/lib/utils";
-import {
-  AnimatedSpan,
-  Terminal,
-  TypingAnimation
-} from "@/components/ui/terminal";
+import { Terminal } from "@/components/ui/terminal";
 export default function CallToAction() {
   return (
     <Section
@@ -41,22 +36,22 @@ export default function CallToAction() {
 
       <Terminal
         command="npx servercn-cli init"
-        className="mx-auto h-full min-h-60 w-full overflow-x-hidden md:min-w-xl">
-        <TypingAnimation className="text-base">$ npx servercn-cli init</TypingAnimation>
-        {[
-          "Select a project foundation:",
-          "> Express Starter",
-          "  Express + Mongoose",
-          "  Express + MySQL (Drizzle)",
-          "  Express + PostgreSQL (Drizzle)",
-          "  Express + PostgreSQL (Drizzle)",
-          "  Existing Project"
-        ].map((file, index) => (
-          <AnimatedSpan key={index} delay={index * 50} className="text-sm">
-            <p>{file}</p>
-          </AnimatedSpan>
-        ))}
-      </Terminal>
+        containerClassName="min-h-60"
+        commands={["npx servercn-cli init"]}
+        outputs={{
+          0: [
+            "Select a project foundation:",
+            "> Express Starter",
+            "  Express + Mongoose",
+            "  Express + MySQL (Drizzle)",
+            "  Express + PostgreSQL (Drizzle)",
+            "  Express + PostgreSQL (Drizzle)",
+            "  Existing Project"
+          ]
+        }}
+        typingSpeed={45}
+        delayBetweenCommands={1000}
+      />
     </Section>
   );
 }
