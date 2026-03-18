@@ -1,220 +1,75 @@
 "use client";
-
-import {
-  Children,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
-import { motion, MotionProps, useInView } from "motion/react";
-
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import CopyButton from "../docs/copy-button";
+import CopyButton from "@/components/docs/copy-button";
 
-interface SequenceContextValue {
-  completeItem: (index: number) => void;
-  activeIndex: number;
-  sequenceStarted: boolean;
-}
-
-const SequenceContext = createContext<SequenceContextValue | null>(null);
-
-const useSequence = () => useContext(SequenceContext);
-
-const ItemIndexContext = createContext<number | null>(null);
-const useItemIndex = () => useContext(ItemIndexContext);
-
-interface AnimatedSpanProps extends MotionProps {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-  startOnView?: boolean;
-}
-
-export const AnimatedSpan = ({
-  children,
-  delay = 0,
-  className,
-  startOnView = false,
-  ...props
-}: AnimatedSpanProps) => {
-  const elementRef = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(elementRef as React.RefObject<Element>, {
-    amount: 0.3,
-    once: true
-  });
-
-  const sequence = useSequence();
-  const itemIndex = useItemIndex();
-  const [hasStarted, setHasStarted] = useState(false);
+function useInView(ref: React.RefObject<HTMLElement | null>, once = true) {
+  const [inView, setInView] = useState(false);
+  const triggered = useRef(false);
 
   useEffect(() => {
-    if (!sequence || itemIndex === null) return;
-    if (!sequence.sequenceStarted) return;
-    if (hasStarted) return;
+    const el = ref.current;
+    if (!el || (once && triggered.current)) return;
 
-    const shouldStart = sequence.activeIndex === itemIndex;
-    if (shouldStart) {
-      // Use requestAnimationFrame to defer state update
-      requestAnimationFrame(() => {
-        setHasStarted(true);
-      });
-    }
-  }, [
-    sequence?.activeIndex,
-    sequence?.sequenceStarted,
-    hasStarted,
-    itemIndex,
-    sequence
-  ]);
-
-  const shouldAnimate = sequence ? hasStarted : startOnView ? isInView : true;
-
-  return (
-    <motion.div
-      ref={elementRef}
-      initial={{ opacity: 0, y: -5 }}
-      animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
-      transition={{ duration: 0.3, delay: sequence ? 0 : delay / 1000 }}
-      className={cn(
-        "text-muted-foreground flex items-center gap-1 text-sm font-normal tracking-tight sm:text-lg",
-        className
-      )}
-      onAnimationComplete={() => {
-        if (!sequence) return;
-        if (itemIndex === null) return;
-        sequence.completeItem(itemIndex);
-      }}
-      {...props}>
-      {children}
-    </motion.div>
-  );
-};
-
-interface TypingAnimationProps extends MotionProps {
-  children: string;
-  className?: string;
-  duration?: number;
-  delay?: number;
-  as?: React.ElementType;
-  startOnView?: boolean;
-}
-
-export const TypingAnimation = ({
-  children,
-  className,
-  duration = 60,
-  delay = 0,
-  as: Component = "span",
-  startOnView = true,
-  ...props
-}: TypingAnimationProps) => {
-  if (typeof children !== "string") {
-    throw new Error("TypingAnimation: children must be a string. Received:");
-  }
-
-  const MotionComponent = useMemo(
-    () =>
-      motion.create(Component, {
-        forwardMotionProps: true
-      }),
-    [Component]
-  );
-
-  const [displayedText, setDisplayedText] = useState<string>("");
-  const [started, setStarted] = useState(false);
-  const elementRef = useRef<HTMLElement | null>(null);
-  const isInView = useInView(elementRef as React.RefObject<Element>, {
-    amount: 0.3,
-    once: true
-  });
-
-  const sequence = useSequence();
-  const itemIndex = useItemIndex();
-
-  useEffect(() => {
-    if (sequence && itemIndex !== null) {
-      if (!sequence.sequenceStarted) return;
-      if (started) return;
-
-      const shouldStart = sequence.activeIndex === itemIndex;
-      if (shouldStart) {
-        requestAnimationFrame(() => {
-          setStarted(true);
-        });
-      }
-      return;
-    }
-
-    if (!startOnView) {
-      const startTimeout = setTimeout(() => setStarted(true), delay);
-      return () => clearTimeout(startTimeout);
-    }
-
-    if (!isInView) return;
-
-    const startTimeout = setTimeout(() => setStarted(true), delay);
-    return () => clearTimeout(startTimeout);
-  }, [
-    delay,
-    startOnView,
-    isInView,
-    started,
-    sequence?.activeIndex,
-    sequence?.sequenceStarted,
-    itemIndex,
-    sequence
-  ]);
-
-  useEffect(() => {
-    if (!started) return;
-
-    let i = 0;
-    const typingEffect = setInterval(() => {
-      if (i < children.length) {
-        setDisplayedText(children.substring(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typingEffect);
-        if (sequence && itemIndex !== null) {
-          sequence.completeItem(itemIndex);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggered.current) {
+          setInView(true);
+          if (once) {
+            triggered.current = true;
+            observer.disconnect();
+          }
         }
-      }
-    }, duration);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, once]);
 
-    return () => {
-      clearInterval(typingEffect);
-    };
-  }, [children, duration, started, sequence, itemIndex]);
-
-  return (
-    <MotionComponent
-      ref={elementRef}
-      className={cn("text-sm font-normal tracking-tight", className)}
-      {...props}>
-      {displayedText}
-    </MotionComponent>
-  );
-};
-
-interface TerminalProps {
-  children: React.ReactNode;
-  className?: string;
-  command?: string;
-  sequence?: boolean;
-  startOnView?: boolean;
+  return inView;
 }
 
-export const Terminal = ({
-  children,
+interface TerminalLine {
+  type: "command" | "output";
+  content: string;
+}
+
+export interface TerminalProps {
+  commands: string[];
+  outputs?: Record<number, string[]>;
+  command?: string;
+  className?: string;
+  containerClassName?: string;
+  typingSpeed?: number;
+  delayBetweenCommands?: number;
+  initialDelay?: number;
+}
+
+export function Terminal({
+  commands = ["npx servercn-cli init"],
+  outputs = {},
+  command = "npx servercn-cli init",
   className,
-  sequence = true,
-  startOnView = true,
-  command
-}: TerminalProps) => {
+  typingSpeed = 50,
+  delayBetweenCommands = 800,
+  containerClassName,
+  initialDelay = 500
+}: TerminalProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef);
+
+  const [lines, setLines] = useState<TerminalLine[]>([]);
+  const [currentText, setCurrentText] = useState("");
+  const [commandIdx, setCommandIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [outputIdx, setOutputIdx] = useState(-1);
+  const [phase, setPhase] = useState<
+    "idle" | "typing" | "executing" | "outputting" | "pausing" | "done"
+  >("idle");
+  const [, setCursorVisible] = useState(true);
+
   const [copied, setCopied] = useState<boolean>(false);
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -226,77 +81,175 @@ export const Terminal = ({
     }
   };
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(containerRef as React.RefObject<Element>, {
-    amount: 0.3,
-    once: true
-  });
+  const currentCommand = commands[commandIdx] || "";
+  const currentOutputs = useMemo(
+    () => outputs[commandIdx] || [],
+    [outputs, commandIdx]
+  );
+  const isLastCommand = commandIdx === commands.length - 1;
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const sequenceHasStarted = sequence ? !startOnView || isInView : false;
+  useEffect(() => {
+    if (!inView || phase !== "idle") return;
+    const t = setTimeout(() => setPhase("typing"), initialDelay);
+    return () => clearTimeout(t);
+  }, [inView, phase, initialDelay]);
 
-  const contextValue = useMemo<SequenceContextValue | null>(() => {
-    if (!sequence) return null;
-    return {
-      completeItem: (index: number) => {
-        setActiveIndex(current => (index === current ? current + 1 : current));
-      },
-      activeIndex,
-      sequenceStarted: sequenceHasStarted
+  useEffect(() => {
+    if (phase !== "typing") return;
+
+    if (charIdx < currentCommand.length) {
+      const t = setTimeout(
+        () => {
+          setCurrentText(currentCommand.slice(0, charIdx + 1));
+          setCharIdx(c => c + 1);
+        },
+        typingSpeed + Math.random() * 30
+      );
+      return () => clearTimeout(t);
+    } else {
+      const t = setTimeout(() => {
+        setPhase("executing");
+      }, 80);
+      return () => clearTimeout(t);
+    }
+  }, [phase, charIdx, currentCommand, typingSpeed]);
+
+  useEffect(() => {
+    if (phase !== "executing") return;
+
+    const updateLines = () => {
+      setLines(prev => [...prev, { type: "command", content: currentCommand }]);
+      setCurrentText("");
     };
-  }, [sequence, activeIndex, sequenceHasStarted]);
 
-  const wrappedChildren = useMemo(() => {
-    if (!sequence) return children;
-    const array = Children.toArray(children);
-    return array.map((child, index) => (
-      <ItemIndexContext.Provider key={index} value={index}>
-        {child as React.ReactNode}
-      </ItemIndexContext.Provider>
-    ));
-  }, [children, sequence]);
+    // Use requestAnimationFrame to defer state update
+    requestAnimationFrame(updateLines);
 
-  const content = (
+  requestAnimationFrame(() => {
+    if (currentOutputs.length > 0) {
+      setOutputIdx(0);
+       
+      setPhase("outputting");
+    } else if (isLastCommand) {
+       
+      setPhase("done");
+    } else {
+       
+      setPhase("pausing");
+    }
+  });
+  }, [phase, currentCommand, currentOutputs.length, isLastCommand]);
+
+  useEffect(() => {
+    if (phase !== "outputting") return;
+
+    if (outputIdx >= 0 && outputIdx < currentOutputs.length) {
+      const t = setTimeout(() => {
+        setLines(prev => [
+          ...prev,
+          { type: "output", content: currentOutputs[outputIdx] }
+        ]);
+        setOutputIdx(i => i + 1);
+      }, 150);
+      return () => clearTimeout(t);
+    } else if (outputIdx >= currentOutputs.length) {
+      const t = setTimeout(() => {
+        if (isLastCommand) {
+          setPhase("done");
+        } else {
+          setPhase("pausing");
+        }
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [phase, outputIdx, currentOutputs, isLastCommand]);
+
+  useEffect(() => {
+    if (phase !== "pausing") return;
+    const t = setTimeout(() => {
+      setCharIdx(0);
+      setOutputIdx(-1);
+      setCommandIdx(c => c + 1);
+      setPhase("typing");
+    }, delayBetweenCommands);
+    return () => clearTimeout(t);
+  }, [phase, delayBetweenCommands]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setCursorVisible(v => !v), 530);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [lines, phase]);
+
+  const prompt = <span className="text-muted-primary">$ </span>;
+
+  return (
     <div
       ref={containerRef}
       className={cn(
-        "border-border bg-background z-0 h-full max-h-100 w-full max-w-lg rounded-xl border relative",
+        "mx-auto w-full px-4 font-mono text-sm sm:text-base",
         className
       )}>
-      <div className="border-border flex items-center justify-between gap-x-4 gap-y-2 border-b p-4">
-        <div className="flex flex-row gap-x-2">
-          <div className="h-2 w-2 rounded-full bg-red-500"></div>
-          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+      <div className="border-edge bg-background overflow-hidden rounded-lg border">
+        {/* Title Bar */}
+        <div className="flex items-center justify-between gap-2 px-4 py-3">
+          <div className="flex items-center gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-red-500 transition-colors hover:bg-red-600" />
+            <div className="h-3 w-3 rounded-full bg-yellow-500 transition-colors hover:bg-yellow-600" />
+            <div className="h-3 w-3 rounded-full bg-green-500 transition-colors hover:bg-green-600" />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <p
+              ref={inputRef}
+              className={cn(
+                "text-muted-secondary font-mono text-base",
+                "group-hover:text-accent-foreground duration-200",
+                copied && "text-accent-foreground"
+              )}>
+              {command}
+            </p>
+            <CopyButton
+              handleCopy={handleCopy}
+              copied={copied}
+              className="group-hover:text-accent-foreground relative"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <p
-            ref={inputRef}
-            className={cn(
-              "text-muted-secondary font-mono",
-              "group-hover:text-accent-foreground duration-200",
-              copied && "text-accent-foreground"
-            )}>
-            {command}
-          </p>
-          <CopyButton
-            handleCopy={handleCopy}
-            copied={copied}
-            className="group-hover:text-accent-foreground relative"
-          />
+
+        {/* Terminal Content */}
+        <div
+          ref={contentRef}
+          className={cn(
+            "no-visible-scrollbar min-h-60 overflow-y-auto p-4 font-mono",
+            containerClassName
+          )}>
+          {lines.map((line, i) => (
+            <div key={i} className="leading-relaxed whitespace-pre-wrap">
+              {line.type === "command" ? (
+                <span className="text-primary">
+                  {prompt}
+                  <span className="text-primary">{line.content}</span>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">{line.content}</span>
+              )}
+            </div>
+          ))}
+
+          {phase === "typing" && (
+            <div className="leading-relaxed whitespace-pre-wrap">
+              {prompt} <span className="text-primary">{currentText}</span>
+              <span className="bg-primary ml-0.5 inline-block h-4 w-2 align-middle" />
+            </div>
+          )}
         </div>
       </div>
-      <pre className="p-4">
-        <code className="grid gap-y-0.5 overflow-auto">{wrappedChildren}</code>
-      </pre>
     </div>
   );
-
-  if (!sequence) return content;
-
-  return (
-    <SequenceContext.Provider value={contextValue}>
-      {content}
-    </SequenceContext.Provider>
-  );
-};
+}

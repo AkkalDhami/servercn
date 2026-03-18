@@ -19,7 +19,7 @@ export default function OAuthSection() {
         </SubHeading>
       </div>
 
-      <div className="grid gap-18 md:grid-cols-1 lg:grid-cols-5">
+      <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-5">
         <InstallComponentCommands className="col-span-2" />
 
         <BackendStructureViewer
