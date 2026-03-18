@@ -11,6 +11,8 @@ import Warning from "./warning";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getIconForLanguageExtension } from "./icons/language-icons";
+import { Table, THead, TBody, TR, TH, TD } from "./table";
+import { Method, Endpoint, Auth } from "./api-table";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
@@ -21,6 +23,17 @@ export const mdxComponents: MDXComponents = {
   Note,
   LNote,
   Warning,
+
+  Table,
+  THead,
+  TBody,
+  TR,
+  TH,
+  TD,
+
+  Method,
+  Endpoint,
+  Auth,
   h1: props => (
     <h1 className="text-3xl font-semibold tracking-tight" {...props} />
   ),
