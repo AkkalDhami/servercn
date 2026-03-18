@@ -1,4 +1,4 @@
-# ServerCN
+# Servercn
 
 > **Backend component registry for Node.js & Typescript**
 
@@ -6,17 +6,17 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
 
-**ServerCN** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
+**Servercn** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
 
 > Shadcn ecosystem for nodejs backend
 
 ---
 
-![ServerCN Components](./apps/web/public/og-image.png)
+![Servercn Components](./apps/web/public/og-image.png)
 
-[Visit website: https://servercn.vercel.app](https://servercn.vercel.app/docs/cli)
+[Visit website](https://servercn.vercel.app/docs/cli)
 
-[Join discord: https://discord.gg/2fXqnTXF8d](https://discord.gg/2fXqnTXF8d)
+[Join discord](https://discord.gg/2fXqnTXF8d)
 
 ## 🛠️ Usage
 
@@ -106,7 +106,7 @@ npx servercn-cli add health-check
 
 ### 3. CLI Commands
 
-[Visit for more](https://servercn.vercel.app/docs/cli)
+[Visit for more](https://Servercn.vercel.app/docs/cli)
 
 - List all available registry item.
 
@@ -166,7 +166,7 @@ npx servercn-cli add health-check
 
 We welcome contributions! Please feel free to submit a Pull Request.
 
-[Contributing guides](https://servercn.vercel.app/contributing)
+[Contributing guides](https://Servercn.vercel.app/contributing)
 
 ## 📄 License
 
@@ -174,10 +174,10 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/AkkalDhami/servercn.svg?variant=adaptive)](https://starchart.cc/AkkalDhami/servercn)
+[![RepoStars](https://repostars.dev/api/embed?repo=AkkalDhami%2Fservercn&theme=dark)](https://repostars.dev/?repos=AkkalDhami%2Fservercn&theme=dark)
 
 ---
 
 <p align="center">
-  Built with 🗡️ by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a> and the <a target="_blank" href="https://servercn.vercel.app/contributors">ServerCN contributors</a>
+  Built with 🪓 by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a> and the <a target="_blank" href="https://Servercn.vercel.app/contributors">servercn contributors</a>
 </p>

@@ -1,0 +1,349 @@
+---
+title: Stateful Auth with MongoDB (Mongoose)
+description: Session-based authentication using MongoDB and Mongoose with server-managed sessions.
+command: npx servercn-cli add bp stateful-auth
+---
+
+# Stateful Authentication with MongoDB (Mongoose)
+
+MongoDB implementation of stateful authentication using Mongoose ODM for session management.
+
+## Installation Guide
+
+You can add the stateful authentication blueprint to your project using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add blueprint stateful-auth" />
+
+## API Endpoints
+
+All endpoints are the same for both MVC and Feature architectures.
+
+### Authentication Routes
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-otp</Endpoint></TD>
+      <TD>Verify OTP for email verification</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signup</Endpoint></TD>
+      <TD>Register new user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signin</Endpoint></TD>
+      <TD>Login user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Get user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PATCH" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Update profile (with avatar)</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/logout</Endpoint></TD>
+      <TD>Logout current user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/forgot-password</Endpoint></TD>
+      <TD>Request password reset OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/reset-password</Endpoint></TD>
+      <TD>Reset password with OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/change-password</Endpoint></TD>
+      <TD>Change current password</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/delete-account</Endpoint></TD>
+      <TD>Soft delete account</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PUT" /></TD>
+      <TD><Endpoint>/reactivate-account</Endpoint></TD>
+      <TD>Restore deleted account</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
+### Session Management
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth/sessions</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>Get all active user sessions</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>Revoke all sessions except current</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions/:sessionId</Endpoint></TD>
+      <TD>Revoke specific session</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### OAuth Routes
+
+#### Base URL: <Code>http://localhost:3000/api/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github</Endpoint></TD>
+      <TD>Initiate GitHub OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github/callback</Endpoint></TD>
+      <TD>GitHub OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google</Endpoint></TD>
+      <TD>Initiate Google OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google/callback</Endpoint></TD>
+      <TD>Google OAuth callback</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Health Check
+
+#### Base URL: <Code>http://localhost:3000/api/v1/healt</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Basic health check</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/detailed</Endpoint></TD>
+      <TD>Detailed health status</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
+## Architecture Comparison
+
+### MVC Structure
+
+```bash
+project/
+├── src/
+│   ├── controllers/
+│   │   ├── auth.controller.ts      # All auth endpoints
+│   │   ├── health.controller.ts    # Health checks
+│   │   └── oauth.controller.ts     # OAuth callbacks
+│   ├── models/
+│   │   ├── user.model.ts           # User schema + methods
+│   │   ├── session.model.ts        # Session schema
+│   │   └── otp.model.ts            # OTP schema
+│   ├── services/
+│   │   ├── auth.service.ts         # Core auth logic
+│   │   ├── email.service.ts        # Email sending
+│   │   ├── otp.service.ts          # OTP generation/verify
+│   │   └── upload.service.ts       # Cloudinary upload
+│   ├── routes/
+│   │   ├── auth.routes.ts          # /api/auth routes
+│   │   ├── oauth.routes.ts         # /api/oauth routes
+│   │   ├── health.routes.ts        # /api/health routes
+│   │   └── index.ts                # Route aggregator
+│   ├── middlewares/
+│   │   ├── verify-auth.ts          # JWT/session validation
+│   │   ├── validate-request.ts     # Zod validation
+│   │   ├── rate-limiter.ts         # Rate limiting rules
+│   │   ├── upload-file.ts          # Multer setup
+│   │   ├── user-account-restriction.ts  # Account status check
+│   │   └── validate-id.ts          # ObjectId validation
+│   ├── validators/
+│   │   └── auth/
+│   │       └── index.ts            # Zod schemas
+│   ├── constants/
+│   │   └── auth.constants.ts       # Auth constants
+│   ├── helpers/
+│   │   ├── api-error.ts            # Error helper
+│   │   ├── async-handler.ts        # Async wrapper
+│   │   └── pick.ts                 # Object picker
+│   ├── utils/
+│   │   ├── logger.ts               # Winston logger
+│   │   ├── response-formatter.ts   # API response wrapper
+│   │   ├── error-handler.ts        # Global error handler
+│   │   ├── http-status-codes.ts    # HTTP codes
+│   │   ├── not-found-handler.ts    # 404 handler
+│   │   └── shutdown.ts             # Graceful shutdown
+│   ├── types/
+│   │   └── express.d.ts            # Express type extensions
+│   ├── configs/
+│   │   ├── cors.config.ts          # CORS settings
+│   │   ├── db.config.ts            # MongoDB connection
+│   │   ├── env.config.ts           # Env validation
+│   │   ├── passport.config.ts      # Passport strategies
+│   │   └── security.config.ts      # Security headers
+│   ├── app.ts                      # Express app setup
+│   └── server.ts                   # Server entry point
+├── swagger.config.ts               # Swagger configuration
+└── package.json
+```
+
+### Feature Structure
+
+```bash
+project/
+├── src/
+│   ├── modules/
+│   │   ├── auth/
+│   │   │   ├── auth.controller.ts     # Auth endpoints
+│   │   │   ├── auth.service.ts        # Auth logic
+│   │   │   ├── auth.routes.ts         # Auth routes
+│   │   │   ├── auth.types.ts          # TypeScript types
+│   │   │   ├── auth.constants.ts      # Auth constants
+│   │   │   ├── auth.validation.ts     # Zod schemas
+│   │   │   ├── user.model.ts          # User schema
+│   │   │   └── session.model.ts       # Session schema
+│   │   ├── otp/
+│   │   │   ├── otp.service.ts         # OTP generation/verify
+│   │   │   └── otp.model.ts           # OTP schema
+│   │   ├── oauth/
+│   │   │   ├── oauth.controller.ts    # OAuth callbacks
+│   │   │   ├── oauth.service.ts       # OAuth logic
+│   │   │   └── oauth.routes.ts        # OAuth routes
+│   │   ├── upload/
+│   │   │   └── upload.service.ts      # Cloudinary upload
+│   │   └── health/
+│   │       ├── health.controller.ts   # Health endpoints
+│   │       └── health.routes.ts       # Health routes
+│   ├── routes/
+│   │   ├── index.ts                   # Main router
+│   │   └── health.routes.ts           # Health routes
+│   ├── shared/
+│   │   ├── middlewares/
+│   │   │   ├── verify-auth.ts         # JWT validation
+│   │   │   ├── validate-request.ts    # Zod validation
+│   │   │   ├── rate-limiter.ts        # Rate limiting
+│   │   │   ├── upload-file.ts         # Multer setup
+│   │   │   ├── user-account-restriction.ts  # Account check
+│   │   │   └── validate-id.ts         # ObjectId validation
+│   │   ├── helpers/
+│   │   │   ├── api-error.ts           # Error helper
+│   │   │   ├── async-handler.ts       # Async wrapper
+│   │   │   └── pick.ts                # Object picker
+│   │   ├── utils/
+│   │   │   ├── logger.ts              # Winston logger
+│   │   │   ├── response-formatter.ts  # Response wrapper
+│   │   │   ├── error-handler.ts       # Global error handler
+│   │   │   ├── http-status-codes.ts   # HTTP codes
+│   │   │   ├── not-found-handler.ts   # 404 handler
+│   │   │   └── shutdown.ts            # Graceful shutdown
+│   │   └── constants/
+│   │       └── api-response.constants.ts  # Response constants
+│   ├── types/
+│   │   └── express.d.ts               # Express type extensions
+│   ├── app.ts                         # Express app setup
+│   └── server.ts                      # Server entry point
+├── swagger.config.ts                  # Swagger configuration
+└── package.json
+```
+
+## Key Files
+
+### Controllers
+- <Code>auth.controller.ts</Code> - Handles signup, signin, profile management, password operations, session management
+- <Code>oauth.controller.ts</Code> - GitHub & Google OAuth callback handlers
+- <Code>health.controller.ts</Code> - Basic and detailed health checks
+
+### Services
+- <Code>auth.service.ts</Code> - Core authentication business logic
+- <Code>email.service.ts</Code> - Email delivery using Nodemailer
+- <Code>otp.service.ts</Code> - OTP generation, hashing, and verification
+- <Code>upload.service.ts</Code> - Cloudinary file upload integration
+
+### Models
+- <Code>user.model.ts</Code> - User schema with hooks and instance methods
+- <Code>session.model.ts</Code> - Session tracking schema
+- <Code>otp.model.ts</Code> - One-time password schema
+
+### Routes
+- <Code>auth.routes.ts</Code> - All authentication endpoints
+- <Code>oauth.routes.ts</Code> - OAuth flow routes
+- <Code>health.routes.ts</Code> - Health check endpoints
