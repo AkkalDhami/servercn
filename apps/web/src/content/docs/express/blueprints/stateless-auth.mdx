@@ -54,6 +54,164 @@ The authentication flow follows these steps:
     - Update the cookies.
 5.  **Revocation**: When a user logs out, the Refresh Token is deleted/revoked from the database, and cookies are cleared.
 
+
+## API Endpoints
+
+All endpoints are the same for both MVC and Feature architectures.
+
+### Authentication Routes
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-otp</Endpoint></TD>
+      <TD>Verify OTP for email verification</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signup</Endpoint></TD>
+      <TD>Register new user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signin</Endpoint></TD>
+      <TD>Login user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Get user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PATCH" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Update profile (with avatar)</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/logout</Endpoint></TD>
+      <TD>Logout current user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/forgot-password</Endpoint></TD>
+      <TD>Request password reset OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/reset-password</Endpoint></TD>
+      <TD>Reset password with OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/change-password</Endpoint></TD>
+      <TD>Change current password</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/delete-account</Endpoint></TD>
+      <TD>Soft delete account</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PUT" /></TD>
+      <TD><Endpoint>/reactivate-account</Endpoint></TD>
+      <TD>Restore deleted account</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
+
+### OAuth Routes
+
+#### Base URL: <Code>http://localhost:3000/api/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github</Endpoint></TD>
+      <TD>Initiate GitHub OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github/callback</Endpoint></TD>
+      <TD>GitHub OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google</Endpoint></TD>
+      <TD>Initiate Google OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google/callback</Endpoint></TD>
+      <TD>Google OAuth callback</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Health Check
+
+#### Base URL: <Code>http://localhost:3000/api/v1/healt</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Basic health check</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/detailed</Endpoint></TD>
+      <TD>Detailed health status</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
 ## Database Implementation
 
 This blueprint supports three primary database setups:
@@ -90,35 +248,6 @@ res.cookie("accessToken", token, {
 ```
 
 
-## Usage Example
-
-### Protecting a Route
-
-Simply apply the <Code children="verifyAuthentication" /> middleware to any route you want to protect.
-
-```typescript
-import { Router } from "express";
-import { verifyAuthentication } from "./middlewares/verify-auth";
-import { getProfile } from "./controllers/user.controller";
-
-const router = Router();
-
-// This route requires a valid Access Token (or a valid Refresh Token for auto-rotation)
-router.get("/me", verifyAuthentication, getProfile);
-
-export default router;
-```
-
-### Accessing User Data
-
-Once authenticated, the user information is available on <Code children="req.user" />.
-
-```typescript
-export const getProfile = (req: Request, res: Response) => {
-  const user = req.user;
-  res.json({ success: true, data: user });
-};
-```
 
 ## Environment Variables
 

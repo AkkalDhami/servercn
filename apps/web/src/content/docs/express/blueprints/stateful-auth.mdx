@@ -1,0 +1,380 @@
+---
+title: Stateful Authentication Blueprint
+description: Session-based authentication blueprint with secure login, logout, and server-managed session flow.
+
+command: npx servercn-cli add bp stateful-auth
+---
+
+# Stateful Authentication Blueprint
+
+Stateful authentication is an auth model where the server stores session data for each logged-in user.
+
+A comprehensive stateful authentication system using server-side sessions stored in MongoDB. This blueprint provides secure user registration, login, session management, and OAuth integration.
+
+## Installation Guide
+
+You can add the stateful authentication blueprint to your project using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add blueprint stateful-auth" />
+
+
+## Features
+
+- **Session-Based Authentication** - Server-managed sessions with refresh token support
+- **User Registration & Login** - Secure signup/signin with validation
+- **Profile Management** - Update profile, change password, avatar upload
+- **Session Management** - View active sessions, revoke specific or all sessions
+- **Password Recovery** - Forgot/reset password via OTP
+- **OAuth Integration** - GitHub and Google OAuth support
+- **Security Features** - Rate limiting, account restrictions, soft delete
+- **Account Reactivation** - Restore deleted accounts within grace period
+
+## Architecture Options
+
+This blueprint is available in two architectures:
+
+### MVC Architecture
+Traditional Model-View-Controller pattern with separated concerns:
+- Controllers handle business logic
+- Models define data schemas
+- Services encapsulate complex operations
+- Routes define API endpoints
+- Middlewares handle cross-cutting concerns
+
+### Feature Architecture  
+Domain-driven modular structure organized by feature:
+- Each module contains controller, service, routes, models
+- Shared utilities in common directories
+- Better scalability for large applications
+
+## API Endpoints
+
+All endpoints are the same for both MVC and Feature architectures.
+
+### Authentication Routes
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-otp</Endpoint></TD>
+      <TD>Verify OTP for email verification</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signup</Endpoint></TD>
+      <TD>Register new user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signin</Endpoint></TD>
+      <TD>Login user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Get user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PATCH" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Update profile (with avatar)</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/logout</Endpoint></TD>
+      <TD>Logout current user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/forgot-password</Endpoint></TD>
+      <TD>Request password reset OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/reset-password</Endpoint></TD>
+      <TD>Reset password with OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/change-password</Endpoint></TD>
+      <TD>Change current password</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/delete-account</Endpoint></TD>
+      <TD>Soft delete account</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PUT" /></TD>
+      <TD><Endpoint>/reactivate-account</Endpoint></TD>
+      <TD>Restore deleted account</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
+### Session Management
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth/sessions</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>Get all active user sessions</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>Revoke all sessions except current</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions/:sessionId</Endpoint></TD>
+      <TD>Revoke specific session</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### OAuth Routes
+
+#### Base URL: <Code>http://localhost:3000/api/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github</Endpoint></TD>
+      <TD>Initiate GitHub OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github/callback</Endpoint></TD>
+      <TD>GitHub OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google</Endpoint></TD>
+      <TD>Initiate Google OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google/callback</Endpoint></TD>
+      <TD>Google OAuth callback</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Health Check
+
+#### Base URL: <Code>http://localhost:3000/api/v1/healt</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Basic health check</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/detailed</Endpoint></TD>
+      <TD>Detailed health status</TD>
+    </TR>
+  </TBody>
+</Table>
+
+
+## Project Structure
+
+### MVC Architecture
+
+```
+src/
+├── controllers/
+│   ├── auth.controller.ts      # Authentication logic
+│   ├── health.controller.ts    # Health check endpoints
+│   └── oauth.controller.ts     # OAuth callbacks
+├── models/
+│   ├── user.model.ts           # User schema
+│   ├── session.model.ts        # Session schema
+│   └── otp.model.ts            # OTP schema
+├── services/
+│   ├── auth.service.ts         # Auth business logic
+│   ├── email.service.ts        # Email sending
+│   ├── otp.service.ts          # OTP generation/verification
+│   └── upload.service.ts       # File upload handling
+├── routes/
+│   ├── auth.routes.ts          # Auth endpoints
+│   ├── oauth.routes.ts         # OAuth endpoints
+│   ├── health.routes.ts        # Health endpoints
+│   └── index.ts                # Route aggregator
+├── middlewares/
+│   ├── verify-auth.ts          # JWT validation
+│   ├── validate-request.ts     # Zod validation
+│   ├── rate-limiter.ts         # Rate limiting rules
+│   ├── upload-file.ts          # Multer setup
+│   └── ...                     # Other middlewares
+├── validators/
+│   └── auth/index.ts           # Zod schemas for auth
+├── constants/
+│   └── auth.constants.ts       # Auth constants
+├── helpers/
+│   └── ...                     # Utility functions
+├── utils/
+│   └── ...                     # Common utilities
+├── types/
+│   └── express.d.ts            # Type definitions
+└── configs/
+    └── ...                     # Configuration files
+```
+
+### Feature Architecture
+
+```
+src/
+├── modules/
+│   ├── auth/
+│   │   ├── auth.controller.ts   # Auth endpoints
+│   │   ├── auth.service.ts      # Auth business logic
+│   │   ├── auth.routes.ts       # Auth endpoints
+│   │   ├── auth.types.ts        # TypeScript types
+│   │   ├── auth.constants.ts    # Constants
+│   │   ├── auth.validation.ts   # Zod schemas
+│   │   ├── user.model.ts        # User model
+│   │   └── session.model.ts     # Session model
+│   ├── otp/
+│   │   ├── otp.service.ts       # OTP logic
+│   │   └── otp.model.ts         # OTP model
+│   ├── oauth/
+│   │   ├── oauth.controller.ts  # OAuth callbacks
+│   │   ├── oauth.service.ts     # OAuth logic
+│   │   └── oauth.routes.ts      # OAuth routes
+│   ├── upload/
+│   │   └── upload.service.ts    # Upload logic
+│   └── health/
+│       ├── health.controller.ts # Health endpoints
+│       └── health.routes.ts     # Health routes
+├── routes/
+│   ├── index.ts                 # Main router
+│   └── health.routes.ts         # Health routes
+├── shared/
+│   ├── middlewares/             # Shared middlewares
+│   ├── validators/              # Shared validators
+│   ├── helpers/                 # Helper functions
+│   ├── utils/                   # Utilities
+│   └── constants/               # Shared constants
+└── types/
+    └── express.d.ts             # Type definitions
+```
+
+
+## Environment Variables
+
+Create a <Code>.env</Code> file with the following:
+
+```bash
+PORT='9000'
+NODE_ENV='development'
+LOG_LEVEL='info'
+CORS_ORIGIN=''
+ 
+# CRYPTO
+CRYPTO_SECRET=
+ 
+# DB
+DATABASE_URL=
+ 
+# RESEND
+RESEND_API_KEY=
+EMAIL_FROM=
+ 
+# CLOUDINARY
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+ 
+# GITHUB
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_REDIRECT_URI=
+ 
+#  GOOGLE
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+```
+
+## Key Differences from Stateless Auth
+
+1. **Server-Side Sessions** - Sessions stored in database
+2. **Session Revocation** - Can invalidate specific/all sessions
+3. **No Refresh Tokens** - Uses session-based authentication
+4. **Better Security** - Full control over active sessions
+5. **Resource Intensive** - Requires database lookups for session validation
+
+## When to Use
+
+✅ **Choose Stateful Auth when:**
+- You need to track and manage user sessions
+- You want ability to revoke access instantly
+- You're building internal/admin applications
+- Security is higher priority than scalability
+
+❌ **Avoid Stateful Auth when:**
+- Building microservices (stateless is better)
+- You need horizontal scalability
+- High-performance APIs with millions of users
+- Mobile apps with offline capabilities
