@@ -1,10 +1,10 @@
-# ServerCN
+# Servercn
 
-ServerCN is a component registry for building Node.js backends by composition.
+Servercn is a component registry for building Node.js backends by composition.
 
 > The shadcn/ui philosophy for Node.js backends
 
-Visit [ServerCN](https://servercn.vercel.app) for more information.
+Visit [Servercn](https://servercn.vercel.app) for more information.
 
 [GitHub Link](https://github.com/akkaldhami/servercn)
 
@@ -30,4 +30,4 @@ Add multiple components like this:
 npx servercn-cli add logger jwt-utils
 ```
 
-Visit [ServerCN](https://servercn.vercel.app) for more information.
+Visit [Servercn](https://servercn.vercel.app) for more information.
