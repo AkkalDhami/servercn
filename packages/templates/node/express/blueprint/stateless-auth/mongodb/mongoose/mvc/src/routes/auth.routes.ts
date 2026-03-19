@@ -71,7 +71,7 @@ router.patch(
   updateProfile
 );
 
-router.post("/refresh-token", checkUserAccountRestriction, refreshToken);
+router.post("/refresh-token", refreshToken);
 
 router.post(
   "/logout",

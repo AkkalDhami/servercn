@@ -34,7 +34,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
   validateStack(config);
 
   let toolingDeps;
-  if (["blueprint", "tooling"].includes(options?.type || "")) {
+  if (["blueprint"].includes(options?.type || "")) {
     const toolingChoices = await getToolingChoices();
     toolingDeps = getToolingDepsFromChoices(toolingChoices);
   }
