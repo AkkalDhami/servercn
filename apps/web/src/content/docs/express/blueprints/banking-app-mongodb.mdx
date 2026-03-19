@@ -134,6 +134,250 @@ npm run format:fix
 
 ---
 
+## API Documentation
+
+Once running, access the interactive API documentation at: <Code>http://localhost:3000/api/docs</Code>
+
+The Swagger UI provides:
+- Interactive API testing
+- Request/response examples
+- Authentication helpers
+- Schema definitions
+
+## API Endpoints
+
+### Health Check
+
+#### Base URL: <Code>http://localhost:3000/api/v1/health</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Basic health check</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/detailed</Endpoint></TD>
+      <TD>Detailed health status</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Authentication
+
+#### Base URL: <Code>http://localhost:3000/api/v1/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signup</Endpoint></TD>
+      <TD>Register a new user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signin</Endpoint></TD>
+      <TD>Login user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-otp</Endpoint></TD>
+      <TD>Verify OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Get user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PATCH" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Update user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/refresh-token</Endpoint></TD>
+      <TD>Refresh access token</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/logout</Endpoint></TD>
+      <TD>Logout user</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/forgot-password</Endpoint></TD>
+      <TD>Request password reset</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/reset-password</Endpoint></TD>
+      <TD>Reset password</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/change-password</Endpoint></TD>
+      <TD>Change password</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/delete-account</Endpoint></TD>
+      <TD>Delete account</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PUT" /></TD>
+      <TD><Endpoint>/reactivate-account</Endpoint></TD>
+      <TD>Reactivate account</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Accounts
+
+#### Base URL: <Code>http://localhost:3000/api/v1/accounts</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Create a new account</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Get all user accounts</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/:accountId</Endpoint></TD>
+      <TD>Get account details</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/balance/:accountId</Endpoint></TD>
+      <TD>Get account balance</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Transactions
+
+#### Base URL: <Code>http://localhost:3000/api/v1/transactions</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/system-init</Endpoint></TD>
+      <TD>Create system initial transaction</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Create a new transaction</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/history/:accountId</Endpoint></TD>
+      <TD>Get transaction history</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### OAuth
+
+#### Base URL: <Code>http://localhost:3000/api/v1/oauth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github</Endpoint></TD>
+      <TD>GitHub OAuth login</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github/callback</Endpoint></TD>
+      <TD>GitHub OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google</Endpoint></TD>
+      <TD>Google OAuth login</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google/callback</Endpoint></TD>
+      <TD>Google OAuth callback</TD>
+    </TR>
+  </TBody>
+</Table>
+
+---
+
 ## Security Considerations
 
 1. **Password Hashing** - bcrypt with salt rounds
