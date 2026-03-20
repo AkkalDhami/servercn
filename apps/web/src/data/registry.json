@@ -290,13 +290,13 @@
       }
     },
     {
-      "slug": "env-config",
+      "slug": "env",
       "title": "Env Configuration",
       "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/env-config"
+      "docs": "/docs/components/env"
     },
     {
       "slug": "swagger-docs",
@@ -338,13 +338,13 @@
       "docs": "/docs/components/generate-otp-token"
     },
     {
-      "slug": "background-jobs",
+      "slug": "cron-job",
       "title": "Background Jobs (Cron)",
-      "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and background jobs in Servercn using node-cron.",
+      "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and cron jobs in servercn using node-cron.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/background-jobs"
+      "docs": "/docs/components/cron-job"
     },
     {
       "slug": "express-starter",
@@ -487,14 +487,15 @@
       "title": "Hybrid Authentication",
       "description": "Hybrid authentication blueprint combining access/refresh token flows with secure session-aware patterns.",
       "type": "blueprint",
-      "status": "unstable",
+      "status": "stable",
       "frameworks": ["express"],
       "docs": "/docs/blueprints/hybrid-auth",
       "meta": {
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
-            "slug": "hybrid-auth-mongodb"
+            "slug": "hybrid-auth-mongodb",
+            "new": true
           }
         ]
       }
