@@ -20,7 +20,7 @@ export type FileNode =
       type: "file";
       name: string;
       content: string;
-      language?: string;
+      lang?: string;
     };
 
 type Props = {
