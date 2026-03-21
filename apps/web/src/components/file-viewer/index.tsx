@@ -144,7 +144,7 @@ export default function ComponentFileViewer({
         <ResizablePanel defaultSize="35%" className="thin-scrollbar">
           <ScrollArea
             className={cn(
-              "h-136 p-3",
+              "h-140 p-3",
               from === "structure" ? "h-160" : "h-140"
             )}>
             <FileTree
@@ -177,12 +177,12 @@ export default function ComponentFileViewer({
           </div>
           <ScrollArea
             className={cn(
-              "h-130 w-auto",
+              "h-140 w-auto",
               from === "structure" ? "h-154" : "h-140"
             )}>
             <div
               className={cn(
-                "h-full max-h-125 w-full",
+                "h-full max-h-140 w-full",
                 from === "structure" ? "max-h-154" : "max-h-140"
               )}
               style={{ backgroundColor: bg }}>

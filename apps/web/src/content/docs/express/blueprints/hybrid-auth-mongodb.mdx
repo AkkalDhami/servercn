@@ -1,0 +1,255 @@
+---
+title: Hybrid Auth | MongoDB (Mongoose)
+description: Hybrid authentication with MongoDB, Mongoose, and Redis-backed sessions.
+command: npx servercn-cli add bp hybrid-auth
+---
+
+# Hybrid Authentication with MongoDB (Mongoose)
+
+MongoDB implementation of hybrid authentication using Mongoose for users and Redis for session tracking and refresh token rotation.
+
+## Installation Guide
+
+Add the hybrid authentication blueprint using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add blueprint hybrid-auth" />
+
+## API Endpoints
+
+All endpoints are the same for both MVC and Feature architectures.
+
+### Authentication Routes
+
+#### Base URL: <Code>http://localhost:9000/api/v1/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signup</Endpoint></TD>
+      <TD>Register new user and send verification OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-user</Endpoint></TD>
+      <TD>Verify email with OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/signin</Endpoint></TD>
+      <TD>Login user and set auth cookies</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Get current user profile</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PATCH" /></TD>
+      <TD><Endpoint>/profile</Endpoint></TD>
+      <TD>Update profile and avatar</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>List active sessions</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions</Endpoint></TD>
+      <TD>Revoke all sessions except current</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/sessions/:sessionId</Endpoint></TD>
+      <TD>Revoke a specific session</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/refresh-token</Endpoint></TD>
+      <TD>Rotate access and refresh tokens</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/logout</Endpoint></TD>
+      <TD>Logout current session</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/forgot-password</Endpoint></TD>
+      <TD>Request password reset OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/verify-reset-otp</Endpoint></TD>
+      <TD>Verify password reset OTP</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/reset-password</Endpoint></TD>
+      <TD>Reset password after OTP verification</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/change-password</Endpoint></TD>
+      <TD>Change password and revoke sessions</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="POST" /></TD>
+      <TD><Endpoint>/account/request-delete</Endpoint></TD>
+      <TD>Request account deletion token</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="DELETE" /></TD>
+      <TD><Endpoint>/account/delete</Endpoint></TD>
+      <TD>Delete or deactivate account by token</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="PUT" /></TD>
+      <TD><Endpoint>/account/reactivate</Endpoint></TD>
+      <TD>Reactivate soft-deleted account</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### OAuth Routes
+
+#### Base URL: <Code>http://localhost:9000/api/auth</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github</Endpoint></TD>
+      <TD>Initiate GitHub OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/github/callback</Endpoint></TD>
+      <TD>GitHub OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google</Endpoint></TD>
+      <TD>Initiate Google OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/google/callback</Endpoint></TD>
+      <TD>Google OAuth callback</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/facebook</Endpoint></TD>
+      <TD>Initiate Facebook OAuth</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/facebook/callback</Endpoint></TD>
+      <TD>Facebook OAuth callback</TD>
+    </TR>
+  </TBody>
+</Table>
+
+### Health Check
+
+#### Base URL: <Code>http://localhost:9000/api/v1/health</Code>
+
+<Table>
+  <THead>
+    <TR>
+      <TH>Method</TH>
+      <TH>Endpoint</TH>
+      <TH>Description</TH>
+    </TR>
+  </THead>
+
+  <TBody>
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/</Endpoint></TD>
+      <TD>Basic health check</TD>
+    </TR>
+
+    <TR>
+      <TD><Method value="GET" /></TD>
+      <TD><Endpoint>/detailed</Endpoint></TD>
+      <TD>Detailed health status</TD>
+    </TR>
+  </TBody>
+</Table>
+
+## Environment Variables
+
+Create a <Code>.env</Code> file with the following:
+
+```bash
+PORT='9000'
+NODE_ENV='development'
+LOG_LEVEL='info'
+CORS_ORIGIN=''
+CLIENT_URL=''
+
+DATABASE_URL=''
+REDIS_URL=''
+
+JWT_ACCESS_SECRET=''
+JWT_REFRESH_SECRET=''
+CRYPTO_SECRET=''
+
+RESEND_API_KEY=''
+EMAIL_FROM=''
+
+CLOUDINARY_CLOUD_NAME=''
+CLOUDINARY_API_KEY=''
+CLOUDINARY_API_SECRET=''
+
+GOOGLE_CLIENT_ID=''
+GOOGLE_CLIENT_SECRET=''
+GOOGLE_REDIRECT_URI=''
+
+GITHUB_CLIENT_ID=''
+GITHUB_CLIENT_SECRET=''
+GITHUB_REDIRECT_URI=''
+
+FACEBOOK_APP_ID=''
+FACEBOOK_APP_SECRET=''
+FACEBOOK_REDIRECT_URI=''
+```
