@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { githubOAuth, googleOAuth } from "./oauth.controller";
+import { facebookOAuth, githubOAuth, googleOAuth } from "./oauth.controller";
 
 const router = Router();
 
@@ -30,7 +30,7 @@ router.get(
     session: false,
     failureMessage: true
   }),
-  githubOAuth
+  facebookOAuth
 );
 
 router.get(

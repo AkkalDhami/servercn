@@ -93,6 +93,11 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/routes/health.routes.ts",
+                  "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/middlewares/not-found-handler.ts",
                   "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
                 },
@@ -130,11 +135,6 @@
                   "type": "file",
                   "path": "src/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.url()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/routes/health.routes.ts",
-                  "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
                 }
               ]
             },
@@ -177,26 +177,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/middlewares/not-found-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/middlewares/error-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/errors/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/utils/shutdown.ts",
                   "content": "import { Server } from \"http\";\nimport { logger } from \"./logger\";\n\nexport const configureGracefulShutdown = (server: Server) => {\n  const signals = [\"SIGTERM\", \"SIGINT\"];\n\n  signals.forEach(signal => {\n    process.on(signal, () => {\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\n\n      server.close(err => {\n        if (err) {\n          logger.error(err, \"Error during server close\");\n          process.exit(1);\n        }\n\n        logger.info(\"HTTP server closed.\");\n        process.exit(0);\n      });\n\n      // Force shutdown after 10 seconds\n      setTimeout(() => {\n        logger.error(\n          \"Could not close connections in time, forcefully shutting down\"\n        );\n        process.exit(1);\n      }, 10000);\n    });\n  });\n};\n"
                 },
@@ -214,6 +194,26 @@
                   "type": "file",
                   "path": "src/shared/utils/api-response.ts",
                   "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\nimport type { Response } from \"express\";\n\ntype ApiResponseParams<T> = {\n  success: boolean;\n  message: string;\n  statusCode: StatusCode;\n  data?: T | null;\n  errors?: unknown;\n};\n\nexport class ApiResponse<T = unknown> {\n  public readonly success: boolean;\n  public readonly message: string;\n  public readonly statusCode: StatusCode;\n  public readonly data?: T | null;\n  public readonly errors?: unknown;\n\n  constructor({\n    success,\n    message,\n    statusCode,\n    data = null,\n    errors\n  }: ApiResponseParams<T>) {\n    this.success = success;\n    this.message = message;\n    this.statusCode = statusCode;\n    this.data = data;\n    this.errors = errors;\n  }\n\n  send(res: Response): Response {\n    return res.status(this.statusCode).json({\n      success: this.success,\n      message: this.message,\n      statusCode: this.statusCode,\n      ...(this.data !== undefined && { data: this.data }),\n      ...(this.errors !== undefined && { errors: this.errors })\n    });\n  }\n\n  static Success<T>(\n    res: Response,\n    message: string,\n    data?: T,\n    statusCode: StatusCode = STATUS_CODES.OK\n  ): Response {\n    return new ApiResponse<T>({\n      success: true,\n      message,\n      data,\n      statusCode\n    }).send(res);\n  }\n\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\n  }\n\n  static created<T>(res: Response, message = \"Created\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\n  }\n}\n\n/*\n * Usage:\n * ApiResponse.ok(res, \"OK\", data);\n * ApiResponse.created(res, \"Created\", data);\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../../shared/configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  let statusCode = 500;\n  let message = \"Internal server error\";\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 },
                 {
                   "type": "file",
