@@ -320,18 +320,19 @@ export default async function DocsPage({
                       current={currentArch || "mvc"}
                       framework={currentFramework}
                     />
+                    <ComponentFileViewer
+                      from="docs"
+                      slug={slug[slug.length - 1]}
+                      architecture={currentArch}
+                      framework={currentFramework || slug[0]}
+                      type={
+                        ["tooling", ""].includes(slug[1])
+                          ? (slug[1] as ItemType)
+                          : (slug[1]?.slice(0, -1) as ItemType)
+                      }
+                    />
                   </>
                 )}
-              <ComponentFileViewer
-                slug={slug[slug.length - 1]}
-                architecture={currentArch}
-                framework={currentFramework || slug[0]}
-                type={
-                  ["tooling", ""].includes(slug[1])
-                    ? (slug[1] as ItemType)
-                    : (slug[1]?.slice(0, -1) as ItemType)
-                }
-              />
             </div>
             {data.command && (
               <>

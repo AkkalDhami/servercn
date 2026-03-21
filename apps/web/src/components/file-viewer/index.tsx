@@ -15,12 +15,16 @@ import CopyButton from "../docs/copy-button";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "../docs/icons/language-icons";
 import { ItemType } from "@/@types/registry";
+import { FaMaximize } from "react-icons/fa6";
+import Link from "next/link";
+import { Maximize2Icon } from "lucide-react";
 type Props = {
   slug: string;
   runtime?: string;
   framework?: string;
   architecture?: string;
   type: ItemType;
+  from: "structure" | "docs";
 };
 
 export default function ComponentFileViewer({
@@ -28,6 +32,7 @@ export default function ComponentFileViewer({
   runtime = "node",
   framework = "express",
   architecture = "mvc",
+  from = "docs",
   type = "component"
 }: Props) {
   const [tree, setTree] = React.useState<FileNode[]>([]);
@@ -117,13 +122,31 @@ export default function ComponentFileViewer({
     <div className="flex flex-col gap-12">
       <ResizablePanelGroup
         orientation="horizontal"
-        className="thin-scrollbar min-h-130 max-w-md rounded-lg md:min-w-200"
+        className={cn(
+          "thin-scrollbar relative rounded-lg",
+          from === "structure"
+            ? "min-h-160 max-w-full md:min-w-full"
+            : "min-h-130 max-w-md md:min-w-200"
+        )}
         style={{
           backgroundColor: bg,
           border: `1px solid ${bg}`
         }}>
+        <Link
+          href={`/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}`}
+          target="_blank"
+          style={{
+            backgroundColor: bg
+          }}
+          className="hover:bg-muted hover:text-primary text-muted-foreground absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md p-1.5 transition-all">
+          <Maximize2Icon className="h-5 w-5" />
+        </Link>
         <ResizablePanel defaultSize="35%" className="thin-scrollbar">
-          <ScrollArea className="h-136 p-3">
+          <ScrollArea
+            className={cn(
+              "h-136 p-3",
+              from === "structure" ? "h-160" : "h-140"
+            )}>
             <FileTree
               data={tree}
               activeFile={activeFile}
@@ -152,12 +175,19 @@ export default function ComponentFileViewer({
               )}
             />
           </div>
-          <ScrollArea className="h-130 w-auto">
+          <ScrollArea
+            className={cn(
+              "h-130 w-auto",
+              from === "structure" ? "h-154" : "h-140"
+            )}>
             <div
-              className="h-full max-h-125 w-full"
+              className={cn(
+                "h-full max-h-125 w-full",
+                from === "structure" ? "max-h-154" : "max-h-140"
+              )}
               style={{ backgroundColor: bg }}>
               <div
-                className="relative [&_pre]:h-full [&_pre]:overflow-x-auto [&_pre]:p-3.5"
+                className="relative [&_pre]:h-full [&_pre]:p-3.5"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </div>
