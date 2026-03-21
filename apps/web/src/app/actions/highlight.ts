@@ -22,6 +22,6 @@ export async function highlightCode(
     });
   } catch (error) {
     console.error("Highlighting error:", error);
-    return `<pre><code>${code}</code></pre>`;
+    return `<pre><code data-line>${code}</code></pre>`;
   }
 }

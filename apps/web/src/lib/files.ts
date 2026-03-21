@@ -1,14 +1,13 @@
 import { ItemType } from "@/@types/registry";
 
-/* =========================================================
- * Shared Types
- * ======================================================= */
-
 export type RegistryFile = {
   type: string;
   path: string;
   content: string;
 };
+
+export type ArchitectureType = "mvc" | "feature" | "modular";
+export type FrameworkType = "express" | "nestjs";
 
 export type FileNode =
   | {
@@ -28,10 +27,6 @@ type ArchitectureNode = {
   files: RegistryFile[];
 };
 
-/* =========================================================
- * Component Types
- * ======================================================= */
-
 type ComponentVariantNode = {
   label?: string;
   dependencies?: {
@@ -46,6 +41,7 @@ type ComponentVariantNode = {
 
 type ComponentFrameworkNode = {
   prompt?: string;
+  env?: string[];
   architectures?: {
     [architecture: string]: ArchitectureNode;
   };
@@ -58,16 +54,24 @@ type ComponentRegistry = {
   slug: string;
   runtimes: {
     [runtime: string]: {
-      frameworks: {
-        [framework: string]: ComponentFrameworkNode;
-      };
+      frameworks: Record<FrameworkType, ComponentFrameworkNode>;
     };
   };
 };
 
-/* =========================================================
- * Tooling Types
- * ======================================================= */
+type FoundationRegistry = {
+  slug: string;
+  runtimes: {
+    [runtime: string]: {
+      frameworks: {
+        [framework: string]: {
+          env?: string[];
+          architectures: Record<ArchitectureType, ArchitectureNode>;
+        };
+      };
+    };
+  };
+};
 
 type ToolingTemplateNode = {
   files: RegistryFile[];
@@ -83,10 +87,6 @@ type ToolingRegistry = {
     dev?: string[];
   };
 };
-
-/* =========================================================
- * Blueprint Types
- * ======================================================= */
 
 type BlueprintOrmNode = {
   dependencies?: {
@@ -118,26 +118,51 @@ type BlueprintRegistry = {
   };
 };
 
-/* =========================================================
- * Options
- * ======================================================= */
+type SchemaNode = {
+  dependencies?: {
+    runtime?: string[];
+    dev?: string[];
+  };
+  templates?: {
+    [template: string]: {
+      architectures: {
+        [architecture: string]: ArchitectureNode;
+      };
+    };
+  };
+};
+
+type SchemaRegistry = {
+  slug: string;
+  runtimes: {
+    [runtime: string]: {
+      frameworks: {
+        [framework: string]: {
+          databases: {
+            [database: string]: {
+              orms: {
+                [orm: string]: SchemaNode;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
 
 export type GetRegistryFileTreeOptions = {
   slug: string;
   type: ItemType;
 
-  // common-ish
   runtime?: string;
   framework?: string;
   architecture?: string;
 
-  // component
   variant?: string;
 
-  // tooling
   template?: string;
 
-  // blueprint
   database?: string;
   orm?: string;
 };
@@ -145,6 +170,7 @@ export type GetRegistryFileTreeOptions = {
 export type GetRegistryFileTreeResult = {
   tree: FileNode[];
   files: RegistryFile[];
+  env?: string[];
 
   // resolved defaults
   resolvedVariant?: string;
@@ -153,13 +179,10 @@ export type GetRegistryFileTreeResult = {
   resolvedOrm?: string;
 };
 
-/* =========================================================
- * Shared Helpers
- * ======================================================= */
-
+// * Shared Helpers
 function getLanguageFromFileName(fileName: string): string {
   const ext = fileName.split(".").pop()?.toLowerCase();
-
+  if (fileName.startsWith(".env")) return "bash";
   switch (ext) {
     case "ts":
       return "typescript";
@@ -174,6 +197,7 @@ function getLanguageFromFileName(fileName: string): string {
     case "prisma":
       return "prisma";
     case "md":
+    case "mdx":
       return "markdown";
     case "yml":
     case "yaml":
@@ -182,9 +206,12 @@ function getLanguageFromFileName(fileName: string): string {
     case "bash":
       return "bash";
     case "html":
-      return "html";
+    case "ejs":
+      return "text";
     case "css":
       return "css";
+    case "sql":
+      return "sql";
     default:
       return "plaintext";
   }
@@ -262,21 +289,19 @@ export async function getRegistryJson<T = unknown>(
   return res.json();
 }
 
-/* =========================================================
- * Component Extractor
- * ======================================================= */
-
+// * Component Extractor
 function extractComponentFiles(
   data: ComponentRegistry,
   runtime = "node",
   framework = "express",
   architecture = "mvc",
   variant?: string
-): { files: RegistryFile[]; resolvedVariant?: string } {
-  const frameworkNode = data?.runtimes?.[runtime]?.frameworks?.[framework];
+): { files: RegistryFile[]; env?: string[]; resolvedVariant?: string } {
+  const frameworkNode =
+    data?.runtimes?.[runtime]?.frameworks?.[framework as FrameworkType];
 
   if (!frameworkNode) {
-    return { files: [] };
+    return { files: [], env: [] };
   }
 
   // Explicit variant
@@ -285,6 +310,7 @@ function extractComponentFiles(
       files:
         frameworkNode.variants[variant]?.architectures?.[architecture]?.files ??
         [],
+      env: frameworkNode.variants[variant]?.env ?? [],
       resolvedVariant: variant
     };
   }
@@ -292,7 +318,7 @@ function extractComponentFiles(
   // Normal component
   const normalFiles = frameworkNode?.architectures?.[architecture]?.files ?? [];
   if (normalFiles.length > 0) {
-    return { files: normalFiles };
+    return { files: normalFiles, env: frameworkNode?.env ?? [] };
   }
 
   // Default first variant
@@ -308,17 +334,37 @@ function extractComponentFiles(
             architecture
           ]?.files) ??
         [],
+      env:
+        (frameworkNode?.variants &&
+          frameworkNode?.variants[firstVariantKey]?.env) ??
+        [],
       resolvedVariant: firstVariantKey
     };
   }
 
-  return { files: [] };
+  return { files: [], env: [] };
 }
 
-/* =========================================================
- * Tooling Extractor
- * ======================================================= */
+// * Foundation Extractor
+function extractFoundationFiles(
+  data: FoundationRegistry,
+  runtime = "node",
+  framework = "express",
+  architecture = "mvc"
+): { files: RegistryFile[]; env?: string[] } {
+  const frameworkNode = data?.runtimes?.[runtime]?.frameworks?.[framework];
 
+  if (!frameworkNode) {
+    return { files: [], env: [] };
+  }
+
+  return {
+    files: frameworkNode.architectures[architecture as ArchitectureType].files,
+    env: frameworkNode?.env ?? []
+  };
+}
+
+// * Tooling Extractor
 function extractToolingFiles(
   data: ToolingRegistry,
   template?: string
@@ -350,10 +396,7 @@ function extractToolingFiles(
   return { files: [] };
 }
 
-/* =========================================================
- * Blueprint Extractor
- * ======================================================= */
-
+// * Blueprint Extractor
 function extractBlueprintFiles(
   data: BlueprintRegistry,
   runtime = "node",
@@ -364,12 +407,13 @@ function extractBlueprintFiles(
 ): {
   files: RegistryFile[];
   resolvedDatabase?: string;
+  env?: string[];
   resolvedOrm?: string;
 } {
   const frameworkNode = data?.runtimes?.[runtime]?.frameworks?.[framework];
 
   if (!frameworkNode?.databases) {
-    return { files: [] };
+    return { files: [], env: [] };
   }
 
   // Resolve database
@@ -383,7 +427,7 @@ function extractBlueprintFiles(
     : undefined;
 
   if (!databaseNode?.orms) {
-    return { files: [], resolvedDatabase };
+    return { files: [], resolvedDatabase, env: [] };
   }
 
   // Resolve orm
@@ -395,20 +439,63 @@ function extractBlueprintFiles(
   const ormNode = resolvedOrm ? databaseNode.orms[resolvedOrm] : undefined;
 
   if (!ormNode) {
-    return { files: [], resolvedDatabase, resolvedOrm };
+    return { files: [], resolvedDatabase, env: [], resolvedOrm };
   }
 
   return {
     files: ormNode?.architectures?.[architecture]?.files ?? [],
+    env: ormNode?.env ?? [],
     resolvedDatabase,
     resolvedOrm
   };
 }
 
-/* =========================================================
- * Main Dispatcher
- * ======================================================= */
+// * Schema Extractor
+function extractSchemaFiles(
+  data: SchemaRegistry,
+  runtime = "node",
+  framework = "express",
+  architecture = "mvc",
+  template?: string,
+  database?: string,
+  orm?: string
+) {
+  const frameworkNode = data?.runtimes?.[runtime]?.frameworks?.[framework];
 
+  if (!frameworkNode?.databases) {
+    return { files: [], env: [] };
+  }
+
+  // Resolve database
+  let resolvedDatabase = database;
+  if (!resolvedDatabase || !frameworkNode.databases[resolvedDatabase]) {
+    resolvedDatabase = Object.keys(frameworkNode.databases)[0];
+  }
+
+  const databaseNode = resolvedDatabase
+    ? frameworkNode.databases[resolvedDatabase]
+    : undefined;
+
+  if (!databaseNode?.orms) {
+    return { files: [], resolvedDatabase, env: [] };
+  }
+
+  // Resolve orm
+  let resolvedOrm = orm;
+  if (!resolvedOrm || !databaseNode.orms[resolvedOrm]) {
+    resolvedOrm = Object.keys(databaseNode.orms)[0];
+  }
+
+  const ormNode = resolvedOrm ? databaseNode.orms[resolvedOrm] : undefined;
+
+  if (!ormNode) {
+    return { files: [], resolvedDatabase, env: [], resolvedOrm };
+  }
+
+ 
+}
+
+// * Main Dispatcher
 export async function getRegistryFileTree(
   options: GetRegistryFileTreeOptions
 ): Promise<GetRegistryFileTreeResult> {
@@ -438,7 +525,19 @@ export async function getRegistryFileTree(
 
       return {
         files: result.files,
-        tree: buildFileTree(result.files),
+        tree: buildFileTree([
+          ...result.files,
+          ...[
+            {
+              type: "file",
+              content:
+                result.env
+                  ?.map(e => `${e}='${e.toLowerCase()}'\n`)
+                  .join("\n") || "",
+              path: ".env.example"
+            }
+          ]
+        ]),
         resolvedVariant: result.resolvedVariant
       };
     }
@@ -465,7 +564,19 @@ export async function getRegistryFileTree(
 
       return {
         files: result.files,
-        tree: buildFileTree(result.files),
+        tree: buildFileTree([
+          ...result.files,
+          ...[
+            {
+              type: "file",
+              content:
+                result.env
+                  ?.map(e => `${e}='${e.toLowerCase()}'\n`)
+                  .join("\n") || "",
+              path: ".env.example"
+            }
+          ]
+        ]),
         resolvedDatabase: result.resolvedDatabase,
         resolvedOrm: result.resolvedOrm
       };
@@ -473,6 +584,40 @@ export async function getRegistryFileTree(
 
     // future support
     case "foundation":
+      const result = extractFoundationFiles(
+        data as FoundationRegistry,
+        runtime,
+        framework,
+        architecture
+      );
+      return {
+        files: {
+          ...result.files,
+          ...{
+            content:
+              result.env?.map(e => `${e}='${e.toLowerCase()}'`).join("\n") ||
+              "",
+            type: "file",
+            name: ".env.example",
+            path: ".env.example"
+          }
+        },
+        env: result.env,
+        tree: buildFileTree([
+          ...result.files,
+          ...[
+            {
+              type: "file",
+              content:
+                result.env
+                  ?.map(e => `${e}='${e.toLowerCase()}'\n`)
+                  .join("\n") || "",
+              path: ".env.example"
+            }
+          ]
+        ])
+      };
+
     case "schema":
     default: {
       return {
