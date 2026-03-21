@@ -17,10 +17,11 @@ import { findNeighbour, RESTRICTED_FOLDER_STRUCTURE_PAGES } from "@/lib/source";
 import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import registry from "@/data/registry.json";
-import { IRegistryItems } from "@/@types/registry";
+import { IRegistryItems, ItemType } from "@/@types/registry";
 import { contributingGuides } from "@/lib/contributing";
 import { FrameworkRedirect } from "@/components/docs/framework-redirect";
 import { buttonVariants } from "@/components/ui/button";
+import ComponentFileViewer from "@/components/file-viewer";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -179,7 +180,6 @@ export default async function DocsPage({
 }: DocsSlugRouterProps) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
-
   const filePath = getDocPath(slug);
   if (!fs.existsSync(filePath)) {
     notFound();
@@ -309,6 +309,31 @@ export default async function DocsPage({
                   />
                 </>
               )}
+            <div className="border-edge mt-4">
+              {lastSlug &&
+                !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
+                  <>
+                    <h2 className="mt-8 mb-4 text-2xl font-semibold tracking-tight">
+                      File &amp; Folder Structure
+                    </h2>
+                    <ArchitectureTabs
+                      current={currentArch || "mvc"}
+                      framework={currentFramework}
+                    />
+                    <ComponentFileViewer
+                      from="docs"
+                      slug={slug[slug.length - 1]}
+                      architecture={currentArch}
+                      framework={currentFramework || slug[0]}
+                      type={
+                        ["tooling", ""].includes(slug[1])
+                          ? (slug[1] as ItemType)
+                          : (slug[1]?.slice(0, -1) as ItemType)
+                      }
+                    />
+                  </>
+                )}
+            </div>
             {data.command && (
               <>
                 <h2 className="my-4 text-2xl font-semibold tracking-tight">

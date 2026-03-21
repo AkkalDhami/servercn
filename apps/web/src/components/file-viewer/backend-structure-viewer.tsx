@@ -8,7 +8,7 @@ import {
   ResizablePanelGroup
 } from "@/components/ui/resizable";
 import FileTree from "./file-tree";
-import FileViewer from "./file-viewer";
+import FileViewer from "./file-viewer-depr";
 import { useCodeThemeBg } from "@/store/use-code-theme";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -33,7 +33,7 @@ export default function BackendStructureViewer({
         orientation="horizontal"
         className="min-h-50 max-w-md rounded-lg border md:min-w-112.5">
         <ResizablePanel defaultSize="25%">
-          <FileViewer content={activeFile?.content} />
+          <FileViewer content={activeFile?.content} lang={activeFile?.lang} />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="75%">
@@ -68,7 +68,7 @@ export default function BackendStructureViewer({
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize="65%">
         <ScrollArea aria-orientation="horizontal" className="h-130 w-auto">
-          <FileViewer content={activeFile?.content} />
+          <FileViewer content={activeFile?.content} lang={activeFile?.lang} />
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </ResizablePanel>

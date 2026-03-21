@@ -3,11 +3,11 @@
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 
-type Framework = "express" | "nestjs" | null;
+export type FrameworkType = "express" | "nestjs" | null;
 
-type ArchType = "mvc" | "feature" | "modular";
+export type ArchType = "mvc" | "feature" | "modular";
 
-const ARCHS_BY_FRAMEWORK: Record<NonNullable<Framework>, ArchType[]> = {
+const ARCHS_BY_FRAMEWORK: Record<NonNullable<FrameworkType>, ArchType[]> = {
   express: ["mvc", "feature"],
   nestjs: ["modular"]
 };
@@ -24,7 +24,7 @@ export default function ArchitectureTabs({
   className
 }: {
   current: string;
-  framework?: Framework;
+  framework?: FrameworkType;
   className?: string;
 }) {
   const router = useRouter();

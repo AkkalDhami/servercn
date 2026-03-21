@@ -186,6 +186,13 @@
     },
     {
       "type": "blueprint",
+      "slug": "hybrid-auth",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "blueprint",
       "slug": "banking-app",
       "frameworks": [
         "express"

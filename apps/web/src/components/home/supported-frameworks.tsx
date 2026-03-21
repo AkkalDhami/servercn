@@ -48,7 +48,7 @@ const FRAMEWORKS: Framework[] = [
     githubLink: GITHUB_URL
   },
   {
-    name: "Next.js API",
+    name: "Next.js",
     icon: SiNextdotjs,
     status: "coming-soon",
     description:

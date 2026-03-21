@@ -4,7 +4,7 @@ import registry from "@/data/registry.json";
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
   "installation",
   "introduction",
-  "project-structure"
+  "cli",
 ];
 
 export const FRAMEWORK_SECTIONS = [
@@ -64,9 +64,9 @@ export const findNeighbour = (
     };
   }
 
-  const sameTypeItems = STABLE_REGISTRY
-    .filter(item => item.type === currentItem.type)
-    .sort((a, b) => a.title.localeCompare(b.title));
+  const sameTypeItems = STABLE_REGISTRY.filter(
+    item => item.type === currentItem.type
+  ).sort((a, b) => a.title.localeCompare(b.title));
 
   const index = sameTypeItems.findIndex(item => item.slug === slug);
 

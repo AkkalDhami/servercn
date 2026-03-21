@@ -4,7 +4,7 @@ import { useCodeTheme, useCodeThemeBg } from "@/store/use-code-theme";
 import { useEffect, useState } from "react";
 import { highlightCode } from "@/app/actions/highlight";
 
-export default function FileViewer({ content }: { content?: string }) {
+export default function FileViewer({ content ,lang}: { content?: string ,lang?: string }) {
   const { theme } = useCodeTheme();
   const { bg } = useCodeThemeBg();
   const [html, setHtml] = useState("");
@@ -17,7 +17,7 @@ export default function FileViewer({ content }: { content?: string }) {
     }
 
     const highlight = async () => {
-      const result = await highlightCode(content, "ts", theme);
+      const result = await highlightCode(content, lang || "ts", theme);
       setHtml(result);
     };
 
@@ -27,9 +27,9 @@ export default function FileViewer({ content }: { content?: string }) {
   if (!content) {
     return (
       <div className="text-muted-foreground flex h-130 flex-col items-center justify-center space-y-2.5">
-        <p className="text-2xl font-medium">ServerCN</p>
+        <p className="text-2xl font-medium">servercn</p>
         <p className="text-base font-normal">
-          Select a file to view its contents
+          select a file to view its contents
         </p>
       </div>
     );
