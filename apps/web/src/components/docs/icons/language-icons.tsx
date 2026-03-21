@@ -38,7 +38,8 @@ export const LanguageIcons = {
       preserveAspectRatio="xMidYMid"
       fill="#000000"
       stroke="#000000"
-      transform="matrix(1, 0, 0, 1, 0, 0)">
+      transform="matrix(1, 0, 0, 1, 0, 0)"
+      {...props}>
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
         id="SVGRepo_tracerCarrier"
@@ -94,7 +95,7 @@ export const LanguageIcons = {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#ebc50a"
+      stroke="#ffca28"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -103,6 +104,26 @@ export const LanguageIcons = {
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M7 4a2 2 0 0 0 -2 2v3a2 3 0 0 1 -2 3a2 3 0 0 1 2 3v3a2 2 0 0 0 2 2" />
       <path d="M17 4a2 2 0 0 1 2 2v3a2 3 0 0 0 2 3a2 3 0 0 0 -2 3v3a2 2 0 0 1 -2 2" />
+    </svg>
+  ),
+
+  html: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      x="0px"
+      y="0px"
+      width="100"
+      height="100"
+      viewBox="0 0 48 48"
+      {...props}>
+      <path fill="#E65100" d="M41,5H7l3,34l14,4l14-4L41,5L41,5z"></path>
+      <path fill="#FF6D00" d="M24 8L24 39.9 35.2 36.7 37.7 8z"></path>
+      <path
+        fill="#FFF"
+        d="M24,25v-4h8.6l-0.7,11.5L24,35.1v-4.2l4.1-1.4l0.3-4.5H24z M32.9,17l0.3-4H24v4H32.9z"></path>
+      <path
+        fill="#EEE"
+        d="M24,30.9v4.2l-7.9-2.6L15.7,27h4l0.2,2.5L24,30.9z M19.1,17H24v-4h-9.1l0.7,12H24v-4h-4.6L19.1,17z"></path>
     </svg>
   ),
 
@@ -159,10 +180,94 @@ export const LanguageIcons = {
         fill="#4db6ac"
         d="M44.284,36.035L27.687,1.429c-0.855-1.783-3.337-1.93-4.397-0.26L4.886,30.177	c-0.397,0.625-0.385,1.426,0.029,2.04l9.271,13.738c0.575,0.852,1.634,1.237,2.623,0.953l25.942-7.458	C44.208,39.031,44.939,37.402,44.284,36.035z M40.618,37.279L18.8,43.388c-0.505,0.142-0.98-0.305-0.87-0.818l7.735-36.097	c0.139-0.65,1.023-0.755,1.311-0.157l14.265,29.621C41.489,36.481,41.194,37.118,40.618,37.279z"></path>
     </svg>
+  ),
+  mdx: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-markdown"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10" />
+      <path d="M7 15v-6l2 2l2 -2v6" />
+      <path d="M14 13l2 2l2 -2m-2 2v-6" />
+    </svg>
+  ),
+  sql: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="#ffca28"
+      className="icon icon-tabler icons-tabler-filled icon-tabler-database"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 15.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.425 -3.895 3.936 -8.693 3.998l-.307 .002c-4.938 0 -9 -1.523 -9 -4z" />
+      <path d="M3 9.731c1.968 1.507 5.234 2.269 9 2.269c3.76 0 7.025 -.76 9 -2.252v2.252c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795l-.016 -.101l-.005 -.104z" />
+      <path d="M12 2c1.041 0 2.044 .068 2.977 .198l.469 .071q .84 .14 1.586 .348l.44 .131l.075 .024a11 11 0 0 1 .805 .3l.199 .086q .535 .242 .967 .53q .165 .11 .313 .225a3.8 3.8 0 0 1 .669 .668l.091 .128q .07 .105 .129 .211l.07 .139q .163 .35 .2 .73l.01 .211c0 2.477 -4.062 4 -9 4c-4.798 0 -8.77 -1.438 -8.979 -3.795a1 1 0 0 1 -.021 -.205l.005 -.104l.016 -.1c.205 -2.306 4.01 -3.733 8.667 -3.794z" />
+    </svg>
+  ),
+  nodejs: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#1fc72a"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-brand-nodejs"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M9 9v8.044a2 2 0 0 1 -2.996 1.734l-1.568 -.9a3 3 0 0 1 -1.436 -2.561v-6.635a3 3 0 0 1 1.436 -2.56l6 -3.667a3 3 0 0 1 3.128 0l6 3.667a3 3 0 0 1 1.436 2.561v6.634a3 3 0 0 1 -1.436 2.56l-6 3.667a3 3 0 0 1 -3.128 0" />
+      <path d="M17 9h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3h-3.5" />
+    </svg>
+  ),
+  env: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--muted-foreground)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-settings-cancel"
+      {...props}>
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12.29 20.977c-.818 .132 -1.724 -.3 -1.965 -1.294a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c.983 .238 1.416 1.126 1.298 1.937" />
+      <path d="M16 19a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+      <path d="M17 21l4 -4" />
+      <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+    </svg>
   )
 };
 
-export function getIconForLanguageExtension(language: string) {
+export function getIconForLanguageExtension(
+  language: string,
+  fileName?: string
+) {
+  if (fileName === "package.json") {
+    return <LanguageIcons.nodejs className="size-4" />;
+  }
+  if (fileName?.startsWith(".env")) {
+    return <LanguageIcons.env className="size-4" />;
+  }
+  if (fileName?.endsWith(".prisma")) {
+    return <LanguageIcons.prisma className="size-4" />;
+  }
   switch (language) {
     case "json":
       return <LanguageIcons.json className="size-4" />;
@@ -176,6 +281,15 @@ export function getIconForLanguageExtension(language: string) {
       return <LanguageIcons.bash className="size-4" />;
     case "prisma":
       return <LanguageIcons.prisma className="size-4" />;
+    case "sql":
+      return <LanguageIcons.sql className="size-4" />;
+
+    case "text":
+      return <LanguageIcons.html className="size-4" />;
+    case "mdx":
+    case "md":
+    case "markdown":
+      return <LanguageIcons.mdx className="size-4" />;
     default:
       return <FileIcon className="size-4" />;
   }

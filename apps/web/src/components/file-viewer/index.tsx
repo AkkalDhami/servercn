@@ -38,7 +38,6 @@ export default function ComponentFileViewer({
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
-
   const { theme } = useCodeTheme();
   const { bg } = useCodeThemeBg();
   const [html, setHtml] = React.useState("");
@@ -56,9 +55,7 @@ export default function ComponentFileViewer({
           architecture,
           type
         });
-
         setTree(fileTree.tree);
-
         // auto-select first file
         const firstFile = findFirstFile(fileTree.tree);
         if (firstFile) {
@@ -77,7 +74,6 @@ export default function ComponentFileViewer({
 
   React.useEffect(() => {
     if (!selectedFile?.content) {
-       
       setHtml("");
       return;
     }
@@ -140,7 +136,10 @@ export default function ComponentFileViewer({
         <ResizablePanel defaultSize="65%">
           <div className="relative flex items-center justify-between border-b">
             <div className="text-muted-foreground flex items-center gap-1 px-2 py-2 text-sm">
-              {getIconForLanguageExtension(selectedFile?.lang || "ts")}{" "}
+              {getIconForLanguageExtension(
+                selectedFile?.lang || "ts",
+                selectedFile?.name
+              )}{" "}
               {selectedFile?.name || "No file selected"}
             </div>
             <CopyButton
@@ -148,7 +147,8 @@ export default function ComponentFileViewer({
               handleCopy={handleCopy}
               copied={copied}
               className={cn(
-                "absolute right-3 z-20 flex items-center justify-center transition-all"
+                "absolute right-2 z-20 flex items-center justify-center transition-all",
+                selectedFile?.content ? "cursor-pointer" : "cursor-not-allowed"
               )}
             />
           </div>

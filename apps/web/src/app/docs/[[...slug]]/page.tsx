@@ -309,16 +309,27 @@ export default async function DocsPage({
                   />
                 </>
               )}
-
-            <div className="border-edge pt-6">
+            <div className="border-edge mt-4">
+              {lastSlug &&
+                !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
+                  <>
+                    <h2 className="mt-8 mb-4 text-2xl font-semibold tracking-tight">
+                      File &amp; Folder Structure
+                    </h2>
+                    <ArchitectureTabs
+                      current={currentArch || "mvc"}
+                      framework={currentFramework}
+                    />
+                  </>
+                )}
               <ComponentFileViewer
                 slug={slug[slug.length - 1]}
                 architecture={currentArch}
                 framework={currentFramework || slug[0]}
                 type={
-                  ["tooling"].includes(slug[1])
+                  ["tooling", ""].includes(slug[1])
                     ? (slug[1] as ItemType)
-                    : (slug[1].slice(0, -1) as ItemType)
+                    : (slug[1]?.slice(0, -1) as ItemType)
                 }
               />
             </div>

@@ -9,6 +9,8 @@ import {
   FolderOpenIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getIconForLanguageExtension } from "../docs/icons/language-icons";
+import { FaFolder, FaFolderOpen } from "react-icons/fa6";
 
 export type FileNode =
   | {
@@ -62,7 +64,7 @@ function TreeNode({
           onClick={() => setOpen(!open)}
           className="text-muted-foreground hover:text-accent-foreground flex w-full cursor-pointer items-center gap-1 py-1">
           {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          {open ? <FolderOpenIcon size={14} /> : <Folder size={14} />}
+          {open ? <FaFolderOpen size={14} /> : <FaFolder size={14} />}
           <span>{node.name}</span>
         </button>
 
@@ -86,11 +88,12 @@ function TreeNode({
     <button
       onClick={() => onSelect(node)}
       className={cn(
-        "text-muted-foreground hover:bg-muted hover:text-accent-foreground ml-1 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left",
+        "text-muted-foreground hover:bg-muted hover:text-accent-foreground my-1 ml-0.5 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left",
         activeFile === node.name &&
-          "bg-muted text-accent-foreground font-medium"
+          "bg-muted text-accent-foreground"
       )}>
-      <File size={14} />
+      {getIconForLanguageExtension(node.lang || "ts", node.name)}
+      {/* <File size={14} /> */}
       {node.name}
     </button>
   );
