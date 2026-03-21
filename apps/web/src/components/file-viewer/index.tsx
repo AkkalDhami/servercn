@@ -18,6 +18,7 @@ import { ItemType } from "@/@types/registry";
 import { FaMaximize } from "react-icons/fa6";
 import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
+import { Route } from "next";
 type Props = {
   slug: string;
   runtime?: string;
@@ -133,7 +134,9 @@ export default function ComponentFileViewer({
           border: `1px solid ${bg}`
         }}>
         <Link
-          href={`/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}`}
+          href={
+            `/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}` as Route
+          }
           target="_blank"
           style={{
             backgroundColor: bg
@@ -144,8 +147,8 @@ export default function ComponentFileViewer({
         <ResizablePanel defaultSize="35%" className="thin-scrollbar">
           <ScrollArea
             className={cn(
-              "h-140 p-3",
-              from === "structure" ? "h-160" : "h-140"
+              "p-3",
+              from === "structure" ? "h-160" : "h-150"
             )}>
             <FileTree
               data={tree}
