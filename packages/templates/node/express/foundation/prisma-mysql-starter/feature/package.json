@@ -1,0 +1,30 @@
+{
+  "name": "servercn-prisma-mysql-starter",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npx tsx watch src/server.ts",
+    "build": "tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write",
+    "docs": "node swagger.config.ts"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
