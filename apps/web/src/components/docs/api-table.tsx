@@ -5,7 +5,7 @@ export function Method({ value }: { value: string }) {
     value === "GET"
       ? "bg-green-500/10 text-green-600 border-green-500/30"
       : value === "POST"
-        ? "bg-orange-500/10 text-orange-600 border-orange-500/30"
+        ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
         : value === "PUT"
           ? "bg-sky-blue/10 text-blue-600 border-blue-500/30"
           : value === "PATCH"
