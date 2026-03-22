@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(morgan(env.NODE_ENV === "development" ? "dev" : "combined"));
 
 //? Swagger Setup
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.ENABLE_SWAGGER === "true") {
   setupSwagger(app);
 }
 

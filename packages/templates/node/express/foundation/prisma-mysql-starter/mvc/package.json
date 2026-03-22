@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --fix",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write",
-    "docs": "tsx swagger.config.ts"
+    "docs": "npx tsx swagger.config.ts"
   },
   "lint-staged": {
     "src/**/*.ts": [

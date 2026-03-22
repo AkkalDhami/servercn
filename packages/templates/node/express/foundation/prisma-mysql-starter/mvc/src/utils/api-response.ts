@@ -20,7 +20,7 @@ export class ApiResponse<T = unknown> {
     success,
     message,
     statusCode,
-    data = null,
+    data,
     errors
   }: ApiResponseParams<T>) {
     this.success = success;

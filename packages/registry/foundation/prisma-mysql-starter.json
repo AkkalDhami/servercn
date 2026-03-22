@@ -41,7 +41,8 @@
             "NODE_ENV",
             "PORT",
             "CORS_ORIGIN",
-            "DATABASE_URL"
+            "DATABASE_URL",
+            "ENABLE_SWAGGER"
           ]
         }
       }
