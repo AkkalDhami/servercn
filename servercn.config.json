@@ -1,0 +1,20 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/servercn.config.json",
+  "version": "1.1.9",
+  "project": {
+    "rootDir": ".",
+    "type": "backend",
+    "packageManager": "npm"
+  },
+  "stack": {
+    "runtime": "node",
+    "language": "typescript",
+    "framework": "express",
+    "architecture": "mvc"
+  },
+  "database": null,
+  "meta": {
+    "createdAt": "2026-03-22T16:38:26.001Z",
+    "createdBy": "servercn@1.1.9"
+  }
+}
