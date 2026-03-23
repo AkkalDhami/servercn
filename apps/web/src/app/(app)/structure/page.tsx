@@ -1,9 +1,9 @@
-import { ItemType } from "@/@types/registry";
+import { FrameworkType, ItemType } from "@/@types/registry";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import CodeTheme from "@/components/docs/code-theme";
 import ComponentFileViewer from "@/components/file-viewer";
 import { Container } from "@/components/ui/container";
-import { FrameworkType } from "@/lib/files";
+
 
 export default async function page(props: PageProps<"/components">) {
   const searchParams = await props.searchParams;

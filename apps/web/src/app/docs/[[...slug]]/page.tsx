@@ -93,7 +93,9 @@ export async function generateStaticParams() {
   return [...specialRoutes, ...registryParams, ...contributingParams];
 }
 
-export async function generateMetadata(props: PageProps<"/docs/[[...slug]]">): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ slug?: string[] }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const slug = params.slug ?? [];
   const filePath = getDocPath(slug);

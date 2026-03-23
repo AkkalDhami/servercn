@@ -15,7 +15,6 @@ import CopyButton from "../docs/copy-button";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "../docs/icons/language-icons";
 import { ItemType } from "@/@types/registry";
-import { FaMaximize } from "react-icons/fa6";
 import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
 import { Route } from "next";
