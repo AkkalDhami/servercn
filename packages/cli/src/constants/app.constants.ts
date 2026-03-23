@@ -1,8 +1,5 @@
 import packageJson from "../../package.json";
 
-//? For local development
-// export const SERVERCN_URL = "http://localhost:3000";
-
 export const SERVERCN_URL = "https://servercn.vercel.app";
 
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
@@ -13,11 +10,16 @@ export const LATEST_VERSION = packageJson.version || "1.0.0";
 
 export const RuntimeList = ["node"] as const;
 
-export const FrameworkList = ["express", "nestjs"] as const;
+export const FrameworkList = ["express", "nestjs", "nextjs"] as const;
 
 export const LanguageList = ["typescript"] as const;
 
-export const ArchitectureList = ["mvc", "feature", "modular"] as const;
+export const ArchitectureList = [
+  "mvc",
+  "feature",
+  "modular",
+  "file-api"
+] as const;
 
 export const DatabaseList = ["mongodb", "postgresql", "mysql"] as const;
 

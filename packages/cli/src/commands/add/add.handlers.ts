@@ -33,9 +33,9 @@ export async function resolveTemplateResolution({
   selectedProvider?: string;
 }> {
   const type: RegistryType = options.type || "component";
-  const framework = config.stack.framework;
-  const architecture = config.stack.architecture;
-  const runtime = config.stack.runtime;
+  const framework = config.framework;
+  const architecture = config.architecture;
+  const runtime = config.runtime;
 
   const isBuilt = !options.local;
 
@@ -195,14 +195,14 @@ function resolveDatabaseTemplate({
   if (options.type === "blueprint") {
     const path = options?.local
       ? (archOptions[architecture] as string)
-      : `${config.database?.engine}/${config.database?.adapter}/${config.stack.architecture}`;
+      : `${config.database?.engine}/${config.database?.adapter}/${config.architecture}`;
     return path;
   }
 
   if (options.type == "schema") {
     const path = options?.local
       ? archOptions[formattedRegistryItemName][architecture]
-      : `${config.database?.engine}/${config.database?.adapter}/${formattedRegistryItemName}/${config.stack.architecture}`;
+      : `${config.database?.engine}/${config.database?.adapter}/${formattedRegistryItemName}/${config.architecture}`;
     return path;
   }
 }

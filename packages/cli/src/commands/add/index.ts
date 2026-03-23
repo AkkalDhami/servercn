@@ -73,7 +73,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
       runtime: runtimeDeps,
       dev: [...toolingDeps || [], ...devDeps],
       cwd: process.cwd(),
-      packageManager: config.project.packageManager
+      packageManager: config.packageManager
     });
   }
 
@@ -81,8 +81,8 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     registryItemName,
     type,
     component,
-    framework: config.stack.framework,
-    runtime: config.stack.runtime,
+    framework: config.framework,
+    runtime: config.runtime,
     selectedProvider: resolution.selectedProvider ?? "",
     dbEngine: config.database?.engine as DatabaseType,
     dbAdapter: config.database?.adapter as OrmType
@@ -103,7 +103,7 @@ function validateInput(name: string) {
 
 //? Stack Validation
 function validateStack(config: IServerCNConfig) {
-  if (!config.stack.runtime || !config.stack.framework) {
+  if (!config.runtime || !config.framework) {
     logger.error(
       "Stack configuration is missing. Run `npx servercn-cli init` first."
     );
@@ -117,21 +117,21 @@ function validateCompatibility(
   config: IServerCNConfig
 ) {
   if ("runtimes" in component) {
-    const runtime = component.runtimes[config.stack.runtime];
+    const runtime = component.runtimes[config.runtime];
 
     if (!runtime) {
       logger.error(
-        `Runtime ${config.stack.runtime} is not supported by ${component.slug}`
+        `Runtime ${config.runtime} is not supported by ${component.slug}`
       );
       process.exit(1);
     }
 
-    const framework = runtime.frameworks[config.stack.framework];
+    const framework = runtime.frameworks[config.framework];
 
     if (!framework) {
       logger.break();
       logger.error(
-        `Unsupported framework '${config.stack.framework}' for component '${component.slug}'.`
+        `Unsupported framework '${config.framework}' for component '${component.slug}'.`
       );
       logger.error(
         `This '${component.slug}' does not provide templates for the selected framework.`
@@ -229,7 +229,7 @@ function resolveDependencies({
 
   // RUNTIME-BASED ITEMS
   const framework =
-    component.runtimes[config.stack.runtime].frameworks[config.stack.framework];
+    component.runtimes[config.runtime].frameworks[config.framework];
 
   return {
     runtimeDeps: [

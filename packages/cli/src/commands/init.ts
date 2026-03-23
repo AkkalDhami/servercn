@@ -99,7 +99,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           choices: [
             { title: "MVC (controllers, services, models)", value: "mvc" },
             { title: "Feature (modules, shared)", value: "feature" },
-            { title: "Modular Architecture (NestJS)", value: "modular" }
+            { title: "Modular Architecture (NestJS)", value: "modular" },
+            { title: "File Based API (NextJS)", value: "file-api" }
           ]
         },
         {
@@ -218,17 +219,12 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         await fs.writeJson(
           path.join(rootPath, SERVERCN_CONFIG_FILE),
           servercnConfig({
-            project: {
-              rootDir: response.root,
-              type: "backend",
-              packageManager: response.packageManager
-            },
-            stack: {
-              runtime: "node",
-              language: "typescript",
-              framework: getFramework(options.fw ?? "express"),
-              architecture: response.architecture
-            },
+            rootDir: response.root,
+            packageManager: response.packageManager,
+            runtime: "node",
+            language: "typescript",
+            framework: getFramework(options.fw ?? "express"),
+            architecture: response.architecture,
             database: getDatabaseConfig(foundation)
           }),
           {
@@ -345,6 +341,10 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         {
           title: "NestJS",
           value: "nestjs"
+        },
+        {
+          title: "NextJS",
+          value: "nextjs"
         }
       ],
       initial: 0
@@ -356,7 +356,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       choices: [
         { title: "MVC (controllers, services, models)", value: "mvc" },
         { title: "Feature-based (modules, shared)", value: "feature" },
-        { title: "Modular Architecture (NestJS)", value: "modular" }
+        { title: "Modular Architecture (NestJS)", value: "modular" },
+        { title: "File Based API (NextJS)", value: "file-api" }
       ]
     },
 
@@ -444,17 +445,12 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   await fs.writeJson(
     path.join(rootPath, SERVERCN_CONFIG_FILE),
     servercnConfig({
-      project: {
-        rootDir: response.root,
-        type: "backend",
-        packageManager: response.packageManager
-      },
-      stack: {
-        runtime: "node",
-        language: response.language,
-        framework: response.framework,
-        architecture: response.architecture
-      },
+      rootDir: response.root,
+      packageManager: response.packageManager,
+      runtime: "node",
+      language: response.language,
+      framework: response.framework,
+      architecture: response.architecture,
       database: {
         engine: response.databaseType,
         adapter: response.orm
@@ -489,6 +485,9 @@ function getFramework(fw: string): FrameworkType {
     case "nestjs":
     case "nest":
       return "nestjs";
+    case "nextjs":
+    case "next":
+      return "nextjs";
     default:
       return "express";
   }
