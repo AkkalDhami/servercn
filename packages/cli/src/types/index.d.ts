@@ -53,17 +53,16 @@ export interface DatabaseConfig {
 export interface IServerCNConfig {
   $schema: string;
   version: string;
-  project: {
-    rootDir: string;
-    type: "backend" | "fullstack";
-    packageManager: PackageManager;
-  };
-  stack: StackConfig;
-  database: null | DatabaseConfig;
-  meta: {
-    createdAt: string;
-    createdBy: string;
-  };
+
+  rootDir: string;
+  packageManager: PackageManager;
+  runtime: RuntimeType;
+
+  language: LanguageType;
+  framework: FrameworkType;
+  architecture: Architecture;
+
+  database: DatabaseConfig | null;
 }
 
 export type InstallOptions = {
@@ -82,6 +81,7 @@ export type ArchitectureSet = {
   mvc?: string;
   feature?: string;
   modular?: string;
+  "file-api"?: string;
 };
 
 export type EnvSet = string[];
@@ -127,6 +127,7 @@ export interface NodeRuntime {
   frameworks: {
     express?: FrameworkConfig;
     nestjs?: FrameworkConfig;
+    nextjs?: FrameworkConfig;
   };
 }
 
@@ -151,6 +152,7 @@ export interface NodeFoundationRuntime {
   frameworks: {
     express?: FoundationFramework;
     nestjs?: FoundationFramework;
+    nextjs?: FoundationFramework;
   };
 }
 

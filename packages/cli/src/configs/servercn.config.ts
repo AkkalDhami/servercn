@@ -8,19 +8,14 @@ export const servercnConfig = (
     $schema: `${SERVERCN_URL}/schema/servercn.config.json`,
     version: LATEST_VERSION,
 
-    project: {
-      rootDir: config.project.rootDir,
-      type: config.project.type,
-      packageManager: config.project.packageManager,
-    },
+    rootDir: config.rootDir,
+    packageManager: config.packageManager,
+    runtime: config.runtime,
 
-    stack: config.stack,
+    language: config.language,
+    framework: config.framework,
+    architecture: config.architecture,
 
     database: config.database,
-
-    meta: {
-      createdAt: new Date().toISOString(),
-      createdBy: `servercn@${LATEST_VERSION}`,
-    },
   };
 };
