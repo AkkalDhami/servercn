@@ -1,0 +1,51 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "prisma-mysql-starter",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "prisma-mysql-starter/mvc",
+            "feature": "prisma-mysql-starter/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "pino-pretty",
+              "pino",
+              "dotenv-flow",
+              "cross-env",
+              "source-map-support",
+              "zod",
+              "@prisma/client@6",
+              "swagger-autogen",
+              "swagger-ui-express",
+              "morgan"
+            ],
+            "dev": [
+              "prisma@6",
+              "@types/express",
+              "@types/cors",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "@types/source-map-support",
+              "@types/swagger-ui-express"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL",
+            "ENABLE_SWAGGER"
+          ]
+        }
+      }
+    }
+  }
+}

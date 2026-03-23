@@ -1,0 +1,186 @@
+---
+title: Prisma MySQL Starter | Foundation
+description: The Prisma MySQL Starter Foundation provides a production-ready Express backend with Prisma ORM and MySQL.
+command: npx servercn-cli init prisma-mysql-starter
+---
+
+# Prisma MySQL Starter
+
+The **Prisma MySQL Starter** is a database foundation provided by **servercn** for projects that use **MySQL with Prisma ORM**.
+
+[Prisma Official Docs](https://www.prisma.io/docs/prisma-orm/quickstart)
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli init prisma-mysql-starter" />
+
+## What This Starter Solves
+
+Setting up Prisma with MySQL repeatedly involves:
+
+- Database connection setup
+- Prisma client initialization
+- Schema definition and migrations
+- Environment configuration
+- Query logging and debugging
+
+The Prisma MySQL Starter standardizes these concerns so every project starts with a **reliable database layer**.
+
+## What You Get Out of the Box
+
+After initialization, your project includes:
+
+### Database Core
+
+- Prisma ORM configured for MySQL
+- Prisma Client for type-safe queries
+- Centralized database configuration
+
+### Configuration
+
+- Environment‑based database config
+- Safe startup validation
+- Production‑ready connection handling
+
+### Migrations
+
+- Prisma migration setup
+- Structured migration workflow
+- CLI‑ready `db:migrate` and `db:deploy` scripts
+
+### Developer Experience
+
+- Fully typed queries
+- Clean schema organization
+- Zero runtime magic
+
+## Environment Configuration
+
+Database credentials are loaded via environment variables.
+
+```bash
+NODE_ENV='development'
+PORT='9000'
+LOG_LEVEL='info'
+CORS_ORIGIN='http://localhost:3000'
+ENABLE_SWAGGER='true'
+
+DATABASE_URL='mysql://root:password@localhost:3306/db-name'
+```
+
+The server fails fast if required database variables are missing.
+
+## Defining Schemas
+
+Schemas are defined using Prisma's declarative schema language.
+
+<Code children="prisma/schema.prisma" />
+
+```prisma
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+Schemas are:
+
+- Explicit
+- Version‑controlled
+- Fully typed across queries
+
+## Database Client Setup
+
+<Code children="src/configs/prisma.ts" />
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import env from "./env";
+
+const prisma = new PrismaClient({
+  log: env.NODE_ENV === "development" ? ["query", "warn", "error"] : ["error"]
+});
+
+export default prisma;
+```
+
+No repositories or hidden layers — you interact directly with Prisma Client.
+
+## Migrations Workflow
+
+MySQL supports full Prisma migrations, unlike MongoDB's push-only workflow.
+
+### Create and apply a migration
+
+<PackageManagerTabs command="npm run db:migrate" />
+
+### Deploy migrations in production
+
+<PackageManagerTabs command="npm run db:deploy" />
+
+### Push schema without migration (prototyping)
+
+<PackageManagerTabs command="npm run db:push" />
+
+### Prisma Studio
+
+Browse and inspect your MySQL data visually in the browser.
+
+<PackageManagerTabs command="npm run db:studio" />
+
+## Recommended Extensions
+
+For the best experience working with Prisma schemas, install the official Prisma extension for VS Code.
+
+<Code children=".vscode/extensions.json" />
+```json
+{
+  "recommendations": [
+    "Prisma.prisma"
+  ]
+}
+```
+
+The extension provides:
+
+- Syntax highlighting for .prisma files
+- Auto-formatting on save
+- IntelliSense and field autocomplete
+- Jump to definition for models and enums
+
+VS Code will automatically prompt anyone who clones the project to install it.
+
+## Production Considerations
+
+The starter is designed for production:
+
+- No dynamic schema generation at runtime
+- Controlled migration execution
+- Environment‑safe credentials
+- Predictable connection behavior
+- Query logging only in development
+
+## Integration with Express Starter Foundation
+
+The Prisma MySQL Starter is designed to layer cleanly on top of:
+
+- Express Starter Foundation
+- Request validation (Zod)
+
+This keeps responsibilities separated:
+
+- Express handles HTTP
+- Prisma handles data
