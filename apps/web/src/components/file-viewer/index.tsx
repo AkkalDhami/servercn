@@ -26,6 +26,10 @@ type Props = {
   architecture?: string;
   type: ItemType;
   from: "structure" | "docs";
+  database?: string;
+  orm?: string;
+  template?: string;
+  variant?: string;
 };
 
 export default function ComponentFileViewer({
@@ -34,7 +38,11 @@ export default function ComponentFileViewer({
   framework = "express",
   architecture = "mvc",
   from = "docs",
-  type = "component"
+  type = "component",
+  database,
+  variant,
+  template,
+  orm
 }: Props) {
   const [tree, setTree] = React.useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = React.useState<string>();
@@ -59,7 +67,11 @@ export default function ComponentFileViewer({
           runtime,
           framework,
           architecture,
-          type
+          type,
+          database,
+          orm,
+          template,
+          variant
         });
         setTree(fileTree.tree);
         // auto-select first file
@@ -146,10 +158,7 @@ export default function ComponentFileViewer({
         </Link>
         <ResizablePanel defaultSize="35%" className="thin-scrollbar">
           <ScrollArea
-            className={cn(
-              "p-3",
-              from === "structure" ? "h-160" : "h-150"
-            )}>
+            className={cn("p-3", from === "structure" ? "h-160" : "h-150")}>
             <FileTree
               data={tree}
               activeFile={activeFile}

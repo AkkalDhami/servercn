@@ -1,10 +1,11 @@
 import { FileIcon } from "lucide-react";
+import { TbBrandTypescript } from "react-icons/tb";
 
 type IconProps = React.HTMLAttributes<SVGElement>;
 
 export type PackageManagerType = "npm" | "yarn" | "pnpm" | "bun";
 
-export const LanguageIcons: Record<string, React.FC<IconProps>> = {
+export const LanguageIcons = {
   npm: (props: IconProps) => (
     <svg viewBox="0 0 24 24" {...props}>
       <path
@@ -152,7 +153,7 @@ export const LanguageIcons: Record<string, React.FC<IconProps>> = {
       height="100"
       viewBox="0 0 48 48"
       {...props}>
-      <rect width="36" height="36" x="6" y="6" fill="#1976d2"></rect>
+      <rect width="36" height="36" rx="3" ry="3" x="6" y="6" fill="#1976d2"></rect>
       <polygon
         fill="#fff"
         points="27.49,22 14.227,22 14.227,25.264 18.984,25.264 18.984,40 22.753,40 22.753,25.264 27.49,25.264"></polygon>
@@ -281,7 +282,14 @@ export function getIconForLanguageExtension(
   if (fileName?.endsWith(".prisma")) {
     return <LanguageIcons.prisma className="size-4" />;
   }
-  if (fileName?.endsWith(".sql") || fileName?.startsWith("db") || fileName?.startsWith("data")) {
+  if (fileName?.endsWith(".d.ts")) {
+    return <TbBrandTypescript className="size-4 text-[#3178c6]" />;
+  }
+  if (
+    fileName?.endsWith(".sql") ||
+    fileName?.startsWith("db") ||
+    fileName?.startsWith("data")
+  ) {
     return <LanguageIcons.sql className="size-4" />;
   }
   switch (language) {

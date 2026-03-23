@@ -8,8 +8,6 @@ import rehypePrettyCode from "rehype-pretty-code";
 import { cookies } from "next/headers";
 import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OpenInAi } from "@/components/docs/open-in-ai";
-import type { FileNode } from "@/components/file-viewer/file-tree";
-import BackendStructureViewer from "@/components/file-viewer/backend-structure-viewer";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import PackageManagerTabs from "@/components/docs/package-manager-tabs";
 import { Metadata, Route } from "next";
@@ -22,6 +20,7 @@ import { contributingGuides } from "@/lib/contributing";
 import { FrameworkRedirect } from "@/components/docs/framework-redirect";
 import { buttonVariants } from "@/components/ui/button";
 import ComponentFileViewer from "@/components/file-viewer";
+import { resolveRegistryItem } from "@/lib/resolver";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -54,7 +53,6 @@ const injectFramework = ({
     segments.splice(1, 0, currentFramework);
     return `/${segments.join("/")}`;
   }
-
   return docsUrl;
 };
 
@@ -95,9 +93,7 @@ export async function generateStaticParams() {
   return [...specialRoutes, ...registryParams, ...contributingParams];
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
-}): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/docs/[[...slug]]">): Promise<Metadata> {
   const params = await props.params;
   const slug = params.slug ?? [];
   const filePath = getDocPath(slug);
@@ -169,15 +165,10 @@ function getDocPath(slug?: string[]) {
   return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
 }
 
-interface DocsSlugRouterProps {
-  params: Promise<{ slug?: string[] }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
-
 export default async function DocsPage({
   params,
   searchParams
-}: DocsSlugRouterProps) {
+}: PageProps<"/docs/[[...slug]]">) {
   const { slug = [] } = await params;
   const resolvedSearchParams = await searchParams;
   const filePath = getDocPath(slug);
@@ -206,17 +197,6 @@ export default async function DocsPage({
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
 
-  const mvcStructure = (data.mvc_structure as FileNode[]) || [];
-  const featureStructure = (data.feature_structure as FileNode[]) || [];
-  const modularStructure = (data.modular_structure as FileNode[]) || [];
-
-  const currentArchStructure =
-    currentArch === "mvc"
-      ? mvcStructure
-      : currentArch === "feature"
-        ? featureStructure
-        : modularStructure;
-
   const cookieStore = await cookies();
   const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
 
@@ -226,6 +206,11 @@ export default async function DocsPage({
       ? slug[0]
       : undefined;
 
+  const {
+    slug: blueprintSlug,
+    database,
+    orm
+  } = resolveRegistryItem(slug[slug.length - 1]);
   return (
     <>
       <FrameworkRedirect />
@@ -284,33 +269,8 @@ export default async function DocsPage({
             />
           </article>
           <div className="w-full overflow-x-auto">
-            {(mvcStructure.length > 0 ||
-              featureStructure.length > 0 ||
-              modularStructure.length > 0) &&
-              currentArchStructure &&
-              lastSlug &&
-              !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
-                <>
-                  <h2 className="mt-6 mb-2 text-2xl font-semibold tracking-tight">
-                    File &amp; Folder Structure
-                  </h2>
-                  <ArchitectureTabs
-                    current={currentArch || "mvc"}
-                    framework={currentFramework}
-                  />
-                  <BackendStructureViewer
-                    structure={
-                      currentArch === "mvc"
-                        ? mvcStructure
-                        : currentArch === "feature"
-                          ? featureStructure
-                          : modularStructure
-                    }
-                  />
-                </>
-              )}
             <div className="border-edge mt-4">
-              {lastSlug &&
+              {lastSlug && FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
                 !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
                   <>
                     <h2 className="mt-6 mb-2 text-2xl font-semibold tracking-tight">
@@ -322,7 +282,9 @@ export default async function DocsPage({
                     />
                     <ComponentFileViewer
                       from="docs"
-                      slug={slug[slug.length - 1]}
+                      slug={blueprintSlug ?? slug[slug.length - 1]}
+                      database={database}
+                      orm={orm}
                       architecture={currentArch}
                       framework={currentFramework || slug[0]}
                       type={
