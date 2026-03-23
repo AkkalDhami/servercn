@@ -1,8 +1,8 @@
-# Contributing to ServerCN
+# Contributing to Servercn
 
-First off all, thank you for considering contributing to ServerCN! It's people like you that make ServerCN such a great tool for the community.
+First off all, thank you for considering contributing to Servercn! It's people like you that make Servercn such a great tool for the community.
 
-For detail contributing roadmap, visit [ServerCN](https://servercn.vercel.app/contributing)
+For detail contributing roadmap, visit [Servercn](https://servercn.vercel.app/contributing)
 
 ## 🛠️ Getting Started
 

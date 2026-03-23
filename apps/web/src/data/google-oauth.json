@@ -104,6 +104,6 @@
   {
     "type": "file",
     "name": ".env.example",
-    "content": "PORT=\"8000\"\nNODE_ENV=\"development\"\nLOG_LEVEL=\"info\"\n\nGOOGLE_CLIENT_ID=\"your-google-client-id.apps.googleusercontent.com\"\nGOOGLE_CLIENT_SECRET=\"your-google-client-secret\"\nGOOGLE_REDIRECT_URI=\"your-google-redirect-uri\"\n"
+    "content": "PORT=\"8000\"\nNODE_ENV=\"development\"\nLOG_LEVEL=\"info\"\n\nGOOGLE_CLIENT_ID=\"your-google-client-id\"\nGOOGLE_CLIENT_SECRET=\"your-google-client-secret\"\nGOOGLE_REDIRECT_URI=\"your-google-redirect-uri\"\n"
   }
 ]
