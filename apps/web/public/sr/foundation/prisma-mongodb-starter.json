@@ -63,6 +63,11 @@
                 },
                 {
                   "type": "file",
+                  "path": "prisma/schema.prisma",
+                  "content": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User { \n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email String  @unique\n  name  String?\n  password String\n} \n"
+                },
+                {
+                  "type": "file",
                   "path": "src/utils/shutdown.ts",
                   "content": "import { Server } from \"http\";\nimport { logger } from \"./logger\";\n\nexport const configureGracefulShutdown = (server: Server) => {\n  const signals = [\"SIGTERM\", \"SIGINT\"];\n\n  signals.forEach(signal => {\n    process.on(signal, () => {\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\n\n      server.close(err => {\n        if (err) {\n          logger.error(err, \"Error during server close\");\n          process.exit(1);\n        }\n\n        logger.info(\"HTTP server closed.\");\n        process.exit(0);\n      });\n\n      // Force shutdown after 10 seconds\n      setTimeout(() => {\n        logger.error(\n          \"Could not close connections in time, forcefully shutting down\"\n        );\n        process.exit(1);\n      }, 10000);\n    });\n  });\n};\n"
                 },
@@ -88,13 +93,28 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/routes/health.routes.ts",
+                  "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/docs/swagger.json",
                   "content": "{}\n"
                 },
                 {
                   "type": "file",
-                  "path": "prisma/schema.prisma",
-                  "content": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User { \n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email String  @unique\n  name  String?\n  password String\n} \n"
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 },
                 {
                   "type": "file",
@@ -115,26 +135,6 @@
                   "type": "file",
                   "path": "src/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.url()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/middlewares/not-found-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/middlewares/error-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/routes/health.routes.ts",
-                  "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
                 }
               ]
             },
@@ -212,11 +212,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/configs/swagger.ts",
                   "content": "import swaggerUi from \"swagger-ui-express\";\nimport { Express } from \"express\";\nimport env from \"./env\";\n\nimport swaggerDocument from \"../../docs/swagger.json\";\n\nexport const setupSwagger = (app: Express) => {\n  if (env.NODE_ENV !== \"development\") return;\n  app.use(\"/api/docs\", swaggerUi.serve, swaggerUi.setup(swaggerDocument));\n};\n"
                 },
@@ -229,6 +224,11 @@
                   "type": "file",
                   "path": "src/shared/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 },
                 {
                   "type": "file",

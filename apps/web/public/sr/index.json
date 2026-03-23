@@ -228,6 +228,13 @@
     },
     {
       "type": "foundation",
+      "slug": "prisma-mysql-starter",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "foundation",
       "slug": "prisma-mongodb-starter",
       "frameworks": [
         "express"
