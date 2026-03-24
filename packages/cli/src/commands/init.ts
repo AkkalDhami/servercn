@@ -18,7 +18,7 @@ import { commitlintConfig } from "@/configs/commitlint.config";
 import { prettierConfig, prettierIgnore } from "@/configs/prettier.config";
 import { servercnConfig } from "@/configs/servercn.config";
 import { gitignore } from "@/configs/gitignore.config";
-import { getDatabaseConfig } from "@/lib/config";
+import { getDatabaseConfig, getFrameworkConfig } from "@/lib/config";
 import { updateEnvKeys } from "@/utils/update-env";
 import { detectPackageManager } from "@/lib/detect";
 import { paths } from "@/lib/paths";
@@ -28,6 +28,22 @@ import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
   const configPath = path.join(cwd, SERVERCN_CONFIG_FILE);
+
+  const FOUNDATION_ARCH_MAP = {
+    "express-starter": ["mvc", "feature"],
+    "mongoose-starter": ["mvc", "feature"],
+    "prisma-mongodb-starter": ["mvc", "feature"],
+    "drizzle-mysql-starter": ["mvc", "feature"],
+    "drizzle-pg-starter": ["mvc", "feature"],
+    "nextjs-starter": ["file-api"]
+  } as const;
+
+  const ARCH_LABELS = {
+    mvc: "MVC (controllers, services, models)",
+    feature: "Feature (modules, shared)",
+    modular: "Modular Architecture (NestJS)",
+    "file-api": "File Based API (NextJS)"
+  };
 
   if (!foundation) {
     const fd = await prompts({
@@ -61,6 +77,11 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           value: "drizzle-pg-starter"
         },
         {
+          title: "Nextjs Starter",
+          description: "Nextjs server setup",
+          value: "nextjs-starter"
+        },
+        {
           title: "Existing Project",
           description: `Generate ${SERVERCN_CONFIG_FILE} for an existing project`,
           value: null
@@ -70,7 +91,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     foundation = fd.foundation;
   }
 
-  if ((await fs.pathExists(configPath)) && !foundation) {
+  if (await fs.pathExists(configPath)) {
     logger.break();
     logger.break();
     logger.warn(`${APP_NAME} is already initialized in this project.`);
@@ -82,6 +103,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   }
 
   if (foundation) {
+    let rootPath = "";
     try {
       logger.break();
       const response = await prompts([
@@ -93,15 +115,38 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           format: val => val.trim() || "."
         },
         {
-          type: "select",
+          type: () => {
+            if (!foundation) return null;
+
+            const archs =
+              FOUNDATION_ARCH_MAP[
+                foundation as keyof typeof FOUNDATION_ARCH_MAP
+              ];
+            return archs.length === 1 ? null : "select";
+          },
           name: "architecture",
           message: "Select architecture",
-          choices: [
-            { title: "MVC (controllers, services, models)", value: "mvc" },
-            { title: "Feature (modules, shared)", value: "feature" },
-            { title: "Modular Architecture (NestJS)", value: "modular" },
-            { title: "File Based API (NextJS)", value: "file-api" }
-          ]
+          initial: 0,
+          choices: () => {
+            const archs =
+              FOUNDATION_ARCH_MAP[
+                foundation as keyof typeof FOUNDATION_ARCH_MAP
+              ] || [];
+
+            return archs.map(a => ({
+              title: ARCH_LABELS[a as Architecture],
+              value: a
+            }));
+          },
+          format: val => {
+            // auto-assign if skipped
+            if (!val) {
+              return FOUNDATION_ARCH_MAP[
+                foundation as keyof typeof FOUNDATION_ARCH_MAP
+              ][0];
+            }
+            return val;
+          }
         },
         {
           type: "select",
@@ -126,17 +171,33 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         }
       ]);
 
+      if (!response.architecture && foundation) {
+        const archs =
+          FOUNDATION_ARCH_MAP[foundation as keyof typeof FOUNDATION_ARCH_MAP];
+
+        if (archs?.length === 1) {
+          response.architecture = archs[0];
+        }
+      }
       logger.break();
 
-      const toolingChoices = await getToolingChoices();
+      let devDeps: string[] = [];
+      const isNextProject =
+        ["nextjs-starter"].includes(foundation) ||
+        ["nextjs", "next"].includes(options.fw || "");
 
-      const devDeps = getToolingDepsFromChoices(toolingChoices);
+      if (!isNextProject) {
+        const toolingChoices = await getToolingChoices();
+        devDeps = getToolingDepsFromChoices(toolingChoices);
+      }
 
-      const rootPath = path.resolve(cwd, response.root);
+      rootPath = path.resolve(cwd, response.root);
 
       if (response.root !== "." && fs.pathExistsSync(rootPath)) {
         logger.break();
-        logger.error(`Cannot create '${response.root}' — file already exists!`);
+        logger.error(
+          `Cannot create '${response.root}' — directory already exists.`
+        );
         logger.break();
         process.exit(1);
       }
@@ -165,14 +226,21 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
         const baseConfig =
           component.runtimes["node"].frameworks[
-            getFramework(options.fw ?? "express")
+            getFramework(options.fw ?? getFrameworkConfig(foundation))
           ];
 
         if (options.local) {
           const targetDir = paths.targets(response.root ?? ".");
           const localTemplatePath =
-            `node/${getFramework(options.fw ?? "express")}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
+            `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
             "";
+
+          console.log({
+            options,
+            foundation,
+            localTemplatePath
+          });
+
           const templateDir = path.resolve(
             paths.templates(),
             localTemplatePath
@@ -182,6 +250,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
             logger.error(
               `\nTemplate not found: ${templateDir}\nCheck your servercn configuration.\n`
             );
+            fs.removeSync(rootPath);
             process.exit(1);
           }
           logger.break();
@@ -193,7 +262,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
             conflict: options.force ? "overwrite" : "skip"
           });
         } else {
-          const templatePath = `node/${getFramework(options.fw ?? "express")}/${response.architecture}`;
+          const templatePath = `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/${response.architecture}`;
           if (!templatePath) {
             logger.error(
               `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
@@ -223,7 +292,9 @@ export async function init(foundation?: string, options: AddOptions = {}) {
             packageManager: response.packageManager,
             runtime: "node",
             language: "typescript",
-            framework: getFramework(options.fw ?? "express"),
+            framework: getFramework(
+              options.fw ?? getFrameworkConfig(foundation)
+            ),
             architecture: response.architecture,
             database: getDatabaseConfig(foundation)
           }),
@@ -231,31 +302,36 @@ export async function init(foundation?: string, options: AddOptions = {}) {
             spaces: 2
           }
         );
+        if (!["nextjs", "next"].includes(options.fw || "")) {
+          await fs.writeJson(
+            path.join(rootPath, ".prettierrc"),
+            prettierConfig,
+            {
+              spaces: 2
+            }
+          );
 
-        await fs.writeJson(path.join(rootPath, ".prettierrc"), prettierConfig, {
-          spaces: 2
-        });
+          await fs.writeFile(
+            path.join(rootPath, ".prettierignore"),
+            prettierIgnore
+          );
 
-        await fs.writeFile(
-          path.join(rootPath, ".prettierignore"),
-          prettierIgnore
-        );
+          await fs.writeFile(path.join(rootPath, ".gitignore"), gitignore);
 
-        await fs.writeFile(path.join(rootPath, ".gitignore"), gitignore);
+          await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
+            spaces: 2
+          });
 
-        await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
-          spaces: 2
-        });
+          await fs.writeFile(
+            path.join(rootPath, "commitlint.config.ts"),
+            `export default ${JSON.stringify(commitlintConfig, null, 2)}`
+          );
 
-        await fs.writeFile(
-          path.join(rootPath, "commitlint.config.ts"),
-          `export default ${JSON.stringify(commitlintConfig, null, 2)}`
-        );
-
-        await fs.writeFile(
-          path.join(rootPath, "eslint.config.mjs"),
-          eslintConfig
-        );
+          await fs.writeFile(
+            path.join(rootPath, "eslint.config.mjs"),
+            eslintConfig
+          );
+        }
 
         const filterEnvs =
           baseConfig?.env?.filter((env: string) => env !== "") || [];
@@ -304,6 +380,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       }
     } catch {
       logger.error(`\nFailed to initialize foundation\n`);
+      fs.removeSync(rootPath);
       process.exit(1);
     }
   }
@@ -350,15 +427,32 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       initial: 0
     },
     {
-      type: "select",
+      type: (prev, values) => {
+        if (!values.framework) return null;
+        return "select";
+      },
       name: "architecture",
       message: "Select architecture",
-      choices: [
-        { title: "MVC (controllers, services, models)", value: "mvc" },
-        { title: "Feature-based (modules, shared)", value: "feature" },
-        { title: "Modular Architecture (NestJS)", value: "modular" },
-        { title: "File Based API (NextJS)", value: "file-api" }
-      ]
+      choices: (prev, values) => {
+        switch (values.framework) {
+          case "express":
+            return [
+              { title: "MVC (controllers, services, models)", value: "mvc" },
+              { title: "Feature-based (modules, shared)", value: "feature" }
+            ];
+
+          case "nestjs":
+            return [
+              { title: "Modular Architecture (NestJS)", value: "modular" }
+            ];
+
+          case "nextjs":
+            return [{ title: "File Based API (NextJS)", value: "file-api" }];
+
+          default:
+            return [];
+        }
+      }
     },
 
     {
@@ -381,23 +475,29 @@ export async function init(foundation?: string, options: AddOptions = {}) {
       ]
     },
     {
-      type: prev => (prev === "mongodb" ? "select" : null),
+      type: (prev, values) => {
+        if (!values.databaseType) return null;
+        return "select";
+      },
       name: "orm",
-      message: "Mongodb library",
-      choices: [
-        { title: "Mongoose", value: "mongoose" },
-        { title: "Prisma", value: "prisma" }
-      ]
-    },
-    {
-      type: (_prev, values) =>
-        ["postgresql", "mysql"].includes(values.databaseType) ? "select" : null,
-      name: "orm",
-      message: "Orm / query builder",
-      choices: [
-        { title: "Drizzle", value: "drizzle" },
-        { title: "Prisma", value: "prisma" }
-      ]
+      message: "Select ORM / library",
+      choices: (prev, values) => {
+        if (values.databaseType === "mongodb") {
+          return [
+            { title: "Mongoose", value: "mongoose" },
+            { title: "Prisma", value: "prisma" }
+          ];
+        }
+
+        if (["postgresql", "mysql"].includes(values.databaseType)) {
+          return [
+            { title: "Drizzle", value: "drizzle" },
+            { title: "Prisma", value: "prisma" }
+          ];
+        }
+
+        return [];
+      }
     },
     {
       type: "select",
@@ -435,7 +535,9 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
   if (response.root !== "." && fs.pathExistsSync(rootPath)) {
     logger.break();
-    logger.error(`Cannot create '${response.root}' — file already exists!`);
+    logger.error(
+      `Cannot create '${response.root}' — directory already exists.`
+    );
     logger.break();
     process.exit(1);
   }
