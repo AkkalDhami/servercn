@@ -72,6 +72,7 @@ export default function ComponentFileViewer({
           template,
           variant
         });
+        console.log({ fileTree });
         setTree(fileTree.tree);
         // auto-select first file
         const firstFile = findFirstFile(fileTree.tree);

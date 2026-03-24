@@ -1,0 +1,67 @@
+---
+title: Nextjs Starter | Foundation
+description: Production-ready Next.js starter foundation for Servercn.
+command: npx servercn-cli init nextjs-starter --fw=nextjs
+---
+
+# Nextjs Starter
+
+The **Nextjs Starter** is a production-ready Next.js foundation provided by **Servercn**. It ships a clean App Router setup with TypeScript and Tailwind CSS, so you can start building immediately without boilerplate work.
+
+[Next.js Official Docs](https://nextjs.org)
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli init nextjs-starter --fw=nextjs" />
+
+## What You Get Out of the Box
+
+### Core Setup
+
+- Next.js App Router
+- TypeScript configured
+- Tailwind CSS ready
+
+### Tooling
+
+- ESLint with Next.js defaults
+- Prettier + Tailwind plugin
+- Husky + lint-staged for clean commits
+
+### App Structure
+
+- Minimal, production-friendly <Code>src/app</Code> layout
+- Global styles and metadata set up
+- Static assets ready in <Code>public</Code>
+
+## Project Structure
+
+```bash
+src/
+  app/
+    favicon.ico
+    globals.css
+    layout.tsx
+    page.tsx
+public/
+  github.svg
+```
+
+## Available Scripts
+
+- <Code>npm run dev</Code> — start the development server
+- <Code>npm run build</Code> — build for production
+- <Code>npm run start</Code> — run the production build
+- <Code>npm run lint</Code> — run ESLint
+- <Code>npm run format:check</Code> — check formatting
+- <Code>npm run format:fix</Code> — format files
+
+## Extend This Starter
+
+You can keep this as a clean Next.js base or layer Servercn components on top:
+
+<PackageManagerTabs command="npx servercn-cli add component <component-name>" />
+
+## Summary
+
+The **Nextjs Starter** gives you a reliable Next.js foundation with modern tooling, a clean structure, and fast setup. It is ideal for teams that want a consistent baseline without sacrificing flexibility.
