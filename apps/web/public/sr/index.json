@@ -242,6 +242,13 @@
     },
     {
       "type": "foundation",
+      "slug": "nextjs-starter",
+      "frameworks": [
+        "nextjs"
+      ]
+    },
+    {
+      "type": "foundation",
       "slug": "mongoose-starter",
       "frameworks": [
         "express"

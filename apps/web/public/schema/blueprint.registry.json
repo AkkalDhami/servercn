@@ -165,6 +165,10 @@
         "modular": {
           "type": "string",
           "description": "Nestjs(Modular) architecture template path"
+        },
+        "file-api": {
+          "type": "string",
+          "description": "File Based API(Nextjs) architecture template path"
         }
       },
       "minProperties": 1
