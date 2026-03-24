@@ -18,11 +18,17 @@ function getLanguageFromFileName(fileName: string): string {
   const ext = fileName.split(".").pop()?.toLowerCase();
   if (fileName.startsWith(".env")) return "bash";
   if (fileName.startsWith("pre-commit")) return "bash";
+  if (fileName.endsWith(".mjs")) return "ts";
+  if (fileName.endsWith("rc")) return "json";
+  if (fileName.endsWith(".css")) return "js";
+  if (fileName.endsWith(".ejs")) return "js";
+  if (fileName.endsWith(".svg")) return "ts";
   switch (ext) {
     case "ts":
+    case "sql":
       return "typescript";
     case "tsx":
-      return "tsx";
+      return "ts";
     case "js":
       return "javascript";
     case "jsx":
@@ -33,7 +39,7 @@ function getLanguageFromFileName(fileName: string): string {
       return "prisma";
     case "md":
     case "mdx":
-      return "markdown";
+      return "text";
     case "yml":
     case "yaml":
       return "yaml";
@@ -41,12 +47,8 @@ function getLanguageFromFileName(fileName: string): string {
     case "bash":
       return "bash";
     case "html":
-    case "ejs":
-      return "text";
     case "css":
       return "css";
-    case "sql":
-      return "ts";
     default:
       return "plaintext";
   }
@@ -196,8 +198,16 @@ function extractFoundationFiles(
     return { files: [], env: [] };
   }
 
+  const architectures = frameworkNode.architectures || {};
+  const resolvedArchitecture = architectures[architecture as ArchitectureType]
+    ? architecture
+    : Object.keys(architectures)[0];
+  const resolvedNode = resolvedArchitecture
+    ? architectures[resolvedArchitecture as ArchitectureType]
+    : undefined;
+
   return {
-    files: frameworkNode.architectures[architecture as ArchitectureType].files,
+    files: resolvedNode?.files ?? [],
     env: frameworkNode?.env ?? []
   };
 }
@@ -442,10 +452,12 @@ export async function getRegistryFileTree(
         framework,
         architecture
       );
+
+      console.log({ result });
       return {
         files: {
           ...result.files,
-          
+
           ...{
             content:
               (result?.env &&

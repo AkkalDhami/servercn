@@ -139,7 +139,6 @@ export function findFilesByPath(
 
         return architecture.files ?? null;
       }
-      // }
     }
 
     return null;

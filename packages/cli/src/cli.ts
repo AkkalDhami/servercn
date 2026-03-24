@@ -6,6 +6,7 @@ import { init } from "@/commands/init";
 import type { Architecture, RegistryType } from "@/types";
 import { LATEST_VERSION } from "@/constants/app.constants";
 import { registryListCommands } from "./commands/list";
+import { registryViewCommand } from "./commands/view";
 import { build, type buildTypeProps } from "./commands/_build";
 
 const program = new Command();
@@ -23,7 +24,7 @@ async function main() {
     .command("init [foundation]")
     .description("Initialize ServerCN in the current project")
     .option("-f, --force", "Overwrite existing files if they exist")
-    .option("--fw <framework>", "Framework type: express or nestjs", "express")
+    .option("--fw <framework>", "Framework type: express | nextjs | nestjs")
     .option(
       "--local",
       "Add registry items from local environment(development runtime)"
@@ -31,6 +32,7 @@ async function main() {
     .action(init);
 
   registryListCommands(program);
+  registryViewCommand(program);
 
   program
     .command("build")
