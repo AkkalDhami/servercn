@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "node:path";
 import { logger } from "@/utils/logger";
-import type { DatabaseConfig, IServerCNConfig } from "@/types";
+import type { DatabaseConfig, FrameworkType, IServerCNConfig } from "@/types";
 import { SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
 
 export async function getServerCNConfig(): Promise<IServerCNConfig> {
@@ -42,5 +42,20 @@ export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
       };
     default:
       return null;
+  }
+}
+
+export function getFrameworkConfig(foundation: string): FrameworkType {
+  switch (foundation) {
+    case "express-starter":
+    case "mongoose-starter":
+    case "drizzle-mysql-starter":
+    case "drizzle-pg-starter":
+    case "prisma-mongodb-starter":
+      return "express";
+    case "nextjs-starter":
+      return "nextjs";
+    default:
+      return "express";
   }
 }

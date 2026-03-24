@@ -13,6 +13,7 @@ export async function getRegistry<T extends keyof RegistryMap>(
   type: T,
   local?: boolean
 ): Promise<RegistryMap[T]> {
+  local ??= false;
   const registryItemName = name.includes("/")
     ? name.split("/").shift() || name
     : name;
