@@ -96,6 +96,7 @@ export interface IRegistryCommon {
 //? registry:component
 export interface SimpleFramework {
   templates: ArchitectureSet;
+  architectures?: ArchitectureSet;
   dependencies?: DependencySet;
   env?: EnvSet;
 
@@ -107,6 +108,7 @@ export interface SimpleFramework {
 export interface FrameworkVariant {
   label: string;
   templates: ArchitectureSet;
+  architectures?: ArchitectureSet;
   dependencies?: DependencySet;
   env?: EnvSet;
 }
@@ -116,6 +118,7 @@ export interface VariantFramework {
   variants: Record<string, FrameworkVariant>;
 
   // forbidden
+  architectures?: never;
   templates?: never;
   dependencies?: never;
   env?: never;
@@ -189,6 +192,7 @@ export interface RegistrySchema extends IRegistryCommon {
 export interface BlueprintOrm {
   templates: ArchitectureSet;
   dependencies: DependencySet;
+  env?: EnvSet;
 }
 
 export interface BlueprintDatabase {

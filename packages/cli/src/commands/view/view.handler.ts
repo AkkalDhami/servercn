@@ -17,10 +17,10 @@ import type {
   RegistryComponent,
   RegistryFoundation,
   RegistrySchema,
-  RegistryTooling,
   RegistryType,
   RuntimeType
 } from "@/types";
+import { SERVERCN_URL } from "@/constants/app.constants";
 
 export type ViewOptions = {
   type: string;
@@ -34,19 +34,18 @@ export type ViewOptions = {
   variant?: string;
   template?: string;
   runtime?: string;
+  files?: boolean;
 };
 
 type FileEntry = { type: string; path: string; content: string };
-
-const TYPE_ALIASES: Record<string, RegistryType> = {
+type t = "blueprint" | "schema" | "foundation" | "component";
+const TYPE_ALIASES: Record<string, t> = {
   component: "component",
   cp: "component",
   blueprint: "blueprint",
   bp: "blueprint",
   schema: "schema",
   sc: "schema",
-  tooling: "tooling",
-  tl: "tooling",
   foundation: "foundation",
   fd: "foundation"
 };
@@ -97,8 +96,8 @@ function installationCommand(type: RegistryType, name: string) {
 
 function renderOverview(rows: Array<[string, string]>) {
   const table = new Table({
-    head: [highlighter.error("key"), highlighter.error("value")],
-    colWidths: [18, 20]
+    head: [highlighter.create("key"), highlighter.create("value")],
+    colWidths: [18, 60]
   });
   rows.forEach(row => table.push(row));
   logger.log(table.toString());
@@ -113,35 +112,19 @@ function renderList(title: string, items?: string[]) {
   items.forEach(item => logger.info(`- ${item}`));
 }
 
-function renderKeyValue(title: string, value?: string) {
-  logger.section(highlighter.create(title));
-  logger.info(value || "-");
-}
-
-function renderTemplates(title: string, templates?: Record<string, string>) {
-  logger.section(highlighter.create(title));
-  if (!templates || Object.keys(templates).length === 0) {
-    logger.muted("None");
-    return;
-  }
-  const table = new Table({
-    head: [highlighter.error("arch"), highlighter.error("path")],
-    colWidths: [16, 40]
-  });
-  Object.entries(templates).forEach(([arch, value]) => {
-    table.push([arch, value]);
-  });
-  logger.log(table.toString());
+function renderDocs(title: string, docs: string) {
+  logger.section(title);
+  logger.info(docs);
 }
 
 function renderFiles(files: FileEntry[]) {
-  logger.section(highlighter.create(`Files (${files.length})`));
+  logger.section(`Files (${files.length})`);
   if (files.length === 0) {
     logger.muted("No files available");
     return;
   }
   files.forEach(file => {
-    logger.log(highlighter.warn(file.path));
+    logger.log(highlighter.create(file.path));
     logger.log(file.content);
     logger.break();
   });
@@ -149,67 +132,26 @@ function renderFiles(files: FileEntry[]) {
 
 export async function viewRegistryItem(options: ViewOptions) {
   const type = resolveType(options.type);
-  if (!type) {
+  if (!type || type === "tooling") {
     logger.error(`Unknown type: ${options.type}`);
     process.exit(1);
   }
 
   const item = await getRegistry(options.name, type, options.local);
-  console.log({
-    item
-  });
+  const baseItem = item.runtimes[(options.runtime as RuntimeType) || "node"];
+
+  const docs =
+    `${SERVERCN_URL}/docs/${options.fw || firstKey(baseItem.frameworks)}/${type}s/${item.slug}` ||
+    "";
+  const schema = `${SERVERCN_URL}/sr/${type}/${item.slug}.json` || "";
   const runtime = (options.runtime || "node") as RuntimeType;
   const install = installationCommand(type, options.name);
 
   const baseOutput = {
     type,
     slug: item.slug,
-    installation: install
+    command: install
   };
-
-  if (type === "tooling") {
-    const tooling = item as RegistryTooling;
-    const templateKey =
-      (options.template || firstKey(tooling.templates))?.toString() || "";
-    const deps = tooling.dependencies;
-    const templateValue = templateKey ? tooling.templates[templateKey] : "";
-    const templatePath = templateValue ? `tooling/${templateValue}` : "";
-    const files =
-      (templatePath && findFilesByPath(item, templatePath)) ||
-      (templatePath && options.local
-        ? await readLocalTemplateFiles(`tooling/${templateValue}`)
-        : []) ||
-      [];
-
-    const output = {
-      ...baseOutput,
-      template: templateKey,
-      dependencies: deps,
-      templates: tooling.templates,
-      files
-    };
-
-    if (options.json) {
-      process.stdout.write(JSON.stringify(output, null, 2));
-      logger.break();
-      return;
-    }
-
-    logger.break();
-    logger.log(highlighter.create(`${capitalize(type)}: ${item.slug}`));
-    renderOverview([
-      ["slug", item.slug],
-      ["type", type],
-      ["installation", install],
-      ["template", templateKey || "-"]
-    ]);
-    renderList("Dependencies", deps?.runtime);
-    renderList("DevDependencies", deps?.dev);
-    renderKeyValue("Templates", "");
-    renderTemplates("Templates", tooling.templates);
-    renderFiles(files);
-    return;
-  }
 
   if (type === "foundation") {
     const foundation = item as RegistryFoundation;
@@ -217,18 +159,19 @@ export async function viewRegistryItem(options: ViewOptions) {
     const framework = (options.fw || firstKey(frameworks)) as
       | FrameworkType
       | undefined;
-    const fw = framework ? frameworks[framework] : undefined;
-    if (!fw) {
+    const selectedFramework = framework ? frameworks[framework] : undefined;
+    if (!selectedFramework) {
       logger.error(`Framework not available for ${item.slug}`);
       process.exit(1);
     }
-    const templates = fw.templates || {};
-    const arch =
+    const templates = selectedFramework.templates || {};
+    const archs = Object.keys(selectedFramework.architectures) || undefined;
+    const inputArch =
       (options.arch as Architecture) ||
       (Object.keys(templates)[0] as Architecture);
     const templatePath = options.local
-      ? `node/${framework}/foundation/${templates[arch]}`
-      : `node/${framework}/foundation/${arch}`;
+      ? `node/${framework}/foundation/${templates[(inputArch as Architecture) || ""]}`
+      : `node/${framework}/foundation/${inputArch}`;
     const files =
       findFilesByPath(item, templatePath) ||
       (options.local ? await readLocalTemplateFiles(templatePath) : []) ||
@@ -238,11 +181,13 @@ export async function viewRegistryItem(options: ViewOptions) {
       ...baseOutput,
       runtime,
       framework,
-      architecture: arch,
-      dependencies: fw.dependencies,
-      env: fw.env,
-      templates: fw.templates,
-      files
+      architecture: inputArch || archs,
+      dependencies: selectedFramework.dependencies,
+      env: selectedFramework.env,
+      templates: selectedFramework.templates,
+      docs,
+      schema,
+      ...(options.files ? { files } : {})
     };
 
     if (options.json) {
@@ -252,20 +197,30 @@ export async function viewRegistryItem(options: ViewOptions) {
     }
 
     logger.break();
-    logger.log(highlighter.create(`${capitalize(type)}: ${item.slug}`));
+    // renderKeyValue("slug", item.slug);
+    // renderKeyValue("type", type);
+    // renderKeyValue("command", install);
+    // renderKeyValue("runtime", runtime);
+    // renderKeyValue("framework", framework || "-");
+    // renderKeyValue("architecture", archs?.join(", ") || "-");
+
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["installation", install],
+      ["command", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
-      ["architecture", arch || "-"]
+      ["architecture", inputArch || archs?.join(", ") || "-"]
     ]);
-    renderList("Dependencies", fw.dependencies?.runtime);
-    renderList("DevDependencies", fw.dependencies?.dev);
-    renderList("Env Variables", fw.env);
-    renderTemplates("Templates", fw.templates);
-    renderFiles(files);
+    renderList("Dependencies", selectedFramework.dependencies?.runtime);
+    renderList("DevDependencies", selectedFramework.dependencies?.dev);
+    renderList("Env Variables", selectedFramework.env);
+    renderDocs("Documentation", docs);
+    renderDocs("JSON Schema", schema);
+
+    if (options.files) {
+      renderFiles(files);
+    }
     return;
   }
 
@@ -301,28 +256,32 @@ export async function viewRegistryItem(options: ViewOptions) {
       env = fw.env;
       templates = fw.templates || {};
     }
-
-    const arch =
+    const archs = Object.keys(fw.architectures || {}) || undefined;
+    const inputArch =
       (options.arch as Architecture) ||
       (Object.keys(templates)[0] as Architecture);
     const templatePath = options.local
-      ? `node/${framework}/component/${templates[arch]}`
-      : `node/${framework}/component/${arch}`;
+      ? `node/${framework}/component/${templates[inputArch]}`
+      : `node/${framework}/component/${inputArch}`;
     const files =
       findFilesByPath(item, templatePath, variantKey) ||
       (options.local ? await readLocalTemplateFiles(templatePath) : []) ||
       [];
 
+    const docs =
+      `${SERVERCN_URL}/docs/${framework}/${type}s/${item.slug}` || "";
+    const schema = `${SERVERCN_URL}/sr/${type}/${item.slug}.json` || "";
     const output = {
       ...baseOutput,
       runtime,
       framework,
-      architecture: arch,
+      architecture: inputArch || archs || "-",
       variant: variantKey,
       dependencies,
       env,
-      templates,
-      files
+      docs,
+      schema,
+      ...(options.files ? { files } : {})
     };
 
     if (options.json) {
@@ -336,17 +295,20 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["installation", install],
+      ["command", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["variant", variantKey || "-"],
-      ["architecture", arch || "-"]
+      ["architecture", inputArch || archs?.join(", ") || "-"]
     ]);
     renderList("Dependencies", dependencies?.runtime);
     renderList("DevDependencies", dependencies?.dev);
     renderList("Env Variables", env);
-    renderTemplates("Templates", templates);
-    renderFiles(files);
+    renderDocs("Documentation", docs);
+    renderDocs("JSON Schema", schema);
+    if (options.files) {
+      renderFiles(files);
+    }
     return;
   }
 
@@ -375,12 +337,12 @@ export async function viewRegistryItem(options: ViewOptions) {
       logger.error(`ORM not available for ${item.slug}`);
       process.exit(1);
     }
-    const arch =
-      (options.arch as Architecture) ||
-      (Object.keys(ormConfig.templates || {})[0] as Architecture);
+    const archs = Object.keys(ormConfig.templates || {}) as Architecture[];
+    const inputArch =
+      (options.arch as Architecture) || (archs[0] as Architecture);
     const templatePath = options.local
-      ? `node/${framework}/blueprint/${ormConfig.templates[arch]}`
-      : `node/${framework}/blueprint/${db}/${orm}/${arch}`;
+      ? `node/${framework}/blueprint/${ormConfig.templates[inputArch]}`
+      : `node/${framework}/blueprint/${db}/${orm}/${inputArch}`;
     const files =
       findFilesByPath(item, templatePath) ||
       (options.local ? await readLocalTemplateFiles(templatePath) : []) ||
@@ -392,10 +354,11 @@ export async function viewRegistryItem(options: ViewOptions) {
       framework,
       database: db,
       orm,
-      architecture: arch,
+      architecture: inputArch || archs.join(", "),
       dependencies: ormConfig.dependencies,
-      templates: ormConfig.templates,
-      files
+      files,
+      docs,
+      schema
     };
 
     if (options.json) {
@@ -405,21 +368,24 @@ export async function viewRegistryItem(options: ViewOptions) {
     }
 
     logger.break();
-    logger.log(highlighter.create(`${capitalize(type)}: ${item.slug}`));
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["installation", install],
+      ["command", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["database", db || "-"],
       ["orm", orm || "-"],
-      ["architecture", arch || "-"]
+      ["architecture", inputArch || archs.join(", ")]
     ]);
     renderList("Dependencies", ormConfig.dependencies?.runtime);
     renderList("DevDependencies", ormConfig.dependencies?.dev);
-    renderTemplates("Templates", ormConfig.templates);
-    renderFiles(files);
+    renderList("Env Variables", ormConfig.env);
+    renderDocs("Documentation", docs);
+    renderDocs("JSON Schema", schema);
+    if (options.files) {
+      renderFiles(files);
+    }
     return;
   }
 
@@ -491,7 +457,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["installation", install],
+      ["command", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["database", db || "-"],

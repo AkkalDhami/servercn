@@ -508,6 +508,9 @@ export function getIconForLanguageExtension(
   if (fileName?.endsWith(".ejs") || fileName?.endsWith(".html")) {
     return <LanguageIcons.html className="size-4" />;
   }
+  if(fileName?.endsWith(".mdx") || fileName?.endsWith(".md")) {
+    return <LanguageIcons.mdx className="size-4" />;
+  }
   switch (language) {
     case "json":
       return <LanguageIcons.json className="size-4" />;
