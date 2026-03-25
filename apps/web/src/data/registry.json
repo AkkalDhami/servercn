@@ -290,13 +290,13 @@
       }
     },
     {
-      "slug": "env",
+      "slug": "env-config",
       "title": "Env Configuration",
       "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/env"
+      "docs": "/docs/components/env-config"
     },
     {
       "slug": "swagger-docs",

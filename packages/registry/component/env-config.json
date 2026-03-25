@@ -1,6 +1,6 @@
 {
   "$schema": "https://servercn.vercel.app/schema/component.registry.json",
-  "slug": "env",
+  "slug": "env-config",
   "runtimes": {
     "node": {
       "frameworks": {
@@ -37,7 +37,8 @@
             "GITHUB_CLIENT_SECRET",
             "GITHUB_REDIRECT_URI"
           ]
-        }
+        },
+        ""
       }
     }
   }

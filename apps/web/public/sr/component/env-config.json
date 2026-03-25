@@ -1,5 +1,5 @@
 {
-  "slug": "env",
+  "slug": "env-config",
   "runtimes": {
     "node": {
       "frameworks": {
