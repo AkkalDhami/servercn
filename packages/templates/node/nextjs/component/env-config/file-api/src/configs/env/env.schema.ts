@@ -5,8 +5,6 @@ export const baseEnvSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
 
-  PORT: z.string().regex(/^\d+$/).transform(Number),
-
   DATABASE_URL: z.url(),
 
   CORS_ORIGIN: z.string(),
