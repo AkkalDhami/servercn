@@ -1,0 +1,99 @@
+---
+title: HTTP Status Codes
+description: Centralized, type-safe HTTP status codes for consistent Next.js API responses.
+command: npx servercn-cli add http-status-codes
+---
+
+# HTTP Status Codes
+
+The **HTTP Status Codes** component provides a centralized and type-safe way to reference HTTP status codes across your Next.js backend.
+
+Instead of hard-coded numbers like <Code children="200" /> or <Code children="404" />, use named constants that improve readability and reduce errors.
+
+## Installation Guide
+
+Install the component using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add http-status-codes" />
+
+## Basic Implementation
+
+<Code children="src/constants/status-codes.ts" />
+
+```ts
+export const STATUS_CODES = {
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
+  MOVED_PERMANENTLY: 301,
+  FOUND: 302,
+  NOT_MODIFIED: 304,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_IMPLEMENTED: 501,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+  GATEWAY_TIMEOUT: 504
+} as const;
+
+export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
+```
+
+## Usage Example
+
+```ts
+import { NextResponse } from "next/server";
+import { STATUS_CODES } from "@/constants/status-codes";
+
+export async function GET() {
+  return NextResponse.json(
+    { message: "OK" },
+    { status: STATUS_CODES.OK }
+  );
+}
+```
+
+```ts
+import { NextResponse } from "next/server";
+import { STATUS_CODES } from "@/constants/status-codes";
+
+export async function POST() {
+  return NextResponse.json(
+    { error: "Unauthorized" },
+    { status: STATUS_CODES.UNAUTHORIZED }
+  );
+}
+```
+
+## Status Code Reference
+
+```
+| Status Code | Constant               | Description                                   |
+| ----------- | ---------------------- | --------------------------------------------- |
+| 200         | OK                     | Request succeeded.                            |
+| 201         | CREATED                | Resource created successfully.                |
+| 202         | ACCEPTED               | Request accepted for processing.              |
+| 204         | NO_CONTENT             | Request succeeded with no response body.      |
+| 301         | MOVED_PERMANENTLY      | Resource moved permanently.                   |
+| 302         | FOUND                  | Resource found at a temporary location.       |
+| 304         | NOT_MODIFIED           | Resource not modified since last request.     |
+| 400         | BAD_REQUEST            | Invalid request from the client.              |
+| 401         | UNAUTHORIZED           | Authentication required.                      |
+| 403         | FORBIDDEN              | Client does not have access.                  |
+| 404         | NOT_FOUND              | Resource not found.                           |
+| 409         | CONFLICT               | Conflict with current state of resource.      |
+| 422         | UNPROCESSABLE_ENTITY   | Valid request but semantic errors present.    |
+| 429         | TOO_MANY_REQUESTS      | Client sent too many requests.                |
+| 500         | INTERNAL_SERVER_ERROR  | Server encountered an error.                  |
+| 501         | NOT_IMPLEMENTED        | Server does not support functionality.        |
+| 502         | BAD_GATEWAY            | Invalid response from upstream server.        |
+| 503         | SERVICE_UNAVAILABLE    | Server unavailable or overloaded.             |
+| 504         | GATEWAY_TIMEOUT        | Upstream server timed out.                    |
+```
