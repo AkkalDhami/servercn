@@ -14,6 +14,7 @@ export function registryViewCommand(program: Command) {
     .option("--variant <variant>", "Variant key (components)")
     .option("--template <template>", "Template key (schemas/tooling)")
     .option("--runtime <runtime>", "Runtime: node", "node")
+    .option("--files", "Show files", false)
     .action((type: string, name: string, options) =>
       viewRegistryItem({
         type,
@@ -26,7 +27,8 @@ export function registryViewCommand(program: Command) {
         orm: options.orm,
         variant: options.variant,
         template: options.template,
-        runtime: options.runtime
+        runtime: options.runtime,
+        files: options.files
       })
     );
 }
