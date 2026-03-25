@@ -1,0 +1,170 @@
+---
+title: Env Configuration
+description: Type-safe server and client environment variables for Next.js.
+command: npx servercn-cli add env-config
+---
+
+# Env Configuration
+
+Environment variables are a critical part of any Next.js application. This setup provides a split between server-only and client-safe variables, with Zod-powered validation for both.
+
+## Features
+
+- **Type Safety**: Strongly typed environment variables with Zod.
+- **Fail Fast**: Invalid server environment variables stop the app at startup.
+- **Server vs Client**: Dedicated modules for server-only and client-safe variables.
+- **Centralized Access**: Consistent access through <Code children="env" /> and <Code children="clientEnv" />.
+
+## Installation Guide
+
+Install the component using the Servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli add env-config" />
+
+## File Structure
+
+The Next.js template creates the following files:
+
+- <Code children="src/configs/env/index.ts" />
+- <Code children="src/configs/env/env.schema.ts" />
+- <Code children="src/configs/env/env.server.ts" />
+- <Code children="src/configs/env/env.client.ts" />
+- <Code children="src/configs/env/env.types.ts" />
+
+## Basic Implementation
+
+<Code children="src/configs/env/env.schema.ts" />
+
+```ts
+import { z } from "zod";
+
+export const baseEnvSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.string().regex(/^\d+$/).transform(Number),
+
+  DATABASE_URL: z.url(),
+
+  CORS_ORIGIN: z.string(),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_REFRESH_SECRET: z.string().min(32),
+
+  CRYPTO_SECRET: z.string().min(32),
+
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.string().regex(/^\d+$/).transform(Number),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+  EMAIL_FROM: z.email(),
+
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string(),
+
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_REDIRECT_URI: z.url(),
+
+  GITHUB_CLIENT_ID: z.string(),
+  GITHUB_CLIENT_SECRET: z.string(),
+  GITHUB_REDIRECT_URI: z.url()
+});
+```
+
+<Code children="src/configs/env/env.server.ts" />
+
+```ts
+import z from "zod";
+import { baseEnvSchema } from "./env.schema";
+
+const parsed = baseEnvSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  console.error("❌ Invalid environment variables");
+  console.error(z.prettifyError(parsed.error));
+  process.exit(1);
+}
+
+const env = Object.freeze(parsed.data);
+
+export default env;
+```
+
+<Code children="src/configs/env/env.client.ts" />
+
+```ts
+import { z } from "zod";
+
+const clientSchema = z.object({
+  NEXT_PUBLIC_APP_URL: z.url()
+});
+
+const parsed = clientSchema.safeParse({
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
+});
+
+if (!parsed.success) {
+  throw new Error("❌ Invalid client env");
+}
+
+const clientEnv = parsed.data;
+
+export default clientEnv;
+```
+
+<Code children="src/configs/env/index.ts" />
+
+```ts
+export { default as env } from "./env.server";
+export { default as clientEnv } from "./env.client";
+```
+
+## Usage
+
+```ts
+import { env } from "@/configs/env";
+
+console.log(env.DATABASE_URL);
+console.log(env.JWT_ACCESS_SECRET);
+```
+
+```ts
+import { clientEnv } from "@/configs/env";
+
+console.log(clientEnv.NEXT_PUBLIC_APP_URL);
+```
+
+## Example .env file
+
+```bash
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=mongodb://localhost:27017/mydb
+CORS_ORIGIN=http://localhost:3000
+LOG_LEVEL=info
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+CRYPTO_SECRET=your_crypto_secret
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=user@example.com
+SMTP_PASS=password
+EMAIL_FROM=noreply@example.com
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+GOOGLE_CLIENT_ID=your_google_id
+GOOGLE_CLIENT_SECRET=your_google_secret
+GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
+GITHUB_CLIENT_ID=your_github_id
+GITHUB_CLIENT_SECRET=your_github_secret
+GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/github/callback
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
