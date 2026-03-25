@@ -104,7 +104,8 @@
       "type": "component",
       "slug": "http-status-codes",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {

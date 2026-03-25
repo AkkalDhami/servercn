@@ -58,6 +58,30 @@
           }
         },
         "nextjs": {
+          "env": [
+            "NODE_ENV",
+            "NEXT_PUBLIC_APP_URL",
+            "DATABASE_URL",
+            "CORS_ORIGIN",
+            "LOG_LEVEL",
+            "JWT_ACCESS_SECRET",
+            "JWT_REFRESH_SECRET",
+            "CRYPTO_SECRET",
+            "SMTP_HOST",
+            "SMTP_PORT",
+            "SMTP_USER",
+            "SMTP_PASS",
+            "EMAIL_FROM",
+            "CLOUDINARY_CLOUD_NAME",
+            "CLOUDINARY_API_KEY",
+            "CLOUDINARY_API_SECRET",
+            "GOOGLE_CLIENT_ID",
+            "GOOGLE_CLIENT_SECRET",
+            "GOOGLE_REDIRECT_URI",
+            "GITHUB_CLIENT_ID",
+            "GITHUB_CLIENT_SECRET",
+            "GITHUB_REDIRECT_URI"
+          ],
           "architectures": {
             "file-api": {
               "files": [
@@ -79,7 +103,7 @@
                 {
                   "type": "file",
                   "path": "src/configs/env/env.schema.ts",
-                  "content": "import { z } from \"zod\";\r\n\r\nexport const baseEnvSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/).transform(Number),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  CORS_ORIGIN: z.string(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\"),\r\n\r\n  JWT_ACCESS_SECRET: z.string().min(32),\r\n  JWT_REFRESH_SECRET: z.string().min(32),\r\n\r\n  CRYPTO_SECRET: z.string().min(32),\r\n\r\n  SMTP_HOST: z.string(),\r\n  SMTP_PORT: z.string().regex(/^\\d+$/).transform(Number),\r\n  SMTP_USER: z.string(),\r\n  SMTP_PASS: z.string(),\r\n  EMAIL_FROM: z.email(),\r\n\r\n  CLOUDINARY_CLOUD_NAME: z.string(),\r\n  CLOUDINARY_API_KEY: z.string(),\r\n  CLOUDINARY_API_SECRET: z.string(),\r\n\r\n  GOOGLE_CLIENT_ID: z.string(),\r\n  GOOGLE_CLIENT_SECRET: z.string(),\r\n  GOOGLE_REDIRECT_URI: z.url(),\r\n\r\n  GITHUB_CLIENT_ID: z.string(),\r\n  GITHUB_CLIENT_SECRET: z.string(),\r\n  GITHUB_REDIRECT_URI: z.url()\r\n});\r\n"
+                  "content": "import { z } from \"zod\";\r\n\r\nexport const baseEnvSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  CORS_ORIGIN: z.string(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\"),\r\n\r\n  JWT_ACCESS_SECRET: z.string().min(32),\r\n  JWT_REFRESH_SECRET: z.string().min(32),\r\n\r\n  CRYPTO_SECRET: z.string().min(32),\r\n\r\n  SMTP_HOST: z.string(),\r\n  SMTP_PORT: z.string().regex(/^\\d+$/).transform(Number),\r\n  SMTP_USER: z.string(),\r\n  SMTP_PASS: z.string(),\r\n  EMAIL_FROM: z.email(),\r\n\r\n  CLOUDINARY_CLOUD_NAME: z.string(),\r\n  CLOUDINARY_API_KEY: z.string(),\r\n  CLOUDINARY_API_SECRET: z.string(),\r\n\r\n  GOOGLE_CLIENT_ID: z.string(),\r\n  GOOGLE_CLIENT_SECRET: z.string(),\r\n  GOOGLE_REDIRECT_URI: z.url(),\r\n\r\n  GITHUB_CLIENT_ID: z.string(),\r\n  GITHUB_CLIENT_SECRET: z.string(),\r\n  GITHUB_REDIRECT_URI: z.url()\r\n});\r\n"
                 },
                 {
                   "type": "file",
