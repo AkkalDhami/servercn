@@ -125,19 +125,17 @@ export function Terminal({
     // Use requestAnimationFrame to defer state update
     requestAnimationFrame(updateLines);
 
-  requestAnimationFrame(() => {
-    if (currentOutputs.length > 0) {
-      setOutputIdx(0);
-       
-      setPhase("outputting");
-    } else if (isLastCommand) {
-       
-      setPhase("done");
-    } else {
-       
-      setPhase("pausing");
-    }
-  });
+    requestAnimationFrame(() => {
+      if (currentOutputs.length > 0) {
+        setOutputIdx(0);
+
+        setPhase("outputting");
+      } else if (isLastCommand) {
+        setPhase("done");
+      } else {
+        setPhase("pausing");
+      }
+    });
   }, [phase, currentCommand, currentOutputs.length, isLastCommand]);
 
   useEffect(() => {

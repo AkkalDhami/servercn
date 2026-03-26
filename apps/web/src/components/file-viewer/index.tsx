@@ -18,6 +18,7 @@ import { ItemType } from "@/@types/registry";
 import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
 import { Route } from "next";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 type Props = {
   slug: string;
   runtime?: string;
@@ -41,7 +42,7 @@ export default function ComponentFileViewer({
   database,
   variant,
   template,
-  orm
+  orm,
 }: Props) {
   const [tree, setTree] = React.useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = React.useState<string>();
@@ -50,7 +51,7 @@ export default function ComponentFileViewer({
   >(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [copied, setCopied] = React.useState(false);
+  const { copied, copy } = useCopyToClipboard();
   const { theme } = useCodeTheme();
   const { bg } = useCodeThemeBg();
   const [html, setHtml] = React.useState("");
@@ -117,16 +118,12 @@ export default function ComponentFileViewer({
     if (!selectedFile?.content) return;
 
     try {
-      await navigator.clipboard.writeText(selectedFile.content);
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      await copy(selectedFile.content);
     } catch (error) {
       console.error("Failed to copy file content:", error);
     }
   }
+
 
   if (loading) return <div className="p-4">Loading files...</div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
@@ -156,6 +153,7 @@ export default function ComponentFileViewer({
           className="hover:bg-muted hover:text-primary text-muted-foreground absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md p-1.5 transition-all">
           <Maximize2Icon className="h-5 w-5" />
         </Link>
+
         <ResizablePanel defaultSize="35%" className="thin-scrollbar">
           <ScrollArea
             className={cn("p-3", from === "structure" ? "h-160" : "h-150")}>
@@ -199,7 +197,7 @@ export default function ComponentFileViewer({
               )}
               style={{ backgroundColor: bg }}>
               <div
-                className="relative [&_pre]:h-full [&_pre]:p-3.5"
+                className="relative [&_pre]:h-full [&_pre]:p-3.5 [&_pre]:pb-2"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </div>

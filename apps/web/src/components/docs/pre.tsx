@@ -4,6 +4,7 @@ import * as React from "react";
 import CopyButton from "./copy-button";
 import { cn } from "@/lib/utils";
 import { useCodeThemeBg } from "@/store/use-code-theme";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 export function Pre({
   className,
@@ -11,19 +12,16 @@ export function Pre({
   ...props
 }: React.HTMLAttributes<HTMLPreElement>) {
   const ref = React.useRef<HTMLPreElement>(null);
-  const [copied, setCopied] = React.useState(false);
+  const { copied, copy } = useCopyToClipboard();
 
   const { bg } = useCodeThemeBg();
-  async function copy() {
+  async function handleCopy() {
     if (!ref.current) return;
 
     const code = ref.current.querySelector("code")?.innerText;
     if (!code) return;
 
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-
-    setTimeout(() => setCopied(false), 2000);
+    await copy(code);
   }
 
   return (
@@ -37,7 +35,7 @@ export function Pre({
         }}>
         <CopyButton
           bg={bg}
-          handleCopy={copy}
+          handleCopy={handleCopy}
           copied={copied}
           className={cn(
             "absolute right-4 bottom-3 z-20 flex items-center justify-center transition-all"
