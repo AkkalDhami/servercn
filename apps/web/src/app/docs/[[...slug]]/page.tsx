@@ -270,9 +270,8 @@ export default async function DocsPage({
                       framework={currentFramework}
                     />
                     <ComponentFileViewer
-                      command={data?.command}
-                      from="docs"
                       slug={blueprintSlug ?? slug[slug.length - 1]}
+                      from="docs"
                       database={database}
                       orm={orm}
                       architecture={currentArch}
