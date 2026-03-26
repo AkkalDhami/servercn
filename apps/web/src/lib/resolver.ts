@@ -39,6 +39,7 @@ export const resolveRegistryItem = (
         orm: "drizzle"
       };
     case "hybrid-auth-pg":
+    case "hybrid-auth-postgresql":
       return {
         slug: "hybrid-auth",
         database: "postgresql",

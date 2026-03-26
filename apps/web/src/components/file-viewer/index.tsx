@@ -143,7 +143,7 @@ export default function ComponentFileViewer({
         }}>
         <Link
           href={
-            `/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}` as Route
+            `/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}${database ? `&database=${database}` : ""}${orm ? `&orm=${orm}` : ""}` as Route
           }
           target="_blank"
           style={{
