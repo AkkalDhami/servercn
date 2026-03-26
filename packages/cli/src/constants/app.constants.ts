@@ -30,5 +30,6 @@ export const RegistryTypeList = [
   "blueprint",
   "schema",
   "foundation",
-  "tooling"
+  "tooling",
+  "provider"
 ] as const;

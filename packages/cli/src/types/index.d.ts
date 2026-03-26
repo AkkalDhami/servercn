@@ -221,6 +221,7 @@ export interface RegistryTooling extends IRegistryCommon {
 export interface RegistryMap {
   component: RegistryComponent;
   foundation: RegistryFoundation;
+  provider: RegistryFoundation;
   schema: RegistrySchema;
   blueprint: RegistryBlueprint;
   tooling: RegistryTooling;

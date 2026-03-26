@@ -73,6 +73,11 @@ async function main() {
         } else if (["tooling", "tl"].includes(components[0])) {
           type = "tooling";
           items = components.slice(1);
+        } else if (["provider", "pr"].includes(components[0])) {
+          type = "provider";
+          items = components.slice(1);
+        } else {
+          items = components;
         }
 
         for (const item of items) {
