@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "pg-prisma",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "pg-prisma/mvc",
+            "feature": "pg-prisma/feature"
+          },
+          "dependencies": {
+            "runtime": ["@prisma/client@6"],
+            "dev": ["prisma@6"]
+          },
+          "env": ["DATABASE_URL"]
+        }
+      }
+    }
+  }
+}
