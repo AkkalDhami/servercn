@@ -1,13 +1,13 @@
 {
   "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
-  "slug": "mongoose",
+  "slug": "mongodb-mongoose",
   "runtimes": {
     "node": {
       "frameworks": {
         "express": {
           "templates": {
-            "mvc": "mongoose/mvc",
-            "feature": "mongoose/feature"
+            "mvc": "mongodb-mongoose/mvc",
+            "feature": "mongodb-mongoose/feature"
           },
           "dependencies": {
             "runtime": ["mongoose"],
@@ -22,7 +22,7 @@
           },
           "env": ["DATABASE_URL"],
           "templates": {
-            "file-api": "mongoose/nextjs/file-api"
+            "file-api": "mongodb-mongoose/nextjs/file-api"
           }
         }
       }
