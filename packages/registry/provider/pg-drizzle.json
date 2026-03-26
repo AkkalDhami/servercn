@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "pg-drizzle",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "pg-drizzle/mvc",
+            "feature": "pg-drizzle/feature"
+          },
+          "dependencies": {
+            "runtime": ["drizzle-orm", "pg"],
+            "dev": ["drizzle-kit", "@types/pg"]
+          },
+          "env": ["DATABASE_URL"]
+        }
+      }
+    }
+  }
+}

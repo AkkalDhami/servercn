@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "mysql-drizzle",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "mysql-drizzle/mvc",
+            "feature": "mysql-drizzle/feature"
+          },
+          "dependencies": {
+            "runtime": ["drizzle-orm", "mysql2"],
+            "dev": ["drizzle-kit"]
+          },
+          "env": ["DATABASE_URL"]
+        }
+      }
+    }
+  }
+}

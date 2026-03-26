@@ -86,7 +86,7 @@
                 {
                   "type": "file",
                   "path": "src/lib/jwt/jwt.errors.ts",
-                  "content": ""
+                  "content": "export class JwtError extends Error {\r\n  constructor(message: string) {\r\n    super(message);\r\n    this.name = \"JwtError\";\r\n  }\r\n}\r\n\r\nexport class JwtExpiredError extends JwtError {\r\n  constructor() {\r\n    super(\"Token expired\");\r\n  }\r\n}\r\n\r\nexport class JwtInvalidError extends JwtError {\r\n  constructor() {\r\n    super(\"Invalid token\");\r\n  }\r\n}\r\n"
                 },
                 {
                   "type": "file",
