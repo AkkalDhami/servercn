@@ -105,49 +105,49 @@ export default function Footer() {
               </AnimatedContainer>
             ))}
           </div>
+        </div>
 
+        <p className="screen-line-before mask-b-from-0.5 pt-6 text-center text-5xl font-bold tracking-widest text-neutral-300 uppercase sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl dark:text-neutral-700">
+          SERVERCN
+        </p>
 
-          <p className="screen-line-before mask-b-from-0.5 pt-6 text-center text-5xl font-bold tracking-widest text-neutral-300 uppercase sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl dark:text-neutral-700">
-            SERVERCN
+        <div className="text-muted-foreground screen-line-before relative flex items-center justify-between gap-2 px-4 pt-4 text-sm flex-wrap">
+          <p className="capitalize">
+            &copy; {new Date().getFullYear()} | {APP_NAME} | All rights
+            reserved.
           </p>
-
-          <div className="text-muted-foreground screen-line-before relative flex flex-col items-center justify-between gap-2 px-4 pt-4 text-sm md:flex-row">
-            <p className="capitalize">
-              &copy; {new Date().getFullYear()} | {APP_NAME} | All rights
-              reserved.
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              Built with <Weapon /> by
-              <Link
-                className="hover:text-foreground underline"
-                href={BASE_GITHUB_URL}
-                target="_blank">
-                Akkal Dhami
-              </Link>
-              and the{" "}
-              <Link
-                className="hover:text-foreground underline"
-                href={"/contributors"}
-                target="_blank">
-                Contributors
-              </Link>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                className="hover:text-foreground underline"
-                href={GITHUB_URL}
-                target="_blank">
-                Github
-              </Link>
-              <Link
-                className="hover:text-foreground underline"
-                href={DISCORD_URL}
-                target="_blank">
-                Discord
-              </Link>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            Built with <Weapon /> by
+            <Link
+              className="hover:text-foreground underline"
+              href={BASE_GITHUB_URL}
+              target="_blank">
+              Akkal Dhami
+            </Link>
+            and the{" "}
+            <Link
+              className="hover:text-foreground underline"
+              href={"/contributors"}
+              target="_blank">
+              Contributors
+            </Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              className="hover:text-foreground underline"
+              href={GITHUB_URL}
+              target="_blank">
+              Github
+            </Link>
+            <Link
+              className="hover:text-foreground underline"
+              href={DISCORD_URL}
+              target="_blank">
+              Discord
+            </Link>
           </div>
         </div>
+
       </div>
     </footer >
   );
