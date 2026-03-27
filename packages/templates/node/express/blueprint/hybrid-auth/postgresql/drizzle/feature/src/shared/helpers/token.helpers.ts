@@ -32,7 +32,12 @@ export function verifyHashedToken(token: string, hashedToken: string): boolean {
 }
 
 export function generateTokenAndHashedToken(id: string) {
-  const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
+  const cryptoSecret = process.env.CRYPTO_SECRET;
+
+  if (!cryptoSecret?.trim()) {
+    throw new Error("CRYPTO_SECRET is required to generate secure tokens");
+  }
+
   const token = crypto
     .createHmac("sha256", cryptoSecret)
     .update(String(id))
