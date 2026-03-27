@@ -43,5 +43,14 @@ export const contributingGuides: ContributingGuideType[] = [
     meta: {
       new: true
     }
-  }
+  },
+  {
+    title: "Provider",
+    description:
+      "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
+    docs: "/docs/contributing/provider",
+    meta: {
+      new: true
+    }
+  },
 ];

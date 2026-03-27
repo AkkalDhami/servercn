@@ -1,0 +1,280 @@
+---
+title: Contributing Providers | Servercn
+description: Step-by-step guide to contributing database providers to the Servercn registry.
+---
+
+# Servercn Provider Contributing Guide
+
+This guide explains how to contribute a Provider to Servercn.
+A Provider represents database connectivity and ORM setup for a runtime/framework pair (for example, MongoDB + Mongoose or PostgreSQL + Prisma).
+
+## What Is a Provider?
+
+A Provider in Servercn is:
+- A reusable database/ORM integration layer
+- Runtime + framework scoped
+- Architecture-aware (MVC and/or Feature)
+- Production-ready with env validation and connection/client setup
+
+Usually includes:
+- Environment config (<Code>env.ts</Code>)
+- Database client/connection config (<Code>db.ts</Code> or <Code>prisma.ts</Code>)
+- Optional logger setup
+- Optional ORM schema (for Prisma providers)
+
+Some servercn providers:
+- [MongoDB (Mongoose)](/docs/express/providers/mongodb-mongoose)
+- [MongoDB (Prisma)](/docs/express/providers/mongodb-prisma)
+- [MySQL (Drizzle)](/docs/express/providers/mysql-drizzle)
+- [MySQL (Prisma)](/docs/express/providers/mysql-prisma)
+- [PostgreSQL (Drizzle)](/docs/express/providers/pg-drizzle)
+- [PostgreSQL (Prisma)](/docs/express/providers/pg-prisma)
+
+<br />
+---
+
+## Step-by-Step Contribution Guide
+
+<Steps>
+<Step>
+Fork & Clone the Repository
+</Step>
+Fork the Servercn repository and clone it locally:
+[GitHub Link](https://github.com/AkkalDhami/servercn)
+
+```bash
+# Clone on your local machine
+git clone https://github.com/<your-username>/servercn.git
+
+# Navigate to project directory
+cd servercn
+
+# Create a new Branch
+git checkout -b feat/provider-name
+
+# Install dependencies
+npm install
+
+# Run workspaces
+npm run dev:app
+npm run dev:cli
+```
+
+<Step>
+Add Provider Registry
+</Step>
+Each provider must follow this registry structure:
+
+```bash
+packages/
+  registry/
+    provider/
+      provider-slug.json
+```
+
+Use this shape as a reference:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "my-provider",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "my-provider/mvc",
+            "feature": "my-provider/feature"
+          },
+          "dependencies": {
+            "runtime": ["@prisma/client@6"],
+            "dev": ["prisma@6"]
+          },
+          "env": ["DATABASE_URL"]
+        }
+      }
+    }
+  }
+}
+```
+
+##### I. $schema
+
+- Use the same schema URL currently used by provider registry files in this repository.
+- Keep it exactly aligned with existing provider entries to pass validation checks.
+
+##### II. slug
+
+- Unique identifier of the provider.
+- Must be kebab-case.
+- Used by CLI commands:
+
+<PackageManagerTabs command="npx servercn-cli add pr my-provider" />
+
+##### III. runtimes and frameworks
+
+- Declare only supported runtime/framework combinations.
+- Most current providers target <Code>node</Code> + <Code>express</Code>.
+- Add another framework only if templates are implemented for it.
+
+##### IV. templates
+
+Maps architecture types to template folders:
+
+```json
+{
+  "templates": {
+    "mvc": "my-provider/mvc",
+    "feature": "my-provider/feature"
+  }
+}
+```
+
+<LNote>
+- If you declare both <Code>mvc</Code> and <Code>feature</Code>, both folders must exist.
+- Folder paths are relative to:
+- <Code>packages/templates/node/express/provider/</Code>
+</LNote>
+
+##### V. dependencies
+
+Defines packages auto-installed when the provider is added.
+
+```json
+{
+  "dependencies": {
+    "runtime": ["your-runtime-dependency"],
+    "dev": ["your-dev-dependency"]
+  }
+}
+```
+
+<LNote>
+- Include only dependencies required by provider templates.
+- Keep versions consistent with existing providers when possible.
+</LNote>
+
+##### VI. env
+
+Defines required environment variables:
+
+```json
+{
+  "env": ["DATABASE_URL"]
+}
+```
+
+<LNote>
+- List only truly required variables.
+- Do not include secrets with hardcoded values.
+</LNote>
+
+<Step>Add Templates</Step>
+
+Create provider templates in:
+
+```bash
+packages/
+  templates/
+    node/
+      express/
+        provider/
+          provider-slug/
+            mvc/
+            feature/
+```
+
+Recommended conventions:
+- Keep architecture mapping consistent (<Code>mvc</Code> vs <Code>feature</Code>).
+- Include <Code>env.ts</Code> for validation (<Code>zod</Code>).
+- Use <Code>db.ts</Code> for Drizzle/Mongoose connection helpers.
+- Use <Code>prisma.ts</Code> + <Code>schema.prisma</Code> for Prisma providers.
+- Add logger only when needed and keep it consistent with existing providers.
+
+<Step>Test the Provider via CLI</Step>
+
+Before submitting:
+
+```bash
+npm run dev:cli
+```
+
+Then test provider installation locally:
+
+<PackageManagerTabs command="npx servercn-cli add pr provider-slug --local" />
+
+- <Code>--local</Code> uses local registry/templates for validation.
+
+Verify:
+<LNote>
+- No install/runtime errors
+- Files generated in correct architecture paths
+- Dependencies are installed correctly
+- Env variables expected by templates are present
+</LNote>
+
+<Step>Register in Web Registry</Step>
+
+Add your provider entry to:
+<Code>apps/web/src/data/registry.json</Code>
+
+```json
+{
+  "slug": "provider-slug",
+  "type": "provider",
+  "status": "stable",
+  "frameworks": ["express"],
+  "title": "Provider Title",
+  "description": "Provider short description",
+  "docs": "/docs/providers/provider-slug",
+  "meta": {
+    "new": true
+  }
+}
+```
+
+> This entry powers docs sidebar navigation and listing in the providers route.
+
+<Step>Write Provider Documentation</Step>
+
+Add docs at:
+<Code>apps/web/src/content/docs/express/providers/provider-slug.mdx</Code>
+
+Recommended sections:
+- Overview
+- Features
+- Installation command
+- File structure (MVC + Feature)
+- Core code snippets (<Code>env.ts</Code>, <Code>db.ts</Code>/<Code>prisma.ts</Code>)
+- Usage example
+- Example <Code>.env</Code>
+
+<Step>Commit Properly</Step>
+
+Use conventional commits:
+
+> feat(provider): add provider-slug provider
+
+Example:
+
+> feat(provider): add pg-prisma provider templates and docs
+
+<Step>Submit a Pull Request</Step>
+
+Your PR should include:
+<LNote>
+- Registry file in <Code>packages/registry/provider/</Code>
+- Matching templates in <Code>packages/templates/node/express/provider/</Code>
+- Web registry entry in <Code>apps/web/src/data/registry.json</Code>
+- Provider docs page in <Code>apps/web/src/content/docs/express/providers/</Code>
+- Local CLI testing confirmation
+</LNote>
+
+</Steps>
+
+## License
+
+By contributing a provider to Servercn, you agree that your contribution will be licensed under the MIT License.
+
+<Note text="Thank you for contributing to Servercn providers 🚀
+  Your work helps developers connect data layers faster and more reliably." />

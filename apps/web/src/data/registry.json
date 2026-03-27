@@ -59,6 +59,14 @@
       "status": "stable",
       "docs": "/docs/contributing/blueprint"
     },
+    {
+      "slug": "provider",
+      "title": "Provider",
+      "description": "Create and share complete project blueprints. Understand blueprint architecture and how to design scalable application templates.",
+      "type": "contributing",
+      "status": "stable",
+      "docs": "/docs/contributing/provider"
+    },
 
     {
       "slug": "foundation",
