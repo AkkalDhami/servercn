@@ -87,10 +87,9 @@ export const googleOAuth = AsyncHandler(
       email,
       isEmailVerified: data?.emails?.[0]?.verified === true,
       avatar:
-        data.profileUrl ||
-        (data.photos && data.photos.length > 0
+        data.photos && data.photos.length > 0
           ? data.photos[0]?.value
-          : undefined),
+          : undefined,
       ip: req.ip || "Unknown",
       userAgent: req.get("user-agent") || req.headers["user-agent"] || "Unknown"
     };

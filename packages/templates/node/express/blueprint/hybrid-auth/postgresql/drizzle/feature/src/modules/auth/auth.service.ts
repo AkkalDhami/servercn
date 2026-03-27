@@ -23,6 +23,7 @@ import {
   verifyRefreshToken
 } from "../../shared/utils/jwt";
 import {
+  createTokenLogFingerprint,
   generateHashedToken,
   generateOTP,
   generateSecureToken,
@@ -732,7 +733,13 @@ export class AuthService {
     });
 
     const deleteAccountUrl = `${env.CLIENT_URL}/account/delete?token=${token}`;
-    logger.warn(`Delete account token: ${token}`);
+    logger.warn(
+      {
+        userId,
+        tokenFingerprint: createTokenLogFingerprint(token)
+      },
+      "Delete account token generated"
+    );
     await sendEmail({
       email: user.email,
       subject: "Delete Account Request",

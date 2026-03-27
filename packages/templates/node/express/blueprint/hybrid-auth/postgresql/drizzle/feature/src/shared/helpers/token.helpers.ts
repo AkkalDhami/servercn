@@ -20,6 +20,13 @@ export function generateHashedToken(token: string): string {
   return crypto.createHash("sha256").update(String(token)).digest("hex");
 }
 
+export function createTokenLogFingerprint(
+  token: string,
+  length: number = 12
+): string {
+  return generateHashedToken(token).slice(0, length);
+}
+
 export function generateSecureToken(length: number = 32): string {
   return crypto.randomBytes(length).toString("hex");
 }

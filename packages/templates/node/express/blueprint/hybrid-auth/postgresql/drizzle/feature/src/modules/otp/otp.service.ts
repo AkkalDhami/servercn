@@ -93,7 +93,7 @@ export class OtpService {
     try {
       const newOtp = generateOTP(OTP_CODE_LENGTH);
 
-      logger.info(`OTP generated successfully: ${code ? code : newOtp.code}`);
+      logger.info({ email }, "OTP generated successfully");
 
       await sendEmail({
         email,
