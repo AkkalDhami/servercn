@@ -1,0 +1,126 @@
+---
+title: Mysql(Drizzle) | Provider
+description: Mysql provider with Drizzle ORM for Express applications.
+command: npx servercn-cli add provider mysql-drizzle
+---
+
+# Mysql(Drizzle) Provider
+
+This provider sets up MySQL connectivity with Drizzle ORM for Express projects, including environment validation, a database client, and a logger.
+
+## Features
+
+- Type-safe environment validation with Zod
+- Ready-to-use Drizzle client for MySQL
+- Pino logger configured for dev and production
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr mysql-drizzle" />
+
+## File Structure
+
+### MVC
+
+- <Code children="src/configs/env.ts" />
+- <Code children="src/configs/db.ts" />
+- <Code children="src/utils/logger.ts" />
+
+### Feature
+
+- <Code children="src/shared/configs/env.ts" />
+- <Code children="src/db/db.ts" />
+- <Code children="src/shared/utils/logger.ts" />
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+  DATABASE_URL: z.url(),
+  CORS_ORIGIN: z.url(),
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info")
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Database Client
+
+<Code children="src/configs/db.ts" />
+
+```ts
+import { drizzle } from "drizzle-orm/mysql2";
+import env from "./env";
+
+const db = drizzle(env.DATABASE_URL!, {
+  logger: env.NODE_ENV === "development"
+});
+
+export default db;
+```
+
+## Logger
+
+<Code children="src/utils/logger.ts" />
+
+```ts
+import pino from "pino";
+import env from "../configs/env";
+
+export const logger = pino({
+  level: env.LOG_LEVEL,
+  transport:
+    env.NODE_ENV !== "production"
+      ? {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "yyyy-mm-dd HH:MM:ss",
+            ignore: "pid,hostname"
+          }
+        }
+      : undefined
+});
+```
+
+## Usage
+
+```ts
+import db from "./configs/db";
+
+// Example insert call:
+// await db.insert(usersTable).values(user);
+```
+
+## Example .env
+
+```bash
+NODE_ENV=development
+PORT=8000
+DATABASE_URL=mysql://username:password@localhost:3306/mydb
+CORS_ORIGIN=http://localhost:3000
+LOG_LEVEL=info
+```
