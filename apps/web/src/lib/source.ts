@@ -11,7 +11,8 @@ export const FRAMEWORK_SECTIONS = [
   "blueprints",
   "components",
   "foundations",
-  "schemas"
+  "schemas",
+  "providers",
 ];
 
 export function injectFramework(

@@ -19,6 +19,7 @@ function getLanguageFromFileName(fileName: string): string {
   if (fileName.startsWith(".env")) return "bash";
   if (fileName.startsWith("pre-commit")) return "bash";
   if (fileName.endsWith(".mjs")) return "ts";
+  if (fileName.endsWith(".prisma")) return "ts";
   if (fileName.endsWith("rc")) return "json";
   if (fileName.endsWith(".css")) return "js";
   if (fileName.endsWith(".ejs")) return "js";
@@ -446,6 +447,7 @@ export async function getRegistryFileTree(
     }
 
     case "foundation":
+    case "provider":
       const result = extractFoundationFiles(
         data as FoundationRegistry,
         runtime,

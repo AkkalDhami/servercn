@@ -25,6 +25,10 @@ export const siteConfig = {
       href: "/blueprints"
     },
     {
+      label: "Providers",
+      href: "/providers"
+    },
+    {
       label: "Schemas",
       href: "/schemas"
     },
