@@ -55,7 +55,7 @@ export default function Footer() {
   return (
     <footer
       className={cn(
-        "bg-background relative z-10 w-full max-w-svw overflow-x-hidden pt-0 pb-8"
+        "bg-background relative z-10 w-full max-w-svw overflow-x-hidden pt-0 pb-12"
       )}>
       <div
         className={cn(
