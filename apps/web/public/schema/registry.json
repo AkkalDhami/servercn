@@ -68,7 +68,8 @@
             "blueprint",
             "foundation",
             "schema",
-            "tooling"
+            "tooling",
+            "provider"
           ]
         },
         "frameworks": {
