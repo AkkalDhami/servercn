@@ -4,7 +4,7 @@ import { users } from "../../drizzle/schemas/user.schema";
 import { eq } from "drizzle-orm";
 
 type OAuthProfile = {
-  provider: "local" | "google" | "github";
+  provider: "local" | "google" | "github" | "facebook";
   providerId: string;
   name: string;
   email: string | undefined;

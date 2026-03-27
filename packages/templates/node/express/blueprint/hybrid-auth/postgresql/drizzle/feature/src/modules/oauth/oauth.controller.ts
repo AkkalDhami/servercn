@@ -19,7 +19,7 @@ export const githubOAuth = AsyncHandler(
     }
 
     const user = {
-      provider: data?.provider as "local" | "google" | "github",
+      provider: data?.provider as "local" | "google" | "github" | "facebook",
       providerId: data.id,
       name: data.displayName,
       email: data?.emails && data?.emails[0]?.value,
@@ -66,7 +66,7 @@ export const googleOAuth = AsyncHandler(
     }
 
     const userInfo = {
-      provider: data?.provider as "local" | "google" | "github",
+      provider: data?.provider as "local" | "google" | "github" | "facebook",
       providerId: data.id,
       name: data.displayName,
       email: data?.emails && data?.emails[0]?.value,
@@ -112,7 +112,7 @@ export const facebookOAuth = AsyncHandler(
     }
 
     const userInfo = {
-      provider: data?.provider as "local" | "google" | "github",
+      provider: data?.provider as "local" | "google" | "github" | "facebook",
       providerId: data.id,
       name: data.displayName,
       email: data?.emails && data?.emails[0]?.value,

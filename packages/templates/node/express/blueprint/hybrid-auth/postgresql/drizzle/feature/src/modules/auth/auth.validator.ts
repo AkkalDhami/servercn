@@ -86,7 +86,7 @@ export const UpdateProfileSchema = z.object({
 export const GoogleSigninSchema = z.object({
   name: nameSchema,
   email: emailSchema,
-  provider: z.enum(["google", "github"]).default("google"),
+  provider: z.enum(["google", "github", "facebook"]).default("google"),
   providerId: z.string({ error: "Provider id must be a string" }).min(1, {
     message: "Provider id is required"
   }),

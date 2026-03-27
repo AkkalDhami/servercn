@@ -20,7 +20,7 @@ export const users = pgTable("users", {
   lockUntil: timestamp("lock_until"),
   avatar: json("avatar"), // { public_id: string, url: string, size: number }
   
-  provider: text("provider", { enum: ["local", "google", "github"] }).default("local").notNull(),
+  provider: text("provider", { enum: ["local", "google", "github", "facebook"] }).default("local").notNull(),
   providerId: text("provider_id"),
   
   isDeleted: boolean("is_deleted").default(false).notNull(),

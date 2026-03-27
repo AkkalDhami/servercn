@@ -17,7 +17,7 @@ export interface IUser {
     publicId: string;
     size: number;
   };
-  provider: "local" | "google" | "github";
+  provider: "local" | "google" | "github" | "facebook";
   providerId?: string;
   isDeleted: boolean;
   deletedAt?: Date;
