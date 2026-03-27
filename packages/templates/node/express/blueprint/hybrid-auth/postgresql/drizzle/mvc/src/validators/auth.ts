@@ -13,7 +13,6 @@ export const nameSchema = z
 
 export const passwordSchema = z
   .string({ error: "Password must be a string" })
-  .trim()
   .min(6, {
     message: "Password must be at least 6 characters long"
   })
@@ -33,7 +32,7 @@ export const roleSchema = z
 
 export const SigninSchema = z.object({
   email: emailSchema,
-  password: z.string({ error: "Password must be a string" }).trim().min(1, {
+  password: z.string({ error: "Password must be a string" }).min(1, {
     message: "Password is required"
   })
 });
