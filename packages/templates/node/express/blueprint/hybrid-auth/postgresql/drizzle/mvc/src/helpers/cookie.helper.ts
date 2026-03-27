@@ -43,12 +43,19 @@ export function setAuthCookies(
 
 export function clearAuthCookies(res: Response) {
   clearCookie(res, "accessToken");
-  clearCookie(res, "refreshToken");
+  clearCookie(res, "refreshToken", "/api/v1/auth/refresh-token");
   clearCookie(res, "sid");
 }
 
-export function clearCookie(res: Response, cookie: string = "sid") {
-  res.clearCookie(cookie, COOKIE_OPTIONS);
+export function clearCookie(
+  res: Response,
+  cookie: string = "sid",
+  path: string = "/"
+) {
+  res.clearCookie(cookie, {
+    ...COOKIE_OPTIONS,
+    path
+  });
 }
 
 type Cookie = {

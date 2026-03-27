@@ -146,11 +146,6 @@ export const updateProfile = AsyncHandler(
     }
 
     const avatar = user.avatar as AvatarData | null;
-
-    if (req?.file && avatar?.public_id) {
-      await deleteFileFromCloudinary([avatar.public_id]);
-    }
-
     let updatedAvatar: AvatarData | null = avatar;
 
     if (req?.file) {
@@ -171,6 +166,13 @@ export const updateProfile = AsyncHandler(
 
     if (Object.keys(updateData).length > 0) {
       await db.update(users).set(updateData).where(eq(users.id, user.id));
+    }
+
+    if (
+      avatar?.public_id &&
+      avatar.public_id !== updatedAvatar?.public_id
+    ) {
+      await deleteFileFromCloudinary([avatar.public_id]);
     }
 
     const updatedUser = await AuthService.getUserProfile(user.id);
@@ -204,7 +206,6 @@ export const refreshToken = AsyncHandler(
     const newAccessToken = token.accessToken;
     const newRefreshToken = token.refreshToken;
     setAuthCookies(res, newAccessToken, newRefreshToken, token.sessionId);
-    clearCookie(res, "refreshToken");
 
     return ApiResponse.Success(res, "Tokens refreshed successfully!");
   }

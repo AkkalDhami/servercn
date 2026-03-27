@@ -74,12 +74,6 @@ export class AuthService {
 
       const redisKey = `user:${email}:${hashCode}`;
       const indexKey = `user:pending:${email}`;
-      await redisClient.set(indexKey, hashCode, {
-        expiration: {
-          type: "PX",
-          value: OTP_EXPIRES_IN
-        }
-      });
       const userData = JSON.stringify({
         name,
         email,
@@ -97,6 +91,13 @@ export class AuthService {
       });
 
       await redisClient.set(redisKey, userData, {
+        expiration: {
+          type: "PX",
+          value: OTP_EXPIRES_IN
+        }
+      });
+
+      await redisClient.set(indexKey, hashCode, {
         expiration: {
           type: "PX",
           value: OTP_EXPIRES_IN
@@ -319,116 +320,125 @@ export class AuthService {
     const refreshTokenHash = generateHashedToken(refreshToken);
 
     const refreshTokenKey = `refreshToken:${refreshTokenHash}`;
+    const sessionKey = `session:${decodedRefresh.sessionId}`;
 
-    const storedToken = await redisClient.get(refreshTokenKey);
-    if (!storedToken) {
-      throw ApiError.unauthorized("Invalid refresh token.");
-    }
+    await redisClient.watch(refreshTokenKey, sessionKey);
 
-    const { userId, tokenHash, expiresAt } = JSON.parse(
-      storedToken
-    ) as RefreshTokenData;
+    try {
+      const [storedToken, session] = await Promise.all([
+        redisClient.get(refreshTokenKey),
+        redisClient.get(sessionKey)
+      ]);
 
-    if (userId !== decodedRefresh._id) {
-      throw ApiError.unauthorized("Invalid refresh token.");
-    }
-
-    if (new Date(expiresAt) < new Date()) {
-      throw ApiError.unauthorized("Refresh token expired.");
-    }
-
-    const session = await redisClient.get(
-      `session:${decodedRefresh.sessionId}`
-    );
-
-    if (!session) {
-      throw ApiError.unauthorized("Session not found.");
-    }
-
-    const storedSessionData = JSON.parse(session) as SessionData;
-
-    if (
-      decodedRefresh.sessionId !== storedSessionData.sessionId ||
-      decodedRefresh._id !== storedSessionData.userId
-    ) {
-      throw ApiError.unauthorized("Token-session mismatch");
-    }
-
-    if (accessToken) {
-      try {
-        const decodedAccess = verifyAccessToken(accessToken);
-        if (decodedAccess._id !== decodedRefresh._id) {
-          throw ApiError.unauthorized("Token mismatch.");
-        }
-      } catch (e) {
-          // Access token might be expired, which is normal for a refresh flow
+      if (!storedToken) {
+        throw ApiError.unauthorized("Invalid refresh token.");
       }
-    }
 
-    const user = await db.query.users.findFirst({ where: eq(users.id, decodedRefresh._id) });
-    if (!user) {
-      throw ApiError.unauthorized("User not found.");
-    }
+      const { userId, tokenHash, expiresAt } = JSON.parse(
+        storedToken
+      ) as RefreshTokenData;
 
-    const newAccessToken = generateAccessToken({
-      _id: user.id,
-      role: user.role as "user" | "admin",
-      sessionId: storedSessionData.sessionId
-    });
+      if (
+        userId !== decodedRefresh._id ||
+        tokenHash !== refreshTokenHash
+      ) {
+        throw ApiError.unauthorized("Invalid refresh token.");
+      }
 
-    const newRefreshToken = generateRefreshToken({
-      _id: user.id,
-      sessionId: storedSessionData.sessionId
-    });
-    const newRefreshTokenHash = generateHashedToken(newRefreshToken);
+      if (new Date(expiresAt) < new Date()) {
+        throw ApiError.unauthorized("Refresh token expired.");
+      }
 
-    //? Rotate token
-    await Promise.all([
-      redisClient.del(`refreshToken:${tokenHash}`),
-      redisClient.del(`session:${storedSessionData.sessionId}`)
-    ]);
+      if (!session) {
+        throw ApiError.unauthorized("Session not found.");
+      }
 
-    const refreshTokenData: RefreshTokenData = {
-      userId: user.id,
-      tokenHash: newRefreshTokenHash,
-      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
-    };
-    const sessionData: SessionData = {
-      userId: user.id,
-      sessionId: storedSessionData.sessionId,
-      refreshTokenHash: newRefreshTokenHash,
-      userAgent: storedSessionData.userAgent,
-      ip: storedSessionData.ip,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + SESSION_EXPIRY)
-    };
+      const storedSessionData = JSON.parse(session) as SessionData;
 
-    const newRefreshTokenKey = `refreshToken:${newRefreshTokenHash}`;
-    const newSessionKey = `session:${storedSessionData.sessionId}`;
+      if (
+        decodedRefresh.sessionId !== storedSessionData.sessionId ||
+        decodedRefresh._id !== storedSessionData.userId ||
+        storedSessionData.refreshTokenHash !== refreshTokenHash
+      ) {
+        throw ApiError.unauthorized("Token-session mismatch");
+      }
 
-    await Promise.all([
-      redisClient.set(newRefreshTokenKey, JSON.stringify(refreshTokenData), {
+      if (accessToken) {
+        try {
+          const decodedAccess = verifyAccessToken(accessToken);
+          if (decodedAccess._id !== decodedRefresh._id) {
+            throw ApiError.unauthorized("Token mismatch.");
+          }
+        } catch (e) {
+            // Access token might be expired, which is normal for a refresh flow
+        }
+      }
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, decodedRefresh._id)
+      });
+      if (!user) {
+        throw ApiError.unauthorized("User not found.");
+      }
+
+      const newAccessToken = generateAccessToken({
+        _id: user.id,
+        role: user.role as "user" | "admin",
+        sessionId: storedSessionData.sessionId
+      });
+
+      const newRefreshToken = generateRefreshToken({
+        _id: user.id,
+        sessionId: storedSessionData.sessionId
+      });
+      const newRefreshTokenHash = generateHashedToken(newRefreshToken);
+
+      const refreshTokenData: RefreshTokenData = {
+        userId: user.id,
+        tokenHash: newRefreshTokenHash,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
+      };
+      const sessionData: SessionData = {
+        userId: user.id,
+        sessionId: storedSessionData.sessionId,
+        refreshTokenHash: newRefreshTokenHash,
+        userAgent: storedSessionData.userAgent,
+        ip: storedSessionData.ip,
+        createdAt: storedSessionData.createdAt,
+        expiresAt: new Date(Date.now() + SESSION_EXPIRY)
+      };
+
+      const newRefreshTokenKey = `refreshToken:${newRefreshTokenHash}`;
+      const transaction = redisClient.multi();
+
+      transaction.del(`refreshToken:${tokenHash}`);
+      transaction.set(newRefreshTokenKey, JSON.stringify(refreshTokenData), {
         expiration: {
           type: "PX",
           value: REFRESH_TOKEN_EXPIRY
         }
-      }),
-      redisClient.set(newSessionKey, JSON.stringify(sessionData), {
+      });
+      transaction.set(sessionKey, JSON.stringify(sessionData), {
         expiration: {
           type: "PX",
           value: SESSION_EXPIRY
         }
-      })
-    ]);
+      });
 
-    //? delete old refresh token
-    await redisClient.del(refreshTokenKey);
+      const transactionResult = await transaction.exec();
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-      sessionId: storedSessionData.sessionId
-    };
+      if (!transactionResult) {
+        throw ApiError.unauthorized("Refresh token already rotated.");
+      }
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        sessionId: storedSessionData.sessionId
+      };
+    } finally {
+      await redisClient.unwatch();
+    }
   }
 
   static async logoutUser(userId: string, sessionId: string) {
@@ -577,11 +587,11 @@ export class AuthService {
     });
 
     if (!user) {
-      return next(ApiError.unauthorized("Unauthorized access"));
+      throw ApiError.unauthorized("Unauthorized access");
     }
 
     if (user.lockUntil && new Date(user.lockUntil) > new Date()) {
-      return next(
+      throw (
         ApiError.forbidden(
           `Your account has been locked. Please try again after ${
             getRemainingTime(user.lockUntil).minutes
@@ -591,7 +601,7 @@ export class AuthService {
     }
 
     if (user.failedLoginAttempts >= LOGIN_MAX_ATTEMPTS && user.lockUntil) {
-      return next(
+      throw (
         ApiError.forbidden(
           `You have exceeded the maximum number of login attempts. Please try again after ${
             getRemainingTime(user.lockUntil).minutes
@@ -601,13 +611,13 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      return next(ApiError.unauthorized("Please verify your email first."));
+      throw ApiError.unauthorized("Please verify your email first.");
     }
 
     const redisKey = `reset_password:status:${email}`;
     const status = await redisClient.get(redisKey);
     if (status !== "pending") {
-      return next(
+      throw (
         ApiError.unauthorized(
           "Please request a password reset before attempting to set a new password."
         )
@@ -622,7 +632,7 @@ export class AuthService {
     );
 
     if (isOldPassword) {
-      return next(ApiError.badRequest("New password should be different!"));
+      throw ApiError.badRequest("New password should be different!");
     }
 
     const hashedPassword = await hashPassword(newPassword);
@@ -653,11 +663,11 @@ export class AuthService {
         where: eq(users.id, userId)
     });
     if (!user) {
-      return next(ApiError.unauthorized("Unauthorized access"));
+      throw ApiError.unauthorized("Unauthorized access");
     }
 
     if (!user.isEmailVerified) {
-      return next(ApiError.unauthorized("Please verify your email first."));
+      throw ApiError.unauthorized("Please verify your email first.");
     }
 
     const isOldPassword = await verifyPassword(
@@ -666,11 +676,11 @@ export class AuthService {
     );
 
     if (!isOldPassword) {
-      return next(ApiError.unauthorized("Invalid credentials"));
+      throw ApiError.unauthorized("Invalid credentials");
     }
 
     if (newPassword === oldPassword) {
-      return next(ApiError.badRequest("New password should be different!"));
+      throw ApiError.badRequest("New password should be different!");
     }
 
     const hashedPassword = await hashPassword(newPassword);
@@ -726,7 +736,7 @@ export class AuthService {
     });
 
     const deleteAccountUrl = `${env.CLIENT_URL}/account/delete?token=${token}`;
-    logger.warn(`Delete account token: ${token}`);
+    logger.info({ userId }, "Delete account email queued");
     await sendEmail({
       email: user.email,
       subject: "Delete Account Request",
