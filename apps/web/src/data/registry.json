@@ -646,6 +646,79 @@
           }
         ]
       }
+    },
+    {
+      "slug": "mongodb-mongoose",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "MongoDB (Mongoose)",
+      "description": "MongoDB provider with Mongoose ORM for Express applications.",
+      "docs": "/docs/providers/mongodb-mongoose",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "mongodb-prisma",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "MongoDB (Prisma)",
+      "description": "MongoDB provider with Prisma ORM for Express applications.",
+      "docs": "/docs/providers/mongodb-prisma",
+      "meta": {
+        "new": true
+      }
+    },
+
+    {
+      "slug": "mysql-prisma",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "MySQL (Prisma)",
+      "description": "MySQL provider with Prisma ORM for Express applications.",
+      "docs": "/docs/providers/mysql-prisma",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "mysql-drizzle",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "MySQL (Drizzle)",
+      "description": "MySQL provider with Drizzle ORM for Express applications.",
+      "docs": "/docs/providers/mysql-drizzle",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "pg-drizzle",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "PostgreSQL (Drizzle)",
+      "description": "PostgreSQL provider with Drizzle ORM for Express applications.",
+      "docs": "/docs/providers/pg-drizzle",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "pg-prisma",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "PostgreSQL (Prisma)",
+      "description": "PostgreSQL provider with Prisma ORM for Express applications.",
+      "docs": "/docs/providers/pg-prisma",
+      "meta": {
+        "new": true
+      }
     }
   ]
 }
