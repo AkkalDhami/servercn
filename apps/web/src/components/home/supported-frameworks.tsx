@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Route } from "next";
 import { GITHUB_URL } from "@/lib/constants";
+import { FrameworkType } from "@/@types/registry";
 
 interface Framework {
   name: string;
@@ -27,6 +28,7 @@ interface FrameworkStats {
   blueprints: number;
   foundations: number;
   schemas: number;
+  providers: number;
 }
 
 const FRAMEWORKS: Framework[] = [
@@ -59,7 +61,7 @@ const FRAMEWORKS: Framework[] = [
 ];
 
 // Calculate stats for a given framework
-function calculateFrameworkStats(frameworkName: string[]): FrameworkStats {
+export function calculateFrameworkStats(frameworkName: FrameworkType[]): FrameworkStats {
   const items = registryData.items.filter(
     item =>
       item.frameworks && frameworkName.some(fw => item.frameworks?.includes(fw))
@@ -77,7 +79,10 @@ function calculateFrameworkStats(frameworkName: string[]): FrameworkStats {
     ).length,
     schemas: items.filter(
       item => item.type === "schema" && item.status === "stable"
-    ).length
+    ).length,
+    providers: items.filter(
+      item => item.type === "provider" && item.status === "stable"
+    ).length,
   };
 }
 
@@ -98,7 +103,7 @@ export default function SupportedFrameworks() {
             const Icon = framework.icon;
             const isAvailable = framework.status === "available";
             const stats = framework.frameworks
-              ? calculateFrameworkStats(framework.frameworks)
+              ? calculateFrameworkStats(framework.frameworks as FrameworkType[])
               : null;
 
             return (
@@ -132,7 +137,9 @@ export default function SupportedFrameworks() {
                     {stats.components > 0 &&
                       stats.blueprints > 0 &&
                       stats.foundations > 0 &&
-                      stats.schemas > 0 && (
+                      stats.schemas > 0 &&
+                      stats.providers > 0 &&
+                      (
                         <div className="mt-2 grid grid-cols-2 gap-2">
                           <p className="text-muted-foreground text-sm">
                             <span className="text-foreground font-bold">
@@ -145,6 +152,12 @@ export default function SupportedFrameworks() {
                               {stats.blueprints}+{" "}
                             </span>
                             Blueprints
+                          </p>
+                          <p className="text-muted-foreground text-sm">
+                            <span className="text-foreground font-bold">
+                              {stats.providers}+{" "}
+                            </span>
+                            Providers
                           </p>
                           <p className="text-muted-foreground text-sm">
                             <span className="text-foreground font-bold">
