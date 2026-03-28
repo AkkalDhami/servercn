@@ -1,0 +1,65 @@
+{
+  "slug": "cloudinary-storage",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "dependencies": {
+            "runtime": [
+              "cloudinary",
+              "multer"
+            ],
+            "dev": [
+              "@types/multer"
+            ]
+          },
+          "env": [
+            "CLOUDINARY_CLOUD_NAME",
+            "CLOUDINARY_API_KEY",
+            "CLOUDINARY_API_SECRET"
+          ],
+          "architectures": {
+            "mvc": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/middlewares/upload-file.ts",
+                  "content": "import multer from \"multer\";\r\n\r\nexport const ALLOWED_FILE_TYPES = [\r\n  \"image/jpeg\",\r\n  \"image/png\",\r\n  \"image/webp\",\r\n  \"video/mp4\",\r\n  \"video/mpeg\",\r\n  \"video/quicktime\",\r\n  \"application/pdf\"\r\n];\r\n\r\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\r\n\r\nconst storage = multer.memoryStorage();\r\n\r\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\r\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\r\n    return cb(null, false);\r\n  }\r\n  cb(null, true);\r\n};\r\n\r\nconst upload = multer({\r\n  storage,\r\n  limits: { fileSize: MAX_FILE_SIZE },\r\n  fileFilter\r\n});\r\n\r\nexport default upload;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  CLOUDINARY_CLOUD_NAME: z.string(),\r\n  CLOUDINARY_API_KEY: z.string(),\r\n  CLOUDINARY_API_SECRET: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/cloudinary.ts",
+                  "content": "import { v2 as cloudinary } from \"cloudinary\";\r\nimport env from \"./env.ts\";\r\n\r\ncloudinary.config({\r\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\r\n  api_key: env.CLOUDINARY_API_KEY,\r\n  api_secret: env.CLOUDINARY_API_SECRET\r\n});\r\n\r\nexport default cloudinary;\r\n\r\n/*\r\n? USAGE:\r\n* src/services/cloudinary.service.ts or src/utils/cloudinary.ts\r\n\r\nimport { DeleteApiResponse } from \"cloudinary\";\r\nimport cloudinary from \"../configs/cloudinary\";\r\n\r\nexport interface UploadOptions {\r\n    folder: string;\r\n    resource_type?: \"image\" | \"video\" | \"raw\" | \"auto\";\r\n}\r\n\r\nexport interface CloudinaryUploadResult {\r\n    url: string;\r\n    public_id: string;\r\n    size: number;\r\n}\r\n\r\nexport const uploadToCloudinary = (\r\n    buffer: Buffer,\r\n    options: UploadOptions\r\n): Promise<CloudinaryUploadResult> => {\r\n    return new Promise((resolve, reject) => {\r\n        const stream = cloudinary.uploader.upload_stream(\r\n            {\r\n                folder: options.folder || \"uploads\",\r\n                resource_type: options.resource_type || \"auto\"\r\n            },\r\n            (error, result) => {\r\n                if (error || !result) {\r\n                    return reject(error);\r\n                }\r\n                resolve({\r\n                    url: result.secure_url,\r\n                    public_id: result.public_id,\r\n                    size: result.bytes\r\n                });\r\n            }\r\n        );\r\n\r\n        stream.end(buffer);\r\n    });\r\n};\r\n\r\nexport const deleteFileFromCloudinary = (\r\n    publicIds: string[]\r\n): Promise<DeleteApiResponse> => {\r\n    return new Promise((resolve, reject) => {\r\n        cloudinary.api.delete_resources(publicIds, (error, result) => {\r\n            if (error || !result) {\r\n                return reject(error);\r\n            }\r\n            resolve(result);\r\n        });\r\n    });\r\n};\r\n\r\n*/\r\n"
+                }
+              ]
+            },
+            "feature": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/upload-file.ts",
+                  "content": "import multer from \"multer\";\r\n\r\nexport const ALLOWED_FILE_TYPES = [\r\n  \"image/jpeg\",\r\n  \"image/png\",\r\n  \"image/webp\",\r\n  \"video/mp4\",\r\n  \"video/mpeg\",\r\n  \"video/quicktime\",\r\n  \"application/pdf\"\r\n];\r\n\r\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\r\n\r\nconst storage = multer.memoryStorage();\r\n\r\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\r\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\r\n    return cb(null, false);\r\n  }\r\n  cb(null, true);\r\n};\r\n\r\nconst upload = multer({\r\n  storage,\r\n  limits: { fileSize: MAX_FILE_SIZE },\r\n  fileFilter\r\n});\r\n\r\nexport default upload;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  CLOUDINARY_CLOUD_NAME: z.string(),\r\n  CLOUDINARY_API_KEY: z.string(),\r\n  CLOUDINARY_API_SECRET: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/cloudinary.ts",
+                  "content": "import { v2 as cloudinary } from \"cloudinary\";\r\nimport env from \"./env.ts\";\r\n\r\ncloudinary.config({\r\n  cloud_name: env.CLOUDINARY_CLOUD_NAME,\r\n  api_key: env.CLOUDINARY_API_KEY,\r\n  api_secret: env.CLOUDINARY_API_SECRET\r\n});\r\n\r\nexport default cloudinary;\r\n\r\n/*\r\n? USAGE:\r\n* src/services/cloudinary.service.ts or src/utils/cloudinary.ts\r\n\r\nimport { DeleteApiResponse } from \"cloudinary\";\r\nimport cloudinary from \"../configs/cloudinary\";\r\n\r\nexport interface UploadOptions {\r\n    folder: string;\r\n    resource_type?: \"image\" | \"video\" | \"raw\" | \"auto\";\r\n}\r\n\r\nexport interface CloudinaryUploadResult {\r\n    url: string;\r\n    public_id: string;\r\n    size: number;\r\n}\r\n\r\nexport const uploadToCloudinary = (\r\n    buffer: Buffer,\r\n    options: UploadOptions\r\n): Promise<CloudinaryUploadResult> => {\r\n    return new Promise((resolve, reject) => {\r\n        const stream = cloudinary.uploader.upload_stream(\r\n            {\r\n                folder: options.folder || \"uploads\",\r\n                resource_type: options.resource_type || \"auto\"\r\n            },\r\n            (error, result) => {\r\n                if (error || !result) {\r\n                    return reject(error);\r\n                }\r\n                resolve({\r\n                    url: result.secure_url,\r\n                    public_id: result.public_id,\r\n                    size: result.bytes\r\n                });\r\n            }\r\n        );\r\n\r\n        stream.end(buffer);\r\n    });\r\n};\r\n\r\nexport const deleteFileFromCloudinary = (\r\n    publicIds: string[]\r\n): Promise<DeleteApiResponse> => {\r\n    return new Promise((resolve, reject) => {\r\n        cloudinary.api.delete_resources(publicIds, (error, result) => {\r\n            if (error || !result) {\r\n                return reject(error);\r\n            }\r\n            resolve(result);\r\n        });\r\n    });\r\n};\r\n\r\n*/\r\n"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

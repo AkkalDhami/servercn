@@ -304,6 +304,20 @@
     },
     {
       "type": "provider",
+      "slug": "resend-mail",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "provider",
+      "slug": "redis",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "provider",
       "slug": "pg-prisma",
       "frameworks": [
         "express"
@@ -312,6 +326,13 @@
     {
       "type": "provider",
       "slug": "pg-drizzle",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "provider",
+      "slug": "nodemailer-smtp",
       "frameworks": [
         "express"
       ]
@@ -340,6 +361,21 @@
     {
       "type": "provider",
       "slug": "mongodb-mongoose",
+      "frameworks": [
+        "express",
+        "nextjs"
+      ]
+    },
+    {
+      "type": "provider",
+      "slug": "imagekit-storage",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "provider",
+      "slug": "cloudinary-storage",
       "frameworks": [
         "express"
       ]

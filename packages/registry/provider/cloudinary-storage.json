@@ -1,0 +1,25 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "cloudinary-storage",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "cloudinary-storage/mvc",
+            "feature": "cloudinary-storage/feature"
+          },
+          "dependencies": {
+            "runtime": ["cloudinary", "multer"],
+            "dev": ["@types/multer"]
+          },
+          "env": [
+            "CLOUDINARY_CLOUD_NAME",
+            "CLOUDINARY_API_KEY",
+            "CLOUDINARY_API_SECRET"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -37,13 +37,13 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "src/shared/utils/logger.ts",
-                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
+                  "path": "src/db/db.ts",
+                  "content": "import mongoose from \"mongoose\";\r\nimport env from \"../shared/configs/env\";\r\n\r\nimport { logger } from \"../shared/utils/logger\";\r\n\r\nif (!env.DATABASE_URL) {\r\n  throw new Error(\"Please provide DATABASE_URL in the environment variables\");\r\n}\r\n\r\nexport const connectDB = async (): Promise<void> => {\r\n  try {\r\n    const conn = await mongoose.connect(env.DATABASE_URL as string);\r\n    logger.info(`MongoDB Connected: ${conn.connection.host}`);\r\n  } catch (error) {\r\n    logger.error(error, \"MongoDB Connection Failed:\");\r\n    process.exit(1);\r\n  }\r\n};"
                 },
                 {
                   "type": "file",
-                  "path": "src/db/db.ts",
-                  "content": "import mongoose from \"mongoose\";\r\nimport env from \"../shared/configs/env\";\r\n\r\nimport { logger } from \"../shared/utils/logger\";\r\n\r\nif (!env.DATABASE_URL) {\r\n  throw new Error(\"Please provide DATABASE_URL in the environment variables\");\r\n}\r\n\r\nexport const connectDB = async (): Promise<void> => {\r\n  try {\r\n    const conn = await mongoose.connect(env.DATABASE_URL as string);\r\n    logger.info(`MongoDB Connected: ${conn.connection.host}`);\r\n  } catch (error) {\r\n    logger.error(error, \"MongoDB Connection Failed:\");\r\n    process.exit(1);\r\n  }\r\n};"
+                  "path": "src/shared/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
                 },
                 {
                   "type": "file",

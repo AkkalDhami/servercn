@@ -24,6 +24,7 @@
                       "express-rate-limit",
                       "helmet",
                       "multer",
+                      "redis",
                       "nodemailer",
                       "passport",
                       "passport-github2",

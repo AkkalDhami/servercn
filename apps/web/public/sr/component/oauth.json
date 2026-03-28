@@ -38,6 +38,11 @@
                     },
                     {
                       "type": "file",
+                      "path": "src/routes/google-oauth.routes.ts",
+                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\n\nimport { googleOAuth } from \"../controllers/google-oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/utils/logger.ts",
                       "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
                     },
@@ -55,11 +60,6 @@
                       "type": "file",
                       "path": "src/utils/api-error.ts",
                       "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/routes/google-oauth.routes.ts",
-                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\n\nimport { googleOAuth } from \"../controllers/google-oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
@@ -122,11 +122,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/errors/api-error.ts",
-                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/middlewares/not-found-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
                     },
@@ -134,6 +129,11 @@
                       "type": "file",
                       "path": "src/shared/middlewares/error-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
                     },
                     {
                       "type": "file",
@@ -275,16 +275,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/modules/oauth/github-oauth.routes.ts",
-                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth } from \"./github-oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nexport default router;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/modules/oauth/github-oauth.controller.ts",
-                      "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile } from \"passport-github2\";\n\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\nimport { ApiError } from \"../../shared/errors/api-error\";\nimport { ApiResponse } from \"../../shared/utils/api-response\";\n\n//? login with github\nexport const githubOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as Profile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    // console.log(data);\n\n    const user = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: true,\n      avatar: data.photos && data.photos[0].value\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user\n    });\n  }\n);\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/utils/logger.ts",
                       "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
                     },
@@ -300,6 +290,26 @@
                     },
                     {
                       "type": "file",
+                      "path": "src/shared/middlewares/not-found-handler.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/error-handler.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/shared/configs/passport.ts",
                       "content": "import passport from \"passport\";\nimport { Strategy as GitHubStrategy, Profile } from \"passport-github2\";\nimport env from \"./env\";\n\npassport.use(\n  new GitHubStrategy(\n    {\n      clientID: env.GITHUB_CLIENT_ID,\n      clientSecret: env.GITHUB_CLIENT_SECRET,\n      callbackURL: env.GITHUB_REDIRECT_URI\n    },\n    function (\n      accessToken: string,\n      refreshToken: string,\n      profile: Profile,\n      cb: (error: Error | null, user?: any) => void\n    ) {\n      // console.log({ profile });\n      return cb(null, profile);\n    }\n  )\n);\n"
                     },
@@ -310,25 +320,46 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                      "path": "src/modules/oauth/github-oauth.routes.ts",
+                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth } from \"./github-oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/errors/api-error.ts",
-                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/middlewares/not-found-handler.ts",
-                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/middlewares/error-handler.ts",
-                      "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                      "path": "src/modules/oauth/github-oauth.controller.ts",
+                      "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile } from \"passport-github2\";\n\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\nimport { ApiError } from \"../../shared/errors/api-error\";\nimport { ApiResponse } from \"../../shared/utils/api-response\";\n\n//? login with github\nexport const githubOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as Profile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    // console.log(data);\n\n    const user = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: true,\n      avatar: data.photos && data.photos[0].value\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user\n    });\n  }\n);\n"
                     }
                   ]
+                }
+              }
+            },
+            "facebook": {
+              "label": "Facebook",
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook"
+                ],
+                "dev": [
+                  "@types/passport-facebook",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": []
+                },
+                "feature": {
+                  "files": []
                 }
               }
             },
@@ -389,6 +420,11 @@
                     },
                     {
                       "type": "file",
+                      "path": "src/routes/oauth.routes.ts",
+                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth, googleOAuth } from \"../controllers/oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/middlewares/not-found-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
                     },
@@ -396,11 +432,6 @@
                       "type": "file",
                       "path": "src/middlewares/error-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/routes/oauth.routes.ts",
-                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth, googleOAuth } from \"../controllers/oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
                     },
                     {
                       "type": "file",
@@ -438,16 +469,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/modules/oauth/oauth.routes.ts",
-                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth, googleOAuth } from \"./oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/modules/oauth/oauth.controller.ts",
-                      "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile as GithubProfile } from \"passport-github2\";\n\nimport { Profile as GoogleProfile } from \"passport-google-oauth20\";\n\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\nimport { ApiError } from \"../../shared/errors/api-error\";\nimport { ApiResponse } from \"../../shared/utils/api-response\";\n\n//? login with github\nexport const githubOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as GithubProfile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    // console.log(data);\n\n    const user = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: true,\n      avatar: data.photos && data.photos[0].value\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user\n    });\n  }\n);\n\n//? login with google\nexport const googleOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as GoogleProfile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    const userInfo = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: data?.emails && data?.emails[0]?.verified,\n      avatar: data.profileUrl || (data.photos && data.photos[0].value)\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user: userInfo\n    });\n  }\n);\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/utils/logger.ts",
                       "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
                     },
@@ -463,11 +484,6 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/errors/api-error.ts",
-                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/middlewares/not-found-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
                     },
@@ -475,6 +491,16 @@
                       "type": "file",
                       "path": "src/shared/middlewares/error-handler.ts",
                       "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                     },
                     {
                       "type": "file",
@@ -488,10 +514,128 @@
                     },
                     {
                       "type": "file",
-                      "path": "src/shared/constants/status-codes.ts",
-                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                      "path": "src/modules/oauth/oauth.routes.ts",
+                      "content": "import { Router } from \"express\";\nimport passport from \"passport\";\nimport { githubOAuth, googleOAuth } from \"./oauth.controller\";\n\nconst router = Router();\n\nrouter.get(\n  \"/github\",\n  passport.authenticate(\"github\", { scope: [\"user:email\"] })\n);\n\nrouter.get(\n  \"/github/callback\",\n  passport.authenticate(\"github\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed,\n    session: false\n  }),\n  githubOAuth\n);\n\nrouter.get(\n  \"/google\",\n  passport.authenticate(\"google\", {\n    scope: [\"email\", \"profile\", \"openid\"],\n    prompt: \"consent\"\n  })\n);\n\nrouter.get(\n  \"/google/callback\",\n  passport.authenticate(\"google\", {\n    failureRedirect: \"/login\", //? redirect route if authenticated is failed\n    session: false\n  }),\n  googleOAuth\n);\n\nexport default router;\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/modules/oauth/oauth.controller.ts",
+                      "content": "import { NextFunction, Request, Response } from \"express\";\nimport { Profile as GithubProfile } from \"passport-github2\";\n\nimport { Profile as GoogleProfile } from \"passport-google-oauth20\";\n\nimport { AsyncHandler } from \"../../shared/utils/async-handler\";\nimport { ApiError } from \"../../shared/errors/api-error\";\nimport { ApiResponse } from \"../../shared/utils/api-response\";\n\n//? login with github\nexport const githubOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as GithubProfile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    // console.log(data);\n\n    const user = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: true,\n      avatar: data.photos && data.photos[0].value\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user\n    });\n  }\n);\n\n//? login with google\nexport const googleOAuth = AsyncHandler(\n  async (req: Request, res: Response, next: NextFunction) => {\n    const data = req.user as GoogleProfile | undefined;\n\n    if (!data) {\n      return next(ApiError.unauthorized(\"Authenticated failed!\"));\n    }\n\n    const userInfo = {\n      provider: data?.provider,\n      providerId: data.id,\n      name: data.displayName,\n      email: data?.emails && data?.emails[0]?.value,\n      isEmailVerified: data?.emails && data?.emails[0]?.verified,\n      avatar: data.profileUrl || (data.photos && data.photos[0].value)\n    };\n\n    //? save the data into your databases\n\n    ApiResponse.ok(res, \"Auth Successfull\", {\n      user: userInfo\n    });\n  }\n);\n"
                     }
                   ]
+                }
+              }
+            },
+            "github-facebook": {
+              "label": "GitHub + Facebook",
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-github2",
+                  "passport-facebook"
+                ],
+                "dev": [
+                  "@types/passport-facebook",
+                  "@types/passport-github2",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": []
+                },
+                "feature": {
+                  "files": []
+                }
+              }
+            },
+            "google-facebook": {
+              "label": "Google + Facebook",
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook",
+                  "passport-google-oauth20"
+                ],
+                "dev": [
+                  "@types/passport-google-oauth20",
+                  "@types/passport-facebook",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": []
+                },
+                "feature": {
+                  "files": []
+                }
+              }
+            },
+            "google-facebook-github": {
+              "label": "Google + Facebook + GitHub",
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook",
+                  "passport-github2",
+                  "passport-google-oauth20"
+                ],
+                "dev": [
+                  "@types/passport-google-oauth20",
+                  "@types/passport-github2",
+                  "@types/passport-facebook",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI",
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": []
+                },
+                "feature": {
+                  "files": []
                 }
               }
             }

@@ -55,6 +55,30 @@
                 "GITHUB_REDIRECT_URI"
               ]
             },
+            "facebook": {
+              "label": "Facebook",
+              "templates": {
+                "mvc": "oauth/facebook/mvc",
+                "feature": "oauth/facebook/feature"
+              },
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook"
+                ],
+                "dev": ["@types/passport-facebook", "@types/passport"]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI"
+              ]
+            },
             "google-github": {
               "label": "Google + GitHub",
               "templates": {
@@ -85,6 +109,107 @@
                 "GOOGLE_CLIENT_ID",
                 "GOOGLE_CLIENT_SECRET",
                 "GOOGLE_REDIRECT_URI"
+              ]
+            },
+            "github-facebook": {
+              "label": "GitHub + Facebook",
+              "templates": {
+                "mvc": "oauth/github-facebook/mvc",
+                "feature": "oauth/github-facebook/feature"
+              },
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-github2",
+                  "passport-facebook"
+                ],
+                "dev": [
+                  "@types/passport-facebook",
+                  "@types/passport-github2",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI"
+              ]
+            },
+            "google-facebook": {
+              "label": "Google + Facebook",
+              "templates": {
+                "mvc": "oauth/google-facebook/mvc",
+                "feature": "oauth/google-facebook/feature"
+              },
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook",
+                  "passport-google-oauth20"
+                ],
+                "dev": [
+                  "@types/passport-google-oauth20",
+                  "@types/passport-facebook",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI"
+              ]
+            },
+            "google-facebook-github": {
+              "label": "Google + Facebook + GitHub",
+              "templates": {
+                "mvc": "oauth/google-facebook-github/mvc",
+                "feature": "oauth/google-facebook-github/feature"
+              },
+              "dependencies": {
+                "runtime": [
+                  "dotenv-flow",
+                  "cross-env",
+                  "pino",
+                  "pino-pretty",
+                  "passport",
+                  "passport-facebook",
+                  "passport-github2",
+                  "passport-google-oauth20"
+                ],
+                "dev": [
+                  "@types/passport-google-oauth20",
+                  "@types/passport-github2",
+                  "@types/passport-facebook",
+                  "@types/passport"
+                ]
+              },
+              "env": [
+                "LOG_LEVEL",
+                "FACEBOOK_APP_ID",
+                "FACEBOOK_APP_SECRET",
+                "FACEBOOK_REDIRECT_URI",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET",
+                "GOOGLE_REDIRECT_URI",
+                "GITHUB_CLIENT_ID",
+                "GITHUB_CLIENT_SECRET",
+                "GITHUB_REDIRECT_URI"
               ]
             }
           }
