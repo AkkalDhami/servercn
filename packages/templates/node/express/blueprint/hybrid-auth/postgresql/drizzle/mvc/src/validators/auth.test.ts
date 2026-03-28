@@ -14,10 +14,10 @@ test("mvc auth validators do not trim password inputs", async () => {
   );
   assert.doesNotMatch(
     source,
-    /export const passwordSchema = z[\s\S]*?\.trim\(\)/
+    /export const passwordSchema\s*=\s*z[\s\S]*?\.trim\(\)[\s\S]*?;\s*(?=export const|$)/
   );
   assert.doesNotMatch(
     source,
-    /password: z\.string\(\{ error: "Password must be a string" \}\)\.trim\(\)\.min\(1,/
+    /password\s*:\s*z\s*\.string\(\s*\{\s*error:\s*"Password must be a string"\s*\}\s*\)\s*\.trim\(\)\s*\.min\(\s*1\s*,/
   );
 });

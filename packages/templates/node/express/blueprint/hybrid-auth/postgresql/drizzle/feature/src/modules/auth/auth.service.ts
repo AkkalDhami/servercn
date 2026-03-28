@@ -29,7 +29,7 @@ import {
   generateSecureToken,
   generateUUID
 } from "../../shared/helpers/token.helpers";
-import { RefreshTokenData, SessionData } from "./auth.types";
+import { AvatarData, RefreshTokenData, SessionData } from "./auth.types";
 import { OtpService } from "../otp/otp.service";
 import { deleteFileFromCloudinary } from "../upload/upload.service";
 import redisClient from "../../shared/configs/redis";
@@ -428,9 +428,6 @@ export class AuthService {
       })
     ]);
 
-    //? delete old refresh token
-    await redisClient.del(refreshTokenKey);
-
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
@@ -461,13 +458,11 @@ export class AuthService {
 
   static async forgotPassword(email: string) {
     const user = await db.query.users.findFirst({
-        where: eq(users.email, email)
+      where: eq(users.email, email)
     });
 
     if (!user) {
-      throw ApiError.badRequest(
-        "If an account exists, a reset code has been sent."
-      );
+      return;
     }
 
     const { code, hashCode } = generateOTP(OTP_CODE_LENGTH);
@@ -558,20 +553,38 @@ export class AuthService {
   static async deleteAllUserSessions(userId: string) {
     const userSessionsKey = `user_sessions:${userId}`;
     const sessionIds = await redisClient.sMembers(userSessionsKey);
-    
-    if (sessionIds.length > 0) {
-      for (const sessionId of sessionIds) {
+
+    if (sessionIds.length === 0) {
+      return;
+    }
+
+    const sessions = await Promise.all(
+      sessionIds.map(async sessionId => {
         const sessionKey = `session:${sessionId}`;
         const sessionData = await redisClient.get(sessionKey);
-        if (sessionData) {
-            const session = JSON.parse(sessionData) as SessionData;
-            const refreshTokenKey = `refreshToken:${session.refreshTokenHash}`;
-            await redisClient.del(refreshTokenKey);
+
+        return {
+          sessionKey,
+          session: sessionData ? (JSON.parse(sessionData) as SessionData) : null
+        };
+      })
+    );
+
+    await Promise.all(
+      sessions.flatMap(({ sessionKey, session }) => {
+        const deletions = [redisClient.del(sessionKey)];
+
+        if (session?.refreshTokenHash) {
+          deletions.push(
+            redisClient.del(`refreshToken:${session.refreshTokenHash}`)
+          );
         }
-        await redisClient.del(sessionKey);
-      }
-      await redisClient.del(userSessionsKey);
-    }
+
+        return deletions;
+      })
+    );
+
+    await redisClient.del(userSessionsKey);
   }
 
   static async resetPassword(
@@ -788,8 +801,10 @@ export class AuthService {
       }).where(eq(users.id, userId));
       await AuthService.deleteAllUserSessions(userId);
     } else if (type === "hard") {
-      if ((user.avatar as any)?.public_id) {
-        await deleteFileFromCloudinary([(user.avatar as any).public_id]);
+      const avatar = user.avatar as AvatarData | string | null | undefined;
+
+      if (avatar && typeof avatar !== "string" && avatar.public_id) {
+        await deleteFileFromCloudinary([avatar.public_id]);
       }
       await db.delete(users).where(eq(users.id, userId));
       await AuthService.deleteAllUserSessions(userId);

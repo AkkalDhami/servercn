@@ -3,6 +3,12 @@ import { OTP_TYPES } from "../constants/auth";
 
 export type OTPType = (typeof OTP_TYPES)[number];
 
+export interface AvatarData {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
 export interface UserRequest extends Request {
   user?: {
     _id?: string | undefined;
@@ -22,11 +28,7 @@ export interface IUser {
   lastLoginAt?: Date;
   failedLoginAttempts: number;
   lockUntil?: Date;
-  avatar?: {
-    url: string;
-    publicId: string;
-    size: number;
-  };
+  avatar?: AvatarData | string | null;
   provider: "local" | "google" | "github";
   providerId?: string;
   isDeleted: boolean;

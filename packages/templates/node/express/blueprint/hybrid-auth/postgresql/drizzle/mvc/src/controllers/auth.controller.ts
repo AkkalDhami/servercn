@@ -6,10 +6,9 @@ import { ApiError } from "../utils/api-error";
 import { AuthService } from "../services/auth.service";
 import {
   clearAuthCookies,
-  clearCookie,
   setAuthCookies
 } from "../helpers/cookie.helper";
-import { UserRequest } from "../types/user";
+import { AvatarData, UserRequest } from "../types/user";
 import {
   deleteFileFromCloudinary,
   uploadToCloudinary
@@ -18,8 +17,6 @@ import { DeleteAccountType, VerifyOtpType } from "../validators/auth";
 import db from "../configs/db";
 import { users } from "../drizzle/schemas/user.schema";
 import { eq } from "drizzle-orm";
-
-type AvatarData = { public_id: string; url: string; size: number };
 
 //? SIGNUP USER
 export const signupUser = AsyncHandler(
@@ -462,7 +459,6 @@ export const deleteAllUserSessions = AsyncHandler(
     await AuthService.deleteAllUserSessions(userId);
 
     clearAuthCookies(res);
-    // clearCookie(res, "sid");
 
     return ApiResponse.Success(res, "User sessions deleted successfully!");
   }

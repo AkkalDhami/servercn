@@ -29,15 +29,13 @@ export class OAuthService {
     });
 
     if (existingUser) {
-      if (!user.isEmailVerified) {
-        throw ApiError.forbidden("Email not verified - require linking flow.");
-      }
-
       const canAutoLinkProvider =
         user.isEmailVerified || existingUser.provider === user.provider;
 
       if (!canAutoLinkProvider) {
-        throw ApiError.forbidden("Email not verified - require linking flow.");
+        throw ApiError.forbidden(
+          "Please sign in with your existing provider to link this account."
+        );
       }
 
       const [updatedUser] = await db.update(users).set({

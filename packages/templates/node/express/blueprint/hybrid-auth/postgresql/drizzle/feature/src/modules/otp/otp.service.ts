@@ -92,32 +92,40 @@ export class OtpService {
   }: SendOtpType) {
     try {
       const newOtp = generateOTP(OTP_CODE_LENGTH);
+      const otpKey = `otp:${email}`;
+      const otpCooldownKey = `otp_cooldown:${email}`;
+      const otpHash = hashCode ? hashCode : newOtp.hashCode;
 
       logger.info({ email }, "OTP generated successfully");
 
-      await sendEmail({
-        email,
-        subject,
-        data: {
-          code: code ? code : newOtp.code,
-          name
-        },
-        templateName
-      });
-
-      await redis.set(`otp:${email}`, hashCode ? hashCode : newOtp.hashCode, {
+      await redis.set(otpKey, otpHash, {
         expiration: {
           type: "EX",
           value: OTP_EXPIRES_IN / 1000
         }
       });
 
-      await redis.set(`otp_cooldown:${email}`, OTP_COOL_DOWN, {
+      await redis.set(otpCooldownKey, OTP_COOL_DOWN, {
         expiration: {
           type: "EX",
           value: OTP_COOL_DOWN
         }
       });
+
+      try {
+        await sendEmail({
+          email,
+          subject,
+          data: {
+            code: code ? code : newOtp.code,
+            name
+          },
+          templateName
+        });
+      } catch (error) {
+        await Promise.allSettled([redis.del(otpKey), redis.del(otpCooldownKey)]);
+        throw error;
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
@@ -134,22 +142,24 @@ export class OtpService {
     }
 
     const failedAttemptsKey = `otp_attempts:${email}`;
-    const failedAttempts = parseInt(
-      (await redis.get(failedAttemptsKey)) || "0"
-    );
-
     if (hashOtpCodeKey !== hashCode) {
+      const failedAttempts = await redis.incr(failedAttemptsKey);
+
+      if (failedAttempts === 1) {
+        await redis.expire(
+          failedAttemptsKey,
+          Math.floor(OTP_EXPIRES_IN / 1000)
+        );
+      }
+
       if (failedAttempts >= OTP_MAX_ATTEMPTS) {
         await redis.set(`otp_lock:${email}`, "locked", {
-          EX: OTP_SPAM_LOCK_TIME / 1000
+          EX: OTP_SPAM_LOCK_TIME
         });
         throw ApiError.tooManyRequests(
           "Too many failed attempts. Please try again after 1 hour."
         );
       }
-      await redis.set(failedAttemptsKey, failedAttempts + 1, {
-        EX: OTP_EXPIRES_IN / 1000
-      });
       throw ApiError.badRequest(
         `Incorrect OTP. ${OTP_MAX_ATTEMPTS - failedAttempts} attempts left.`
       );

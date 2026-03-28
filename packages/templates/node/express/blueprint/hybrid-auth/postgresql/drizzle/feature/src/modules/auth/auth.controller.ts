@@ -18,8 +18,7 @@ import { DeleteAccountType, VerifyOtpType } from "./auth.validator";
 import db from "../../shared/configs/db";
 import { users } from "../../drizzle/schemas/user.schema";
 import { eq } from "drizzle-orm";
-
-type AvatarData = { public_id: string; url: string; size: number };
+import { AvatarData } from "./auth.types";
 
 //? SIGNUP USER
 export const signupUser = AsyncHandler(

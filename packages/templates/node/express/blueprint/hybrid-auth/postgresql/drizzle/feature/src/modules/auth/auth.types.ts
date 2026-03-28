@@ -2,6 +2,12 @@ import { OTP_TYPES } from "@/modules/auth/auth.constants";
 
 export type OTPType = (typeof OTP_TYPES)[number];
 
+export interface AvatarData {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
 export interface IUser {
   id: string;
   name: string;
@@ -12,11 +18,7 @@ export interface IUser {
   lastLoginAt?: Date;
   failedLoginAttempts: number;
   lockUntil?: Date;
-  avatar?: {
-    url: string;
-    publicId: string;
-    size: number;
-  };
+  avatar?: AvatarData | string | null;
   provider: "local" | "google" | "github" | "facebook";
   providerId?: string;
   isDeleted: boolean;
