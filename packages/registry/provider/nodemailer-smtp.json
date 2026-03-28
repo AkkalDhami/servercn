@@ -1,0 +1,27 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "nodemailer-smtp",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "nodemailer-smtp/mvc",
+            "feature": "nodemailer-smtp/feature"
+          },
+          "dependencies": {
+            "runtime": ["nodemailer"],
+            "dev": ["@types/nodemailer"]
+          },
+          "env": [
+            "SMTP_PORT",
+            "SMTP_HOST",
+            "SMTP_PASS",
+            "SMTP_USER",
+            "EMAIL_FROM"
+          ]
+        }
+      }
+    }
+  }
+}

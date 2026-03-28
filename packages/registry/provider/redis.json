@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "redis",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "redis/mvc",
+            "feature": "redis/feature"
+          },
+          "dependencies": {
+            "runtime": ["redis"],
+            "dev": []
+          },
+          "env": ["REDIS_URL"]
+        }
+      }
+    }
+  }
+}

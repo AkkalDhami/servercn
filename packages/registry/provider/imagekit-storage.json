@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "imagekit-storage",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "imagekit-storage/mvc",
+            "feature": "imagekit-storage/feature"
+          },
+          "dependencies": {
+            "runtime": ["@imagekit/nodejs", "multer"],
+            "dev": ["@types/multer"]
+          },
+          "env": ["IMAGEKIT_PRIVATE_KEY"]
+        }
+      }
+    }
+  }
+}

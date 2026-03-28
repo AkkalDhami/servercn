@@ -1,0 +1,50 @@
+{
+  "slug": "redis",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "dependencies": {
+            "runtime": [
+              "redis"
+            ],
+            "dev": []
+          },
+          "env": [
+            "REDIS_URL"
+          ],
+          "architectures": {
+            "mvc": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/configs/redis.ts",
+                  "content": "import { createClient } from \"redis\";\r\nimport { env } from \"./env.ts\";\r\n\r\nconst redisClient = createClient({\r\n  url: env.REDIS_URL\r\n});\r\n\r\nexport default redisClient;\r\n\r\nexport const setCache = async (\r\n  key: string,\r\n  value: string,\r\n  expireInSeconds?: number,\r\n  expireInMS?: number\r\n) => {\r\n  if (expireInSeconds) {\r\n    await redisClient.set(key, value, {\r\n      expiration: {\r\n        type: \"EX\",\r\n        value: expireInSeconds\r\n      }\r\n    });\r\n  } else if (expireInMS) {\r\n    await redisClient.set(key, value, {\r\n      expiration: {\r\n        type: \"PX\",\r\n        value: expireInMS\r\n      }\r\n    });\r\n  } else {\r\n    await redisClient.set(key, value);\r\n  }\r\n};\r\n\r\nexport const getCache = async (key: string) => {\r\n  return await redisClient.get(key);\r\n};\r\n\r\nexport const deleteCache = async (key: string) => {\r\n  return await redisClient.del(key);\r\n};\r\n\r\n// await setCache(\"otp\", \"123456\", 300);\r\n// const otp = await getCache(\"otp\");\r\n// await deleteCache(\"otp\");\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/env.ts",
+                  "content": "/* eslint-disable no-console */\r\nimport \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  REDIS_URL: z.url()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.treeifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                }
+              ]
+            },
+            "feature": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/redis.ts",
+                  "content": "import { createClient } from \"redis\";\r\nimport { env } from \"./env.ts\";\r\n\r\nconst redisClient = createClient({\r\n  url: env.REDIS_URL\r\n});\r\n\r\nexport default redisClient;\r\n\r\nexport const setCache = async (\r\n  key: string,\r\n  value: string,\r\n  expireInSeconds?: number,\r\n  expireInMS?: number\r\n) => {\r\n  if (expireInSeconds) {\r\n    await redisClient.set(key, value, {\r\n      expiration: {\r\n        type: \"EX\",\r\n        value: expireInSeconds\r\n      }\r\n    });\r\n  } else if (expireInMS) {\r\n    await redisClient.set(key, value, {\r\n      expiration: {\r\n        type: \"PX\",\r\n        value: expireInMS\r\n      }\r\n    });\r\n  } else {\r\n    await redisClient.set(key, value);\r\n  }\r\n};\r\n\r\nexport const getCache = async (key: string) => {\r\n  return await redisClient.get(key);\r\n};\r\n\r\nexport const deleteCache = async (key: string) => {\r\n  return await redisClient.del(key);\r\n};\r\n\r\n// await setCache(\"otp\", \"123456\", 300);\r\n// const otp = await getCache(\"otp\");\r\n// await deleteCache(\"otp\");\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/env.ts",
+                  "content": "/* eslint-disable no-console */\r\nimport \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  REDIS_URL: z.url()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.treeifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

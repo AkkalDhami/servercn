@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "resend-mail",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "resend-mail/mvc",
+            "feature": "resend-mail/feature"
+          },
+          "dependencies": {
+            "runtime": ["resend"],
+            "dev": []
+          },
+          "env": ["RESEND_API_KEY"]
+        }
+      }
+    }
+  }
+}
