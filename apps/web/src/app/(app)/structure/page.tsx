@@ -4,7 +4,6 @@ import CodeTheme from "@/components/docs/code-theme";
 import ComponentFileViewer from "@/components/file-viewer";
 import { Container } from "@/components/ui/container";
 
-
 export default async function page(props: PageProps<"/components">) {
   const searchParams = await props.searchParams;
   return (
@@ -26,6 +25,8 @@ export default async function page(props: PageProps<"/components">) {
           architecture={(searchParams?.arch as string) || ""}
           framework={(searchParams?.framework as string) || ""}
           type={(searchParams?.type as ItemType) || ""}
+          database={(searchParams?.database as string) || undefined}
+          orm={(searchParams?.orm as string) || undefined}
         />
       </div>
     </Container>

@@ -1,0 +1,31 @@
+{
+  "name": "servercn-hybrid-auth",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npx tsx watch src/server.ts",
+    "build": "rm -rf dist && tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit",
+    "docs": "npx tsx swagger.config.ts",
+    "prepare": "husky",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -528,6 +528,11 @@
             "label": "MongoDB (Mongoose)",
             "slug": "hybrid-auth-mongodb",
             "new": true
+          },
+          {
+            "label": "PostgreSQL (Drizzle)",
+            "slug": "hybrid-auth-postgresql",
+            "new": true
           }
         ]
       }

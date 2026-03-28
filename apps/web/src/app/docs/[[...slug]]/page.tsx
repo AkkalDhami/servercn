@@ -130,7 +130,6 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "cli.mdx");
   }
 
-  // Remove framework segment if present (express or nestjs)
   const actualSlug = slug;
 
   if (actualSlug.length === 2 && actualSlug[0] === "contributing") {
