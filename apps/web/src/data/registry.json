@@ -732,6 +732,66 @@
       "meta": {
         "new": true
       }
+    },
+    {
+      "slug": "cloudinary-storage",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "Cloudinary Storage",
+      "description": "Cloudinary media upload and storage provider with Multer for Express applications.",
+      "docs": "/docs/providers/cloudinary-storage",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "imagekit-storage",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "Imagekit Storage",
+      "description": "ImageKit file upload and CDN storage provider with Multer for Express applications.",
+      "docs": "/docs/providers/imagekit-storage",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "nodemailer-smtp",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "Nodemailer SMTP",
+      "description": "Transactional email provider using Nodemailer over SMTP for Express applications.",
+      "docs": "/docs/providers/nodemailer-smtp",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "resend-mail",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "Resend Mail",
+      "description": "Email provider using the Resend API for Express applications.",
+      "docs": "/docs/providers/resend-mail",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "redis",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "Redis",
+      "description": "Redis cache and key-value provider with the official Node client for Express applications.",
+      "docs": "/docs/providers/redis",
+      "meta": {
+        "new": true
+      }
     }
   ]
 }

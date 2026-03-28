@@ -44,7 +44,7 @@ export const ContributorCard: React.FC<ContributorCardProps> = ({
 }) => {
   const badge = getContributionBadge(contributor.contributions);
   return (
-    <div className="border-hover hover:bg-card-hover border-edge screen-line-before flex flex-col items-center border-x p-4 duration-300 dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]">
+    <div className="hover:bg-card-hover screen-line-before flex flex-col items-center  p-4 duration-300 dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]  last:border-r">
       <img
         src={contributor.avatar_url}
         alt={contributor.login}

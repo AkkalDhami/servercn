@@ -61,7 +61,7 @@ export default async function Page() {
         </SubHeading>
       </div>
       <h1 className="mb-6 px-4 text-center text-3xl font-bold"></h1>
-      <div className="screen-line-after grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+      <div className="screen-line-after divide-x divide-edge grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
         <>
           {contributors.map(contributor => (
             <ContributorCard key={contributor.id} contributor={contributor} />
