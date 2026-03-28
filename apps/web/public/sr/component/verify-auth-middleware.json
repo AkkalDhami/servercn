@@ -33,11 +33,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/types/user.ts",
-                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/utils/logger.ts",
                   "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
                 },
@@ -58,13 +53,18 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/routes/user.routes.ts",
-                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
+                  "path": "src/types/user.ts",
+                  "content": "import { Request } from \"express\";\nimport mongoose from \"mongoose\";\n\nexport interface UserRequest extends Request {\n  user?: {\n    _id?: string | mongoose.Types.ObjectId;\n  };\n}\n"
                 },
                 {
                   "type": "file",
                   "path": "src/models/user.model.ts",
                   "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/user.routes.ts",
+                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",
@@ -127,6 +127,11 @@
                 },
                 {
                   "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/shared/middlewares/verify-auth.ts",
                   "content": "import {\n  generateAccessToken,\n  generateRefreshToken,\n  verifyAccessToken,\n  verifyRefreshToken\n} from \"../utils/jwt\";\nimport { logger } from \"../utils/logger\";\nimport env from \"../configs/env\";\nimport { UserRequest } from \"../../types/user\";\nimport { ApiError } from \"../errors/api-error\";\nimport User from \"../../modules/user/user.model\";\nimport { NextFunction, Response } from \"express\";\n\nconst isProduction = env.NODE_ENV === \"production\";\nconst ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;\nconst REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;\n\nexport const COOKIE_OPTIONS = {\n  httpOnly: true,\n  secure: isProduction,\n  sameSite: isProduction ? (\"none\" as const) : (\"lax\" as const),\n  path: \"/\"\n};\n\nexport async function verifyAuthentication(\n  req: UserRequest,\n  res: Response,\n  next: NextFunction\n): Promise<void> {\n  const accessToken = req.cookies?.accessToken;\n  const refreshToken = req.cookies?.refreshToken;\n\n  // Step 1: Try validating access token\n\n  try {\n    if (accessToken) {\n      const decoded = verifyAccessToken(accessToken);\n      req.user = decoded;\n      return next();\n    }\n  } catch (err) {\n    // Access token expired or invalid\n    logger.warn(\"Access token verification failed\");\n  }\n\n  // Step 2: Refresh token required if access token fails\n\n  if (!refreshToken) {\n    return next(ApiError.unauthorized(\"Unauthorized, Please login first.\"));\n  }\n\n  try {\n    const decodedRefresh = verifyRefreshToken(refreshToken);\n\n    // Step 3: Ensure user still exists\n\n    const userInDb = await User.findOne({\n      _id: decodedRefresh.userId\n    });\n\n    if (!userInDb) {\n      return next(ApiError.unauthorized(\"Unauthorized, Please login first.\"));\n    }\n\n    // Step 4: Issue new tokens\n\n    const newAccessToken = generateAccessToken({\n      _id: userInDb._id.toString()\n    });\n\n    const newRefreshToken = generateRefreshToken(decodedRefresh.userId);\n\n    // Step 5: Saved accessToken and refreshToken in cookie\n    res.cookie(\"accessToken\", newAccessToken, {\n      ...COOKIE_OPTIONS,\n      maxAge: ACCESS_TOKEN_EXPIRY\n    });\n\n    res.cookie(\"refreshToken\", newRefreshToken, {\n      ...COOKIE_OPTIONS,\n      maxAge: REFRESH_TOKEN_EXPIRY\n    });\n\n    // Step 6: Attach user to request\n\n    req.user = {\n      _id: decodedRefresh.userId\n    };\n\n    // you can update the refresh token in the database here if you store it in the database\n\n    return next();\n  } catch (err: any) {\n    logger.warn(\"Refresh token verification failed\");\n    return next(ApiError.unauthorized(\"Unauthorized, Please login first.\"));\n  }\n}\n"
                 },
@@ -134,16 +139,6 @@
                   "type": "file",
                   "path": "src/shared/middlewares/error-handler.ts",
                   "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../errors/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/errors/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 },
                 {
                   "type": "file",
@@ -159,6 +154,11 @@
                   "type": "file",
                   "path": "src/modules/user/user.model.ts",
                   "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
                 }
               ]
             }

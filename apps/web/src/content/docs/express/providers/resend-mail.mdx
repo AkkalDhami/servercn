@@ -1,0 +1,96 @@
+---
+title: Resend Mail | Provider
+description: Email provider using the Resend API for Express applications.
+command: npx servercn-cli add provider resend-mail
+---
+
+# Resend Mail Provider
+
+This provider adds the official [Resend](https://resend.com/) SDK, validates <Code>RESEND_API_KEY</Code> with Zod, and exports a ready-to-use <Code>resend</Code> client.
+
+## Features
+
+- Minimal env surface: API key only (extend <Code>env.ts</Code> if you want a default <Code>from</Code> address)
+- Shared <Code>Resend</Code> instance
+- MVC and Feature architecture variants
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr resend-mail" />
+
+## File Structure
+
+### MVC
+
+- <Code children="src/configs/env.ts" />
+- <Code children="src/configs/resend.ts" />
+
+### Feature
+
+- <Code children="src/shared/configs/env.ts" />
+- <Code children="src/shared/configs/resend.ts" />
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  RESEND_API_KEY: z.string()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Resend client
+
+<Code children="src/configs/resend.ts" />
+
+```ts
+import { Resend } from "resend";
+import env from "./env";
+
+export const resend = new Resend(env.RESEND_API_KEY);
+```
+
+## Usage
+
+Use a [verified domain](https://resend.com/docs/dashboard/domains/introduction) or Resend’s test sender for <Code>from</Code>.
+
+```ts
+import { resend } from "./configs/resend";
+
+export async function sendWelcomeEmail(to: string) {
+  const { data, error } = await resend.emails.send({
+    from: "App <onboarding@resend.dev>",
+    to,
+    subject: "Welcome",
+    html: "<p>Thanks for signing up.</p>"
+  });
+  if (error) throw error;
+  return data;
+}
+```
+
+To default the sender from env, add something like <Code>EMAIL_FROM: z.string()</Code> to <Code>envSchema</Code> alongside the API key (same pattern as the Nodemailer provider).
+
+## Example .env
+
+```bash
+RESEND_API_KEY=re_xxxxxxxx
+```

@@ -1,0 +1,125 @@
+---
+title: ImageKit Storage | Provider
+description: ImageKit file upload and CDN storage provider with Multer for Express applications.
+command: npx servercn-cli add provider imagekit-storage
+---
+
+# ImageKit Storage Provider
+
+This provider adds the [ImageKit Node SDK](https://github.com/imagekit-developer/imagekit-nodejs), validates <Code>IMAGEKIT_PRIVATE_KEY</Code> with Zod, and ships the same Multer memory-upload middleware pattern as the Cloudinary provider.
+
+## Features
+
+- Zod-validated ImageKit credentials
+- Shared <Code>ImageKit</Code> client instance from config
+- Multer memory storage with allowlist MIME types and 5&nbsp;MB max file size
+- MVC and Feature architecture variants
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr imagekit-storage" />
+
+## File Structure
+
+### MVC
+
+- <Code children="src/configs/env.ts" />
+- <Code children="src/configs/imagekit.ts" />
+- <Code children="src/middlewares/upload-file.ts" />
+
+### Feature
+
+- <Code children="src/shared/configs/env.ts" />
+- <Code children="src/shared/configs/imagekit.ts" />
+- <Code children="src/shared/middlewares/upload-file.ts" />
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  IMAGEKIT_PRIVATE_KEY: z.string()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## ImageKit client
+
+<Code children="src/configs/imagekit.ts" />
+
+```ts
+import ImageKit from "@imagekit/nodejs";
+import env from "./env";
+
+const imagekitClient = new ImageKit({
+  privateKey: env.IMAGEKIT_PRIVATE_KEY
+});
+
+export default imagekitClient;
+```
+
+The template file includes commented <Code>uploadToImageKit</Code> and <Code>deleteFileFromImageKit</Code> helpers using <Code>toFile</Code> from <Code>@imagekit/nodejs</Code>—use those as a starting point in a service layer.
+
+## Upload middleware (Multer)
+
+<Code children="src/middlewares/upload-file.ts" />
+
+```ts
+import multer from "multer";
+
+export const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/mpeg",
+  "video/quicktime",
+  "application/pdf"
+];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const storage = multer.memoryStorage();
+
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    return cb(null, false);
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter
+});
+
+export default upload;
+```
+
+## Usage
+
+Use <Code>upload.single("fieldName")</Code> (or array/fields) on your route, then upload <Code>req.file.buffer</Code> via the helpers described in the template’s <Code>imagekit.ts</Code> comments.
+
+## Example .env
+
+```bash
+IMAGEKIT_PRIVATE_KEY=your_private_key
+```

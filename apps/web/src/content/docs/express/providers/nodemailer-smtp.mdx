@@ -1,0 +1,129 @@
+---
+title: Nodemailer SMTP | Provider
+description: Transactional email provider using Nodemailer over SMTP for Express applications.
+command: npx servercn-cli add provider nodemailer-smtp
+---
+
+# Nodemailer SMTP Provider
+
+This provider configures [Nodemailer](https://nodemailer.com/) with SMTP settings from the environment, validates host/port/credentials with Zod, and exposes a lazy singleton <Code>getTransporter()</Code> for sending mail.
+
+## Features
+
+- Zod schema for <Code>SMTP_*</Code> and <Code>EMAIL_FROM</Code>
+- Single reused transporter instance
+- TLS mode inferred from port (<Code>secure</Code> when port is 465)
+- MVC and Feature architecture variants
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr nodemailer-smtp" />
+
+## File Structure
+
+### MVC
+
+- <Code children="src/configs/env.ts" />
+- <Code children="src/configs/nodemailer.ts" />
+
+### Feature
+
+- <Code children="src/shared/configs/env.ts" />
+- <Code children="src/shared/configs/nodemailer.ts" />
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z
+    .string()
+    .regex(/^\d+$/, "SMTP_PORT must be a number")
+    .transform(Number),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+  EMAIL_FROM: z.email()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Nodemailer transporter
+
+<Code children="src/configs/nodemailer.ts" />
+
+```ts
+import nodemailer from "nodemailer";
+import env from "./env";
+
+let transporter: nodemailer.Transporter | null = null;
+
+export function getTransporter() {
+  if (transporter) return transporter;
+  const host = env.SMTP_HOST;
+  const port = Number(env.SMTP_PORT || 465);
+  const user = env.SMTP_USER;
+  const pass = env.SMTP_PASS;
+  const from = env.EMAIL_FROM;
+  if (!host || !user || !pass || !from) {
+    throw new Error("SMTP/EMAIL env not configured");
+  }
+
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  });
+  return transporter;
+}
+```
+
+## Usage
+
+```ts
+import env from "./configs/env";
+import { getTransporter } from "./configs/nodemailer";
+
+export async function sendEmail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}) {
+  const transporter = getTransporter();
+  return transporter.sendMail({
+    from: opts.from ?? env.EMAIL_FROM,
+    to: opts.to,
+    subject: opts.subject,
+    html: opts.html
+  });
+}
+```
+
+## Example .env
+
+```bash
+SMTP_HOST=smtp.example.com
+SMTP_PORT=465
+SMTP_USER=you@example.com
+SMTP_PASS=your_password
+EMAIL_FROM=you@example.com
+```

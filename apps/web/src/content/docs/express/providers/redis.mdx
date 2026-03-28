@@ -1,0 +1,129 @@
+---
+title: Redis | Provider
+description: Redis cache and key-value provider with the official Node client for Express applications.
+command: npx servercn-cli add provider redis
+---
+
+# Redis Provider
+
+This provider wires the official [redis](https://github.com/redis/node-redis) package to <Code>REDIS_URL</Code>, validates the URL with Zod, and includes small <Code>setCache</Code> / <Code>getCache</Code> / <Code>deleteCache</Code> helpers.
+
+## Features
+
+- Zod-validated <Code>REDIS_URL</Code>
+- <Code>createClient</Code> configured from env
+- Optional TTL helpers for string keys (seconds or milliseconds)
+- MVC and Feature architecture variants
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr redis" />
+
+## File Structure
+
+### MVC
+
+- <Code children="src/configs/env.ts" />
+- <Code children="src/configs/redis.ts" />
+
+### Feature
+
+- <Code children="src/shared/configs/env.ts" />
+- <Code children="src/shared/configs/redis.ts" />
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+/* eslint-disable no-console */
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  REDIS_URL: z.url()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.treeifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Redis client and cache helpers
+
+<Code children="src/configs/redis.ts" />
+
+```ts
+import { createClient } from "redis";
+import { env } from "./env.ts";
+
+const redisClient = createClient({
+  url: env.REDIS_URL
+});
+
+export default redisClient;
+
+export const setCache = async (
+  key: string,
+  value: string,
+  expireInSeconds?: number,
+  expireInMS?: number
+) => {
+  if (expireInSeconds) {
+    await redisClient.set(key, value, {
+      expiration: {
+        type: "EX",
+        value: expireInSeconds
+      }
+    });
+  } else if (expireInMS) {
+    await redisClient.set(key, value, {
+      expiration: {
+        type: "PX",
+        value: expireInMS
+      }
+    });
+  } else {
+    await redisClient.set(key, value);
+  }
+};
+
+export const getCache = async (key: string) => {
+  return await redisClient.get(key);
+};
+
+export const deleteCache = async (key: string) => {
+  return await redisClient.del(key);
+};
+```
+
+## Usage
+
+Connect the client when your app boots (after importing the module so the client exists), then use the helpers or the raw client.
+
+```ts
+import redisClient, { setCache, getCache } from "./configs/redis";
+
+await redisClient.connect();
+
+await setCache("otp:123", "987654", 300);
+const otp = await getCache("otp:123");
+```
+
+The template includes inline comment examples for OTP-style keys at the bottom of <Code>redis.ts</Code>.
+
+## Example .env
+
+```bash
+REDIS_URL=redis://localhost:6379
+```

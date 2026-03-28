@@ -1,4 +1,5 @@
 import { Section } from "@/components/ui/section";
+import { calculateFrameworkStats } from "./supported-frameworks";
 
 interface Stat {
   title: string;
@@ -6,30 +7,31 @@ interface Stat {
   suffix: string;
 }
 
+
 const STATISTICS: Stat[] = [
   {
     title: "Components",
-    value: 25,
+    value: calculateFrameworkStats(["express", "nextjs"]).components,
     suffix: "+"
   },
   {
     title: "Foundations",
-    value: 6,
+    value: calculateFrameworkStats(["express", "nextjs"]).foundations,
     suffix: "+"
   },
   {
     title: "Schemas",
-    value: 4,
+    value: calculateFrameworkStats(["express", "nextjs"]).schemas,
     suffix: "+"
   },
   {
     title: "Blueprints",
-    value: 4,
+    value: calculateFrameworkStats(["express", "nextjs"]).blueprints,
     suffix: "+"
   },
   {
     title: "Providers",
-    value: 6,
+    value: calculateFrameworkStats(["express", "nextjs"]).providers,
     suffix: "+"
   }
 ];
