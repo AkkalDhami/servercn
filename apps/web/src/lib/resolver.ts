@@ -4,6 +4,7 @@ export const resolveRegistryItem = (
   slug: string;
   database?: string;
   orm?: string;
+  variant?: string;
 } => {
   switch (slug) {
     case "banking-app-mongodb":
@@ -143,9 +144,28 @@ export const resolveRegistryItem = (
         orm: "drizzle"
       };
 
-    default:
+    case "google-oauth":
       return {
-        slug
+        variant: "google",
+        slug: "oauth"
+      };
+    case "github-oauth":
+      return {
+        variant: "github",
+        slug: "oauth"
+      };
+    case "facebook-oauth":
+      return {
+        variant: "facebook",
+        slug: "oauth"
+      };
+    case "github-google-oauth":
+      return {
+        variant: "github-google",
+        slug: "oauth"
       };
   }
+  return {
+    slug
+  };
 };
