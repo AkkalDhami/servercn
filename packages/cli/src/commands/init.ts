@@ -235,12 +235,6 @@ export async function init(foundation?: string, options: AddOptions = {}) {
             `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
             "";
 
-          console.log({
-            options,
-            foundation,
-            localTemplatePath
-          });
-
           const templateDir = path.resolve(
             paths.templates(),
             localTemplatePath
