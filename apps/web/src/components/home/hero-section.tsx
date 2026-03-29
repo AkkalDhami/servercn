@@ -9,7 +9,6 @@ import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { GITHUB_URL } from "@/lib/constants";
-import DemoVideo from "./demo";
 
 export default function HeroSection() {
   return (
@@ -95,7 +94,10 @@ export default function HeroSection() {
             </div>
           </div>
           <div className="overflow-hidden rounded-md border">
-            <DemoVideo src="/demo.mp4" />
+            <video controls autoPlay preload="none">
+              <source src="/demo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
 

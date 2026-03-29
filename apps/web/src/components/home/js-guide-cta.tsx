@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/constants";
 import { ExternalLinkIcon } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import DemoVideo from "./demo";
+import { JSGuideVideo } from "./js-guide-video";
 
 export default function JSGuideCTA() {
   return (
@@ -31,7 +31,7 @@ export default function JSGuideCTA() {
       </div>
 
       <div className="">
-        <DemoVideo src="https://res.cloudinary.com/servercn/video/upload/v1774173613/servercn-js-guide.mp4" />
+        <JSGuideVideo />
       </div>
     </Section>
   );
