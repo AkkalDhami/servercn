@@ -231,7 +231,7 @@
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
       "status": "experimental",
-      "frameworks": ["express", "nestjs"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/health-check"
     },
     {
