@@ -188,7 +188,7 @@ export default async function DocsPage({
   // Extract current framework from URL if present
   const currentFramework =
     slug &&
-    (slug[0] === "express" || slug[0] === "nestjs" || slug[0] === "nextjs")
+      (slug[0] === "express" || slug[0] === "nestjs" || slug[0] === "nextjs")
       ? slug[0]
       : undefined;
 
@@ -213,9 +213,9 @@ export default async function DocsPage({
                   href={
                     (prev
                       ? injectFramework(
-                          prev.docs as string,
-                          currentFramework || ""
-                        )
+                        prev.docs as string,
+                        currentFramework || ""
+                      )
                       : "") as Route
                   }>
                   <ArrowLeftIcon className="size-4" />
@@ -224,9 +224,9 @@ export default async function DocsPage({
                   href={
                     (next
                       ? injectFramework(
-                          next.docs as string,
-                          currentFramework || ""
-                        )
+                        next.docs as string,
+                        currentFramework || ""
+                      )
                       : "") as Route
                   }
                   className={buttonVariants({ variant: "secondary" })}>
