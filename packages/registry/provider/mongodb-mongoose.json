@@ -14,16 +14,6 @@
             "dev": []
           },
           "env": ["DATABASE_URL"]
-        },
-        "nextjs": {
-          "dependencies": {
-            "runtime": ["mongoose"],
-            "dev": []
-          },
-          "env": ["DATABASE_URL"],
-          "templates": {
-            "file-api": "mongodb-mongoose/nextjs/file-api"
-          }
         }
       }
     }

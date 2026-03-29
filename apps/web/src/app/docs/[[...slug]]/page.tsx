@@ -195,7 +195,8 @@ export default async function DocsPage({
   const {
     slug: blueprintSlug,
     database,
-    orm
+    orm,
+    variant
   } = resolveRegistryItem(slug[slug.length - 1]);
 
   return (
@@ -273,6 +274,7 @@ export default async function DocsPage({
                       from="docs"
                       database={database}
                       orm={orm}
+                      variant={variant}
                       architecture={currentArch}
                       framework={currentFramework || slug[0]}
                       type={

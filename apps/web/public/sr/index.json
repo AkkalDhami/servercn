@@ -362,8 +362,7 @@
       "type": "provider",
       "slug": "mongodb-mongoose",
       "frameworks": [
-        "express",
-        "nextjs"
+        "express"
       ]
     },
     {
