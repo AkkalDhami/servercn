@@ -2,23 +2,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CodeBlock } from "./code-block";
 import { CodeWrapper } from "./code-wrapper";
 import { TerminalIcon } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { CODE_THEME_BG_KEY } from "@/lib/constants";
+import { getPackageManagerIcon } from "./icons/language-icons";
 
 const managers = {
   pnpm: (c: string) => `pnpm dlx ${c.replace("npx ", "")}`,
   npm: (c: string) => c,
   yarn: (c: string) => `yarn ${c.replace("npx ", "")}`,
   bun: (c: string) => `bunx --bun ${c.replace("npx ", "")}`
-};
-
-const managersIcons = {
-  pnpm: "pnpm-logo.svg",
-  npm: "npm-logo.png",
-  yarn: "yarn-logo.png",
-  bun: "bun-logo.svg"
 };
 
 export default async function PackageManagerTabs({
@@ -38,24 +31,21 @@ export default async function PackageManagerTabs({
       style={{ backgroundColor: bg }}>
       <TabsList className={cn("pt-3 pl-3")} style={{ backgroundColor: bg }}>
         <TerminalIcon className="mr-4 size-5 text-neutral-400" />
-        {Object.keys(managers).map(m => (
-          <TabsTrigger
-            key={m}
-            value={m}
-            className={cn(
-              "flex items-center gap-2 font-medium text-neutral-400 data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:text-white"
-            )}
-            style={{ backgroundColor: bg }}>
-            <Image
-              src={`/${managersIcons[m as keyof typeof managersIcons]}`}
-              className={cn("size-3.5")}
-              width={20}
-              height={20}
-              alt={m}
-            />
-            {m}
-          </TabsTrigger>
-        ))}
+        {Object.keys(managers).map(m => {
+          const Icon = getPackageManagerIcon(m as keyof typeof managers);
+          return (
+            <TabsTrigger
+              key={m}
+              value={m}
+              className={cn(
+                "flex items-center gap-2 font-medium text-neutral-400 data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:text-white"
+              )}
+              style={{ backgroundColor: bg }}>
+              {Icon && getPackageManagerIcon(m as keyof typeof managers)}
+              {m}
+            </TabsTrigger>
+          );
+        })}
       </TabsList>
 
       {Object.entries(managers).map(([key, transform]) => {

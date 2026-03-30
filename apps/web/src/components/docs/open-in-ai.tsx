@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, ExternalLink, SparklesIcon } from "lucide-react";
+import { Clock, SparklesIcon } from "lucide-react";
 import { getIconForAi, type AiName } from "./icons/ai-icons";
 import { AI_QUERIES, SERVERCN_URL } from "@/lib/constants";
 
