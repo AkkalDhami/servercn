@@ -25,6 +25,8 @@ import { spinner } from "@/utils/spinner";
 import { execa } from "execa";
 import { updateEnvKeys } from "@/utils/update-env";
 import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
+import { SERVERCN_URL } from "@/constants/app.constants";
+import { highlighter } from "@/utils/highlighter";
 
 export async function add(registryItemName: string, options: AddOptions = {}) {
   await assertInitialized();
@@ -71,7 +73,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
   if (runtimeDeps.length > 0 || devDeps.length > 0) {
     await installDependencies({
       runtime: runtimeDeps,
-      dev: [...toolingDeps || [], ...devDeps],
+      dev: [...(toolingDeps || []), ...devDeps],
       cwd: process.cwd(),
       packageManager: config.packageManager
     });
@@ -88,8 +90,13 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     dbAdapter: config.database?.adapter as OrmType
   });
 
+  const docs =
+    `${SERVERCN_URL}/docs/${config.framework}/${type}s/${registryItemName}` ||
+    "";
   logger.break();
-  logger.success(`${capitalize(type)}: ${component.slug} added successfully`);
+  logger.log(`${highlighter.success("Installed")} ${component.slug} (${type})`);
+  logger.break();
+  logger.log(highlighter.create(`→ Docs: ${docs}`));
   logger.break();
 }
 
@@ -162,8 +169,6 @@ export async function scaffoldFiles({
   const IS_LOCAL = options.local ?? false;
   const targetDir = paths.targets(".");
 
-  const spin = spinner("Scaffolding files...")?.start();
-
   if (IS_LOCAL) {
     const templateDir = path.resolve(paths.templates(), templatePath);
     if (!(await fs.pathExists(templateDir))) {
@@ -172,8 +177,6 @@ export async function scaffoldFiles({
       );
       process.exit(1);
     }
-    logger.break();
-
     await copyTemplate({
       templateDir,
       targetDir,
@@ -193,9 +196,6 @@ export async function scaffoldFiles({
       process.exit(1);
     }
   }
-
-  logger.break();
-  spin?.succeed("Scaffolding files successfully!");
 }
 
 //? Project File Guards

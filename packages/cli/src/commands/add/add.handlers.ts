@@ -243,10 +243,10 @@ async function resolvePromptVariants({
     message: variantConfig?.prompt || "Select",
     choices
   });
+  logger.break();
 
   if (!variant) {
-    logger.break();
-    logger.warn("Operation cancelled.");
+    logger.warn("No variant selected. Operation canceled.");
     logger.break();
     process.exit(0);
   }

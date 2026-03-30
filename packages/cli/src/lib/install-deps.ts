@@ -56,7 +56,7 @@ export async function installDependencies({
   };
 
   await run(runtimeDeps, false);
-  logger.break();
+  devDeps.length > 0 && logger.break();
   await run(devDeps, true);
 }
 

@@ -226,7 +226,8 @@
       "type": "schema",
       "slug": "auth",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {

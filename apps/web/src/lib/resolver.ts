@@ -149,21 +149,38 @@ export const resolveRegistryItem = (
         variant: "google",
         slug: "oauth"
       };
+    
     case "github-oauth":
       return {
         variant: "github",
         slug: "oauth"
       };
+    
     case "facebook-oauth":
       return {
         variant: "facebook",
         slug: "oauth"
       };
+    
     case "github-google-oauth":
       return {
         variant: "github-google",
         slug: "oauth"
       };
+    
+    case "file-upload-cloudinary":
+      return {
+        slug: "file-upload",
+        variant: "cloudinary"
+      };
+    
+    case "file-upload-imagekit":
+      return {
+        slug: "file-upload",
+        variant: "imagekit"
+      };
+    
+    
   }
   return {
     slug

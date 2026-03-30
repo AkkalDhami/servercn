@@ -34,7 +34,7 @@ export function GitHubStars({
                 fill="currentColor"
               />
             </svg>
-            <span className="text-[0.8125rem] text-muted-foreground tabular-nums">
+            <span className="text-[0.8125rem] hidden sm:inline text-muted-foreground tabular-nums">
               {new Intl.NumberFormat(locales, {
                 notation: "compact",
                 compactDisplay: "short",

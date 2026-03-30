@@ -26,6 +26,7 @@ import { FrameworkRedirect } from "@/components/docs/framework-redirect";
 import { buttonVariants } from "@/components/ui/button";
 import ComponentFileViewer from "@/components/file-viewer";
 import { resolveRegistryItem } from "@/lib/resolver";
+import { cn } from "@/lib/utils";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -188,7 +189,7 @@ export default async function DocsPage({
   // Extract current framework from URL if present
   const currentFramework =
     slug &&
-      (slug[0] === "express" || slug[0] === "nestjs" || slug[0] === "nextjs")
+    (slug[0] === "express" || slug[0] === "nestjs" || slug[0] === "nextjs")
       ? slug[0]
       : undefined;
 
@@ -202,21 +203,24 @@ export default async function DocsPage({
   return (
     <>
       <FrameworkRedirect />
-      <div className="flex w-full overflow-x-auto">
+      <div className="flex w-full overflow-x-auto px-2">
         <div id="docs-content" className="flex-1">
           <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
             <div className="mb-6 flex items-center justify-between pt-6">
               <OpenInAi />
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
-                  className={buttonVariants({ variant: "secondary" })}
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "primary-ring"
+                  )}
                   href={
                     (prev
                       ? injectFramework(
-                        prev.docs as string,
-                        currentFramework || ""
-                      )
+                          prev.docs as string,
+                          currentFramework || ""
+                        )
                       : "") as Route
                   }>
                   <ArrowLeftIcon className="size-4" />
@@ -225,12 +229,15 @@ export default async function DocsPage({
                   href={
                     (next
                       ? injectFramework(
-                        next.docs as string,
-                        currentFramework || ""
-                      )
+                          next.docs as string,
+                          currentFramework || ""
+                        )
                       : "") as Route
                   }
-                  className={buttonVariants({ variant: "secondary" })}>
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "primary-ring"
+                  )}>
                   <ArrowRightIcon className="size-4" />
                 </Link>
               </div>
@@ -296,7 +303,32 @@ export default async function DocsPage({
             )}
           </div>
 
-          <div className="mt-14">
+          {(data?.contributor?.name || data?.contributor?.avatar) && (
+            <div className="mb-4 border-t pt-4">
+              <p className="text-muted-foreground text-sm tracking-wide uppercase">
+                Contributed by
+              </p>
+
+              <div className="mt-2 flex items-center gap-2">
+                <img
+                  height={32}
+                  width={32}
+                  src={data?.contributor?.avatar}
+                  alt={data?.contributor?.name}
+                  className="primary-ring size-8 rounded-full object-cover p-1"
+                />
+
+                <Link
+                  href={data?.contributor?.url}
+                  target="_blank"
+                  className="text-base font-medium hover:underline">
+                  {data?.contributor?.name}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          <div className="border-t">
             <NextSteps
               next={next}
               prev={prev}
@@ -321,7 +353,7 @@ const NextSteps = ({
   // Helper function to inject framework into docs URL if needed
 
   return (
-    <div className="mt-8 flex items-center justify-between">
+    <div className="mt-4 flex items-center justify-between">
       {prev && (
         <div className="flex items-center justify-start">
           <Link
