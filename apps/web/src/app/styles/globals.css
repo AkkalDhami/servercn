@@ -220,13 +220,16 @@
   --breakpoint-sml: 600px;
   --breakpoint-sm: 620px;
 }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   .border-hover {
     @apply duration-300 hover:border-neutral-500 dark:hover:border-neutral-400;
   }
@@ -238,6 +241,10 @@
 
 @utility screen-line-after {
   @apply after:bg-edge relative after:absolute after:bottom-0 after:-left-[100vw] after:-z-1 after:h-px after:w-[200vw];
+}
+
+@utility primary-ring {
+  @apply ring-offset-background border-edge border ring-[1px] ring-neutral-200 ring-offset-1 dark:ring-neutral-800;
 }
 
 @utility border-x-double {
@@ -292,19 +299,19 @@
 @layer components {
   .steps {
     &:first-child {
-      @apply mt-0!;
+      @apply !mt-0;
     }
 
     &:first-child > h3:first-child {
-      @apply mt-0!;
+      @apply !mt-0;
     }
 
     > h3 {
-      @apply mt-8!;
+      @apply !mt-8;
     }
 
     > h3 + p {
-      @apply mt-2!;
+      @apply !mt-2;
     }
   }
 
@@ -392,6 +399,7 @@
 html {
   scroll-behavior: smooth;
 }
+
 body {
   font-family: var(--font-sans);
 }
@@ -413,13 +421,16 @@ h3 {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 0px;
 }
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
