@@ -315,7 +315,7 @@ export default async function DocsPage({
                   width={32}
                   src={data?.contributor?.avatar}
                   alt={data?.contributor?.name}
-                  className="primary-ring size-8 rounded-full object-contain p-1"
+                  className="primary-ring size-8 rounded-full object-cover p-1"
                 />
 
                 <Link

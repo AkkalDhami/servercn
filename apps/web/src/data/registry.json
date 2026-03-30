@@ -247,6 +247,15 @@
       }
     },
     {
+      "slug": "oauth",
+      "title": "OAuth Authentication",
+      "description": "Add authentication to your backend using prebuilt OAuth providers like Google, Facebook, and GitHub.",
+      "type": "component",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/components/oauth"
+    },
+    {
       "slug": "shutdown-handler",
       "title": "Graceful Shutdown Handler",
       "description": "The Graceful Shutdown Handler ensures that your Servercn application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",

@@ -1,0 +1,72 @@
+---
+title: OAuth | Component
+description: Add authentication to your backend using prebuilt OAuth providers like Google, Facebook, and GitHub.
+command: npx servercn-cli add oauth
+---
+
+# OAuth Component
+
+The OAuth component in servercn provides a unified way to integrate third-party authentication into your backend.
+
+Instead of installing providers individually, this component bundles strategies for:
+
+- Google OAuth
+- Facebook OAuth
+- GitHub OAuth
+
+All under a single, consistent architecture.
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add oauth" />
+
+```bash
+npx servercn-cli add oauth
+
+? Select OAuth provider:  » - Use arrow-keys. Return to submit.
+> Google
+  GitHub
+  Facebook
+  Google + GitHub
+  GitHub + Facebook
+  Google + Facebook
+  Google + Facebook + GitHub
+```    
+
+## What's Included
+
+The OAuth component scaffolds support for:
+
+- Google authentication
+- Facebook authentication
+- GitHub authentication
+- Unified controller & service layer
+- Strategy-based architecture
+
+## Environment Variables
+
+Configure each provider in your <Code>.env</Code> file:
+
+#### Google
+
+```bash
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=
+```
+
+#### Facebook
+
+```bash
+FACEBOOK_APP_ID=
+FACEBOOK_APP_SECRET=
+FACEBOOK_REDIRECT_URI=
+```
+
+#### GitHub
+
+```bash
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_CALLBACK_URL=
+```
