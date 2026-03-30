@@ -89,7 +89,6 @@ export async function cloneServercnRegistry({
   selectedProvider?: string;
   options: AddOptions;
 }): Promise<boolean> {
-  logger.break();
   try {
     const files = findFilesByPath(component, templatePath, selectedProvider);
     if (!files || files.length === 0) {
