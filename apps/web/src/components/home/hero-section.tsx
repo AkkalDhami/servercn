@@ -15,7 +15,7 @@ export default function HeroSection() {
     <section id="hero" className={cn("relative mt-4 overflow-hidden sm:mt-12")}>
       <div className="relative pt-18 pb-20 sm:px-4 md:pt-22 md:pb-28">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-          <div className="sm:max-w-1/2">
+          <div className="md:max-w-1/2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -79,7 +79,7 @@ export default function HeroSection() {
                   asChild
                   variant="outline"
                   className={cn(
-                    "hover:shadow-tertiary h-9 gap-2 px-1 text-base",
+                    "hover:shadow-tertiary primary-ring h-9 gap-2 px-1 text-base",
                     "h-10 px-2 sm:h-11 sm:w-40 sm:px-8"
                   )}>
                   <Link

@@ -303,31 +303,30 @@ export default async function DocsPage({
             )}
           </div>
 
-          {data?.contributor?.name ||
-            (data?.contributor?.avatar && (
-              <div className="mb-4 border-t pt-4">
-                <p className="text-muted-foreground text-sm tracking-wide uppercase">
-                  Contributed by
-                </p>
+          {(data?.contributor?.name || data?.contributor?.avatar) && (
+            <div className="mb-4 border-t pt-4">
+              <p className="text-muted-foreground text-sm tracking-wide uppercase">
+                Contributed by
+              </p>
 
-                <div className="mt-2 flex items-center gap-2">
-                  <img
-                    height={32}
-                    width={32}
-                    src={data?.contributor?.avatar}
-                    alt={data?.contributor?.name}
-                    className="primary-ring size-8 rounded-full object-contain p-1"
-                  />
+              <div className="mt-2 flex items-center gap-2">
+                <img
+                  height={32}
+                  width={32}
+                  src={data?.contributor?.avatar}
+                  alt={data?.contributor?.name}
+                  className="primary-ring size-8 rounded-full object-contain p-1"
+                />
 
-                  <Link
-                    href={data?.contributor?.url}
-                    target="_blank"
-                    className="text-base font-medium hover:underline">
-                    {data?.contributor?.name}
-                  </Link>
-                </div>
+                <Link
+                  href={data?.contributor?.url}
+                  target="_blank"
+                  className="text-base font-medium hover:underline">
+                  {data?.contributor?.name}
+                </Link>
               </div>
-            ))}
+            </div>
+          )}
 
           <div className="border-t">
             <NextSteps

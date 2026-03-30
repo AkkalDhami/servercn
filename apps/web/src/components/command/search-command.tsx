@@ -68,21 +68,20 @@ export function SearchCommand({
         variant={"outline"}
         onClick={() => setOpen(open => !open)}
         className={cn(
-          "group hover:bg-card-hover border px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5 dark:border-neutral-800",
+          "group hover:bg-card-hover primary-ring px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5",
           className
         )}>
         <div
           className={cn(
-            "hidden items-center px-0 md:flex md:gap-2",
-            size === "lg" ? "block" : "hidden"
+            " items-center px-0 md:flex md:gap-2",
           )}>
           <SearchIcon className="text-muted-foreground size-4 group-hover:text-accent-foreground" />
-          <span className="group-hover:text-accent-foreground text-muted-foreground font-normal duration-300">
+          <span className="group-hover:text-accent-foreground hidden md:flex  text-muted-foreground font-normal duration-300">
             Search
           </span>
         </div>
 
-        <Kbd className="group-hover:text-accent-foreground text-muted-foreground text-sm font-medium duration-300">
+        <Kbd className="group-hover:text-accent-foreground hidden md:flex  text-muted-foreground text-sm font-medium duration-300">
           ⌘ + K
         </Kbd>
       </Button>

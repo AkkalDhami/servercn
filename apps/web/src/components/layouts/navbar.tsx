@@ -80,14 +80,14 @@ export default function Navbar() {
             </ul>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
             <SearchCommand />
             <ThemeToggle />
 
             <Button
               asChild
               size="icon"
-              className="hidden lg:flex"
+              className="hidden primary-ring lg:flex"
               variant="secondary">
               <GitHubStars stargazersCount={255} repo={GITHUB_URL} />
             </Button>
@@ -174,9 +174,6 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
         ))}
       </ul>
       <div className="absolute right-2 bottom-4 flex w-full items-center gap-3 px-6">
-        <div className="flex-1">
-          <SearchCommand size="lg" />
-        </div>
         <div className="flex items-center gap-4">
           <Button asChild size="icon" variant="secondary">
             <Link href={GITHUB_URL} target="_blank">

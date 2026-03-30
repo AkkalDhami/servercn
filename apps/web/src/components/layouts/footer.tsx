@@ -68,10 +68,10 @@ export default function Footer() {
           <AnimatedContainer className="w-full space-y-4 screen-line-after pb-4">
             <div className="flex  gap-4 px-4 sm:gap-8 flex-wrap justify-between">
               <Logo />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {
                   socialLinks.map((s) => (
-                    <Link key={s.link} target="_blank" href={s.link as Route}>
+                    <Link key={s.link} target="_blank" href={s.link as Route} className="primary-ring rounded-md">
                       <s.icon className="size-8 p-1 text-muted-foreground hover:text-primary" />
                     </Link>
                   ))
