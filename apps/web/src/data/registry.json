@@ -571,7 +571,7 @@
       "description": "Authentication domain schemas including User, OTP, and Session models with support for multiple databases.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/schemas/auth",
       "meta": {
         "databases": [

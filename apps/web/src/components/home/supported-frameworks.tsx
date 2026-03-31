@@ -178,7 +178,7 @@ export default function SupportedFrameworks() {
 
                 {framework.githubLink && (
                   <div className="pt-4">
-                    <Button variant="outline" className="w-full gap-2" asChild>
+                    <Button variant="outline" className="w-full primary-ring gap-2" asChild>
                       <Link
                         href={framework.githubLink as Route}
                         target="_blank"
