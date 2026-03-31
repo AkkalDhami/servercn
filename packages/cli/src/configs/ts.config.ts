@@ -14,7 +14,6 @@ export const tsConfig = {
     forceConsistentCasingInFileNames: true,
     paths: {
       "@/*": ["./src/*"],
-      "@/shared/*": ["../../shared/*"],
     },
   },
   "tsc-alias": {
