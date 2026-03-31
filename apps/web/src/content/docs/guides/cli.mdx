@@ -26,15 +26,15 @@ After running the command, you will be prompted to choose a project foundation:
 
 ```
   Select a project foundation:  » - Use arrow-keys. Return to submit.
-> Express Starter - Minimal Express server setup
+  Express Starter - Minimal Express server setup
   Express + Mongoose
   Express + MySQL (Drizzle)
   Express + PostgreSQL (Drizzle)
   Nextjs Starter
-  Existing Project
+> Existing Project
 ```
 
-Choose the foundation that best fits your project requirements and press Enter to continue.
+Choose the Existing Project and press Enter to continue.
 
 Again, you will be prompted to configure your stack:
 
@@ -198,7 +198,7 @@ It reads your <Code>servercn.config.json</Code> and resolves the correct impleme
 
 ---
 
-### Add a Component
+#### Add a Component
 
 Use this to install reusable components such as utilities, middleware, or shared modules.
 
@@ -208,7 +208,7 @@ Use this to install reusable components such as utilities, middleware, or shared
 
 <PackageManagerTabs command="npx servercn-cli add jwt-utils" />
 
-### Add a Foundation
+#### Add a Foundation
 
 Install a foundational layer that provides core system setup (e.g., base configs, global handlers, shared infrastructure).
 
@@ -220,7 +220,7 @@ This integrates the foundation according to your selected architecture and stack
 
 ---
 
-### Add Tooling
+#### Add Tooling
 
 Install development tooling such as linters, formatters, logging utilities, or build integrations.
 
@@ -232,7 +232,7 @@ Tooling is configured to match your runtime and language setup.
 
 ---
 
-### Add a Blueprint
+#### Add a Blueprint
 
 Install a predefined feature structure that scaffolds a complete module pattern (routes, controller, service, model).
 
@@ -244,7 +244,17 @@ Blueprints accelerate feature-level development while preserving architectural c
 
 ---
 
-### Add a Schema
+#### Add a Provider
+
+Install a provider integration for external services, databases.
+
+<PackageManagerTabs command="npx servercn-cli add provider <provider-name>" />
+
+<PackageManagerTabs command="npx servercn-cli add pr mongodb-prisma" />
+
+---
+
+#### Add a Schema
 
 Install a predefined database schema aligned with your selected database and ORM.
 
@@ -333,6 +343,5 @@ Display all schema available in the servercn.
 
 Display all tooling available in the servercn.
 
-<PackageManagerTabs command="npx servercn-cli ls tl" />
 <PackageManagerTabs command="npx servercn-cli ls tl" />
 <PackageManagerTabs command="npx servercn-cli ls tl --json" />

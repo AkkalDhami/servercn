@@ -1,27 +1,19 @@
 ---
-title: Auth | MySQL (Drizzle) | Schema
-description: Complete authentication system schemas for MySQL using Drizzle ORM, including User, OTP, Session, and Refresh Token models.
+title: Auth | PostgreSQL (Drizzle) | Schema
+description: Complete authentication system schemas for PostgreSQL using Drizzle ORM, including User, OTP, Session, and Refresh Token models.
 command: npx servercn-cli add schema auth
+
 ---
 
-# Auth Domain (MySQL with Drizzle)
+# Auth Domain (PostgreSQL with Drizzle)
 
-This page documents the authentication schemas for projects using **MySQL** with **Drizzle ORM**.
+This page documents the authentication schemas for projects using **PostgreSQL** with **Drizzle ORM**.
 
 ## Installation Guide
 
-To add these schemas to your project, run:
+Add these schemas using the servercn CLI:
 
-<PackageManagerTabs command="npx servercn-cli add schema auth" />
-
-During installation, select **MySQL (Drizzle)** when prompted for the database.
-This will install all authentication-related schemas into the <Code children="src/drizzle/schemas" /> folder.
-
-## Database Schema Design
-
-To see the complete database design, including the User schema from the Auth Domain, please click [here](https://relatedb.com/s/K4KkC8Q4SS07) visualization.
-
-[Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
+<PackageManagerTabs command="npx servercn-cli add sc auth" />
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
 
@@ -29,20 +21,21 @@ To see the complete database design, including the User schema from the Auth Dom
 
 The **User Schema** is the core component for storing user identity, credentials, and profile information.
 
-**File Path:** <Code children="src/drizzle/schemas/user.schema.ts" />
+<Code children="src/db/schemas/user.schema.ts" />
 
 ```ts
 import {
-  mysqlTable,
+  pgTable,
+  serial,
   varchar,
   boolean,
   timestamp,
-  int,
+  integer,
   json,
   uniqueIndex,
   index,
-  mysqlEnum
-} from "drizzle-orm/mysql-core";
+  pgEnum
+} from "drizzle-orm/pg-core";
 import { timestamps } from "./schema.helper";
 import { relations } from "drizzle-orm";
 import { refreshTokens } from "./refresh-token.schema";
@@ -54,25 +47,26 @@ export interface IAvatar {
   size?: number;
 }
 
-export const users = mysqlTable(
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const providerEnum = pgEnum("provider", ["local", "google", "github"]);
+
+export const users = pgTable(
   "users",
   {
-    id: int("id").primaryKey().autoincrement(),
+    id: serial("id").primaryKey(),
     name: varchar("name", { length: 100 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }),
-    role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+    role: roleEnum("role").default("user").notNull(),
 
-    provider: mysqlEnum("provider", ["local", "google", "github"])
-      .default("local")
-      .notNull(),
+    provider: providerEnum("provider").default("local").notNull(),
     providerId: varchar("provider_id", { length: 255 }),
 
     avatar: json("avatar").$type<IAvatar>(),
 
     isEmailVerified: boolean("is_email_verified").default(false).notNull(),
     lastLoginAt: timestamp("last_login_at"),
-    failedLoginAttempts: int("failed_login_attempts").default(0).notNull(),
+    failedLoginAttempts: integer("failed_login_attempts").default(0).notNull(),
     lockUntil: timestamp("lock_until"),
 
     isDeleted: boolean("is_deleted").default(false).notNull(),
@@ -88,7 +82,7 @@ export const users = mysqlTable(
   ]
 );
 
-//? Relations between
+//? Relations between:
 //? i. user and refresh tokens.
 //? ii. user and sessions.
 //? (One-to-Many)
@@ -110,46 +104,50 @@ export type NewUser = typeof users.$inferInsert;
 
 The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
 
-**File Path:** <Code children="src/drizzle/schemas/otp.schema.ts" />
+<Code children="src/db/schemas/otp.schema.ts" />
 
 ```ts
 import {
-  mysqlTable,
+  pgTable,
+  serial,
   varchar,
   boolean,
   timestamp,
-  int,
-  mysqlEnum,
+  integer,
+  pgEnum,
   index
-} from "drizzle-orm/mysql-core";
-import { timestamps } from "./schema.helper";
+} from "drizzle-orm/pg-core";
 
 const OTP_MAX_ATTEMPTS = 5;
 
-const OTP_TYPES = [
+export const otpTypeEnum = pgEnum("otp_type", [
   "signin",
   "email-verification",
   "password-reset",
   "password-change"
-] as const;
+]);
 
-type OTPType = (typeof OTP_TYPES)[number];
+export const timestamps = {
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull()
+};
 
-export const otps = mysqlTable(
+export const otps = pgTable(
   "otps",
   {
-    id: int("id").primaryKey().autoincrement(),
+    id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otpHashCode: varchar("otp_hash_code", { length: 255 }).notNull(),
-    nextResendAllowedAt: timestamp("next_resend_allowed_at", {
-      mode: "date"
-    }).notNull(),
-    type: mysqlEnum("type", OTP_TYPES).notNull(),
-    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    nextResendAllowedAt: timestamp("next_resend_allowed_at").notNull(),
+    type: otpTypeEnum("type").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     isUsed: boolean("is_used").default(false).notNull(),
-    usedAt: timestamp("used_at", { mode: "date" }),
-    attempts: int("attempts").default(0).notNull(),
-    maxAttempts: int("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
+    usedAt: timestamp("used_at"),
+    attempts: integer("attempts").default(0).notNull(),
+    maxAttempts: integer("max_attempts").default(OTP_MAX_ATTEMPTS).notNull(),
     ...timestamps
   },
   table => [
@@ -171,30 +169,32 @@ export type NewOtp = typeof otps.$inferInsert;
 
 The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
-**File Path:** <Code children="src/drizzle/schemas/session.schema.ts" />
+<Code children="src/db/schemas/session.schema.ts" />
+
 ```ts
 import {
-  mysqlTable,
+  pgTable,
+  serial,
   varchar,
   timestamp,
   boolean,
   index,
-  int
-} from "drizzle-orm/mysql-core";
+  integer
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 import { timestamps } from "./schema.helper";
 
-export const sessions = mysqlTable(
+export const sessions = pgTable(
   "sessions",
   {
-    id: int("id").primaryKey().autoincrement(),
-    userId: int("user_id")
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: varchar("token_hash", { length: 255 }).notNull().unique(),
     ip: varchar("ip", { length: 45 }),
-    userAgent: varchar("user_agent", { length: 255 }),
+    userAgent: varchar("user_agent", { length: 512 }),
     isActive: boolean("is_active").default(true).notNull(),
     lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
     expiresAt: timestamp("expires_at").notNull(),
@@ -203,7 +203,7 @@ export const sessions = mysqlTable(
   table => [
     index("userId_idx").on(table.userId),
     index("tokenHash_idx").on(table.tokenHash),
-    index("isActive_idx").on(table.isActive)
+    index("isActive_idx").on(table.isActive),
   ]
 );
 
@@ -229,27 +229,28 @@ export type NewSession = typeof sessions.$inferInsert;
 
 The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
 
-**File Path:** <Code children="src/drizzle/schemas/refresh-token.schema.ts" />
+<Code children="src/db/schemas/refresh-token.schema.ts" />
 
 ```ts
 import {
-  mysqlTable,
+  pgTable,
+  serial,
   varchar,
   boolean,
   timestamp,
   index,
   text,
-  int
-} from "drizzle-orm/mysql-core";
+  integer
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
 import { timestamps } from "./schema.helper";
 
-export const refreshTokens = mysqlTable(
+export const refreshTokens = pgTable(
   "refresh_tokens",
   {
-    id: int("id").primaryKey().autoincrement(),
-    userId: int("user_id")
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     tokenHash: text("token_hash").notNull(),
@@ -293,7 +294,7 @@ export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 All database schemas must be re-exported from a single entry point.
 This allows Drizzle to load every table definition from one file during migration generation.
 
-**File Path:** <Code children="src/drizzle/index.ts" />
+<Code children="src/db/index.ts" />
 
 ```ts
 export * from "./schemas/user.schema";
@@ -309,16 +310,16 @@ _This file acts as the schema registry for Drizzle._
 Create a <Code children="drizzle.config.ts" /> file at the project root.
 This file defines how Drizzle connects to the database and where it should read schemas and write migrations.
 
-**File Path:** <Code children="drizzle.config.ts" />
+<Code children="drizzle.config.ts" />
 
 ```ts
 import { Config, defineConfig } from "drizzle-kit";
 import env from "./src/configs/env";
 
 export default defineConfig({
-  out: "./src/drizzle/migrations", // Directory where migrations are generated
-  schema: "./src/drizzle/index.ts", // Central schema entry point
-  dialect: "mysql", // Database dialect
+  out: "./src/db/migrations", // Directory where migrations are generated
+  schema: "./src/db/index.ts", // Central schema entry point
+  dialect: "postgresql", // Database dialect
   dbCredentials: {
     url: env.DATABASE_URL!
   },
@@ -335,4 +336,4 @@ export default defineConfig({
 - <Code children="strict: true" /> helps catch schema issues early during
   migration generation.
 
-<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
+<Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />

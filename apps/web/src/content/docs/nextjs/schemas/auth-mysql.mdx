@@ -10,18 +10,10 @@ This page documents the authentication schemas for projects using **MySQL** with
 
 ## Installation Guide
 
-To add these schemas to your project, run:
+Add these schemas using the servercn CLI:
 
-<PackageManagerTabs command="npx servercn-cli add schema auth" />
+<PackageManagerTabs command="npx servercn-cli add sc auth" />
 
-During installation, select **MySQL (Drizzle)** when prompted for the database.
-This will install all authentication-related schemas into the <Code children="src/drizzle/schemas" /> folder.
-
-## Database Schema Design
-
-To see the complete database design, including the User schema from the Auth Domain, please click [here](https://relatedb.com/s/K4KkC8Q4SS07) visualization.
-
-[Database Schema Design](https://relatedb.com/s/K4KkC8Q4SS07)
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
 
@@ -29,7 +21,7 @@ To see the complete database design, including the User schema from the Auth Dom
 
 The **User Schema** is the core component for storing user identity, credentials, and profile information.
 
-**File Path:** <Code children="src/drizzle/schemas/user.schema.ts" />
+<Code children="src/db/schemas/user.schema.ts" />
 
 ```ts
 import {
@@ -110,7 +102,7 @@ export type NewUser = typeof users.$inferInsert;
 
 The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
 
-**File Path:** <Code children="src/drizzle/schemas/otp.schema.ts" />
+<Code children="src/db/schemas/otp.schema.ts" />
 
 ```ts
 import {
@@ -171,7 +163,7 @@ export type NewOtp = typeof otps.$inferInsert;
 
 The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
-**File Path:** <Code children="src/drizzle/schemas/session.schema.ts" />
+<Code children="src/db/schemas/session.schema.ts" />
 ```ts
 import {
   mysqlTable,
@@ -229,7 +221,7 @@ export type NewSession = typeof sessions.$inferInsert;
 
 The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
 
-**File Path:** <Code children="src/drizzle/schemas/refresh-token.schema.ts" />
+<Code children="src/db/schemas/refresh-token.schema.ts" />
 
 ```ts
 import {
@@ -293,7 +285,7 @@ export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 All database schemas must be re-exported from a single entry point.
 This allows Drizzle to load every table definition from one file during migration generation.
 
-**File Path:** <Code children="src/drizzle/index.ts" />
+<Code children="src/db/index.ts" />
 
 ```ts
 export * from "./schemas/user.schema";
@@ -309,15 +301,15 @@ _This file acts as the schema registry for Drizzle._
 Create a <Code children="drizzle.config.ts" /> file at the project root.
 This file defines how Drizzle connects to the database and where it should read schemas and write migrations.
 
-**File Path:** <Code children="drizzle.config.ts" />
+<Code children="drizzle.config.ts" />
 
 ```ts
 import { Config, defineConfig } from "drizzle-kit";
 import env from "./src/configs/env";
 
 export default defineConfig({
-  out: "./src/drizzle/migrations", // Directory where migrations are generated
-  schema: "./src/drizzle/index.ts", // Central schema entry point
+  out: "./src/db/migrations", // Directory where migrations are generated
+  schema: "./src/db/index.ts", // Central schema entry point
   dialect: "mysql", // Database dialect
   dbCredentials: {
     url: env.DATABASE_URL!

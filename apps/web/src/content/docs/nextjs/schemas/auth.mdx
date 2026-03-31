@@ -1,0 +1,87 @@
+---
+title: Auth Domain Schemas
+description: Complete authentication system schemas including User, OTP, Session, and Refresh Token models for Next.js (template reference).
+command: npx servercn-cli add sc auth
+---
+
+# Auth Domain Schemas (Next.js)
+The Auth Domain provides a complete set of production-ready schemas for building secure authentication systems in your Node.js applications.
+
+This domain includes three core schemas that work together to handle user authentication, verification, and session management.
+
+## What is included
+
+Auth Domain includes the following schemas:
+
+- <Code>auth/user</Code>
+- <Code>auth/otp</Code>
+- <Code>auth/session</Code>
+- <Code>auth/refresh-token</Code>
+
+Each schema exists in multiple variants for:
+
+- [MongoDB (Mongoose)](/docs/nextjs/schemas/auth-mongodb)
+- [MySQL (Drizzle)](/docs/nextjs/schemas/auth-mysql)
+- [PostgreSQL (Drizzle)](/docs/nextjs/schemas/auth-postgresql)
+
+## Quick Start
+
+### Install everything
+
+<PackageManagerTabs command="npx servercn-cli add sc auth" />
+
+### Install individual parts
+
+**User:** 
+<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+
+**OTP:** 
+<PackageManagerTabs command="npx servercn-cli add sc auth/otp" />
+
+**Session:** 
+<PackageManagerTabs command="npx servercn-cli add sc auth/session" />
+
+**Refresh Token:** 
+<PackageManagerTabs command="npx servercn-cli add sc auth/refresh-token" />
+
+## Schema summaries
+
+### User
+
+Key responsibilities:
+
+- Persist user profiles
+- Password and OAuth provider fields (<Code>local</Code>, <Code>google</Code>, <Code>github</Code>)
+- Roles: <Code>user</Code>, <Code>admin</Code>
+- Soft delete and account lock (<Code>isDeleted</Code>, <Code>lockUntil</Code>, <Code>failedLoginAttempts</Code>)
+- Email verification (<Code>isEmailVerified</Code>)
+
+### OTP
+
+Key responsibilities:
+
+- OTP types: <Code>signin</Code>, <Code>email-verification</Code>, <Code>password-reset</Code>, <Code>password-change</Code>
+- Hashed OTP values, retry limit, expiration, and TTL cleanup
+- <Code>nextResendAllowedAt</Code> / <Code>maxAttempts</Code> for brute-force protection
+
+### Session
+
+Key responsibilities:
+
+- Per-session tokens, device/IP info
+- Active/inactive sessions and expiration
+- TTL cleanup by last usage or created time
+
+### Refresh Token
+
+Key responsibilities:
+
+- Long-lived refresh token rotation and revocation
+- Token hashing and replacement tracking
+- Expiration and revocation state
+
+## Database variant links
+
+- [MongoDB (Mongoose)](/docs/nextjs/schemas/auth-mongodb)
+- [MySQL (Drizzle)](/docs/nextjs/schemas/auth-mysql)
+- [PostgreSQL (Drizzle)](/docs/nextjs/schemas/auth-postgresql)

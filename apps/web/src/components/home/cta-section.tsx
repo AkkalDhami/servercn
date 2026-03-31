@@ -23,7 +23,7 @@ export default function CallToAction() {
           <Button
             variant={"outline"}
             asChild
-            className="bg-transparent dark:bg-transparent">
+            className="bg-transparent primary-ring dark:bg-transparent">
             <Link href="/components">Browse Components</Link>
           </Button>
           <Button asChild>
