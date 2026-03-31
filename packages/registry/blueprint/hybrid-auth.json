@@ -24,7 +24,9 @@
                       "express-rate-limit",
                       "helmet",
                       "multer",
+                      "resend",
                       "redis",
+                      "jsonwebtoken",
                       "nodemailer",
                       "passport",
                       "passport-github2",
@@ -44,7 +46,7 @@
                       "@types/express",
                       "@types/cookie-parser",
                       "@types/cors",
-
+                      "@types/jsonwebtoken",
                       "@types/morgan",
                       "@types/multer",
                       "@types/nodemailer",

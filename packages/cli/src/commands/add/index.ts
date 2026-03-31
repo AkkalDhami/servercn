@@ -19,9 +19,7 @@ import type {
   RegistryType,
   RuntimeType
 } from "@/types";
-import { capitalize } from "@/utils/capitalize";
 import { resolveTemplateResolution } from "./add.handlers";
-import { spinner } from "@/utils/spinner";
 import { execa } from "execa";
 import { updateEnvKeys } from "@/utils/update-env";
 import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
