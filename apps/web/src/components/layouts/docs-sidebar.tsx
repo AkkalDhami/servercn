@@ -74,10 +74,6 @@ export default function DocsSidebar({
       items: getRegistryTypeItems("foundation", framework)
     },
     {
-      title: ITEM_GROUP_NAMING.tooling,
-      items: getRegistryTypeItems("tooling")
-    },
-    {
       title: ITEM_GROUP_NAMING.component,
       items: getRegistryTypeItems("component", framework)
     },
@@ -92,6 +88,10 @@ export default function DocsSidebar({
     {
       title: ITEM_GROUP_NAMING.schema,
       items: getRegistryTypeItems("schema", framework)
+    },
+    {
+      title: ITEM_GROUP_NAMING.tooling,
+      items: getRegistryTypeItems("tooling")
     },
     {
       title: ITEM_GROUP_NAMING.contributing,
