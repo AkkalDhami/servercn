@@ -5,9 +5,7 @@
       "frameworks": {
         "express": {
           "dependencies": {
-            "runtime": [
-              ""
-            ],
+            "runtime": [],
             "dev": []
           },
           "env": [],
