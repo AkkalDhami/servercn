@@ -4,7 +4,7 @@ import { logger } from "@/utils/logger";
 import type { InstallOptions } from "@/types";
 import { spinner } from "@/utils/spinner";
 
-const clean = (arr: string[]) =>
+export const clean = (arr: string[]) =>
   arr.filter(dep => typeof dep === "string" && dep.trim().length > 0);
 
 export async function installDependencies({

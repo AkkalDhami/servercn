@@ -8,6 +8,7 @@ import { LATEST_VERSION } from "@/constants/app.constants";
 import { registryListCommands } from "./commands/list";
 import { registryViewCommand } from "./commands/view";
 import { build, type buildTypeProps } from "./commands/_build";
+import { registryInstallCommand } from "./commands/install";
 
 const program = new Command();
 
@@ -22,7 +23,7 @@ async function main() {
 
   program
     .command("init [foundation]")
-    .description("Initialize ServerCN in the current project")
+    .description("Initialize servercn in the current project")
     .option("-f, --force", "Overwrite existing files if they exist")
     .option("--fw <framework>", "Framework type: express | nextjs | nestjs")
     .option(
@@ -33,6 +34,7 @@ async function main() {
 
   registryListCommands(program);
   registryViewCommand(program);
+  registryInstallCommand(program);
 
   program
     .command("build")
