@@ -21,20 +21,11 @@ import type {
   RuntimeType
 } from "@/types";
 import { SERVERCN_URL } from "@/constants/app.constants";
+import type { ViewRegistryItemOptions } from ".";
 
-export type ViewOptions = {
+export type ViewOptions = ViewRegistryItemOptions & {
   type: string;
   name: string;
-  json?: boolean;
-  local?: boolean;
-  fw?: string;
-  arch?: string;
-  db?: string;
-  orm?: string;
-  variant?: string;
-  template?: string;
-  runtime?: string;
-  files?: boolean;
 };
 
 type FileEntry = { type: string; path: string; content: string };
@@ -117,6 +108,11 @@ function renderDocs(title: string, docs: string) {
   logger.info(docs);
 }
 
+function renderInstallationCmd(command: string) {
+  logger.section("Installation");
+  logger.info(command);
+}
+
 function renderFiles(files: FileEntry[]) {
   logger.section(`Files (${files.length})`);
   if (files.length === 0) {
@@ -136,7 +132,6 @@ export async function viewRegistryItem(options: ViewOptions) {
     logger.error(`Unknown type: ${options.type}`);
     process.exit(1);
   }
-
   const item = await getRegistry(options.name, type, options.local);
   const baseItem = item.runtimes[(options.runtime as RuntimeType) || "node"];
 
@@ -150,10 +145,14 @@ export async function viewRegistryItem(options: ViewOptions) {
   const baseOutput = {
     type,
     slug: item.slug,
-    command: install
+    installation: install
   };
 
-  if (type === "foundation") {
+  if (type === "foundation" || type === "provider") {
+    if (options.variant) {
+      logger.warn("Variant option is not applicable for foundations/providers");
+      process.exit(1);
+    }
     const foundation = item as RegistryFoundation;
     const frameworks = foundation.runtimes?.[runtime]?.frameworks || {};
     const framework = (options.fw || firstKey(frameworks)) as
@@ -174,7 +173,9 @@ export async function viewRegistryItem(options: ViewOptions) {
       : `node/${framework}/foundation/${inputArch}`;
     const files =
       findFilesByPath(item, templatePath) ||
-      (options.local ? await readLocalTemplateFiles(templatePath) : []) ||
+      (options.local
+        ? await readLocalTemplateFiles(templatePath)
+        : await readLocalTemplateFiles(templatePath)) ||
       [];
 
     const output = {
@@ -197,17 +198,11 @@ export async function viewRegistryItem(options: ViewOptions) {
     }
 
     logger.break();
-    // renderKeyValue("slug", item.slug);
-    // renderKeyValue("type", type);
-    // renderKeyValue("command", install);
-    // renderKeyValue("runtime", runtime);
-    // renderKeyValue("framework", framework || "-");
-    // renderKeyValue("architecture", archs?.join(", ") || "-");
 
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["command", install],
+      ["installation", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["architecture", inputArch || archs?.join(", ") || "-"]
@@ -216,6 +211,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderList("DevDependencies", selectedFramework.dependencies?.dev);
     renderList("Env Variables", selectedFramework.env);
     renderDocs("Documentation", docs);
+    renderInstallationCmd(install);
     renderDocs("JSON Schema", schema);
 
     if (options.files) {
@@ -225,6 +221,12 @@ export async function viewRegistryItem(options: ViewOptions) {
   }
 
   if (type === "component") {
+    if (options.variant && !options.arch) {
+      logger.warn(
+        "Variant option is only applicable when architecture is specified for components"
+      );
+      process.exit(1);
+    }
     const component = item as RegistryComponent;
     const frameworks = component.runtimes?.[runtime]?.frameworks || {};
     const framework = (options.fw || firstKey(frameworks)) as
@@ -243,7 +245,7 @@ export async function viewRegistryItem(options: ViewOptions) {
 
     if ("variants" in fw && fw.variants) {
       variantKey = options.variant || (firstKey(fw.variants) as string);
-      const variant = variantKey ? fw.variants[variantKey] : undefined;
+      const variant = variantKey ? fw?.variants[variantKey] : undefined;
       if (!variant) {
         logger.error(`Variant not found: ${variantKey}`);
         process.exit(1);
@@ -262,7 +264,7 @@ export async function viewRegistryItem(options: ViewOptions) {
       (Object.keys(templates)[0] as Architecture);
     const templatePath = options.local
       ? `node/${framework}/component/${templates[inputArch]}`
-      : `node/${framework}/component/${inputArch}`;
+      : `node/${framework}/component/${templates}/${inputArch}`;
     const files =
       findFilesByPath(item, templatePath, variantKey) ||
       (options.local ? await readLocalTemplateFiles(templatePath) : []) ||
@@ -295,7 +297,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["command", install],
+      ["installation", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["variant", variantKey || "-"],
@@ -305,6 +307,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderList("DevDependencies", dependencies?.dev);
     renderList("Env Variables", env);
     renderDocs("Documentation", docs);
+    renderInstallationCmd(install);
     renderDocs("JSON Schema", schema);
     if (options.files) {
       renderFiles(files);
@@ -313,6 +316,10 @@ export async function viewRegistryItem(options: ViewOptions) {
   }
 
   if (type === "blueprint") {
+    if (options.variant) {
+      logger.warn("Variant option is not applicable for blueprints");
+      process.exit(1);
+    }
     const blueprint = item as RegistryBlueprint;
     const frameworks = blueprint.runtimes?.[runtime]?.frameworks || {};
     const framework = (options.fw || firstKey(frameworks)) as
@@ -371,7 +378,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["command", install],
+      ["installation", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["database", db || "-"],
@@ -382,6 +389,7 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderList("DevDependencies", ormConfig.dependencies?.dev);
     renderList("Env Variables", ormConfig.env);
     renderDocs("Documentation", docs);
+    renderInstallationCmd(install);
     renderDocs("JSON Schema", schema);
     if (options.files) {
       renderFiles(files);
@@ -390,6 +398,10 @@ export async function viewRegistryItem(options: ViewOptions) {
   }
 
   if (type === "schema") {
+    if (options.variant) {
+      logger.warn("Variant option is not applicable for schemas");
+      process.exit(1);
+    }
     const schema = item as RegistrySchema;
     const frameworks = schema.runtimes?.[runtime]?.frameworks || {};
     const framework = (options.fw || firstKey(frameworks)) as
@@ -415,7 +427,6 @@ export async function viewRegistryItem(options: ViewOptions) {
       process.exit(1);
     }
     const templateKey =
-      options.template ||
       (ormConfig.templates && (firstKey(ormConfig.templates) as string)) ||
       "index";
     const template = ormConfig.templates?.[templateKey];
@@ -457,17 +468,22 @@ export async function viewRegistryItem(options: ViewOptions) {
     renderOverview([
       ["slug", item.slug],
       ["type", type],
-      ["command", install],
+      ["installation", install],
       ["runtime", runtime],
       ["framework", framework || "-"],
       ["database", db || "-"],
       ["orm", orm || "-"],
-      ["template", templateKey || "-"],
       ["architecture", arch || "-"]
     ]);
     renderList("Dependencies", ormConfig.dependencies?.runtime);
     renderList("DevDependencies", ormConfig.dependencies?.dev);
-    renderFiles(files);
+    renderDocs("Documentation", docs);
+    renderInstallationCmd(install);
+    const jsonSchema = `${SERVERCN_URL}/sr/${type}/${item.slug}.json` || "";
+    renderDocs("JSON Schema", jsonSchema);
+    if (options.files) {
+      renderFiles(files);
+    }
     return;
   }
 }
