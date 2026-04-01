@@ -2,7 +2,7 @@ import { Section } from "@/components/ui/section";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { IContributor } from "@/app/(app)/contributors/page";
-import { ContributorCard } from "../contributor/contributor-card";
+import { ContributorCard } from "@/components/contributor/contributor-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { GITHUB_URL } from "@/lib/constants";
@@ -23,7 +23,7 @@ export default async function ContributorCta() {
     contributors = [];
   }
   return (
-    <Section id="contributor-cta" className="hidden md:block">
+    <Section id="contributor-cta">
       <div className="mb-8 text-center">
         <Heading className="text-3xl font-bold">
           Open Source Contributors
