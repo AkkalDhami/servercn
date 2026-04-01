@@ -425,9 +425,9 @@ export const LanguageIcons = {
       <path
         fill="none"
         stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
         d="m18 12l-6 6m6-14L4 18"
       />
     </svg>
