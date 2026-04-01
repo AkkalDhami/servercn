@@ -1,9 +1,9 @@
 import { Section } from "@/components/ui/section";
-import { Heading } from "../ui/heading";
-import { SubHeading } from "../ui/sub-heading";
+import { Heading } from "@/components/ui/heading";
+import { SubHeading } from "@/components/ui/sub-heading";
 import { IContributor } from "@/app/(app)/contributors/page";
 import { ContributorCard } from "../contributor/contributor-card";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { GITHUB_URL } from "@/lib/constants";
 import { FaGithub } from "react-icons/fa6";

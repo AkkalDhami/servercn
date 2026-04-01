@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import registryData from "@/data/registry.json";
 import { IconType } from "react-icons/lib";
-import { Section } from "../ui/section";
+import { Section } from "@/components/ui/section";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Route } from "next";
@@ -38,7 +38,7 @@ const FRAMEWORKS: Framework[] = [
     status: "available",
     description:
       "The battle-tested Node.js framework. Full component support — auth, middleware, error handling, and more.",
-    frameworks: ["express"],
+    frameworks: ["express"]
   },
   {
     name: "NestJS",
@@ -61,7 +61,9 @@ const FRAMEWORKS: Framework[] = [
 ];
 
 // Calculate stats for a given framework
-export function calculateFrameworkStats(frameworkName: FrameworkType[]): FrameworkStats {
+export function calculateFrameworkStats(
+  frameworkName: FrameworkType[]
+): FrameworkStats {
   const items = registryData.items.filter(
     item =>
       item.frameworks && frameworkName.some(fw => item.frameworks?.includes(fw))
@@ -82,7 +84,7 @@ export function calculateFrameworkStats(frameworkName: FrameworkType[]): Framewo
     ).length,
     providers: items.filter(
       item => item.type === "provider" && item.status === "stable"
-    ).length,
+    ).length
   };
 }
 
@@ -138,8 +140,7 @@ export default function SupportedFrameworks() {
                       stats.blueprints > 0 &&
                       stats.foundations > 0 &&
                       stats.schemas > 0 &&
-                      stats.providers > 0 &&
-                      (
+                      stats.providers > 0 && (
                         <div className="mt-2 grid grid-cols-2 gap-2">
                           <p className="text-muted-foreground text-sm">
                             <span className="text-foreground font-bold">
@@ -178,7 +179,10 @@ export default function SupportedFrameworks() {
 
                 {framework.githubLink && (
                   <div className="pt-4">
-                    <Button variant="outline" className="w-full primary-ring gap-2" asChild>
+                    <Button
+                      variant="outline"
+                      className="primary-ring w-full gap-2"
+                      asChild>
                       <Link
                         href={framework.githubLink as Route}
                         target="_blank"
