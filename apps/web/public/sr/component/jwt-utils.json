@@ -35,13 +35,13 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "src/shared/helpers/jwt.helpers.ts",
-                  "content": "import jwt from \"jsonwebtoken\";\nimport env from \"../configs/env\";\n\nconst ACCESS_TOKEN_EXPIRY = \"15m\";\nconst REFRESH_TOKEN_EXPIRY = \"7d\";\n\nexport function generateAccessToken(user: { _id: string }) {\n  return jwt.sign({ _id: user._id }, env.JWT_ACCESS_SECRET!, {\n    expiresIn: ACCESS_TOKEN_EXPIRY\n  });\n}\n\nexport function generateRefreshToken(userId: string) {\n  return jwt.sign({ userId }, env.JWT_REFRESH_SECRET!, {\n    expiresIn: REFRESH_TOKEN_EXPIRY\n  });\n}\n\nexport function verifyAccessToken(token: string) {\n  return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {\n    _id: string;\n  };\n}\n\nexport function verifyRefreshToken(token: string) {\n  return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {\n    userId: string;\n  };\n}\n"
+                  "path": "src/shared/configs/env.ts",
+                  "content": "interface Config {\n  JWT_REFRESH_SECRET: string;\n  JWT_ACCESS_SECRET: string;\n}\n\nconst env: Config = {\n  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,\n  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!\n};\n\nexport default env;\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/configs/env.ts",
-                  "content": "interface Config {\n  JWT_REFRESH_SECRET: string;\n  JWT_ACCESS_SECRET: string;\n}\n\nconst env: Config = {\n  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,\n  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!\n};\n\nexport default env;\n"
+                  "path": "src/shared/helpers/jwt.helpers.ts",
+                  "content": "import jwt from \"jsonwebtoken\";\nimport env from \"../configs/env\";\n\nconst ACCESS_TOKEN_EXPIRY = \"15m\";\nconst REFRESH_TOKEN_EXPIRY = \"7d\";\n\nexport function generateAccessToken(user: { _id: string }) {\n  return jwt.sign({ _id: user._id }, env.JWT_ACCESS_SECRET!, {\n    expiresIn: ACCESS_TOKEN_EXPIRY\n  });\n}\n\nexport function generateRefreshToken(userId: string) {\n  return jwt.sign({ userId }, env.JWT_REFRESH_SECRET!, {\n    expiresIn: REFRESH_TOKEN_EXPIRY\n  });\n}\n\nexport function verifyAccessToken(token: string) {\n  return jwt.verify(token, env.JWT_ACCESS_SECRET!) as {\n    _id: string;\n  };\n}\n\nexport function verifyRefreshToken(token: string) {\n  return jwt.verify(token, env.JWT_REFRESH_SECRET!) as {\n    userId: string;\n  };\n}\n"
                 }
               ]
             }
