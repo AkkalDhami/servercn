@@ -1,7 +1,6 @@
 # Next.js × Servercn
 
-Production-ready Next.js foundation.
-
+A Next.js starter template for Servercn, featuring Tailwind CSS, Shadcn, dark mode, and more.
 ---
 
 ## ⚡ Quick Start
@@ -44,27 +43,3 @@ npx servercn-cli init nextjs-starter
 ## 🔗 Servercn
 
 Build faster. Structure better.
-
----
-
-## 📜 License
-
-MIT
-
-Installing dependencies:
-
-- next
-- react
-- react-dom
-
-Installing devDependencies:
-
-- @tailwindcss/postcss
-- @types/node
-- @types/react
-- @types/react-dom
-- babel-plugin-react-compiler
-- eslint
-- eslint-config-next
-- tailwindcss
-- typescript

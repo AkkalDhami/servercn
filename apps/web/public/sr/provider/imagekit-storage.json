@@ -40,11 +40,6 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "src/shared/middlewares/upload-file.ts",
-                  "content": "import multer from \"multer\";\r\n\r\nexport const ALLOWED_FILE_TYPES = [\r\n  \"image/jpeg\",\r\n  \"image/png\",\r\n  \"image/webp\",\r\n  \"video/mp4\",\r\n  \"video/mpeg\",\r\n  \"video/quicktime\",\r\n  \"application/pdf\"\r\n];\r\n\r\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\r\n\r\nconst storage = multer.memoryStorage();\r\n\r\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\r\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\r\n    return cb(null, false);\r\n  }\r\n  cb(null, true);\r\n};\r\n\r\nconst upload = multer({\r\n  storage,\r\n  limits: { fileSize: MAX_FILE_SIZE },\r\n  fileFilter\r\n});\r\n\r\nexport default upload;\r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/configs/imagekit.ts",
                   "content": "import ImageKit from \"@imagekit/nodejs\";\r\nimport env from \"./env\";\r\n\r\nconst imagekitClient = new ImageKit({\r\n  privateKey: env.IMAGEKIT_PRIVATE_KEY\r\n});\r\n\r\nexport default imagekitClient;\r\n\r\n/*\r\n? USAGE:\r\n* src/services/imagekit.service.ts or src/utils/imagekit.ts\r\n\r\nimport imagekitClient from \"../configs/imagekit\";\r\nimport { toFile } from \"@imagekit/nodejs\";\r\n \r\nexport interface UploadOptions {\r\n  folder: string;\r\n  fileName?: string;\r\n}\r\n \r\nexport interface ImageKitUploadResult {\r\n  url: string;\r\n  fileId: string;\r\n  size: number;\r\n}\r\n \r\nexport const uploadToImageKit = async (\r\n  buffer: Buffer,\r\n  options: UploadOptions\r\n): Promise<ImageKitUploadResult> => {\r\n  try {\r\n    const fileName = options.fileName || `file-${Date.now()}`;\r\n    const file = await toFile(buffer, fileName);\r\n \r\n    const result = await imagekitClient.files.upload({\r\n      file: file,\r\n      fileName: fileName,\r\n      folder: options.folder || \"uploads\"\r\n    });\r\n \r\n    return {\r\n      url: result.url || \"\",\r\n      fileId: result.fileId || \"\",\r\n      size: result.size || 0\r\n    };\r\n  } catch (error) {\r\n    throw error;\r\n  }\r\n};\r\n \r\nexport const deleteFileFromImageKit = async (\r\n  fileIds: string[]\r\n): Promise<void> => {\r\n  try {\r\n    await Promise.all(\r\n      fileIds.map(fileId => imagekitClient.files.delete(fileId))\r\n    );\r\n  } catch (error) {\r\n    throw error;\r\n  }\r\n};\r\n*/\r\n"
                 },
@@ -52,6 +47,11 @@
                   "type": "file",
                   "path": "src/shared/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  CLOUDINARY_CLOUD_NAME: z.string(),\r\n  CLOUDINARY_API_KEY: z.string(),\r\n  IMAGEKIT_PRIVATE_KEY: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/upload-file.ts",
+                  "content": "import multer from \"multer\";\r\n\r\nexport const ALLOWED_FILE_TYPES = [\r\n  \"image/jpeg\",\r\n  \"image/png\",\r\n  \"image/webp\",\r\n  \"video/mp4\",\r\n  \"video/mpeg\",\r\n  \"video/quicktime\",\r\n  \"application/pdf\"\r\n];\r\n\r\nexport const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB\r\n\r\nconst storage = multer.memoryStorage();\r\n\r\nconst fileFilter: multer.Options[\"fileFilter\"] = (_req, file, cb) => {\r\n  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {\r\n    return cb(null, false);\r\n  }\r\n  cb(null, true);\r\n};\r\n\r\nconst upload = multer({\r\n  storage,\r\n  limits: { fileSize: MAX_FILE_SIZE },\r\n  fileFilter\r\n});\r\n\r\nexport default upload;\r\n"
                 }
               ]
             }

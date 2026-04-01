@@ -9,6 +9,7 @@ import SupportedFrameworks from "@/components/home/supported-frameworks";
 import { cn } from "@/lib/utils";
 import NextjsStarterSection from "@/components/home/nextjs-starter";
 import HybridAuthSection from "@/components/home/hybrid-auth";
+import ContributorCta from "@/components/home/contributor-cta";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
       <SupportedFrameworks />
       <OAuthSection />
       <WhyServercn />
+      <ContributorCta />
       <HybridAuthSection />
       <CallToAction />
     </main>

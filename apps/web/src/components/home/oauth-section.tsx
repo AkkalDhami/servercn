@@ -1,13 +1,9 @@
 "use client";
-import mvcData from "../../data/google-oauth.json";
-
-import BackendStructureViewer from "@/components/file-viewer/backend-structure-viewer";
-
-import { FileNode } from "../file-viewer/file-tree";
 import InstallComponentCommands from "@/components/command/install-component-command";
 import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Section } from "@/components/ui/section";
+import ComponentFileViewer from "../file-viewer";
 export default function OAuthSection() {
   return (
     <Section id="google-oauth-section" className="hidden md:block">
@@ -22,11 +18,16 @@ export default function OAuthSection() {
       <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-5">
         <InstallComponentCommands className="col-span-2" />
 
-        <BackendStructureViewer
-          sidebar="left"
-          structure={mvcData as FileNode[]}
-          className="col-span-3"
-        />
+        <div className="col-span-3">
+          <ComponentFileViewer
+            from="structure"
+            slug={"oauth"}
+            architecture={"mvc"}
+            framework={"express"}
+            type={"component"}
+            variant="google"
+          />
+        </div>
       </div>
     </Section>
   );
