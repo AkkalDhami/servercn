@@ -107,7 +107,7 @@ function validateInput(name: string) {
 }
 
 //? Stack Validation
-function validateStack(config: IServerCNConfig) {
+export function validateStack(config: IServerCNConfig) {
   if (!config.runtime || !config.framework) {
     logger.error(
       "Stack configuration is missing. Run `npx servercn-cli init` first."
@@ -203,7 +203,7 @@ function ensureProjectFiles() {
 }
 
 //? Dependency Resolution
-function resolveDependencies({
+export function resolveDependencies({
   component,
   config,
   additionalDevDeps,

@@ -6,7 +6,8 @@ import {
   listTooling,
   listSchemas,
   listBlueprints,
-  type listOptionType
+  type listOptionType,
+  listProviders
 } from "./list.handlers";
 
 export function registryListCommands(program: Command) {
@@ -40,6 +41,14 @@ export function registryListCommands(program: Command) {
     .description("List available foundations")
     .action((_, cmd) => {
       listFoundations(resolveOptions(cmd));
+    });
+
+  list
+    .command("provider")
+    .alias("pr")
+    .description("List available providers")
+    .action((_, cmd) => {
+      listProviders(resolveOptions(cmd));
     });
 
   list

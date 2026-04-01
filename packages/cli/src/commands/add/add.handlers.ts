@@ -79,6 +79,7 @@ export async function resolveTemplateResolution({
   switch (type) {
     case "component":
     case "foundation":
+    case "provider":
       if (isBuilt) {
         if (templateConfig.architectures?.[architecture]) {
           selectedSubPath = architecture;
