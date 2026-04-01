@@ -15,7 +15,7 @@ The <Code>init</Code> command bootstraps Servercn configuration in an existing p
 
 ---
 
-### 1. Existing Project
+**1. Existing Project**
 
 #### Initialize Servercn in an Existing Project
 
@@ -75,7 +75,7 @@ This generates a <Code>servercn.config.json</Code> file in your project root:
 
 ---
 
-### 2. New Project
+**2. New Project**
 
 #### Initialize a New Project from a Starter
 
@@ -124,71 +124,6 @@ This creates a configured project with <Code>servercn.config.json</Code>:
 ```
 ---
 
-## list
-
-List all available registry item commands.
-
-<PackageManagerTabs command="npx servercn-cli list" />
-
----
-
-## list --json
-
-Return registry item commands in JSON format.
-
-<PackageManagerTabs command="npx servercn-cli ls --json" />
-
-```json
-{
-  "command": "npx servercn-cli list <type>",
-  "types": [
-    {
-      "type": "component",
-      "alias": "cp",
-      "total": 24,
-      "command": "npx servercn-cli list cp"
-    },
-    {
-      "type": "blueprint",
-      "alias": "bp",
-      "total": 1,
-      "command": "npx servercn-cli list bp"
-    },
-    {
-      "type": "foundation",
-      "alias": "fd",
-      "total": 4,
-      "command": "npx servercn-cli list fd"
-    },
-    {
-      "type": "tooling",
-      "alias": "tl",
-      "total": 6,
-      "command": "npx servercn-cli list tl"
-    },
-    {
-      "type": "schema",
-      "alias": "sc",
-      "total": 2,
-      "command": "npx servercn-cli list sc"
-    }
-  ]
-}
-```
-
-## list --all
-
-Return all registry items.
-
-<PackageManagerTabs command="npx servercn-cli ls --all" />
-
-## list --all --json
-
-Return all registry items in JSON structure.
-
-<PackageManagerTabs command="npx servercn-cli ls --all --json" />
-
----
 
 ## add
 
@@ -266,6 +201,271 @@ The schema is generated based on your configured database type and ORM.
 
 ---
 
+## install
+Install dependencies for a registry item without scaffolding files. This command is useful for **recovery**, **manual setup**, or **partial installs**.
+
+**Usage:**
+<PackageManagerTabs command="npx servercn-cli install <type> <name> [options]" />
+
+**Alias**
+<PackageManagerTabs command="npx servercn-cli i <type> <name> [options]" />
+
+
+**Types:**
+
+```bash
+| alias | full       |
+|------ | ---------- |
+| cp    | component  |
+| bp    | blueprint  |
+| pr    | provider   |
+| sc    | schema     |
+| tl    | tooling    |
+| fd    | foundation |
+```
+
+**Options**
+
+Install Modes (mutually exclusive)
+
+```bash
+--all         Install all dependencies (default)
+--dev-only    Install only devDependencies
+--deps-only   Install only runtime dependencies
+```
+> Only one mode can be used at a time.
+
+**Example:**
+
+#### Install all dependencies (default)
+
+<PackageManagerTabs command="npx servercn-cli i cp jwt-utils" />
+<PackageManagerTabs command="npx servercn-cli i bp hybrid-auth" />
+<PackageManagerTabs command="npx servercn-cli i pr mongodb-mongoose" />
+<PackageManagerTabs command="npx servercn-cli i sc auth" />
+<PackageManagerTabs command="npx servercn-cli i fd express-starter" />
+
+
+#### Install only devDependencies
+<PackageManagerTabs command="npx servercn-cli i cp jwt-utils --dev-only" />
+<PackageManagerTabs command="npx servercn-cli i bp hybrid-auth --dev-only" />
+<PackageManagerTabs command="npx servercn-cli i pr mongodb-mongoose --dev-only" />
+<PackageManagerTabs command="npx servercn-cli i sc auth --dev-only" />
+<PackageManagerTabs command="npx servercn-cli i fd express-starter --dev-only" />
+
+#### Install only runtime dependencies
+<PackageManagerTabs command="npx servercn-cli i cp jwt-utils --deps-only" />
+<PackageManagerTabs command="npx servercn-cli i bp hybrid-auth --deps-only" />
+<PackageManagerTabs command="npx servercn-cli i pr mongodb-mongoose --deps-only" />
+<PackageManagerTabs command="npx servercn-cli i sc auth --deps-only" />
+<PackageManagerTabs command="npx servercn-cli i fd express-starter --deps-only" />
+
+```bash
+npx servercn-cli i fd express-starter
+
+Installing dependencies:
+- express
+- cors
+- dotenv-flow
+- cross-env
+- helmet
+- cookie-parser
+- pino
+- pino-pretty
+- source-map-support
+- zod
+- swagger-autogen
+- swagger-ui-express
+
+Installing devDependencies:
+- @types/express
+- morgan
+- @types/cors
+- @types/morgan
+- @types/cookie-parser
+- @types/source-map-support
+- @types/swagger-ui-express
+
+√ Successfully installed 12 dependencies
+
+√ Successfully installed 7 devDependencies
+```
+
+## view
+
+Inspect details of a registry item such as a component, blueprint, provider, or schema. This command helps you understand **what will be installed**, **how it resolves**, and **what files are included**—without making any changes.
+
+**Usage:**
+<PackageManagerTabs command="npx servercn-cli view <type> <name> [options]" />
+
+**Types:**
+
+```bash
+| alias | full       |
+|------ | ---------- |
+| cp    | component  |
+| bp    | blueprint  |
+| pr    | provider   |
+| sc    | schema     |
+| tl    | tooling    |
+| fd    | foundation |
+```
+
+**Options**
+
+```bash
+--json                Output result as JSON
+--local               View local registry item (for testing)
+--files               Show files with content
+--fw <framework>      express | nestjs | nextjs
+--arch <arch>         mvc | feature | modular | file-api
+--db <database>       mongodb | mysql | postgresql
+--orm <orm>           mongoose | prisma | drizzle
+--variant <variant>   Variant key (for components)
+--runtime <runtime>   node (default)
+```
+
+**Examples**
+
+#### Basic usage
+
+<PackageManagerTabs command="npx servercn-cli view cp async-handler" />
+<PackageManagerTabs command="npx servercn-cli view cp async-handler --json" />
+
+```json
+{
+  "type": "component",
+  "slug": "async-handler",
+  "installation": "npx servercn-cli add async-handler",
+  "runtime": "node",
+  "framework": "express",
+  "architecture": [
+    "mvc",
+    "feature"
+  ],
+  "dependencies": {
+    "runtime": [],
+    "dev": []
+  },
+  "env": [],
+  "docs": "https://servercn.vercel.app/docs/express/components/async-handler",
+  "schema": "https://servercn.vercel.app/sr/component/async-handler.json"
+}
+```
+
+#### Component with variant and architecture
+
+<PackageManagerTabs command="npx servercn-cli view cp oauth --variant=github --arch=mvc --json" />
+
+
+```json
+{
+  "type": "component",
+  "slug": "oauth",
+  "installation": "npx servercn-cli add oauth",
+  "runtime": "node",
+  "framework": "express",
+  "architecture": "mvc",
+  "variant": "github",
+  "dependencies": {
+    "runtime": [
+      "dotenv-flow",
+      "cross-env",
+      "pino",
+      "pino-pretty",
+      "passport",
+      "passport-github2"
+    ],
+    "dev": [
+      "@types/passport-github2",
+      "@types/passport"
+    ]
+  },
+  "env": [
+    "LOG_LEVEL",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_REDIRECT_URI"
+  ],
+  "docs": "https://servercn.vercel.app/docs/express/components/oauth",
+  "schema": "https://servercn.vercel.app/sr/component/oauth.json"
+}
+```
+
+> Variant option is only applicable when architecture is specified for components
+
+## list
+
+List all available registry item commands.
+
+<PackageManagerTabs command="npx servercn-cli list" />
+
+---
+
+## list --json
+
+Return registry item commands in JSON format.
+
+<PackageManagerTabs command="npx servercn-cli ls --json" />
+
+```json
+{
+  "command": "npx servercn-cli list <type>",
+  "types": [
+    {
+      "type": "component",
+      "alias": "cp",
+      "total": 24,
+      "command": "npx servercn-cli list cp"
+    },
+    {
+      "type": "blueprint",
+      "alias": "bp",
+      "total": 1,
+      "command": "npx servercn-cli list bp"
+    },
+    {
+      "type": "provider",
+      "alias": "pr",
+      "total": 11,
+      "command": "npx servercn-cli list pr"
+    },
+    {
+      "type": "foundation",
+      "alias": "fd",
+      "total": 4,
+      "command": "npx servercn-cli list fd"
+    },
+    {
+      "type": "tooling",
+      "alias": "tl",
+      "total": 6,
+      "command": "npx servercn-cli list tl"
+    },
+    {
+      "type": "schema",
+      "alias": "sc",
+      "total": 2,
+      "command": "npx servercn-cli list sc"
+    }
+  ]
+}
+```
+
+## list --all
+
+Return all registry items.
+
+<PackageManagerTabs command="npx servercn-cli ls --all" />
+
+## list --all --json
+
+Return all registry items in JSON structure.
+
+<PackageManagerTabs command="npx servercn-cli ls --all --json" />
+
+---
+
 ## ls fd
 
 List available all foundation.
@@ -328,6 +528,13 @@ Display all blueprints available in the servercn.
 
 <PackageManagerTabs command="npx servercn-cli ls bp" />
 <PackageManagerTabs command="npx servercn-cli ls bp --json" />
+
+---
+
+## ls pr
+Display all providers available in the servercn.
+<PackageManagerTabs command="npx servercn-cli ls pr" />
+<PackageManagerTabs command="npx servercn-cli ls pr --json" />
 
 ---
 
