@@ -35,6 +35,17 @@
                 "runtime": ["resend", "dotenv-flow", "cross-env"]
               },
               "env": ["RESEND_API_KEY", "EMAIL_FROM"]
+            },
+            "mailtrap": {
+              "label": "Mailtrap",
+              "templates": {
+                "mvc": "email-service/mailtrap/mvc",
+                "feature": "email-service/mailtrap/feature"
+              },
+              "dependencies": {
+                "runtime": ["mailtrap", "dotenv-flow", "cross-env"]
+              },
+              "env": ["MAILTRAP_API_KEY", "EMAIL_FROM"]
             }
           }
         }
