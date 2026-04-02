@@ -69,6 +69,66 @@
               }
             }
           }
+        },
+        "nextjs": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "file-api": "todo/index/mysql/drizzle/file-api"
+                    },
+                    "todo": {
+                      "file-api": "todo/todo/mysql/drizzle/file-api"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mysql2", "drizzle-orm"],
+                    "dev": ["drizzle-kit"]
+                  }
+                }
+              }
+            },
+
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "file-api": "todo/index/postgresql/drizzle/file-api"
+                    },
+                    "todo": {
+                      "file-api": "todo/todo/postgresql/drizzle/file-api"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["pg", "drizzle-orm"],
+                    "dev": ["@types/pg", "drizzle-kit"]
+                  }
+                }
+              }
+            },
+
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "index": {
+                      "file-api": "todo/index/mongodb/mongoose/file-api"
+                    },
+                    "todo": {
+                      "file-api": "todo/todo/mongodb/mongoose/file-api"
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": ["mongoose"],
+                    "dev": []
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
