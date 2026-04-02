@@ -55,12 +55,21 @@ EMAIL_FROM=""
 RESEND_API_KEY="your-resend-api-key"
 ```
 
+**Mailtrap**
+
+```bash
+MAILTRAP_API_KEY="your-mailtrap-api-key"
+```
+
+---
+
 ## Basic Implementation
 
-### 1. NodeMailer
+## 1. Nodemailer with SMTP
 
-#### 1. Add nodemailer configuration
-
+<Steps>
+  <Step>Nodemailer SMTP Configuration</Step>
+  
 **MVC Path:** <Code children="src/configs/nodemailer.ts" />
 
 **Feature Path:** <Code children="src/shared/configs/nodemailer.ts" />
@@ -92,7 +101,8 @@ export function getTransporter() {
 }
 ```
 
-#### 2. Send Email Function
+
+<Step>Send Email Function</Step>
 
 **MVC Path:** <Code children="src/utils/send-mail.ts" />
 
@@ -132,9 +142,15 @@ export async function sendEmail({
 }
 ```
 
-### 2. Resend 
+---
+</Steps>
 
-#### 1. Resend configuration
+
+## 2. Resend 
+
+<Steps>
+
+<Step>Resend configuration</Step>
 
 **MVC Path:** <Code children="src/configs/resend.ts" />
 
@@ -147,7 +163,7 @@ import env from "./env";
 export const resend = new Resend(env.RESEND_API_KEY);
 ```
 
-#### 2. Send Email Function
+<Step>Send Email Function</Step>
 
 **MVC Path:** <Code children="src/utils/send-mail.ts" />
 
@@ -174,7 +190,7 @@ export async function sendEmail({
 }: sendMail) {
 
   return await resend.emails.send({
-      from: from || `<${env.EMAIL_FROM}>`,
+    from: from || `<${env.EMAIL_FROM}>`,
       to: email,
       subject,
       replyTo: email,
@@ -182,6 +198,64 @@ export async function sendEmail({
     });
 }
 ```
+
+---
+</Steps>
+
+
+## 3. Mailtrap 
+<Steps>
+  
+<Step>Mailtrap configuration</Step>
+  
+**MVC Path:** <Code children="src/configs/mailtrap.ts" />
+
+**Feature Path:** <Code children="src/shared/configs/mailtrap.ts" />
+
+```ts
+import { MailtrapClient } from "mailtrap";
+import env from "./env";
+
+export const mailtrap = new MailtrapClient({
+  token: env.MAILTRAP_API_KEY
+});
+```
+
+<Step>Send Email Function</Step>
+
+**MVC Path:** <Code children="src/utils/send-mail.ts" />
+
+**Feature Path:** <Code children="src/shared/utils/send-mail.ts" />
+
+```ts
+import env from "../configs/env";
+import { mailtrap } from "../configs/mailtrap";
+
+type sendMail = {
+  from?: string;
+  subject: string;
+  data: Record<string, any>;
+  email: string;
+  html: string;
+};
+
+export async function sendEmail({ from, email, subject, html }: sendMail) {
+  const htmlContent = html || "";
+  try {
+    await mailtrap.send({
+      from: {
+        email: from || env.EMAIL_FROM
+      },
+      to: [{ email }],
+      subject,
+      html: htmlContent
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+```
+</Steps>
 
 ## Usage Examples
 
