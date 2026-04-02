@@ -231,7 +231,7 @@
       "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
       "type": "component",
       "status": "experimental",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": ["express", "nestjs"],
       "docs": "/docs/components/health-check"
     },
     {
@@ -596,7 +596,7 @@
       "description": "A production-ready Todo schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/schemas/todo",
       "meta": {
         "databases": [
