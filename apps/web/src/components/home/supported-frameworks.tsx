@@ -17,7 +17,7 @@ import { FrameworkType } from "@/@types/registry";
 interface Framework {
   name: string;
   icon: IconType;
-  status: "available" | "coming-soon";
+  status: "available" | "working" | "coming-soon";
   description: string;
   frameworks?: string[];
   githubLink?: string;
@@ -52,7 +52,7 @@ const FRAMEWORKS: Framework[] = [
   {
     name: "Next.js",
     icon: SiNextdotjs,
-    status: "available",
+    status: "working",
     description:
       "Full-stack ready. Route handlers, server actions, and middleware components for Next.js App Router backends",
     frameworks: ["nextjs"],
@@ -104,6 +104,7 @@ export default function SupportedFrameworks() {
           {FRAMEWORKS.map(framework => {
             const Icon = framework.icon;
             const isAvailable = framework.status === "available";
+            const isWorking = framework.status === "working";
             const stats = framework.frameworks
               ? calculateFrameworkStats(framework.frameworks as FrameworkType[])
               : null;
@@ -124,9 +125,9 @@ export default function SupportedFrameworks() {
                       className={
                         isAvailable
                           ? "border-green-500 bg-green-500/10 text-green-500 uppercase"
-                          : "border-yellow-500 bg-yellow-500/10 text-yellow-600 uppercase"
+                          : isWorking ? "border-blue-500 text-blue-600 bg-blue-500/10 uppercase" :  "border-yellow-500 bg-yellow-500/10 text-yellow-600 uppercase"
                       }>
-                      {isAvailable ? "Available" : "Coming Soon"}
+                      {isAvailable ? "Available" : isWorking ? "Working" : "Coming Soon"}
                     </Badge>
                   </div>
                   <h3 className="mt-4 text-xl font-medium">{framework.name}</h3>

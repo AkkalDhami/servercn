@@ -1,7 +1,8 @@
 export function JSGuideVideo() {
   return (
-    <video controls autoPlay preload="none">
+    <video controls autoPlay>
       <source
+        autoFocus
         src="https://res.cloudinary.com/servercn/video/upload/v1774173613/servercn-js-guide.mp4"
         type="video/mp4"
       />
