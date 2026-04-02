@@ -30,6 +30,11 @@
                   "files": [
                     {
                       "type": "file",
+                      "path": "src/utils/send-mail.ts",
+                      "content": "import env from \"../configs/env\";\nimport { getTransporter } from \"../configs/nodemailer\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  const transporter = getTransporter();\n\n  return transporter\n    .sendMail({\n      from: from || `<${env.EMAIL_FROM}>`,\n      to: email,\n      subject,\n      html\n    })\n    .catch(() => {\n      throw new Error(\"Failed to send email\");\n    });\n}\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/configs/nodemailer.ts",
                       "content": "import nodemailer from \"nodemailer\";\nimport env from \"./env\";\n\nlet transporter: nodemailer.Transporter | null = null;\n\nexport function getTransporter() {\n  if (transporter) return transporter;\n  const host = env.SMTP_HOST;\n  const port = Number(env.SMTP_PORT || 465);\n  const user = env.SMTP_USER;\n  const pass = env.SMTP_PASS;\n  const from = env.EMAIL_FROM;\n  if (!host || !user || !pass || !from) {\n    throw new Error(\"SMTP/EMAIL env not configured\");\n  }\n\n  transporter = nodemailer.createTransport({\n    host,\n    port,\n    secure: port === 465,\n    auth: { user, pass }\n  });\n  return transporter;\n}\n"
                     },
@@ -37,11 +42,6 @@
                       "type": "file",
                       "path": "src/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  SMTP_HOST: z.string(),\n  SMTP_PORT: z\n    .string()\n    .regex(/^\\d+$/, \"SMTP_PORT must be a number\")\n    .transform(Number),\n  SMTP_USER: z.string(),\n  SMTP_PASS: z.string(),\n  EMAIL_FROM: z.email()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/utils/send-mail.ts",
-                      "content": "import env from \"../configs/env\";\nimport { getTransporter } from \"../configs/nodemailer\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  const transporter = getTransporter();\n\n  return transporter\n    .sendMail({\n      from: from || `<${env.EMAIL_FROM}>`,\n      to: email,\n      subject,\n      html\n    })\n    .catch(() => {\n      throw new Error(\"Failed to send email\");\n    });\n}\n"
                     }
                   ]
                 },
@@ -84,6 +84,11 @@
                   "files": [
                     {
                       "type": "file",
+                      "path": "src/utils/send-mail.ts",
+                      "content": "import env from \"../configs/env\";\nimport { resend } from \"../configs/resend\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  return await resend.emails.send({\n    from: from || `<${env.EMAIL_FROM}>`,\n    to: email,\n    subject,\n    replyTo: email,\n    html\n  });\n}\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/configs/resend.ts",
                       "content": "import { Resend } from \"resend\";\nimport env from \"./env\";\n\nexport const resend = new Resend(env.RESEND_API_KEY);\n"
                     },
@@ -91,11 +96,6 @@
                       "type": "file",
                       "path": "src/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  EMAIL_FROM: z.email(),\n  RESEND_API_KEY: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/utils/send-mail.ts",
-                      "content": "import env from \"../configs/env\";\nimport { resend } from \"../configs/resend\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  return await resend.emails.send({\n    from: from || `<${env.EMAIL_FROM}>`,\n    to: email,\n    subject,\n    replyTo: email,\n    html\n  });\n}\n"
                     }
                   ]
                 },
@@ -115,6 +115,60 @@
                       "type": "file",
                       "path": "src/shared/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  EMAIL_FROM: z.email(),\n\n  //? For Resend Email Service Only\n  RESEND_API_KEY: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                    }
+                  ]
+                }
+              }
+            },
+            "mailtrap": {
+              "label": "Mailtrap",
+              "dependencies": {
+                "runtime": [
+                  "mailtrap",
+                  "dotenv-flow",
+                  "cross-env"
+                ]
+              },
+              "env": [
+                "MAILTRAP_API_KEY",
+                "EMAIL_FROM"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/utils/send-mail.ts",
+                      "content": "import env from \"../configs/env\";\nimport { mailtrap } from \"../configs/mailtrap\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  const htmlContent = html || \"\";\n  try {\n    await mailtrap.send({\n      from: {\n        email: from || env.EMAIL_FROM\n      },\n      to: [{ email }],\n      subject,\n      html: htmlContent\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/mailtrap.ts",
+                      "content": "import { MailtrapClient } from \"mailtrap\";\nimport env from \"./env\";\n\nexport const mailtrap = new MailtrapClient({\n  token: env.MAILTRAP_API_KEY\n});\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  EMAIL_FROM: z.email(),\n  MAILTRAP_API_KEY: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                    }
+                  ]
+                },
+                "feature": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/shared/utils/send-mail.ts",
+                      "content": "import env from \"../configs/env\";\nimport { mailtrap } from \"../configs/mailtrap\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  const htmlContent = html || \"\";\n  try {\n    await mailtrap.send({\n      from: {\n        email: from || env.EMAIL_FROM\n      },\n      to: [{ email }],\n      subject,\n      html: htmlContent\n    });\n  } catch (error) {\n    throw error;\n  }\n}\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/mailtrap.ts",
+                      "content": "import { MailtrapClient } from \"mailtrap\";\nimport env from \"./env\";\n\nexport const mailtrap = new MailtrapClient({\n  token: env.MAILTRAP_API_KEY\n});\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/env.ts",
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  EMAIL_FROM: z.email(),\n  MAILTRAP_API_KEY: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                     }
                   ]
                 }
