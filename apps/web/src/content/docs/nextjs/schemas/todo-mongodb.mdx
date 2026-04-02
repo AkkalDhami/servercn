@@ -1,0 +1,234 @@
+---
+title: Todo | MongoDB (Mongoose) | Schema
+description: Production-ready Todo schema for MongoDB using Mongoose, featuring full type safety and user associations.
+command: npx servercn-cli add sc todo
+
+---
+
+# Todo (MongoDB with Mongoose)
+
+This page documents the Todo schema for projects using <Code children="MongoDB" /> with <Code children="Mongoose" />.
+
+The Todo schema provides a production-ready model for managing tasks, complete with user validation and performance considerations.
+
+
+## Installation Guide
+
+To add this schema to your project, run:
+
+<PackageManagerTabs command="npx servercn-cli add sc todo" />
+
+During initialization, ensure you select <Code children="MongoDB" /> when prompted for the database.
+
+## Database Design
+
+To see the complete database design, including the User schema from the Auth Domain, please click [here](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392) visualization.
+
+[Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
+
+
+## Todo Model
+
+The **Todo Model** stores individual task information and maintains a reference to the user who created it.
+
+<Code children="src/models/todo.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
+
+/**
+ * Todo Interface
+ * Defines the structure of a Todo document
+ */
+export interface ITodo extends Document {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+
+  title: string;
+  description?: string;
+  completed: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Todo Schema definition
+ */
+const todoSchema = new Schema<ITodo>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+      required: [true, "User ID is required"],
+      index: true // Indexed for faster user-specific queries
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [255, "Title cannot be longer than 255 characters"]
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [2000, "Description cannot be longer than 2000 characters"]
+    },
+    completed: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true // Automatically adds createdAt and updatedAt
+  }
+);
+
+// Performance Indexes
+todoSchema.index({ userId: 1, completed: 1 }); // Great for fetching pending/completed tasks for a user
+todoSchema.index({ createdAt: -1 }); // Useful for sorting tasks by date
+
+const Todo: Model<ITodo> =
+  mongoose.models.Todo || mongoose.model<ITodo>("Todo", todoSchema);
+
+export default Todo;
+```
+
+**Installation:**
+
+<PackageManagerTabs command="npx servercn-cli add sc todo/todo" />
+
+## User Model
+
+<Code children="src/models/user.model.ts"/>
+
+```ts
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IAvatar {
+  public_id: string;
+  url: string;
+  size: number;
+}
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  role: "user" | "admin";
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
+  avatar?: IAvatar;
+
+  provider: "local" | "google" | "github";
+  providerId?: string;
+
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  reActivateAvailableAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    password: {
+      type: String,
+      select: false,
+      default: null
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local"
+    },
+    providerId: {
+      type: String,
+      default: null
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+      size: Number
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+    lastLoginAt: {
+      type: Date
+    },
+    failedLoginAttempts: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: {
+      type: Date,
+      default: null
+    },
+    reActivateAvailableAt: {
+      type: Date,
+      default: null
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// Performance Indexes
+userSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth
+userSchema.index({ role: 1 });
+userSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+## Relationship Reference
+
+The <Code children="userId" /> field uses a reference to the <Code children="User" /> model. When querying todos, you can easily populate user information:
+
+```ts
+const userTodos = await Todo.find({ userId: req.user._id })
+  .populate("userId", "name email")
+  .sort("-createdAt");
+```
+
+## Key Benefits
+
+- **Strict Validation**: Ensures all todos have a user and a title.
+- **Auto-Timestamps**: Leverages Mongoose's built-in timestamp support.
+- **Optimized Queries**: Includes indexes for common access patterns.
+- **MLean Ready**: Compatible with <Code children=".lean()" /> for faster read operations.

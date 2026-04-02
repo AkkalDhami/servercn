@@ -1,7 +1,7 @@
 ---
 title: Todo | PostgreSQL (Drizzle) | Schema
 description: Production-ready Todo schema for PostgreSQL using Drizzle ORM, featuring type safety and relational mappings.
-command: npx servercn-cli add schema todo
+command: npx servercn-cli add sc todo
 
 ---
 
@@ -16,7 +16,7 @@ The PostgreSQL implementation leverages strong types and relational integrity to
 
 To add this schema to your project, run:
 
-<PackageManagerTabs command="npx servercn-cli add schema todo" />
+<PackageManagerTabs command="npx servercn-cli add sc todo" />
 
 During initialization, ensure you select <Code children="PostgreSQL" /> when prompted for the database.
 
@@ -32,7 +32,7 @@ To see the complete database design, including the User schema from the Auth Dom
 
 The **User Schema** is the core component for storing user identity, credentials, and profile information.
 
-**File Path:** <Code children="src/drizzle/schemas/user.schema.ts"/>
+<Code children="src/db/schemas/user.schema.ts" />
 
 ```ts
 import {
@@ -108,7 +108,7 @@ export type NewUser = typeof users.$inferInsert;
 
 The **Todo Schema** defines the structure of your tasks in PostgreSQL.
 
-**File Path:** <Code children="src/drizzle/schemas/todo.schema.ts"/>  
+<Code children="src/db/schemas/todo.schema.ts" />
 
 ```ts
 import {
@@ -160,11 +160,11 @@ export type NewTodo = typeof todos.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema todo/todo" />
+<PackageManagerTabs command="npx servercn-cli add sc todo/todo" />
 
 ## 3. schema.helper.ts
 
-<Code>src/drizzle/schemas/schema.helper.ts</Code>
+<Code>src/db/schemas/schema.helper.ts</Code>
 
 ```ts
 import { timestamp } from "drizzle-orm/pg-core";
@@ -180,7 +180,7 @@ export const timestamps = {
 
 ## 4. Export all schemas
 
-<Code>ssrc/drizzle/index.ts</Code>
+<Code>ssrc/db/index.ts</Code>
 
 ```ts
 export * from "./schemas/user.schema";
@@ -195,8 +195,8 @@ export * from "./schemas/todo.schema";
 import { Config, defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  out: "./src/drizzle/migrations",
-  schema: "./src/drizzle/index.ts",
+  out: "./src/db/migrations",
+  schema: "./src/db/index.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL!
@@ -210,7 +210,7 @@ export default defineConfig({
 
 Explicit relations make data fetching much simpler and more expressive:
 
-<Code>src/drizzle/schemas/user.schema.ts</Code>
+<Code>src/db/schemas/user.schema.ts</Code>
 ```ts
 import { relations } from "drizzle-orm";
 import { todos } from "./todo.schema";
@@ -224,7 +224,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 ```
 <br/>
 
-<Code>src/drizzle/schemas/todo.schema.ts</Code>
+<Code>src/db/schemas/todo.schema.ts</Code>
 ```ts
 import { relations } from "drizzle-orm";
 import { users } from "./user.schema";
