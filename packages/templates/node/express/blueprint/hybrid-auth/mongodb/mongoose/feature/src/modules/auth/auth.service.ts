@@ -120,7 +120,13 @@ export class AuthService {
       throw ApiError.badRequest("Invalid or expired otp");
     }
 
-    const { name, email: userEmail, role, password } = JSON.parse(userData);
+    let parsedData;
+    try {
+      parsedData = JSON.parse(userData);
+    } catch {
+      throw ApiError.badRequest("Invalid user data format");
+    }
+    const { name, email: userEmail, role, password } = parsedData;
 
     const user = await User.create({
       name,
