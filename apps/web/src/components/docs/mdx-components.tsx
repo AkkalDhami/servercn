@@ -40,23 +40,23 @@ export const mdxComponents: MDXComponents = {
     <h1 className="text-3xl font-semibold tracking-tight" {...props} />
   ),
   h2: props => (
-    <h2 className="mt-8 mb-4 text-2xl font-medium tracking-tight" {...props} />
+    <h2 className="my-3.5 text-2xl font-medium tracking-tight" {...props} />
   ),
   h3: props => (
     <h3
-      className="this-page-link my-3.5 text-xl font-normal tracking-tight"
+      className="this-page-link my-2.5 text-xl font-normal tracking-tight"
       {...props}
     />
   ),
   h4: props => (
-    <h4 className="my-3.5 text-lg font-normal tracking-tight" {...props} />
+    <h4 className="my-3 text-lg font-normal tracking-tight" {...props} />
   ),
   h5: props => (
-    <h5 className="my-3 text-[17px] font-normal tracking-tight" {...props} />
+    <h5 className="my-2.5 text-[17px] font-normal tracking-tight" {...props} />
   ),
   p: ({ className, ...props }) => (
     <p
-      className={cn("mt-4 mb-3 leading-relaxed not-first:mt-4", className)}
+      className={cn("mt-4 mb-3 text-muted-primary leading-relaxed not-first:mt-4", className)}
       {...props}
     />
   ),
