@@ -297,6 +297,212 @@
               }
             }
           }
+        },
+        "nextjs": {
+          "databases": {
+            "mysql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/db/migrations\",\n  schema: \"./src/db/index.ts\",\n  dialect: \"mysql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/index.ts",
+                              "content": "export * from \"./schemas/todo.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/todo.schema.ts",
+                              "content": "import {\n  boolean,\n  mysqlTable,\n  text,\n  varchar,\n  index,\n  int\n} from \"drizzle-orm/mysql-core\";\nimport { timestamps } from \"./schema.helper\";\n\nexport const todos = mysqlTable(\n  \"todos\",\n  {\n    id: int(\"id\").primaryKey().autoincrement(),\n    userId: int(\"user_id\")\n      // .references(() => users.id, { onDelete: \"cascade\" }),\n      .notNull(),\n\n    title: varchar(\"title\", { length: 255 }).notNull(),\n    description: text(\"description\"),\n    completed: boolean(\"completed\").notNull().default(false),\n\n    ...timestamps\n  },\n  table => [\n    index(\"todo_user_id_idx\").on(table.userId),\n    index(\"todo_completed_idx\").on(table.completed)\n  ]\n);\n\n//TODO: Relations between\n//? ii. todo and users.\n//? (many-to-one)\n\nexport type Todo = typeof todos.$inferSelect;\nexport type NewTodo = typeof todos.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/mysql-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\").defaultNow().onUpdateNow().notNull()\n};\n"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "todo": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/db/migrations\",\n  schema: \"./src/db/index.ts\",\n  dialect: \"mysql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/index.ts",
+                              "content": "export * from \"./schemas/todo.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/todo.schema.ts",
+                              "content": "import {\n  boolean,\n  mysqlTable,\n  text,\n  varchar,\n  index,\n  int\n} from \"drizzle-orm/mysql-core\";\nimport { relations } from \"drizzle-orm\";\nimport { timestamps } from \"./schema.helper\";\n\nexport const todos = mysqlTable(\n  \"todos\",\n  {\n    id: int(\"id\").primaryKey().autoincrement(),\n    userId: int(\"user_id\")\n      // .references(() => users.id, { onDelete: \"cascade\" }),\n      .notNull(),\n\n    title: varchar(\"title\", { length: 255 }).notNull(),\n    description: text(\"description\"),\n    completed: boolean(\"completed\").notNull().default(false),\n\n    ...timestamps\n  },\n  table => [\n    index(\"todo_user_id_idx\").on(table.userId),\n    index(\"todo_completed_idx\").on(table.completed)\n  ]\n);\n\n//TODO: Relations between\n//? ii. todo and users.\n//? (many-to-one)\n\n\nexport type Todo = typeof todos.$inferSelect;\nexport type NewTodo = typeof todos.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/mysql-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\").defaultNow().onUpdateNow().notNull()\n};\n"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": [
+                      "mysql2",
+                      "drizzle-orm"
+                    ],
+                    "dev": [
+                      "drizzle-kit"
+                    ]
+                  }
+                }
+              }
+            },
+            "postgresql": {
+              "orms": {
+                "drizzle": {
+                  "templates": {
+                    "index": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/db/migrations\",\n  schema: \"./src/db/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";\nexport * from \"./schemas/todo.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  json,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\nimport { timestamps } from \"./schema.helper\";\nimport { relations } from \"drizzle-orm\";\nimport { todos } from \"./todo.schema\";\n\nexport interface IAvatar {\n  public_id?: string;\n  url: string;\n  size?: number;\n}\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    avatar: json(\"avatar\").$type<IAvatar>(),\n\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\n//? Relations between:\n//? user and todos.\n//? (One-to-Many)\nexport const usersRelations = relations(users, ({ many }) => ({\n  todos: many(todos)\n}));\n\n//? User type\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/todo.schema.ts",
+                              "content": "import {\n  boolean,\n  text,\n  varchar,\n  integer,\n  index,\n  serial,\n  pgTable\n} from \"drizzle-orm/pg-core\";\nimport { users } from \"./user.schema\";\nimport { relations } from \"drizzle-orm\";\nimport { timestamps } from \"./schema.helper\";\n\nexport const todos = pgTable(\n  \"todos\",\n  {\n    id: serial().primaryKey(),\n    userId: integer(\"user_id\")\n      .notNull()\n      .references(() => users.id, { onDelete: \"cascade\" }),\n    title: varchar(\"title\", { length: 255 }).notNull(),\n\n    description: text(\"description\"),\n    completed: boolean(\"completed\").notNull().default(false),\n\n    ...timestamps\n  },\n  table => [\n    index(\"todo_user_id_idx\").on(table.userId),\n    index(\"todo_completed_idx\").on(table.completed)\n  ]\n);\n\n//? Relations between\n//? ii. todo and users.\n//? (many-to-one)\nexport const todosRelations = relations(todos, ({ one }) => ({\n  user: one(users, {\n    fields: [todos.userId],\n    references: [users.id]\n  })\n}));\n\nexport type Todo = typeof todos.$inferSelect;\nexport type NewTodo = typeof todos.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};\n"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "todo": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "drizzle.config.ts",
+                              "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nexport default defineConfig({\n  out: \"./src/db/migrations\",\n  schema: \"./src/db/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: process.env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/index.ts",
+                              "content": "export * from \"./schemas/user.schema\";\nexport * from \"./schemas/todo.schema\";\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/user.schema.ts",
+                              "content": "import {\n  pgTable,\n  serial,\n  varchar,\n  boolean,\n  timestamp,\n  integer,\n  json,\n  uniqueIndex,\n  index,\n  pgEnum\n} from \"drizzle-orm/pg-core\";\nimport { timestamps } from \"./schema.helper\";\nimport { relations } from \"drizzle-orm\";\nimport { todos } from \"./todo.schema\";\n\nexport interface IAvatar {\n  public_id?: string;\n  url: string;\n  size?: number;\n}\n\nexport const roleEnum = pgEnum(\"role\", [\"user\", \"admin\"]);\nexport const providerEnum = pgEnum(\"provider\", [\"local\", \"google\", \"github\"]);\n\nexport const users = pgTable(\n  \"users\",\n  {\n    id: serial(\"id\").primaryKey(),\n    name: varchar(\"name\", { length: 100 }).notNull(),\n    email: varchar(\"email\", { length: 255 }).notNull().unique(),\n    password: varchar(\"password\", { length: 255 }),\n    role: roleEnum(\"role\").default(\"user\").notNull(),\n\n    provider: providerEnum(\"provider\").default(\"local\").notNull(),\n    providerId: varchar(\"provider_id\", { length: 255 }),\n\n    avatar: json(\"avatar\").$type<IAvatar>(),\n\n    isEmailVerified: boolean(\"is_email_verified\").default(false).notNull(),\n    lastLoginAt: timestamp(\"last_login_at\"),\n    failedLoginAttempts: integer(\"failed_login_attempts\").default(0).notNull(),\n    lockUntil: timestamp(\"lock_until\"),\n\n    isDeleted: boolean(\"is_deleted\").default(false).notNull(),\n    deletedAt: timestamp(\"deleted_at\"),\n    reActivateAvailableAt: timestamp(\"re_activate_available_at\"),\n\n    ...timestamps\n  },\n  table => [\n    uniqueIndex(\"email_idx\").on(table.email),\n    index(\"role_idx\").on(table.role),\n    index(\"is_deleted_idx\").on(table.isDeleted)\n  ]\n);\n\n//? Relations between:\n//? user and todos.\n//? (One-to-Many)\nexport const usersRelations = relations(users, ({ many }) => ({\n  todos: many(todos)\n}));\n\n//? User type\nexport type User = typeof users.$inferSelect;\nexport type NewUser = typeof users.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/todo.schema.ts",
+                              "content": "import {\n  boolean,\n  text,\n  varchar,\n  integer,\n  index,\n  serial,\n  pgTable\n} from \"drizzle-orm/pg-core\";\nimport { users } from \"./user.schema\";\nimport { relations } from \"drizzle-orm\";\nimport { timestamps } from \"./schema.helper\";\n\nexport const todos = pgTable(\n  \"todos\",\n  {\n    id: serial().primaryKey(),\n    userId: integer(\"user_id\")\n      .notNull()\n      .references(() => users.id, { onDelete: \"cascade\" }),\n    title: varchar(\"title\", { length: 255 }).notNull(),\n\n    description: text(\"description\"),\n    completed: boolean(\"completed\").notNull().default(false),\n\n    ...timestamps\n  },\n  table => [\n    index(\"todo_user_id_idx\").on(table.userId),\n    index(\"todo_completed_idx\").on(table.completed)\n  ]\n);\n\n//? Relations between\n//? ii. todo and users.\n//? (many-to-one)\nexport const todosRelations = relations(todos, ({ one }) => ({\n  user: one(users, {\n    fields: [todos.userId],\n    references: [users.id]\n  })\n}));\n\nexport type Todo = typeof todos.$inferSelect;\nexport type NewTodo = typeof todos.$inferInsert;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/db/schemas/schema.helper.ts",
+                              "content": "import { timestamp } from \"drizzle-orm/pg-core\";\n\nexport const timestamps = {\n  createdAt: timestamp(\"created_at\").defaultNow().notNull(),\n  updatedAt: timestamp(\"updated_at\")\n    .defaultNow()\n    .$onUpdate(() => new Date())\n    .notNull()\n};\n"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": [
+                      "pg",
+                      "drizzle-orm"
+                    ],
+                    "dev": [
+                      "@types/pg",
+                      "drizzle-kit"
+                    ]
+                  }
+                }
+              }
+            },
+            "mongodb": {
+              "orms": {
+                "mongoose": {
+                  "templates": {
+                    "index": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "src/models/user.model.ts",
+                              "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IAvatar {\n  public_id: string;\n  url: string;\n  size: number;\n}\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password?: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n  lastLoginAt?: Date;\n  failedLoginAttempts: number;\n  lockUntil?: Date;\n  avatar?: IAvatar;\n\n  provider: \"local\" | \"google\" | \"github\";\n  providerId?: string;\n\n  isDeleted: boolean;\n  deletedAt?: Date | null;\n  reActivateAvailableAt?: Date | null;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    provider: {\n      type: String,\n      enum: [\"local\", \"google\", \"github\"],\n      default: \"local\"\n    },\n    providerId: {\n      type: String,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    avatar: {\n      public_id: String,\n      url: String,\n      size: Number\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    },\n    lastLoginAt: {\n      type: Date\n    },\n    failedLoginAttempts: {\n      type: Number,\n      required: true,\n      default: 0\n    },\n    lockUntil: {\n      type: Date\n    },\n    isDeleted: {\n      type: Boolean,\n      default: false\n    },\n    deletedAt: {\n      type: Date,\n      default: null\n    },\n    reActivateAvailableAt: {\n      type: Date,\n      default: null\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\n// Performance Indexes\nuserSchema.index({ provider: 1, providerId: 1 }); // Quick lookup for OAuth\nuserSchema.index({ role: 1 });\nuserSchema.index({ isDeleted: 1 }); // Optimized for soft-delete queries\n\nconst User: Model<IUser> =\n  mongoose.models.User || mongoose.model<IUser>(\"User\", userSchema);\n\nexport default User;\n"
+                            },
+                            {
+                              "type": "file",
+                              "path": "src/models/todo.model.ts",
+                              "content": "import mongoose, { Document, Model, Schema, Types } from \"mongoose\";\n\nexport interface ITodo extends Document {\n  _id: Types.ObjectId;\n  userId: Types.ObjectId;\n\n  title: string;\n  description?: string;\n  completed: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst todoSchema = new Schema<ITodo>(\n  {\n    userId: {\n      type: Schema.Types.ObjectId,\n      ref: \"User\", // Reference to the User model\n      required: [true, \"User ID is required\"],\n      index: true // Indexed for faster user-specific queries\n    },\n    title: {\n      type: String,\n      required: [true, \"Title is required\"],\n      trim: true,\n      maxlength: [255, \"Title cannot be longer than 255 characters\"]\n    },\n    description: {\n      type: String,\n      trim: true,\n      maxlength: [2000, \"Description cannot be longer than 2000 characters\"]\n    },\n    completed: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true // Automatically adds createdAt and updatedAt\n  }\n);\n\n// Performance Indexes\ntodoSchema.index({ userId: 1, completed: 1 });\ntodoSchema.index({ createdAt: -1 });\n\nconst Todo: Model<ITodo> =\n  mongoose.models.Todo || mongoose.model<ITodo>(\"Todo\", todoSchema);\n\nexport default Todo;\n"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "todo": {
+                      "architectures": {
+                        "file-api": {
+                          "files": [
+                            {
+                              "type": "file",
+                              "path": "src/models/todo.model.ts",
+                              "content": "import mongoose, { Document, Model, Schema, Types } from \"mongoose\";\n\nexport interface ITodo extends Document {\n  _id: Types.ObjectId;\n  userId: Types.ObjectId;\n\n  title: string;\n  description?: string;\n  completed: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst todoSchema = new Schema<ITodo>(\n  {\n    userId: {\n      type: Schema.Types.ObjectId,\n      ref: \"User\", // Reference to the User model\n      required: [true, \"User ID is required\"],\n      index: true // Indexed for faster user-specific queries\n    },\n    title: {\n      type: String,\n      required: [true, \"Title is required\"],\n      trim: true,\n      maxlength: [255, \"Title cannot be longer than 255 characters\"]\n    },\n    description: {\n      type: String,\n      trim: true,\n      maxlength: [2000, \"Description cannot be longer than 2000 characters\"]\n    },\n    completed: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true // Automatically adds createdAt and updatedAt\n  }\n);\n\n// Performance Indexes\ntodoSchema.index({ userId: 1, completed: 1 });\ntodoSchema.index({ createdAt: -1 });\n\nconst Todo: Model<ITodo> =\n  mongoose.models.Todo || mongoose.model<ITodo>(\"Todo\", todoSchema);\n\nexport default Todo;\n"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "dependencies": {
+                    "runtime": [
+                      "mongoose"
+                    ],
+                    "dev": []
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
