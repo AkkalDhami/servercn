@@ -1,14 +1,60 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, LucideTerminal } from "lucide-react";
+import { LucideTerminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import { FaGithub } from "react-icons/fa";
-import { HeaderBadge } from "@/components/ui/header-badge";
 import InitCopyButton from "./init-copy-button";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import { GITHUB_URL } from "@/lib/constants";
+import { LanguageIcons } from "@/components/docs/icons/language-icons";
+
+const supportedStack = [
+  {
+    name: "Node.js",
+    icon: LanguageIcons.nodejs
+  },
+  {
+    name: "Express.js",
+    icon: LanguageIcons.expressjs
+  },
+  {
+    name: "TypeScript",
+    icon: LanguageIcons.ts
+  },
+  {
+    name: "MongoDB",
+    icon: LanguageIcons.mongodb
+  },
+
+  {
+    name: "MySQL",
+    icon: LanguageIcons.mysql
+  },
+  {
+    name: "PostgreSQL",
+    icon: LanguageIcons.pg
+  },
+  {
+    name: "Drizzle",
+    icon: LanguageIcons.drizzle
+  },
+  {
+    name: "Prisma",
+    icon: LanguageIcons.prisma
+  },
+
+  {
+    name: "Next.js",
+    icon: LanguageIcons.nextjs
+  }
+];
 
 export default function HeroSection() {
   return (
@@ -16,30 +62,6 @@ export default function HeroSection() {
       <div className="relative pt-18 pb-20 sm:px-4 md:pt-22 md:pb-28">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <div className="md:max-w-1/2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="hidden sm:inline-block">
-              <HeaderBadge className="bg-background px-0 py-1 pl-3 text-sm shadow-none">
-                <Link
-                  href={"/docs/installation"}
-                  className="bg-background flex items-center gap-2">
-                  <span>The shadcn philosophy for Node.js backends</span>
-                  <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                    <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                      <span className="flex size-6">
-                        <ArrowRight className="m-auto size-3" />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </HeaderBadge>
-            </motion.div>
-
             <div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
@@ -54,10 +76,31 @@ export default function HeroSection() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 className="text-muted-primary mt-6 text-lg leading-relaxed tracking-tight md:text-xl">
-                Focus on logic, not setup. Pick the components you need — oauth,
-                JWT, rate limiting, logging, file-uploading, email-service and
-                more. Drop them into your Express project. You own every line,
-                zero lock-in.
+                <span className="text-primary font-medium">
+                  Focus on logic, not setup.
+                </span>{" "}
+                Pick the components you need — oauth, JWT, rate limiting,
+                logging, file-uploading, email-service and more. Drop them into
+                your Express project. You own every line, zero lock-in.
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-6 flex flex-wrap items-center gap-3">
+                {supportedStack.map(stack => (
+                  <Tooltip key={stack.name}>
+                    <TooltipTrigger className="cursor-pointer">
+                      <div className="flex items-center justify-center rounded-lg px-2 py-1">
+                        <stack.icon className="size-8" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-base font-medium">{stack.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
               </motion.div>
 
               <AnimatedGroup className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
@@ -94,8 +137,8 @@ export default function HeroSection() {
             </div>
           </div>
           <div className="overflow-hidden rounded-md border">
-            <video controls autoPlay preload="none">
-              <source src="/demo.mp4" type="video/mp4" />
+            <video controls autoPlay>
+              <source src="/demo.mp4" autoFocus type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>

@@ -56,7 +56,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={fontVariables}>
       <body
         className={`selection:bg-primary selection:text-primary-foreground scroll-pt-10 scroll-smooth antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}>
           <TooltipProvider>
             <Navbar />
             {children}

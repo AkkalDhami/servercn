@@ -78,14 +78,14 @@ export default function Navbar() {
             </ul>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <SearchCommand />
             <ThemeToggle />
 
             <Button
               asChild
               size="icon"
-              className="primary-ring hidden lg:flex"
+              className="primary-ring"
               variant="secondary">
               <Link href={GITHUB_URL} target="_blank">
                 <FaGithub className="size-5" />
@@ -95,7 +95,7 @@ export default function Navbar() {
             <Button
               onClick={() => setOpen(prev => !prev)}
               variant="outline"
-              className="px-2 py-1 lg:hidden">
+              className="px-2 primary-ring py-1 lg:hidden">
               <motion.div
                 animate={{ rotate: open ? 90 : 0 }}
                 transition={{ duration: 0.2 }}>
@@ -148,7 +148,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
       <Button
         variant="secondary"
         onClick={onClose}
-        className="absolute top-4 right-3">
+        className="absolute primary-ring top-4 right-3">
         <X />
       </Button>
 

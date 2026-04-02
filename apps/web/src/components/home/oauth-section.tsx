@@ -8,7 +8,7 @@ export default function OAuthSection() {
   return (
     <Section id="google-oauth-section" className="hidden md:block">
       <div className="mb-12 text-center">
-        <Heading className="text-3xl font-bold">OAuth Component</Heading>
+        <Heading className="text-3xl font-bold">Google OAuth</Heading>
         <SubHeading className="text-muted-foreground mt-4">
           Everything you need to add OAuth to your backend, without the
           boilerplate.
