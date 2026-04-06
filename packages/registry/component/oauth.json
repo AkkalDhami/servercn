@@ -20,7 +20,8 @@
                   "pino",
                   "pino-pretty",
                   "passport",
-                  "passport-google-oauth20"
+                  "passport-google-oauth20",
+                  "zod"
                 ],
                 "dev": ["@types/passport-google-oauth20", "@types/passport"]
               },
@@ -68,7 +69,8 @@
                   "pino",
                   "pino-pretty",
                   "passport",
-                  "passport-facebook"
+                  "passport-facebook",
+                  "zod"
                 ],
                 "dev": ["@types/passport-facebook", "@types/passport"]
               },
@@ -93,7 +95,8 @@
                   "pino-pretty",
                   "passport",
                   "passport-github2",
-                  "passport-google-oauth20"
+                  "passport-google-oauth20",
+                  "zod"
                 ],
                 "dev": [
                   "@types/passport-google-oauth20",
@@ -125,7 +128,8 @@
                   "pino-pretty",
                   "passport",
                   "passport-github2",
-                  "passport-facebook"
+                  "passport-facebook",
+                  "zod"
                 ],
                 "dev": [
                   "@types/passport-facebook",
@@ -157,7 +161,8 @@
                   "pino-pretty",
                   "passport",
                   "passport-facebook",
-                  "passport-google-oauth20"
+                  "passport-google-oauth20",
+                  "zod"
                 ],
                 "dev": [
                   "@types/passport-google-oauth20",
@@ -190,7 +195,8 @@
                   "passport",
                   "passport-facebook",
                   "passport-github2",
-                  "passport-google-oauth20"
+                  "passport-google-oauth20",
+                  "zod"
                 ],
                 "dev": [
                   "@types/passport-google-oauth20",

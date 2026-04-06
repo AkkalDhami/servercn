@@ -10,7 +10,13 @@
             "feature": "global-error-handler/feature"
           },
           "dependencies": {
-            "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
+            "runtime": [
+              "pino",
+              "pino-pretty",
+              "dotenv-flow",
+              "cross-env",
+              "zod"
+            ],
             "dev": []
           },
           "env": ["LOG_LEVEL"]
