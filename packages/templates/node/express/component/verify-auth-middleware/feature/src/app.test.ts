@@ -1,5 +1,5 @@
 import express, { type Application } from "express";
-import "dotenv-flow/config";
+
 import { errorHandler } from "./shared/middlewares/error-handler";
 
 import Routes from "./routes/index";

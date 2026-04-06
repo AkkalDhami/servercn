@@ -1,5 +1,4 @@
 import express, { type Application } from "express";
-import "dotenv-flow/config";
 import { errorHandler } from "./shared/middlewares/error-handler";
 
 const app: Application = express();

@@ -65,3 +65,11 @@ export const logger = winston.createLogger({
   transports,
   exitOnError: false
 });
+
+/**
+ * ? USAGE:
+  logger.info("Server started successfully");
+  logger.warn("Disk space running low");
+  logger.error("Failed to connect to database", { error: "Error Stack..." });
+ *
+*/
