@@ -19,12 +19,12 @@
                 {
                   "type": "file",
                   "path": "src/jobs/index.ts",
-                  "content": "import { exampleJob } from \"./example.job\";\r\n\r\n/**\r\n * Initialize and start all background jobs\r\n */\r\nexport const initJobs = () => {\r\n  exampleJob.start();\r\n  console.log(\"Background jobs initialized.\");\r\n};\r\n"
+                  "content": "import { exampleJob, startRefreshTokenCleanupJob } from \"./example.job\";\n\n/**\n * Initialize and start all background jobs\n */\nexport const initJobs = () => {\n  exampleJob.start();\n  startRefreshTokenCleanupJob();\n  console.log(\"Background jobs initialized.\");\n};\n"
                 },
                 {
                   "type": "file",
                   "path": "src/jobs/example.job.ts",
-                  "content": "import cron from \"node-cron\";\r\n\r\n/**\r\n * Example background job that runs every minute\r\n * Format: minute hour day-of-month month day-of-week\r\n */\r\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\r\n  console.log(\"Background job running every minute...\");\r\n  // Add your task logic here (e.g., database cleanup, sending reports)\r\n});\r\n"
+                  "content": "import cron from \"node-cron\";\n\nimport { lt, or, eq } from \"drizzle-orm\";\nimport { refreshTokens } from \"../drizzle\"; //? Refresh token table\nimport db from \"../configs/db\"; //? Database connection\n\n/**\n * Example background job that runs every minute\n * Format: minute hour day-of-month month day-of-week\n */\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\n  console.log(\"Background job running every minute...\");\n  // Add your task logic here (e.g., database cleanup, sending reports)\n});\n\n//? Refresh Token Cleanup Job Example\nexport function startRefreshTokenCleanupJob() {\n  cron.schedule(\n    \"0 2 * * *\", // daily at 2 am\n    async () => {\n      try {\n        const now = new Date();\n\n        const [result] = await db\n          .delete(refreshTokens)\n          .where(\n            or(\n              lt(refreshTokens.expiresAt, now),\n              eq(refreshTokens.isRevoked, true)\n            )\n          );\n\n        console.log(\n          `Refresh token cleanup completed. Deleted ${result.affectedRows} records`\n        );\n      } catch (error) {\n        console.error(error, \"Refresh token cleanup failed\");\n      }\n    },\n    {\n      timezone: \"Asia/Kathmandu\"\n    }\n  );\n}\n"
                 }
               ]
             },
@@ -33,12 +33,12 @@
                 {
                   "type": "file",
                   "path": "src/shared/jobs/index.ts",
-                  "content": "import { exampleJob } from \"./example.job\";\r\n\r\n/**\r\n * Initialize and start all background jobs\r\n */\r\nexport const initJobs = () => {\r\n  exampleJob.start();\r\n  console.log(\"Background jobs initialized.\");\r\n};\r\n"
+                  "content": "import { exampleJob } from \"./example.job\";\n\n/**\n * Initialize and start all background jobs\n */\nexport const initJobs = () => {\n  exampleJob.start();\n  console.log(\"Background jobs initialized.\");\n};\n"
                 },
                 {
                   "type": "file",
                   "path": "src/shared/jobs/example.job.ts",
-                  "content": "import cron from \"node-cron\";\r\n\r\n/**\r\n * Example background job that runs every minute\r\n */\r\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\r\n  console.log(\"Background job running every minute...\");\r\n});\r\n"
+                  "content": "import cron from \"node-cron\";\n\n/**\n * Example background job that runs every minute\n */\nexport const exampleJob = cron.schedule(\"* * * * *\", () => {\n  console.log(\"Background job running every minute...\");\n});\n"
                 }
               ]
             }
