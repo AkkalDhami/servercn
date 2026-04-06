@@ -88,11 +88,15 @@ export async function cloneServercnRegistry({
   targetDir: string;
   selectedProvider?: string;
   options: AddOptions;
-}): Promise<boolean> {
+}) {
+  let skipEnvFile;
   try {
     const files = findFilesByPath(component, templatePath, selectedProvider);
     if (!files || files.length === 0) {
-      return false;
+      return {
+        skipEnvFile,
+        success: true
+      };
     }
 
     for (const file of files) {
@@ -101,6 +105,7 @@ export async function cloneServercnRegistry({
 
       if (exists && !options.force) {
         logger.skip(file.path);
+        if (file.path.includes("env.ts")) skipEnvFile = file.path;
         continue;
       }
 
@@ -113,8 +118,14 @@ export async function cloneServercnRegistry({
         logger.create(file.path);
       }
     }
-    return true;
+    return {
+      skipEnvFile,
+      success: true
+    };
   } catch {
-    return false;
+    return {
+      skipEnvFile,
+      success: false
+    };
   }
 }

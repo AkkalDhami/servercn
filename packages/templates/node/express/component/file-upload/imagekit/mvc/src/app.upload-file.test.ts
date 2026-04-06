@@ -1,11 +1,10 @@
 import express, { Application } from "express";
-import "dotenv-flow/config";
 
-import { errorHandler } from "./shared/middlewares/error-handler";
-import { logger } from "./shared/utils/logger";
+import { errorHandler } from "./middlewares/error-handler";
+import { logger } from "./utils/logger";
 
-import Routes from "./routes/index";
-import env from "./shared/configs/env";
+import uploadRoutes from "./routes/upload.routes";
+import env from "./configs/env";
 
 const app: Application = express();
 
@@ -16,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // routes
-app.use("/api", Routes);
+app.use("/api/uploads", uploadRoutes);
 
 // Global error handler
 app.use(errorHandler);

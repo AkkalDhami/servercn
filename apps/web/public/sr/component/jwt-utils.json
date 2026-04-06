@@ -6,7 +6,8 @@
         "express": {
           "dependencies": {
             "runtime": [
-              "jsonwebtoken"
+              "jsonwebtoken",
+              "zod"
             ],
             "dev": [
               "@types/jsonwebtoken"
@@ -27,7 +28,7 @@
                 {
                   "type": "file",
                   "path": "src/configs/env.ts",
-                  "content": "interface Config {\n  JWT_REFRESH_SECRET: string;\n  JWT_ACCESS_SECRET: string;\n}\n\nconst env: Config = {\n  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,\n  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!\n};\n\nexport default env;\n"
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n  \n  JWT_REFRESH_SECRET: z.string().nonempty(\"JWT_REFRESH_SECRET is required\"),\n  JWT_ACCESS_SECRET: z.string().nonempty(\"JWT_ACCESS_SECRET is required\"),\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                 }
               ]
             },
@@ -36,7 +37,7 @@
                 {
                   "type": "file",
                   "path": "src/shared/configs/env.ts",
-                  "content": "interface Config {\n  JWT_REFRESH_SECRET: string;\n  JWT_ACCESS_SECRET: string;\n}\n\nconst env: Config = {\n  JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET!,\n  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!\n};\n\nexport default env;\n"
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  JWT_REFRESH_SECRET: z.string().nonempty(\"JWT_REFRESH_SECRET is required\"),\n  JWT_ACCESS_SECRET: z.string().nonempty(\"JWT_ACCESS_SECRET is required\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                 },
                 {
                   "type": "file",
@@ -50,7 +51,8 @@
         "nextjs": {
           "dependencies": {
             "runtime": [
-              "jsonwebtoken"
+              "jsonwebtoken",
+              "zod"
             ],
             "dev": [
               "@types/jsonwebtoken"

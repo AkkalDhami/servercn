@@ -21,10 +21,12 @@ import type {
 } from "@/types";
 import { resolveTemplateResolution } from "./add.handlers";
 import { execa } from "execa";
-import { updateEnvKeys } from "@/utils/update-env";
+import { getExistingEnvFilePath, updateEnvKeys } from "@/utils/update-env";
 import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
 import { SERVERCN_URL } from "@/constants/app.constants";
 import { highlighter } from "@/utils/highlighter";
+import { injectEnvSchema } from "@/utils/inject-env-schema";
+import { mapEnvToZod } from "@/utils/env-helpers";
 
 export async function add(registryItemName: string, options: AddOptions = {}) {
   await assertInitialized();
@@ -51,7 +53,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     registryItemName
   });
 
-  await scaffoldFiles({
+  const skipEnvFile = await scaffoldFiles({
     registryItemName,
     templatePath: resolution.templatePath,
     options,
@@ -79,6 +81,7 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
 
   await runPostInstallHooks({
     registryItemName,
+    skipEnvFile,
     type,
     component,
     framework: config.framework,
@@ -92,7 +95,9 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
     `${SERVERCN_URL}/docs/${config.framework}/${type}s/${registryItemName}` ||
     "";
   logger.break();
-  logger.log(`${highlighter.success("Installed")} ${component.slug} (${type})`);
+  logger.log(
+    `${highlighter.success("✔ Added")} ${type}: ${resolution.selectedProvider ? `${component.slug}-${resolution.selectedProvider}` : component.slug}`
+  );
   logger.break();
   logger.log(highlighter.create(`→ Docs: ${docs}`));
   logger.break();
@@ -167,6 +172,10 @@ export async function scaffoldFiles({
   const IS_LOCAL = options.local ?? false;
   const targetDir = paths.targets(".");
 
+  logger.break();
+  logger.log(highlighter.info(`Generating files...`));
+  logger.break();
+
   if (IS_LOCAL) {
     const templateDir = path.resolve(paths.templates(), templatePath);
     if (!(await fs.pathExists(templateDir))) {
@@ -182,17 +191,19 @@ export async function scaffoldFiles({
       conflict: options.force ? "overwrite" : "skip"
     });
   } else {
-    const ok = await cloneServercnRegistry({
+    const { skipEnvFile, success } = await cloneServercnRegistry({
       component,
       templatePath,
       targetDir,
       options,
       selectedProvider
     });
-    if (!ok) {
+    if (!success) {
       logger.error("\nSomething went wrong. Failed to scaffold template\n");
       process.exit(1);
     }
+
+    return skipEnvFile;
   }
 }
 
@@ -247,6 +258,7 @@ export function resolveDependencies({
 
 //? Post Install Hooks
 async function runPostInstallHooks({
+  skipEnvFile,
   component,
   registryItemName,
   type,
@@ -256,6 +268,7 @@ async function runPostInstallHooks({
   dbEngine,
   dbAdapter
 }: {
+  skipEnvFile?: string;
   registryItemName: string;
   selectedProvider: string;
   type: RegistryType;
@@ -303,13 +316,21 @@ async function runPostInstallHooks({
     }
 
     if (filterEnvs?.length > 0) {
+      if (skipEnvFile) {
+        injectEnvSchema({
+          filePath: skipEnvFile,
+          variables: mapEnvToZod(filterEnvs)
+        });
+      }
       updateEnvKeys({
         envFile: ".env.example",
         envKeys: filterEnvs,
         label: registryItemName
       });
+
+      const envFile = getExistingEnvFilePath();
       updateEnvKeys({
-        envFile: ".env",
+        envFile,
         envKeys: filterEnvs,
         label: registryItemName
       });

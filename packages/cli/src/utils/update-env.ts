@@ -73,3 +73,14 @@ export function updateEnvKeys({
 
   envSpinner?.succeed(`Env keys added to ${highlighter.info(envFile)}`);
 }
+
+export function getExistingEnvFilePath(cwd = process.cwd()): EnvFileType {
+  const envFiles: EnvFileType[] = [
+    ".env",
+    ".env.local",
+    ".env.development.local",
+    ".env.development"
+  ];
+
+  return envFiles.find(file => existsSync(path.join(cwd, file))) || ".env";
+}

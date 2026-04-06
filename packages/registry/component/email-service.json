@@ -14,7 +14,7 @@
                 "feature": "email-service/nodemailer/feature"
               },
               "dependencies": {
-                "runtime": ["nodemailer", "dotenv-flow", "cross-env"],
+                "runtime": ["nodemailer", "dotenv-flow", "cross-env", "zod"],
                 "dev": ["@types/nodemailer"]
               },
               "env": [
@@ -32,7 +32,7 @@
                 "feature": "email-service/resend/feature"
               },
               "dependencies": {
-                "runtime": ["resend", "dotenv-flow", "cross-env"]
+                "runtime": ["resend", "dotenv-flow", "cross-env", "zod"]
               },
               "env": ["RESEND_API_KEY", "EMAIL_FROM"]
             },
@@ -43,7 +43,7 @@
                 "feature": "email-service/mailtrap/feature"
               },
               "dependencies": {
-                "runtime": ["mailtrap", "dotenv-flow", "cross-env"]
+                "runtime": ["mailtrap", "dotenv-flow", "cross-env", "zod"]
               },
               "env": ["MAILTRAP_API_KEY", "EMAIL_FROM"]
             }

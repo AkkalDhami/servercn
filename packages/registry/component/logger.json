@@ -15,7 +15,13 @@
               },
               "env": ["LOG_LEVEL", "NODE_ENV"],
               "dependencies": {
-                "runtime": ["pino", "pino-pretty", "dotenv-flow", "cross-env"],
+                "runtime": [
+                  "pino",
+                  "pino-pretty",
+                  "dotenv-flow",
+                  "cross-env",
+                  "zod"
+                ],
                 "dev": []
               }
             },
@@ -31,7 +37,8 @@
                   "winston",
                   "winston-daily-rotate-file",
                   "dotenv-flow",
-                  "cross-env"
+                  "cross-env",
+                  "zod"
                 ],
                 "dev": []
               }

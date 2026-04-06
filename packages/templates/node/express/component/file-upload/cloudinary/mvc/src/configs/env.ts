@@ -1,23 +1,32 @@
 import "dotenv-flow/config";
+import { z } from "zod";
 
-interface Config {
-  PORT: number;
-  NODE_ENV: string;
-  LOG_LEVEL: string;
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
 
-  CLOUDINARY_CLOUD_NAME: string;
-  CLOUDINARY_API_KEY: string;
-  CLOUDINARY_API_SECRET: string;
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string()
+}); 
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
 }
 
-const env: Config = {
-  PORT: Number(process.env.PORT) || 1111,
-  NODE_ENV: process.env.NODE_ENV || "development",
-  LOG_LEVEL: process.env.LOG_LEVEL || "info",
-
-  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!
-};
+export const env: Readonly<Env> = Object.freeze(result.data);
 
 export default env;

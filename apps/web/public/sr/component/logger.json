@@ -17,7 +17,8 @@
                   "pino",
                   "pino-pretty",
                   "dotenv-flow",
-                  "cross-env"
+                  "cross-env",
+                  "zod"
                 ],
                 "dev": []
               },
@@ -26,23 +27,13 @@
                   "files": [
                     {
                       "type": "file",
-                      "path": "src/app.pino-logger.ts",
-                      "content": "import express, { type Application } from \"express\";\r\nimport \"dotenv-flow/config\";\r\nimport { logger } from \"./shared/utils/pino-logger\";\r\nimport { httpLogger } from \"./shared/middlewares/logger.middleware\";\r\n\r\nconst app: Application = express();\r\n\r\napp.use(express.json());\r\n\r\n// routes here\r\n// ....\r\n\r\n// pino logger usage\r\n\r\napp.use(httpLogger);\r\n\r\nlogger.info(\"Server started successfully\");\r\nlogger.warn(\"Disk space running low\");\r\nlogger.error(\"Failed to connect to database\");\r\n\r\nexport default app;\r\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/utils/pino-logger.ts",
-                      "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nconst isProduction = env.NODE_ENV === \"production\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL || \"info\",\r\n\r\n  base: {\r\n    pid: process.pid\r\n  },\r\n\r\n  timestamp: pino.stdTimeFunctions.isoTime,\r\n\r\n  formatters: {\r\n    level(label) {\r\n      return { level: label };\r\n    }\r\n  },\r\n\r\n  redact: {\r\n    paths: [\r\n      \"req.headers.authorization\",\r\n      \"req.headers.cookie\",\r\n      \"password\",\r\n      \"token\",\r\n      \"refreshToken\"\r\n    ],\r\n    censor: \"[REDACTED]\"\r\n  },\r\n\r\n  ...(isProduction\r\n    ? {}\r\n    : {\r\n        transport: {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"SYS:standard\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      })\r\n});\r\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/shared/middlewares/logger.middleware.ts",
-                      "content": "import pinoHttp from \"pino-http\";\r\nimport { logger } from \"../utils/pino-logger\";\r\n\r\nexport const httpLogger = pinoHttp({\r\n  logger,\r\n  customLogLevel(req, res, err) {\r\n    if (res.statusCode >= 500 || err) return \"error\";\r\n    if (res.statusCode >= 400) return \"warn\";\r\n    return \"info\";\r\n  }\r\n});\r\n"
+                      "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nconst isProduction = env.NODE_ENV === \"production\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL || \"info\",\n\n  base: {\n    pid: process.pid\n  },\n\n  timestamp: pino.stdTimeFunctions.isoTime,\n\n  formatters: {\n    level(label) {\n      return { level: label };\n    }\n  },\n\n  redact: {\n    paths: [\n      \"req.headers.authorization\",\n      \"req.headers.cookie\",\n      \"password\",\n      \"token\",\n      \"refreshToken\"\n    ],\n    censor: \"[REDACTED]\"\n  },\n\n  ...(isProduction\n    ? {}\n    : {\n        transport: {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"SYS:standard\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      })\n});\n\n/**\n * USAGE:\n * \n  logger.warn({ userId: \"123\" }, \"Suspicious activity detected\");\n  logger.error(\n  { err: \"Database connection failed\" },\n  \"Database connection failed\"\n  );\n */"
                     },
                     {
                       "type": "file",
                       "path": "src/shared/configs/env.ts",
-                      "content": "interface Config {\r\n  PORT: number;\r\n  NODE_ENV: string;\r\n  LOG_LEVEL: string;\r\n}\r\n\r\nconst config: Config = {\r\n  PORT: Number(process.env.PORT) || 1111,\r\n  NODE_ENV: process.env.NODE_ENV || \"development\",\r\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\"\r\n};\r\n\r\nexport default config;\r\n"
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                     }
                   ]
                 },
@@ -50,23 +41,13 @@
                   "files": [
                     {
                       "type": "file",
-                      "path": "src/app.pino-logger.ts",
-                      "content": "import express, { type Application } from \"express\";\r\nimport \"dotenv-flow/config\";\r\nimport { logger } from \"./utils/pino-logger\";\r\nimport { httpLogger } from \"./middlewares/logger.middleware\";\r\n\r\nconst app: Application = express();\r\n\r\napp.use(express.json());\r\n\r\n// routes here\r\n// ....\r\n\r\n// pino logger middleware\r\napp.use(httpLogger);\r\n\r\n// pino logger usage\r\n\r\nlogger.info(\"Server started\");\r\nlogger.warn({ userId: \"123\" }, \"Suspicious activity detected\");\r\nlogger.error(\r\n  { err: \"Database connection failed\" },\r\n  \"Database connection failed\"\r\n);\r\n\r\nexport default app;\r\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/utils/pino-logger.ts",
-                      "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nconst isProduction = env.NODE_ENV === \"production\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL || \"info\",\r\n\r\n  base: {\r\n    pid: process.pid\r\n  },\r\n\r\n  timestamp: pino.stdTimeFunctions.isoTime,\r\n\r\n  formatters: {\r\n    level(label) {\r\n      return { level: label };\r\n    }\r\n  },\r\n\r\n  redact: {\r\n    paths: [\r\n      \"req.headers.authorization\",\r\n      \"req.headers.cookie\",\r\n      \"password\",\r\n      \"token\",\r\n      \"refreshToken\"\r\n    ],\r\n    censor: \"[REDACTED]\"\r\n  },\r\n\r\n  ...(isProduction\r\n    ? {}\r\n    : {\r\n        transport: {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"SYS:standard\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      })\r\n});\r\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/middlewares/logger.middleware.ts",
-                      "content": "import pinoHttp from \"pino-http\";\r\nimport { logger } from \"../utils/pino-logger\";\r\n\r\nexport const httpLogger = pinoHttp({\r\n  logger,\r\n  customLogLevel(req, res, err) {\r\n    if (res.statusCode >= 500 || err) return \"error\";\r\n    if (res.statusCode >= 400) return \"warn\";\r\n    return \"info\";\r\n  }\r\n});\r\n"
+                      "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nconst isProduction = env.NODE_ENV === \"production\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL || \"info\",\n\n  base: {\n    pid: process.pid\n  },\n\n  timestamp: pino.stdTimeFunctions.isoTime,\n\n  formatters: {\n    level(label) {\n      return { level: label };\n    }\n  },\n\n  redact: {\n    paths: [\n      \"req.headers.authorization\",\n      \"req.headers.cookie\",\n      \"password\",\n      \"token\",\n      \"refreshToken\"\n    ],\n    censor: \"[REDACTED]\"\n  },\n\n  ...(isProduction\n    ? {}\n    : {\n        transport: {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"SYS:standard\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      })\n});\n\n/**\n * USAGE:\n * \n  logger.warn({ userId: \"123\" }, \"Suspicious activity detected\");\n  logger.error(\n  { err: \"Database connection failed\" },\n  \"Database connection failed\"\n  );\n */\n"
                     },
                     {
                       "type": "file",
                       "path": "src/configs/env.ts",
-                      "content": "interface Config {\r\n  PORT: number;\r\n  NODE_ENV: string;\r\n  LOG_LEVEL: string;\r\n}\r\n\r\nconst config: Config = {\r\n  PORT: Number(process.env.PORT) || 1111,\r\n  NODE_ENV: process.env.NODE_ENV || \"development\",\r\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\"\r\n};\r\n\r\nexport default config;\r\n"
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                     }
                   ]
                 }
@@ -83,7 +64,8 @@
                   "winston",
                   "winston-daily-rotate-file",
                   "dotenv-flow",
-                  "cross-env"
+                  "cross-env",
+                  "zod"
                 ],
                 "dev": []
               },
@@ -92,18 +74,13 @@
                   "files": [
                     {
                       "type": "file",
-                      "path": "src/app.ts",
-                      "content": "import express, { type Application } from \"express\";\r\nimport \"dotenv-flow/config\";\r\nimport { logger } from \"./shared/utils/logger\";\r\n\r\nconst app: Application = express();\r\n\r\napp.use(express.json());\r\n\r\n// routes here\r\n// ....\r\n\r\n// winston logger usage\r\n\r\nlogger.info(\"Server started successfully\");\r\nlogger.warn(\"Disk space running low\");\r\nlogger.error(\"Failed to connect to database\");\r\n\r\nexport default app;\r\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/shared/utils/logger.ts",
-                      "content": "import env from \"../configs/env\";\r\nimport winston from \"winston\";\r\nimport DailyRotateFile from \"winston-daily-rotate-file\";\r\n\r\nconst { combine, timestamp, printf, colorize, errors } = winston.format;\r\n\r\nconst logFormat = printf(({ level, message, timestamp, stack }) => {\r\n  return `${timestamp} [${level}] : ${stack || message}`;\r\n});\r\n\r\nconst transports: winston.transport[] = [];\r\n\r\n/**\r\n * Console logging (development / local)\r\n */\r\nif (env.NODE_ENV !== \"production\") {\r\n  transports.push(\r\n    new winston.transports.Console({\r\n      format: combine(\r\n        colorize(),\r\n        timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\r\n        errors({ stack: true }),\r\n        logFormat\r\n      )\r\n    })\r\n  );\r\n}\r\n\r\n/**\r\n * File logging (staging / production)\r\n */\r\nif (env.NODE_ENV !== \"development\") {\r\n  transports.push(\r\n    new DailyRotateFile({\r\n      dirname: \"logs/app\",\r\n      filename: \"app-%DATE%.log\",\r\n      datePattern: \"YYYY-MM-DD\",\r\n      zippedArchive: true,\r\n      maxSize: \"20m\",\r\n      maxFiles: \"14d\",\r\n      level: \"info\"\r\n    })\r\n  );\r\n\r\n  transports.push(\r\n    new DailyRotateFile({\r\n      dirname: \"logs/error\",\r\n      filename: \"errors-%DATE%.log\",\r\n      datePattern: \"YYYY-MM-DD\",\r\n      zippedArchive: true,\r\n      maxSize: \"20m\",\r\n      maxFiles: \"30d\",\r\n      level: \"error\"\r\n    })\r\n  );\r\n}\r\n\r\nexport const logger = winston.createLogger({\r\n  level: env.LOG_LEVEL,\r\n  format: combine(\r\n    timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\r\n    errors({ stack: true }),\r\n    logFormat\r\n  ),\r\n  transports,\r\n  exitOnError: false\r\n});\r\n"
+                      "content": "import env from \"../configs/env\";\nimport winston from \"winston\";\nimport DailyRotateFile from \"winston-daily-rotate-file\";\n\nconst { combine, timestamp, printf, colorize, errors } = winston.format;\n\nconst logFormat = printf(({ level, message, timestamp, stack }) => {\n  return `${timestamp} [${level}] : ${stack || message}`;\n});\n\nconst transports: winston.transport[] = [];\n\n/**\n * Console logging (development / local)\n */\nif (env.NODE_ENV !== \"production\") {\n  transports.push(\n    new winston.transports.Console({\n      format: combine(\n        colorize(),\n        timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\n        errors({ stack: true }),\n        logFormat\n      )\n    })\n  );\n}\n\n/**\n * File logging (staging / production)\n */\nif (env.NODE_ENV !== \"development\") {\n  transports.push(\n    new DailyRotateFile({\n      dirname: \"logs/app\",\n      filename: \"app-%DATE%.log\",\n      datePattern: \"YYYY-MM-DD\",\n      zippedArchive: true,\n      maxSize: \"20m\",\n      maxFiles: \"14d\",\n      level: \"info\"\n    })\n  );\n\n  transports.push(\n    new DailyRotateFile({\n      dirname: \"logs/error\",\n      filename: \"errors-%DATE%.log\",\n      datePattern: \"YYYY-MM-DD\",\n      zippedArchive: true,\n      maxSize: \"20m\",\n      maxFiles: \"30d\",\n      level: \"error\"\n    })\n  );\n}\n\nexport const logger = winston.createLogger({\n  level: env.LOG_LEVEL,\n  format: combine(\n    timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\n    errors({ stack: true }),\n    logFormat\n  ),\n  transports,\n  exitOnError: false\n});\n\n/**\n * ? USAGE:\n  logger.info(\"Server started successfully\");\n  logger.warn(\"Disk space running low\");\n  logger.error(\"Failed to connect to database\", { error: \"Error Stack...\" });\n *\n*/\n"
                     },
                     {
                       "type": "file",
                       "path": "src/shared/configs/env.ts",
-                      "content": "interface Config {\r\n  PORT: number;\r\n  NODE_ENV: string;\r\n  LOG_LEVEL: string;\r\n}\r\n\r\nconst config: Config = {\r\n  PORT: Number(process.env.PORT) || 1111,\r\n  NODE_ENV: process.env.NODE_ENV || \"development\",\r\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\"\r\n};\r\n\r\nexport default config;\r\n"
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;"
                     }
                   ]
                 },
@@ -111,18 +88,13 @@
                   "files": [
                     {
                       "type": "file",
-                      "path": "src/app.ts",
-                      "content": "import express, { type Application } from \"express\";\r\nimport \"dotenv-flow/config\";\r\nimport { logger } from \"./utils/logger\";\r\n\r\nconst app: Application = express();\r\n\r\napp.use(express.json());\r\n\r\n// routes here\r\n// ....\r\n\r\n// winston logger usage\r\n\r\nlogger.info(\"Server started successfully\");\r\nlogger.warn(\"Disk space running low\");\r\nlogger.error(\"Failed to connect to database\");\r\n\r\nexport default app;\r\n"
-                    },
-                    {
-                      "type": "file",
                       "path": "src/utils/logger.ts",
-                      "content": "import env from \"../configs/env\";\r\nimport winston from \"winston\";\r\nimport DailyRotateFile from \"winston-daily-rotate-file\";\r\n\r\nconst { combine, timestamp, printf, colorize, errors } = winston.format;\r\n\r\nconst logFormat = printf(({ level, message, timestamp, stack }) => {\r\n  return `${timestamp} [${level}] : ${stack || message}`;\r\n});\r\n\r\nconst transports: winston.transport[] = [];\r\n\r\n/**\r\n * Console logging (development / local)\r\n */\r\nif (env.NODE_ENV !== \"production\") {\r\n  transports.push(\r\n    new winston.transports.Console({\r\n      format: combine(\r\n        colorize(),\r\n        timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\r\n        errors({ stack: true }),\r\n        logFormat\r\n      )\r\n    })\r\n  );\r\n}\r\n\r\n/**\r\n * File logging (staging / production)\r\n */\r\nif (env.NODE_ENV !== \"development\") {\r\n  transports.push(\r\n    new DailyRotateFile({\r\n      dirname: \"logs/app\",\r\n      filename: \"app-%DATE%.log\",\r\n      datePattern: \"YYYY-MM-DD\",\r\n      zippedArchive: true,\r\n      maxSize: \"20m\",\r\n      maxFiles: \"14d\",\r\n      level: \"info\"\r\n    })\r\n  );\r\n\r\n  transports.push(\r\n    new DailyRotateFile({\r\n      dirname: \"logs/error\",\r\n      filename: \"errors-%DATE%.log\",\r\n      datePattern: \"YYYY-MM-DD\",\r\n      zippedArchive: true,\r\n      maxSize: \"20m\",\r\n      maxFiles: \"30d\",\r\n      level: \"error\"\r\n    })\r\n  );\r\n}\r\n\r\nexport const logger = winston.createLogger({\r\n  level: env.LOG_LEVEL,\r\n  format: combine(\r\n    timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\r\n    errors({ stack: true }),\r\n    logFormat\r\n  ),\r\n  transports,\r\n  exitOnError: false\r\n});\r\n"
+                      "content": "import env from \"../configs/env\";\nimport winston from \"winston\";\nimport DailyRotateFile from \"winston-daily-rotate-file\";\n\nconst { combine, timestamp, printf, colorize, errors } = winston.format;\n\nconst logFormat = printf(({ level, message, timestamp, stack }) => {\n  return `${timestamp} [${level}] : ${stack || message}`;\n});\n\nconst transports: winston.transport[] = [];\n\n/**\n * Console logging (development / local)\n */\nif (env.NODE_ENV !== \"production\") {\n  transports.push(\n    new winston.transports.Console({\n      format: combine(\n        colorize(),\n        timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\n        errors({ stack: true }),\n        logFormat\n      )\n    })\n  );\n}\n\n/**\n * File logging (staging / production)\n */\nif (env.NODE_ENV !== \"development\") {\n  transports.push(\n    new DailyRotateFile({\n      dirname: \"logs/app\",\n      filename: \"app-%DATE%.log\",\n      datePattern: \"YYYY-MM-DD\",\n      zippedArchive: true,\n      maxSize: \"20m\",\n      maxFiles: \"14d\",\n      level: \"info\"\n    })\n  );\n\n  transports.push(\n    new DailyRotateFile({\n      dirname: \"logs/error\",\n      filename: \"errors-%DATE%.log\",\n      datePattern: \"YYYY-MM-DD\",\n      zippedArchive: true,\n      maxSize: \"20m\",\n      maxFiles: \"30d\",\n      level: \"error\"\n    })\n  );\n}\n\nexport const logger = winston.createLogger({\n  level: env.LOG_LEVEL,\n  format: combine(\n    timestamp({ format: \"YYYY-MM-DD HH:mm:ss\" }),\n    errors({ stack: true }),\n    logFormat\n  ),\n  transports,\n  exitOnError: false\n});\n\n/**\n * ? USAGE:\n  logger.info(\"Server started successfully\");\n  logger.warn(\"Disk space running low\");\n  logger.error(\"Failed to connect to database\", { error: \"Error Stack...\" });\n *\n*/"
                     },
                     {
                       "type": "file",
                       "path": "src/configs/env.ts",
-                      "content": "interface Config {\r\n  PORT: number;\r\n  NODE_ENV: string;\r\n  LOG_LEVEL: string;\r\n}\r\n\r\nconst config: Config = {\r\n  PORT: Number(process.env.PORT) || 1111,\r\n  NODE_ENV: process.env.NODE_ENV || \"development\",\r\n  LOG_LEVEL: process.env.LOG_LEVEL || \"info\"\r\n};\r\n\r\nexport default config;\r\n"
+                      "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\")\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
                     }
                   ]
                 }

@@ -10,7 +10,7 @@
             "feature": "jwt-utils/feature"
           },
           "dependencies": {
-            "runtime": ["jsonwebtoken"],
+            "runtime": ["jsonwebtoken", "zod"],
             "dev": ["@types/jsonwebtoken"]
           },
           "env": ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]
@@ -20,7 +20,7 @@
             "file-api": "jwt-utils/file-api"
           },
           "dependencies": {
-            "runtime": ["jsonwebtoken"],
+            "runtime": ["jsonwebtoken", "zod"],
             "dev": ["@types/jsonwebtoken"]
           },
           "env": ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]

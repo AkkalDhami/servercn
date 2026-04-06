@@ -17,7 +17,8 @@
                   "dotenv-flow",
                   "cross-env",
                   "multer",
-                  "cloudinary"
+                  "cloudinary",
+                  "zod"
                 ],
                 "dev": ["@types/multer"]
               },
