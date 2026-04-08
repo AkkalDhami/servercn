@@ -1,0 +1,20 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "route-handler",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "nextjs": {
+          "templates": {
+            "file-api": "route-handler/file-api"
+          },
+          "dependencies": {
+            "runtime": [],
+            "dev": []
+          },
+          "env": []
+        }
+      }
+    }
+  }
+}
