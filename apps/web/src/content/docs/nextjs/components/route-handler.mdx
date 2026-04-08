@@ -1,0 +1,140 @@
+---
+title: route-handler | Next.js
+description: A utility to handle async errors in Next.js Route Handlers with clean, consistent responses.
+command: npx servercn-cli@latest add route-handler
+---
+
+## Overview
+
+<Code>RouteHandler</Code> is a higher-order function that wraps your Next.js Route Handlers to:
+
+- Eliminate repetitive <Code>try/catch</Code> blocks
+- Standardize API error responses
+- Improve logging and debugging
+- Provide type safety for handlers
+
+<br />
+---
+
+## Installation Guide
+
+Install the component using the servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli@latest add route-handler" />
+
+## Why Use RouteHandler?
+
+Without a wrapper:
+
+```ts
+export async function GET(req: NextRequest) {
+  try {
+    
+  } catch (err) {
+    return new Response("Error", { status: 500 });
+  }
+}
+```
+
+With <Code>RouteHandler</Code>:
+
+```ts
+export const GET = RouteHandler(async (req) => {
+  // logic
+});
+```
+
+> Cleaner, reusable, and consistent.
+
+---
+
+## Basic Implementation
+
+<Code>src/utils/route-handler.ts</Code>
+
+```ts
+import { STATUS_CODES } from "@/constants/status-codes";
+import { logger } from "@/utils/logger";
+import { NextRequest } from "next/server";
+
+type HandlerContext = {
+  params?: Record<string, string>;
+};
+
+type RouteHandlerFn = (
+  req: NextRequest,
+  ctx?: HandlerContext
+) => Promise<Response>;
+
+export function RouteHandler(fn: RouteHandlerFn) {
+  return async (req: NextRequest, ctx?: HandlerContext): Promise<Response> => {
+    try {
+      return await fn(req, ctx);
+    } catch (error: unknown) {
+      logger.error(error, "API Error");
+
+      let message = "Internal Server Error";
+      let status = STATUS_CODES.INTERNAL_SERVER_ERROR;
+
+      if (error instanceof Error) {
+        message = error.message;
+
+        if ("status" in error && typeof (error as any).status === "number") {
+          status = (error as any).status;
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message
+        }),
+        {
+          status,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
+  };
+}
+```
+
+<br />
+---
+
+
+## Usage
+
+```ts
+import { RouteHandler } from "@/utils/route-handler";
+```
+
+### Basic Example
+
+```ts
+export const GET = RouteHandler(async () => {
+  return new Response(JSON.stringify({ success: true }));
+});
+```
+
+<br />
+---
+
+### With Params
+
+```ts
+export const DELETE = RouteHandler(
+  async (
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
+    const { id } = await params;
+    // logic
+  }
+);
+```
+
+<br />
+---
