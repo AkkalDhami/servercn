@@ -303,7 +303,7 @@ export default async function DocsPage({
             )}
           </div>
 
-          {data?.contributor.length > 0 && (
+          {data?.contributor?.length > 0 && (
             <div className="mb-4 border-t pt-4">
               <p className="text-muted-foreground text-sm tracking-wide uppercase">
                 {data?.contributor?.length > 1
@@ -313,7 +313,9 @@ export default async function DocsPage({
 
               {data?.contributor?.map(
                 (item: { name: string; url: string; avatar: string }) => (
-                  <div key={item.avatar} className="mt-2 flex items-center gap-2">
+                  <div
+                    key={item.avatar}
+                    className="mt-2 flex items-center gap-2">
                     <img
                       height={32}
                       width={32}
