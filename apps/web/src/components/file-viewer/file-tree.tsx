@@ -9,7 +9,7 @@ import {
   FolderOpenIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getIconForLanguageExtension } from "../docs/icons/language-icons";
+import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
 import { FaFolder, FaFolderOpen } from "react-icons/fa6";
 
 export type FileNode =

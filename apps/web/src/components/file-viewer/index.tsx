@@ -11,9 +11,9 @@ import {
   ResizablePanelGroup
 } from "@/components/ui/resizable";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import CopyButton from "../docs/copy-button";
+import CopyButton from "@/components/docs/copy-button";
 import { cn } from "@/lib/utils";
-import { getIconForLanguageExtension } from "../docs/icons/language-icons";
+import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
 import { ItemType } from "@/@types/registry";
 import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
@@ -73,7 +73,7 @@ export default function ComponentFileViewer({
           template,
           variant
         });
-        console.log({ fileTree });
+        // console.log({ fileTree });
         setTree(fileTree.tree);
         // auto-select first file
         const firstFile = findFirstFile(fileTree.tree);

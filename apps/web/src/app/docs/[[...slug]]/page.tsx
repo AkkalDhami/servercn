@@ -303,28 +303,34 @@ export default async function DocsPage({
             )}
           </div>
 
-          {(data?.contributor?.name || data?.contributor?.avatar) && (
+          {data?.contributor.length > 0 && (
             <div className="mb-4 border-t pt-4">
               <p className="text-muted-foreground text-sm tracking-wide uppercase">
-                Contributed by
+                {data?.contributor?.length > 1
+                  ? "Contributors"
+                  : "Contributed by"}
               </p>
 
-              <div className="mt-2 flex items-center gap-2">
-                <img
-                  height={32}
-                  width={32}
-                  src={data?.contributor?.avatar}
-                  alt={data?.contributor?.name}
-                  className="primary-ring size-8 rounded-full object-cover p-1"
-                />
+              {data?.contributor?.map(
+                (item: { name: string; url: string; avatar: string }) => (
+                  <div key={item.avatar} className="mt-2 flex items-center gap-2">
+                    <img
+                      height={32}
+                      width={32}
+                      src={item.avatar}
+                      alt={item.name}
+                      className="primary-ring size-8 rounded-full object-cover p-1"
+                    />
 
-                <Link
-                  href={data?.contributor?.url}
-                  target="_blank"
-                  className="text-base font-medium hover:underline">
-                  {data?.contributor?.name}
-                </Link>
-              </div>
+                    <Link
+                      href={item.url as Route}
+                      target="_blank"
+                      className="text-base font-medium hover:underline">
+                      {item.name}
+                    </Link>
+                  </div>
+                )
+              )}
             </div>
           )}
 
