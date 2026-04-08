@@ -130,6 +130,15 @@
       "docs": "/docs/components/async-handler"
     },
     {
+      "slug": "route-handler",
+      "title": "API Route Handler",
+      "description": "A utility to handle async errors in Next.js Route Handlers with clean, consistent responses.",
+      "type": "component",
+      "status": "stable",
+      "frameworks": ["nextjs"],
+      "docs": "/docs/components/route-handler"
+    },
+    {
       "slug": "password-hashing",
       "title": "Password Hashing",
       "description": "The Password Hashing component provides a standardized way to hash passwords in Servercn using bcryptjs, argon2, pbkdf2, scrypt.",
