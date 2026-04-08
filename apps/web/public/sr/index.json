@@ -39,6 +39,13 @@
     },
     {
       "type": "component",
+      "slug": "route-handler",
+      "frameworks": [
+        "nextjs"
+      ]
+    },
+    {
+      "type": "component",
       "slug": "response-formatter",
       "frameworks": [
         "express"

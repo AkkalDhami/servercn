@@ -1,0 +1,37 @@
+{
+  "slug": "route-handler",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "nextjs": {
+          "dependencies": {
+            "runtime": [],
+            "dev": []
+          },
+          "env": [],
+          "architectures": {
+            "file-api": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/utils/route-handler.ts",
+                  "content": "import { STATUS_CODES } from \"@/constants/status-codes\";\r\nimport { logger } from \"@/utils/logger\";\r\nimport { NextRequest } from \"next/server\";\r\n\r\ntype HandlerContext = {\r\n  params?: Record<string, string>;\r\n};\r\n\r\ntype RouteHandlerFn = (\r\n  req: NextRequest,\r\n  ctx?: HandlerContext\r\n) => Promise<Response>;\r\n\r\nexport function RouteHandler(fn: RouteHandlerFn) {\r\n  return async (req: NextRequest, ctx?: HandlerContext): Promise<Response> => {\r\n    try {\r\n      return await fn(req, ctx);\r\n    } catch (error: unknown) {\r\n      logger.error(error, \"API Error\");\r\n\r\n      let message = \"Internal Server Error\";\r\n      let status = STATUS_CODES.INTERNAL_SERVER_ERROR;\r\n\r\n      if (error instanceof Error) {\r\n        message = error.message;\r\n\r\n        if (\"status\" in error && typeof (error as any).status === \"number\") {\r\n          status = (error as any).status;\r\n        }\r\n      }\r\n\r\n      return new Response(\r\n        JSON.stringify({\r\n          success: false,\r\n          message\r\n        }),\r\n        {\r\n          status,\r\n          headers: {\r\n            \"Content-Type\": \"application/json\"\r\n          }\r\n        }\r\n      );\r\n    }\r\n  };\r\n}\r\n\r\n/**\r\n * ? USAGE:\r\n\r\n  export const GET = RouteHandler(async () => {\r\n    return new Response(JSON.stringify({ success: true }));\r\n  });\r\n\r\n  export const DELETE = RouteHandler(\r\n    async (\r\n      req: NextRequest,\r\n      { params }: { params: Promise<{ id: string }> }\r\n    ) => {\r\n      const { id } = await params;\r\n      // logic\r\n    }\r\n  );\r\n\r\n */"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\n\r\nexport const logger = pino({\r\n  level: process.env.LOG_LEVEL,\r\n  transport:\r\n    process.env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\r\n  // 2xx Success\r\n  OK: 200,\r\n  CREATED: 201,\r\n  ACCEPTED: 202,\r\n  NO_CONTENT: 204,\r\n\r\n  // 3xx Redirection\r\n  MOVED_PERMANENTLY: 301,\r\n  FOUND: 302,\r\n  NOT_MODIFIED: 304,\r\n\r\n  // 4xx Client Errors\r\n  BAD_REQUEST: 400,\r\n  UNAUTHORIZED: 401,\r\n  FORBIDDEN: 403,\r\n  NOT_FOUND: 404,\r\n  CONFLICT: 409,\r\n  UNPROCESSABLE_ENTITY: 422,\r\n  TOO_MANY_REQUESTS: 429,\r\n\r\n  // 5xx Server Errors\r\n  INTERNAL_SERVER_ERROR: 500,\r\n  NOT_IMPLEMENTED: 501,\r\n  BAD_GATEWAY: 502,\r\n  SERVICE_UNAVAILABLE: 503,\r\n  GATEWAY_TIMEOUT: 504\r\n} as const;\r\n\r\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\r\n"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
