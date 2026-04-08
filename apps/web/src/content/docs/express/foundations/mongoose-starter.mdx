@@ -152,58 +152,6 @@ export const connectDB = async (): Promise<void> => {
 
 This setup ensures a robust connection handling strategy, exiting the process on failure to prevent undefined behaviors.
 
-## Production Considerations
-
-The starter is designed for production:
-
-- Index creation handled by Mongoose
-- Connection pooling (default Mongoose behavior)
-- Strict query mode enabled by default (in newer Mongoose versions)
-- Environment‑safe credentials
-
-## Integration with Express Starter Foundation
-
-The Mongoose Starter is designed to layer cleanly on top of:
-
-- Express Starter Foundation
-- Request validation (Zod)
-- Auth and RBAC blocks
-
-This keeps responsibilities separated:
-
-- Express handles HTTP
-- Mongoose handles data modeling and persistence
-
-## Why This Is a Starter
-
-This setup intentionally avoids:
-
-- Over-abstracted repository layers (unless requested)
-- Complex manual driver usage
-- Hidden configuration
-
-You use standard Mongoose patterns with **modern TypeScript practices**.
-
-## When to Use Mongoose Starter
-
-Use this starter when:
-
-- You are building a document-oriented application
-- You need flexible schemas (with validation)
-- You prefer an ODM over raw SQL
-- You are comfortable with MongoDB ecosystems
-
-## Extending the Starter
-
-Once initialized, you can add:
-
-- Virtuals and Methods
-- Middleware (Pre/Post hooks)
-- Aggregation pipelines
-- Plugins (e.g., auto-populate)
-
-Each extension builds on the same explicit model foundation.
-
 ## Summary
 
 The **Mongoose Starter** gives you a clean, production‑ready database foundation using **MongoDB + Mongoose**.

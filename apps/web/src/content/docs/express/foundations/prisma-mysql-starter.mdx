@@ -2,10 +2,10 @@
 title: Prisma MySQL Starter | Foundation
 description: The Prisma MySQL Starter Foundation provides a production-ready Express backend with Prisma ORM and MySQL.
 command: npx servercn-cli init prisma-mysql-starter
-contributor:
-  name: Faiz Khairi
-  url: https://github.com/faizkhairi
-  avatar: https://avatars.githubusercontent.com/u/22365665?v=4
+contributor: 
+  - name: Faiz Khairi
+    url: https://github.com/faizkhairi
+    avatar: https://avatars.githubusercontent.com/u/22365665?v=4
 ---
 
 # Prisma MySQL Starter
@@ -166,25 +166,3 @@ The extension provides:
 - Jump to definition for models and enums
 
 VS Code will automatically prompt anyone who clones the project to install it.
-
-## Production Considerations
-
-The starter is designed for production:
-
-- No dynamic schema generation at runtime
-- Controlled migration execution
-- Environment‑safe credentials
-- Predictable connection behavior
-- Query logging only in development
-
-## Integration with Express Starter Foundation
-
-The Prisma MySQL Starter is designed to layer cleanly on top of:
-
-- Express Starter Foundation
-- Request validation (Zod)
-
-This keeps responsibilities separated:
-
-- Express handles HTTP
-- Prisma handles data

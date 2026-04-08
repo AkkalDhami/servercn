@@ -30,46 +30,6 @@ Most Express projects require the same initial setup:
 
 The Express Starter Foundation standardizes these concerns using battle-tested patterns.
 
-## Architecture Patterns
-
-Servercn provides two primary architectural patterns to choose from when initializing your server. You can select the one that best fits your project's scale and complexity.
-
-### 1. MVC Architecture (Standard)
-
-The **MVC (Model-View-Controller)** pattern is the default and is perfect for small to medium-sized applications. It separates concerns by technical role (controllers, routes, middlewares).
-
-```
-src/
-├── configs/
-├── constants/
-├── controllers/
-├── middlewares/
-├── routes/
-├── utils/
-├── app.ts
-└── server.ts
-```
-
-### 2. Feature Architecture (Scalable)
-
-For larger applications, the **Feature Architecture** (also known as domain-driven or modular) is recommended. This structure co-locates all files related to a specific feature (e.g., **user**, **auth**) into a single module folder.
-
-```
-src/
-├── configs/
-├── modules/
-│   ├── auth/
-│   ├── users/
-│   └── health/
-├── routes/
-├── shared/
-│   ├── constants/
-│   ├── errors/
-│   ├── middlewares/
-│   └── utils/
-├── app.ts
-└── server.ts
-```
 
 ## Core Features
 
