@@ -48,7 +48,8 @@
       "type": "component",
       "slug": "response-formatter",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
@@ -148,7 +149,8 @@
       "type": "component",
       "slug": "error-handler",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {

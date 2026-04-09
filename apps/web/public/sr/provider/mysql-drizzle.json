@@ -21,11 +21,6 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "src/utils/logger.ts",
-                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  CORS_ORIGIN: z.url(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\")\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
                 },
@@ -33,6 +28,11 @@
                   "type": "file",
                   "path": "src/configs/db.ts",
                   "content": "import { drizzle } from \"drizzle-orm/mysql2\";\r\nimport env from \"./env\";\r\n\r\nconst db = drizzle(env.DATABASE_URL!, {\r\n  logger: env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
                 }
               ]
             },
@@ -45,13 +45,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/utils/logger.ts",
-                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
+                  "path": "src/shared/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  CORS_ORIGIN: z.url(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\")\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/configs/env.ts",
-                  "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  NODE_ENV: z\r\n    .enum([\"development\", \"test\", \"production\"])\r\n    .default(\"development\"),\r\n\r\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\r\n\r\n  DATABASE_URL: z.url(),\r\n\r\n  CORS_ORIGIN: z.url(),\r\n\r\n  LOG_LEVEL: z\r\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\r\n    .default(\"info\")\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                  "path": "src/shared/utils/logger.ts",
+                  "content": "import pino from \"pino\";\r\nimport env from \"../configs/env\";\r\n\r\nexport const logger = pino({\r\n  level: env.LOG_LEVEL,\r\n  transport:\r\n    env.NODE_ENV !== \"production\"\r\n      ? {\r\n          target: \"pino-pretty\",\r\n          options: {\r\n            colorize: true,\r\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\r\n            ignore: \"pid,hostname\"\r\n          }\r\n        }\r\n      : undefined\r\n});\r\n"
                 }
               ]
             }

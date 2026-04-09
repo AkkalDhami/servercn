@@ -43,6 +43,24 @@
               ]
             }
           }
+        },
+        "nextjs": {
+          "architectures": {
+            "file-api": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/utils/api-response.ts",
+                  "content": "import { NextResponse } from \"next/server\";\r\nimport { STATUS_CODES, StatusCode } from \"@/constants/status-codes\";\r\n\r\ntype ApiResponseParams<T> = {\r\n  success: boolean;\r\n  message: string;\r\n  statusCode: StatusCode;\r\n  data?: T | null;\r\n  errors?: unknown;\r\n};\r\n\r\nexport class ApiResponse<T = unknown> {\r\n  public readonly success: boolean;\r\n  public readonly message: string;\r\n  public readonly statusCode: StatusCode;\r\n  public readonly data?: T | null;\r\n  public readonly errors?: unknown;\r\n\r\n  constructor({\r\n    success,\r\n    message,\r\n    statusCode,\r\n    data = null,\r\n    errors\r\n  }: ApiResponseParams<T>) {\r\n    this.success = success;\r\n    this.message = message;\r\n    this.statusCode = statusCode;\r\n    this.data = data;\r\n    this.errors = errors;\r\n  }\r\n\r\n  send(): NextResponse {\r\n    return NextResponse.json(\r\n      {\r\n        success: this.success,\r\n        message: this.message,\r\n        statusCode: this.statusCode,\r\n        ...(this.data !== undefined && { data: this.data }),\r\n        ...(this.errors !== undefined && { errors: this.errors })\r\n      },\r\n      { status: this.statusCode }\r\n    );\r\n  }\r\n\r\n  static success<T>(\r\n    message: string,\r\n    data?: T,\r\n    statusCode: StatusCode = STATUS_CODES.OK\r\n  ): NextResponse {\r\n    return new ApiResponse<T>({\r\n      success: true,\r\n      message,\r\n      data,\r\n      statusCode\r\n    }).send();\r\n  }\r\n\r\n  static ok<T>(message = \"OK\", data?: T) {\r\n    return ApiResponse.success(message, data, STATUS_CODES.OK);\r\n  }\r\n\r\n  static created<T>(message = \"Created\", data?: T) {\r\n    return ApiResponse.success(message, data, STATUS_CODES.CREATED);\r\n  }\r\n\r\n  static error(\r\n    message = \"Error\",\r\n    errors?: unknown,\r\n    statusCode: StatusCode = STATUS_CODES.INTERNAL_SERVER_ERROR\r\n  ) {\r\n    return new ApiResponse({\r\n      success: false,\r\n      message,\r\n      errors,\r\n      statusCode\r\n    }).send();\r\n  }\r\n}\r\n/**\r\n * ? Usage:\r\nimport { ApiResponse } from \"@/utils/api-response\";\r\n\r\nexport async function GET() {\r\n  const data = { name: \"Akkal\" };\r\n\r\n  return ApiResponse.ok(\"Fetched successfully\", data);\r\n}\r\n*/\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\r\n  // 2xx Success\r\n  OK: 200,\r\n  CREATED: 201,\r\n  ACCEPTED: 202,\r\n  NO_CONTENT: 204,\r\n\r\n  // 3xx Redirection\r\n  MOVED_PERMANENTLY: 301,\r\n  FOUND: 302,\r\n  NOT_MODIFIED: 304,\r\n\r\n  // 4xx Client Errors\r\n  BAD_REQUEST: 400,\r\n  UNAUTHORIZED: 401,\r\n  FORBIDDEN: 403,\r\n  NOT_FOUND: 404,\r\n  CONFLICT: 409,\r\n  UNPROCESSABLE_ENTITY: 422,\r\n  TOO_MANY_REQUESTS: 429,\r\n\r\n  // 5xx Server Errors\r\n  INTERNAL_SERVER_ERROR: 500,\r\n  NOT_IMPLEMENTED: 501,\r\n  BAD_GATEWAY: 502,\r\n  SERVICE_UNAVAILABLE: 503,\r\n  GATEWAY_TIMEOUT: 504\r\n} as const;\r\n\r\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\r\n"
+                }
+              ]
+            }
+          }
         }
       }
     }
