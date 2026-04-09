@@ -105,7 +105,8 @@ export async function cloneServercnRegistry({
 
       if (exists && !options.force) {
         logger.skip(file.path);
-        if (file.path.includes("env.ts")) skipEnvFile = file.path;
+        if (["env.ts", "env.schema.ts"].includes(file.path))
+          skipEnvFile = file.path;
         continue;
       }
 
