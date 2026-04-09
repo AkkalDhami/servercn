@@ -1,0 +1,304 @@
+---
+title: API Error Handler | Next.js
+description: A standardized error handling utility for Next.js Route Handlers that ensures consistent error responses across your application.
+command: npx servercn-cli@latest add error-handler
+---
+
+# API Error Handler
+A standardized error handling utility for Next.js Route Handlers that ensures consistent error responses across your application.
+
+## Overview
+
+The <Code>handleError</Code> function, in conjunction with the <Code>ApiError</Code> class, provides a structured way to manage and return error responses with:
+
+- Consistent shape for error messages
+- Proper HTTP status handling
+- Centralized error logging
+- Specific handling for validation errors (ZodError)
+
+<br />
+---
+
+## Installation Guide
+
+Install the component using the servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli@latest add error-handler" />
+
+---
+
+## Why Use API Error Handler?
+
+- Enforces API error consistency
+- Reduces boilerplate in error handling logic
+- Improves frontend predictability for error scenarios
+- Centralizes error logging and response logic
+
+#### Before:
+
+```ts
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+
+export async function GET() {
+  try {
+    // Simulate an error
+    throw new Error("Something went wrong!");
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Validation failed",
+          errors: error.flatten(),
+        },
+        { status: 400 }
+      );
+    }
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: error.message,
+        },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json(
+      {
+        success: false,
+        message: "An unknown error occurred",
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### Problems
+
+- ❌ Repetitive error handling logic in each route
+- ❌ Inconsistent error response structure
+- ❌ Manual status code management
+- ❌ No centralized logging
+- ❌ Boilerplate for different error types
+
+<br />
+---
+
+#### After:
+
+```ts
+import { handleError } from "@/utils/error-handler";
+import { ApiError } from "@/utils/api-error";
+
+export async function GET() {
+  try {
+    // Simulate an error
+    throw new ApiError(404, "Resource not found");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+```
+
+**Response for ApiError (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "message": "Resource not found",
+  "statusCode": 404
+}
+```
+
+**Response for ZodError (400 Bad Request):**
+
+```json
+{
+  "success": false,
+  "message": "Invalid request data",
+  "statusCode": 400,
+  "errors": {
+    "formErrors": [],
+    "fieldErrors": {
+      "name": [
+        "String must contain at least 3 character(s)"
+      ]
+    }
+  }
+}
+```
+
+<br />
+---
+
+## Basic Implementation
+
+### 1. <Code>ApiError</Code> Class
+
+<Code>src/utils/api-error.ts</Code>
+
+```ts
+import { STATUS_CODES, StatusCode } from "@/constants/status-codes";
+
+export class ApiError extends Error {
+  public readonly statusCode: StatusCode;
+  public readonly isOperational: boolean;
+  public readonly errors?: unknown;
+
+  constructor(
+    statusCode: StatusCode,
+    message: string,
+    errors?: unknown,
+    isOperational = true
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.isOperational = isOperational;
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+
+  static badRequest(message = "Bad Request", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static unauthorized(message = "Unauthorized") {
+    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+  }
+
+  static forbidden(message = "Forbidden") {
+    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+  }
+
+  static notFound(message = "Not Found") {
+    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+  }
+
+  static conflict(message = "Conflict") {
+    return new ApiError(STATUS_CODES.CONFLICT, message);
+  }
+
+  static server(message = "Internal Server Error") {
+    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+  }
+}
+```
+
+The <Code>ApiError</Code> class extends the native <Code>Error</Code> class, adding <Code>statusCode</Code>, <Code>isOperational</Code>, and <Code>errors</Code> properties. It provides static helper methods for common HTTP error types, making it easy to create consistent error instances.
+
+### 2. <Code>handleError</Code> Function
+
+<Code>src/utils/error-handler.ts</Code>
+
+```ts
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { ApiError } from "./api-error";
+import { STATUS_CODES } from "@/constants/status-codes";
+import { logger } from "./logger";
+
+export function handleError(error: unknown) {
+  logger.error(error); // Centralized error logging
+
+  if (error instanceof ZodError) {
+    return ApiError.badRequest("Invalid request data", error.flatten()).send();
+  }
+
+  if (error instanceof ApiError) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: error.message,
+        statusCode: error.statusCode,
+        ...(Array.isArray(error.errors) && { errors: error.errors }),
+        ...(process.env.NODE_ENV === "development" && { stack: error.stack })
+      },
+      { status: error.statusCode }
+    );
+  }
+
+  // Generic error fallback
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Internal Server Error",
+      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR
+    },
+    { status: STATUS_CODES.INTERNAL_SERVER_ERROR }
+  );
+}
+```
+
+The <Code>handleError</Code> function is the central point for processing errors. It logs the error, then checks the error type:
+- If it's a <Code>ZodError</Code>, it formats a "Bad Request" response with validation details.
+- If it's an <Code>ApiError</Code>, it uses the error's <Code>statusCode</Code> and <Code>message</Code> to create a <Code>NextResponse</Code>. In development, it also includes the stack trace.
+- For any other error, it returns a generic "Internal Server Error" response.
+
+<br />
+---
+
+## Usage Examples
+
+```ts
+import { handleError } from "@/utils/error-handler";
+import { ApiError } from "@/utils/api-error";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+```
+
+### 1. Handling <Code>ApiError</Code>
+
+```ts
+export async function GET() {
+  try {
+    // Simulate a resource not found error
+    throw ApiError.notFound("The requested user was not found.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+```
+
+---
+
+### 2. Handling <Code>ZodError</Code> (Validation Errors)
+
+```ts
+const userSchema = z.object({
+  name: z.string().min(3),
+  email: z.string().email(),
+});
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    userSchema.parse(body); // This will throw a ZodError if validation fails
+
+    // Process valid data
+    return NextResponse.json({ success: true, message: "User created" });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+```
+
+---
+
+### 3. Handling Generic Errors
+
+```ts
+export async function PUT() {
+  try {
+    // Simulate a generic unexpected error
+    throw new Error("Database connection failed unexpectedly.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+```
