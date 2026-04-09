@@ -105,19 +105,19 @@
     {
       "slug": "error-handler",
       "title": "API Error Handler",
-      "description": "A lightweight, production-ready error handling utility for Express applications.",
+      "description": "A lightweight, production-ready error handling utility for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/error-handler"
     },
     {
       "slug": "response-formatter",
       "title": "API Response Formatter",
-      "description": "A standardized, type-safe API response wrapper for Express applications.",
+      "description": "A standardized, type-safe API response wrapper for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/response-formatter"
     },
     {

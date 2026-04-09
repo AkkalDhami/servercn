@@ -142,3 +142,6 @@ const decoded = decodeToken<{ sub?: string; type?: string }>(token);
 
 - **No runtime checks for missing secrets**: <Code children="JWT_ACCESS_SECRET" /> / <Code children="JWT_REFRESH_SECRET" /> are cast to <Code children="string" />. Make sure they are set in your environment, or signing/verifying will fail at runtime.
 - **Fixed expirations**: access is **15m**, refresh is **7d**. If you need configurability, change <Code children="expiresIn" /> in <Code children="jwt.sign.ts" />.
+
+
+---

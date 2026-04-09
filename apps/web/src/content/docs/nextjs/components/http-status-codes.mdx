@@ -16,6 +16,8 @@ Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add http-status-codes" />
 
+---
+
 ## Basic Implementation
 
 <Code children="src/constants/status-codes.ts" />
@@ -46,11 +48,17 @@ export const STATUS_CODES = {
 export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
 ```
 
+<br />
+---
+
 ## Usage Example
 
 ```ts
-import { NextResponse } from "next/server";
 import { STATUS_CODES } from "@/constants/status-codes";
+```
+
+```ts {6}
+import { NextResponse } from "next/server";
 
 export async function GET() {
   return NextResponse.json(
@@ -60,9 +68,8 @@ export async function GET() {
 }
 ```
 
-```ts
+```ts {6}
 import { NextResponse } from "next/server";
-import { STATUS_CODES } from "@/constants/status-codes";
 
 export async function POST() {
   return NextResponse.json(
@@ -71,10 +78,12 @@ export async function POST() {
   );
 }
 ```
+<br />
+---
 
 ## Status Code Reference
 
-```
+```bash
 | Status Code | Constant               | Description                                   |
 | ----------- | ---------------------- | --------------------------------------------- |
 | 200         | OK                     | Request succeeded.                            |
@@ -97,3 +106,5 @@ export async function POST() {
 | 503         | SERVICE_UNAVAILABLE    | Server unavailable or overloaded.             |
 | 504         | GATEWAY_TIMEOUT        | Upstream server timed out.                    |
 ```
+
+---
