@@ -1,0 +1,250 @@
+---
+title: API Response Formatter | Next.js
+description: A standardized response formatter for Next.js Route Handlers that ensures consistent API responses across your application.
+command: npx servercn-cli@latest add response-formatter
+---
+
+# API Response Formatter
+A standardized response formatter for Next.js Route Handlers that ensures consistent API responses across your application.
+
+## Overview
+
+The ApiResponse class provides a structured way to return JSON responses with:
+
+- Consistent shape
+- Typed data support
+- Built-in success/error helpers
+- Proper HTTP status handling
+
+<br />
+---
+
+## Installation Guide
+
+Install the component using the servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli@latest add response-formatter" />
+
+<br />
+---
+
+## Why Use Api Response Formatter?
+
+- Enforces API consistency
+- Reduces boilerplate
+- Improves frontend predictability
+- Centralizes response logic
+
+#### Before:
+
+```ts
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const data = {
+      name: "Servercn response-formatter component"
+    };
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Success",
+        data
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Something went wrong",
+        error
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### Problems
+
+- ❌ No enforced structure
+- ❌ Missing statusCode in body
+- ❌ Inconsistent key naming (error vs errors)
+- ❌ Repetitive JSON + status handling
+- ❌ No type safety
+
+<br />
+---
+
+#### After:
+
+```ts
+import { ApiResponse } from "@/utils/api-response";
+
+export async function GET() {
+  try {
+    const data = {
+      name: "Servercn response-formatter component"
+    };
+
+    return ApiResponse.ok("Fetched successfully", data);
+  } catch (error) {
+    return ApiResponse.error("Something went wrong", error);
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Fetched successfully",
+  "statusCode": 200,
+  "data": {
+     "name": "Servercn response-formatter component" 
+  }
+}
+```
+
+<br />
+---
+
+## Basic Implementation
+
+<Code>src/utils/api-response.ts</Code>
+
+```ts
+import { NextResponse } from "next/server";
+import { STATUS_CODES, StatusCode } from "@/constants/status-codes";
+
+type ApiResponseParams<T> = {
+  success: boolean;
+  message: string;
+  statusCode: StatusCode;
+  data?: T | null;
+  errors?: unknown;
+};
+
+export class ApiResponse<T = unknown> {
+  public readonly success: boolean;
+  public readonly message: string;
+  public readonly statusCode: StatusCode;
+  public readonly data?: T | null;
+  public readonly errors?: unknown;
+
+  constructor({
+    success,
+    message,
+    statusCode,
+    data = null,
+    errors
+  }: ApiResponseParams<T>) {
+    this.success = success;
+    this.message = message;
+    this.statusCode = statusCode;
+    this.data = data;
+    this.errors = errors;
+  }
+
+  send(): NextResponse {
+    return NextResponse.json(
+      {
+        success: this.success,
+        message: this.message,
+        statusCode: this.statusCode,
+        ...(this.data !== undefined && { data: this.data }),
+        ...(this.errors !== undefined && { errors: this.errors })
+      },
+      { status: this.statusCode }
+    );
+  }
+
+  static success<T>(
+    message: string,
+    data?: T,
+    statusCode: StatusCode = STATUS_CODES.OK
+  ): NextResponse {
+    return new ApiResponse<T>({
+      success: true,
+      message,
+      data,
+      statusCode
+    }).send();
+  }
+
+  static ok<T>(message = "OK", data?: T) {
+    return ApiResponse.success(message, data, STATUS_CODES.OK);
+  }
+
+  static created<T>(message = "Created", data?: T) {
+    return ApiResponse.success(message, data, STATUS_CODES.CREATED);
+  }
+
+  static error(
+    message = "Error",
+    errors?: unknown,
+    statusCode: StatusCode = STATUS_CODES.INTERNAL_SERVER_ERROR
+  ) {
+    return new ApiResponse({
+      success: false,
+      message,
+      errors,
+      statusCode
+    }).send();
+  }
+}
+/**
+ * ? Usage:
+import { ApiResponse } from "@/utils/api-response";
+
+export async function GET() {
+  const data = { name: "Akkal" };
+
+  return ApiResponse.ok("Fetched successfully", data);
+}
+*/
+```
+
+<br />
+---
+
+## Usage Examples
+
+```ts
+import { ApiResponse } from "@/utils/api-response";
+```
+
+### 1. Basic GET Request
+
+```ts
+export async function GET() {
+  const data = { name: "Servercn response-formatter component" };
+
+  return ApiResponse.ok("Fetched successfully", data);
+}
+```
+
+---
+
+### 2. POST (Create Resource)
+
+```ts
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const user = await db.user.create({
+      data: body
+    });
+
+    return ApiResponse.created("User created successfully", user);
+  } catch (error) {
+    return ApiResponse.error("User creation failed", error);
+  }
+}
+```
+
+---
