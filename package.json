@@ -59,6 +59,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@base-ui/react": "^1.3.0",
     "@imagekit/nodejs": "^7.2.2",
     "@prisma/client": "^6.19.2",
     "argon2": "^0.44.0",
