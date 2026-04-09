@@ -77,7 +77,8 @@
       "type": "component",
       "slug": "password-hashing",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
