@@ -88,7 +88,7 @@ export async function GET() {
 
 #### After:
 
-```ts
+```ts {7, 9, 1-2}
 import { handleError } from "@/utils/error-handler";
 import { ApiError } from "@/utils/api-error";
 
@@ -197,17 +197,16 @@ The <Code>ApiError</Code> class extends the native <Code>Error</Code> class, add
 <Code>src/utils/error-handler.ts</Code>
 
 ```ts
+import z, { ZodError } from "zod";
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
 import { ApiError } from "./api-error";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { logger } from "./logger";
 
 export function handleError(error: unknown) {
-  logger.error(error); // Centralized error logging
-
+  logger.error(error);
   if (error instanceof ZodError) {
-    return ApiError.badRequest("Invalid request data", error.flatten()).send();
+    return ApiError.badRequest("Invalid request data", z.flattenError(error));
   }
 
   if (error instanceof ApiError) {
@@ -223,7 +222,6 @@ export function handleError(error: unknown) {
     );
   }
 
-  // Generic error fallback
   return NextResponse.json(
     {
       success: false,
@@ -254,7 +252,7 @@ import { z } from "zod";
 
 ### 1. Handling <Code>ApiError</Code>
 
-```ts
+```ts {4, 6}
 export async function GET() {
   try {
     // Simulate a resource not found error
@@ -269,19 +267,22 @@ export async function GET() {
 
 ### 2. Handling <Code>ZodError</Code> (Validation Errors)
 
-```ts
+```ts {17}
 const userSchema = z.object({
   name: z.string().min(3),
-  email: z.string().email(),
+  email: z.email(),
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    userSchema.parse(body); // This will throw a ZodError if validation fails
+    userSchema.parse(body);
 
     // Process valid data
-    return NextResponse.json({ success: true, message: "User created" });
+    return NextResponse.json({ 
+      success: true,
+      message: "User created"
+    });
   } catch (error) {
     return handleError(error);
   }
@@ -292,7 +293,7 @@ export async function POST(req: Request) {
 
 ### 3. Handling Generic Errors
 
-```ts
+```ts {6}
 export async function PUT() {
   try {
     // Simulate a generic unexpected error
@@ -302,3 +303,5 @@ export async function PUT() {
   }
 }
 ```
+
+---

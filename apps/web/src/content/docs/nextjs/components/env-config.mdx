@@ -33,6 +33,8 @@ The Next.js template creates the following files:
 - <Code children="src/configs/env/env.client.ts" />
 - <Code children="src/configs/env/env.types.ts" />
 
+<br />
+---
 
 ## Basic Implementation
 
@@ -80,6 +82,8 @@ export const baseEnvSchema = z.object({
   GITHUB_REDIRECT_URI: z.url()
 });
 ```
+---
+<br />
 
 <Code children="src/configs/env/env.server.ts" />
 
@@ -99,6 +103,9 @@ const env = Object.freeze(parsed.data);
 
 export default env;
 ```
+
+---
+<br />
 
 <Code children="src/configs/env/env.client.ts" />
 
@@ -122,12 +129,17 @@ const clientEnv = parsed.data;
 export default clientEnv;
 ```
 
+<br />
+---
+
 <Code children="src/configs/env/index.ts" />
 
 ```ts
 export { default as env } from "./env.server";
 export { default as clientEnv } from "./env.client";
 ```
+
+---
 
 ## Usage
 
@@ -171,3 +183,5 @@ GITHUB_CLIENT_SECRET=your_github_secret
 GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/github/callback
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+---

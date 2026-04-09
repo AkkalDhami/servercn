@@ -79,7 +79,7 @@ export async function GET() {
 
 #### After:
 
-```ts
+```ts {1, 9, 11}
 import { ApiResponse } from "@/utils/api-response";
 
 export async function GET() {
@@ -218,7 +218,7 @@ import { ApiResponse } from "@/utils/api-response";
 
 ### 1. Basic GET Request
 
-```ts
+```ts {4}
 export async function GET() {
   const data = { name: "Servercn response-formatter component" };
 
@@ -230,7 +230,7 @@ export async function GET() {
 
 ### 2. POST (Create Resource)
 
-```ts
+```ts {9, 11}
 export async function POST(req: Request) {
   try {
     const body = await req.json();
