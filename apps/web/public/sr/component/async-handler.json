@@ -28,13 +28,13 @@
               "files": [
                 {
                   "type": "file",
-                  "path": "src/shared/utils/async-handler.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve()\n      .then(() => fn(req, res, next))\n      .catch(next);\n  };\n}\n"
+                  "path": "src/modules/user/user.routes.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/modules/user/user.routes.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve(fn(req, res, next)).catch(next);\n  };\n}\n"
+                  "path": "src/shared/utils/async-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve()\n      .then(() => fn(req, res, next))\n      .catch(next);\n  };\n}\n"
                 }
               ]
             }
