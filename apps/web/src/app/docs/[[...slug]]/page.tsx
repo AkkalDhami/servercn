@@ -269,7 +269,7 @@ export default async function DocsPage({
                 FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
                 !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
                   <>
-                    <h2 className="mt-6 mb-2 text-2xl font-semibold tracking-tight">
+                    <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                       File &amp; Folder Structure
                     </h2>
                     <ArchitectureTabs
