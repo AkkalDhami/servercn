@@ -1,6 +1,6 @@
 import { STATUS_CODES } from "@/constants/status-codes";
 import { logger } from "@/utils/logger";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type HandlerContext = {
   params?: Record<string, string>;
@@ -29,17 +29,12 @@ export function RouteHandler(fn: RouteHandlerFn) {
         }
       }
 
-      return new Response(
-        JSON.stringify({
+      return NextResponse.json(
+        {
           success: false,
           message
-        }),
-        {
-          status,
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
+        },
+        { status }
       );
     }
   };
