@@ -1,8 +1,8 @@
 import z, { ZodError } from "zod";
 import { NextResponse } from "next/server";
-import { ApiError } from "./api-error";
+import { ApiError } from "@/utils/api-error";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { logger } from "./logger";
+import { logger } from "@/utils/logger";
 
 export function handleError(error: unknown) {
   logger.error(error);
