@@ -144,11 +144,8 @@
       "description": "The Password Hashing component provides a standardized way to hash passwords in Servercn using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
-      "docs": "/docs/components/password-hashing",
-      "meta": {
-        "new": true
-      }
+      "frameworks": ["express", "nextjs"],
+      "docs": "/docs/components/password-hashing"
     },
     {
       "slug": "http-status-codes",
