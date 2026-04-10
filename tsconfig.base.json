@@ -9,12 +9,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "paths": {
-      "@/constants/*": [
-        "packages/templates/node/nextjs/component/route-handler/file-api/src/constants/*"
-      ],
-      "@/utils/*": ["packages/templates/node/nextjs/component/**/src/utils/*"]
-    }
+    "noEmit": true
   }
 }

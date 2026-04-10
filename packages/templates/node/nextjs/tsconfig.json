@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/constants/*": [
+        "./component/route-handler/file-api/src/constants/*",
+        "./component/error-handler/file-api/src/constants/*"
+      ],
+      "@/utils/*": [
+        "./component/route-handler/file-api/src/utils/*",
+        "./component/error-handler/file-api/src/utils/*"
+      ]
+    }
+  },
+  "include": ["component/**/*.ts"]
+}
