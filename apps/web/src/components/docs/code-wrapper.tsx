@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CopyButton from "./copy-button";
+import CopyButton from "@/components/docs/copy-button";
 
 export function CodeWrapper({
   children,

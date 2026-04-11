@@ -1,11 +1,14 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CodeBlock } from "./code-block";
-import { CodeWrapper } from "./code-wrapper";
 import { TerminalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { cookies } from "next/headers";
-import { CODE_THEME_BG_KEY } from "@/lib/constants";
-import { getPackageManagerIcon } from "./icons/language-icons";
+import {
+  getIconForPackageManager,
+  getPackageManagerIcon
+} from "@/components/docs/icons/language-icons";
+import { CodeWrapper } from "@/components/docs/code-wrapper";
+import { usePackageManager } from "@/store/use-package-manager";
 
 const managers = {
   pnpm: (c: string) => `pnpm dlx ${c.replace("npx ", "")}`,
@@ -14,34 +17,38 @@ const managers = {
   bun: (c: string) => `bunx --bun ${c.replace("npx ", "")}`
 };
 
-export default async function PackageManagerTabs({
+export type PackageManager = keyof typeof managers;
+
+export default function PackageManagerTabs({
   command = ""
 }: {
   command: string;
 }) {
-  const cookieStore = await cookies();
-  const bg = cookieStore.get(CODE_THEME_BG_KEY)?.value || "#101010";
+  const { pkgManager, setPkgManager } = usePackageManager();
+
+  function onChangePackageManager(pkgManager: PackageManager) {
+    setPkgManager(pkgManager);
+  }
 
   return (
     <Tabs
-      defaultValue="npm"
+      value={pkgManager}
       className={cn(
-        "xsm:max-w[340px] my-6 max-w-90 rounded-md border-0 sm:max-w-200"
-      )}
-      style={{ backgroundColor: bg }}>
-      <TabsList className={cn("pt-3 pl-3")} style={{ backgroundColor: bg }}>
-        <TerminalIcon className="mr-4 size-5 text-neutral-400" />
+        "my-6 rounded-md border-0 bg-neutral-100 sm:max-w-200 dark:bg-[#101010]"
+      )}>
+      <TabsList className={cn("bg-transparent pt-3 pl-3")}>
+        <TerminalIcon className="text-muted-foreground mr-3 size-6 pt-1" />
         {Object.keys(managers).map(m => {
-          const Icon = getPackageManagerIcon(m as keyof typeof managers);
+          const Icon = getPackageManagerIcon(m as PackageManager);
           return (
             <TabsTrigger
               key={m}
               value={m}
               className={cn(
-                "flex items-center gap-2 font-medium text-neutral-400 data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:text-white"
+                "text-muted-foreground flex items-center gap-3 bg-transparent font-medium data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:bg-transparent"
               )}
-              style={{ backgroundColor: bg }}>
-              {Icon && getPackageManagerIcon(m as keyof typeof managers)}
+              onClick={() => onChangePackageManager(m as PackageManager)}>
+              {Icon && getIconForPackageManager(m as keyof typeof managers)}
               {m}
             </TabsTrigger>
           );
@@ -50,11 +57,21 @@ export default async function PackageManagerTabs({
 
       {Object.entries(managers).map(([key, transform]) => {
         const cmd = transform(command);
-
+        const [bin, ...rest] = cmd.split(" ");
+        const remaining = rest.join(" ");
         return (
           <TabsContent key={key} value={key}>
             <CodeWrapper code={cmd}>
-              <CodeBlock code={cmd} lang="bash" />
+              {/* <CodeBlock code={cmd} /> */}
+              <pre className="overflow-x-auto overscroll-x-contain p-4">
+                <code
+                  data-slot="code-block"
+                  data-language="bash"
+                  className="font-code leading-none">
+                  <span className="text-green-600 dark:text-[#ffc799]">{bin}</span>{" "}
+                  <span className="text-blue-700 dark:text-[#52e1e3]">{remaining}</span>
+                </code>
+              </pre>
             </CodeWrapper>
           </TabsContent>
         );
@@ -62,3 +79,5 @@ export default async function PackageManagerTabs({
     </Tabs>
   );
 }
+
+// function getColor()
