@@ -1,0 +1,106 @@
+---
+title: Overview | CLI 
+description: The servercn CLI is a powerful command-line interface designed to streamline development by generating boilerplate code, enforcing project structure and automating repetitive tasks.
+
+---
+
+# CLI Overview
+
+The servercn CLI is a powerful command-line interface designed to streamline development by generating boilerplate code, enforcing project structure, and automating repetitive tasks.
+
+It helps you move faster while keeping your codebase consistent and scalable.
+
+---
+
+## Why Use the CLI?
+
+Instead of manually creating files and wiring everything together, the CLI allows you to:
+
+- Generate controllers, services, and routes instantly
+- Maintain a consistent architecture across your project
+- Reduce boilerplate and human error
+- Scale your application with predictable patterns
+
+<br />
+---
+
+## Installation
+
+### Existing Project
+
+Initialize Servercn in an Existing Project
+
+<PackageManagerTabs command="npx servercn-cli init" />
+
+
+After running the command, you will be prompted to choose a project foundation:
+
+```text {7}
+  Select a project foundation:  » - Use arrow-keys. Return to submit.
+  Express Starter - Minimal Express server setup
+  Express + Mongoose
+  Express + MySQL (Drizzle)
+  Express + PostgreSQL (Drizzle)
+  Nextjs Starter
+> Existing Project
+```
+
+> Choose the Existing Project and press Enter to continue.
+
+Again, you will be prompted to configure your stack:
+
+```
+√ Project root directory ... .
+√ Programming language » Typescript (recommended)
+√ Backend framework » Express.js
+√ Select architecture » MVC (controllers, services, models)
+√ Select database » Mongodb
+√ Mongodb library » mongoose
+√ Select package manager » npm
+
+Servercn initialized successfully.
+
+You may now add components by running:
+1. npx servercn-cli add <component>
+ex: npx servercn-cli add jwt-utils error-handler http-status-codes
+```
+
+This generates a <Code>servercn.config.json</Code> file in your project root:
+
+```json
+{
+  "$schema": "https://servercn.vercel.app/schema/servercn.config.json",
+  "version": "1.1.11",
+  "rootDir": ".",
+  "packageManager": "npm",
+  "runtime": "node",
+  "language": "typescript",
+  "framework": "express",
+  "architecture": "mvc",
+  "database": {
+    "engine": "mongodb",
+    "adapter": "mongoose"
+  }
+}
+```
+
+---
+
+### New Project
+
+Initialize a New Project from a Starter
+
+Available starters:
+
+<PackageManagerTabs command="npx servercn-cli init nextjs-starter --fw=nextjs" />
+<PackageManagerTabs command="npx servercn-cli init express-starter" />
+<PackageManagerTabs command="npx servercn-cli init mongoose-starter" />
+<PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
+<PackageManagerTabs command="npx servercn-cli init drizzle-pg-starter" />
+
+
+## CLI Help 
+
+
+
+<PackageManagerTabs command="npx servercn-cli --help" />
