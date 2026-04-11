@@ -31,6 +31,7 @@ export interface IRegistryItems {
 }
 
 export type ItemType =
+  | "cli"
   | "component"
   | "blueprint"
   | "guide"

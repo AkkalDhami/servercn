@@ -8,6 +8,7 @@ import Navbar from "@/components/layouts/navbar";
 import { SERVERCN_URL } from "@/lib/constants";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "@/components/layouts/footer";
+import { HotkeyProvider } from "@/components/providers/hotkey-provider";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -61,9 +62,11 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem={false}>
           <TooltipProvider>
-            <Navbar />
-            {children}
-            <Footer />
+            <HotkeyProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </HotkeyProvider>
             <ScrollToTopButton />
           </TooltipProvider>
         </ThemeProvider>

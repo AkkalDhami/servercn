@@ -127,8 +127,6 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
   } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
-  } else if (slug.length === 1 && slug[0] === "cli") {
-    return path.join(DOCS_PATH, "guides", "cli.mdx");
   }
 
   const actualSlug = slug;
