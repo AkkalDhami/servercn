@@ -14,11 +14,22 @@
     },
     {
       "slug": "cli",
-      "title": "Servercn CLI",
-      "description": "The Servercn CLI provides a set of commands to help you manage your Servercn projects.",
-      "type": "guide",
+      "title": "Overview",
+      "description": "Learn about the servercn CLI and how to use it to manage your Servercn projects.",
+      "type": "cli",
       "status": "stable",
-      "docs": "/docs/cli",
+      "docs": "/docs/cli/overview",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "commands",
+      "title": "Commands",
+      "description": "Learn about the servercn CLI commands and how to use them to manage your Servercn projects.",
+      "type": "cli",
+      "status": "stable",
+      "docs": "/docs/cli/commands",
       "meta": {
         "new": true
       }
