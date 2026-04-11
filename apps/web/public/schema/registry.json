@@ -63,6 +63,7 @@
           "description": "Defines the category of the registry entry.",
           "enum": [
             "guide",
+            "cli",
             "contributing",
             "component",
             "blueprint",

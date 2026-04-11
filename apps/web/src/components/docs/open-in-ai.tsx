@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Clock, SparklesIcon } from "lucide-react";
-import { getIconForAi, type AiName } from "./icons/ai-icons";
+import { getIconForAi, type AiName } from "@/components/docs/icons/ai-icons";
 import { AI_QUERIES, SERVERCN_URL } from "@/lib/constants";
 
 import {

@@ -32,7 +32,7 @@ export function ScrollToTopButton() {
     isVisible && (
       <button
         onClick={handleOnclick}
-        className="bg-primary hover:bg-primary/80 text-primary-foreground fixed right-3 sm:right-12 bottom-3 z-40 cursor-pointer rounded-md p-3 duration-300">
+        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground fixed right-3 sm:right-12 bottom-3 z-40 cursor-pointer rounded-lg p-3 duration-300">
         <ArrowUp className="size-4" />
       </button>
     )

@@ -1,29 +1,33 @@
-import { getSingletonHighlighter } from "shiki";
-import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
-import { cookies } from "next/headers";
+"use client";
 
-const getHighlighter = (theme: string) =>
-  getSingletonHighlighter({
-    themes: [theme],
-    langs: ["bash", "ts", "js", "json"]
-  });
+import { DEFAULT_CODE_THEME } from "@/lib/constants";
+import { useCodeTheme } from "@/store/use-code-theme";
 
-export async function CodeBlock({
+import { useEffect, useState } from "react";
+import { codeToHtml } from "shiki";
+
+export function CodeBlock({
   code,
   lang = "bash"
 }: {
   code: string;
   lang?: string;
 }) {
-  const cookieStore = await cookies();
-  const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
+  const theme = useCodeTheme();
 
-  const highlighter = await getHighlighter(theme);
+  const [html, setHtml] = useState("npx servercn-cli@latest init");
 
-  const html = highlighter.codeToHtml(code, {
-    lang,
-    theme
-  });
+  useEffect(() => {
+    async function highlight() {
+      const out = await codeToHtml(code, {
+        lang,
+        theme: theme.theme || DEFAULT_CODE_THEME
+      });
+      setHtml(out);
+    }
+
+    highlight();
+  }, [code, lang]);
 
   return (
     <div
