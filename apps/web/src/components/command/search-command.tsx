@@ -21,13 +21,7 @@ import { getRegistryTypeItems, injectFramework } from "@/lib/source";
 import { cn } from "@/lib/utils";
 import { ITEM_GROUP_NAMING, PAGE_ITEMS } from "../layouts/docs-sidebar";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import {
-  BASE_GITHUB_URL,
-  DISCORD_URL,
-  GITHUB_URL,
-  X_URL
-} from "@/lib/constants";
-import { FaXTwitter } from "react-icons/fa6";
+import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
 
 import { contributingGuides } from "@/lib/contributing";
 import { useFramework } from "@/store/use-framework";
@@ -71,17 +65,14 @@ export function SearchCommand({
           "group hover:bg-card-hover primary-ring px-2 py-0 sm:px-4 sm:py-2 md:space-x-1.5",
           className
         )}>
-        <div
-          className={cn(
-            " items-center px-0 md:flex md:gap-2",
-          )}>
-          <SearchIcon className="text-muted-foreground size-4 group-hover:text-accent-foreground" />
-          <span className="group-hover:text-accent-foreground hidden md:flex  text-muted-foreground font-normal duration-300">
+        <div className={cn("items-center px-0 md:flex md:gap-2")}>
+          <SearchIcon className="text-muted-foreground group-hover:text-accent-foreground size-4" />
+          <span className="group-hover:text-accent-foreground text-muted-foreground hidden font-normal duration-300 md:flex">
             Search
           </span>
         </div>
 
-        <Kbd className="group-hover:text-accent-foreground hidden md:flex  text-muted-foreground text-sm font-medium duration-300">
+        <Kbd className="group-hover:text-accent-foreground text-muted-foreground hidden text-sm font-medium duration-300 md:flex">
           ⌘ + K
         </Kbd>
       </Button>
@@ -100,12 +91,6 @@ export function SearchCommand({
                 onClick={() => setOpen(!open)}>
                 <FaGithub className="size-2. text-primary cursor-pointer" />
                 Servercn Github
-              </Link>
-            </CommandItem>
-            <CommandItem asChild className="mb-0.5">
-              <Link href={X_URL} target="_blank" onClick={() => setOpen(!open)}>
-                <FaXTwitter className="size-2. text-primary cursor-pointer" />
-                @AavashDhami2127
               </Link>
             </CommandItem>
             <CommandItem asChild className="mb-0.5">
@@ -290,6 +275,9 @@ export function SearchCommand({
           )}
           <CommandSeparator />
         </CommandList>
+        <div className="text-muted-foreground flex items-center justify-between border-t px-4 py-4 text-xs">
+          <span>Use ↑ ↓ to navigate</span>
+        </div>
       </CommandDialog>
     </>
   );
