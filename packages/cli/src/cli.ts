@@ -9,6 +9,7 @@ import { registryListCommands } from "./commands/list";
 import { registryViewCommand } from "./commands/view";
 import { build, type buildTypeProps } from "./commands/_build";
 import { registryInstallCommand } from "./commands/install";
+import { registryGeneratorCommand } from "./commands/generator";
 
 const program = new Command();
 
@@ -35,6 +36,7 @@ async function main() {
   registryListCommands(program);
   registryViewCommand(program);
   registryInstallCommand(program);
+  registryGeneratorCommand(program);
 
   program
     .command("build")
@@ -51,6 +53,33 @@ async function main() {
     .option(
       "--local",
       "Add registry items from local environment(development runtime)"
+    )
+    .addHelpText(
+      "after",
+      `
+Aliases:
+  sc → schema
+  fd → foundation
+  bp → blueprint
+  tl → tooling
+  pr → provider
+
+Commands:
+  $ npx servercn-cli add <component-name>
+  $ npx servercn-cli init <foundation-name>
+  $ npx servercn-cli add tooling <tooling-name>
+  $ npx servercn-cli add pr <provider-name>
+  $ npx servercn-cli add sc <schema-name>
+  $ npx servercn-cli add bp <blueprint-name>
+
+Examples:
+  $ npx servercn-cli add oauth
+  $ npx servercn-cli init express-starter
+  $ npx servercn-cli add tl prettier
+  $ npx servercn-cli add pr mongodb-prisma
+  $ npx servercn-cli add sc auth
+  $ npx servercn-cli add bp stateless-auth
+`
     )
     .action(
       async (
@@ -77,6 +106,9 @@ async function main() {
           items = components.slice(1);
         } else if (["provider", "pr"].includes(components[0])) {
           type = "provider";
+          items = components.slice(1);
+        } else if (["component", "cp"].includes(components[0])) {
+          type = "component";
           items = components.slice(1);
         } else {
           items = components;
