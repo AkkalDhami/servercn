@@ -33,3 +33,11 @@ export const RegistryTypeList = [
   "tooling",
   "provider"
 ] as const;
+
+export const GENERATOR_TYPES = [
+  "controller",
+  "service",
+  "route",
+  "model",
+  "resource"
+] as const;
