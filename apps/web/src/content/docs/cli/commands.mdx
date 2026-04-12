@@ -141,9 +141,9 @@ Use this to install reusable components such as utilities, middleware, or shared
 
 Install a foundational layer that provides core system setup (e.g., base configs, global handlers, shared infrastructure).
 
-<PackageManagerTabs command="npx servercn-cli add foundation <foundation-name>" />
+<PackageManagerTabs command="npx servercn-cli init <foundation-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add fd express-starter" />
+<PackageManagerTabs command="npx servercn-cli init express-starter" />
 
 This integrates the foundation according to your selected architecture and stack configuration.
 
@@ -192,6 +192,44 @@ Install a predefined database schema aligned with your selected database and ORM
 <PackageManagerTabs command="npx servercn-cli add sc auth/user" />
 
 The schema is generated based on your configured database type and ORM.
+
+
+#### Help
+
+```
+Usage: servercn-cli add [options] <components...>
+
+Add one or more backend components to your project
+
+Options:
+  --arch <arch>  Project architecture: mvc or feature (default: "mvc")
+  -f, --force    Force overwrite existing files
+  --local        Add registry items from local environment(development runtime)
+  -h, --help     display help for command
+
+Aliases:
+  sc → schema
+  fd → foundation
+  bp → blueprint
+  tl → tooling
+  pr → provider
+
+Commands:
+  $ npx servercn-cli add <component-name>
+  $ npx servercn-cli init <foundation-name>
+  $ npx servercn-cli add tooling <tooling-name>
+  $ npx servercn-cli add pr <provider-name>
+  $ npx servercn-cli add sc <schema-name>
+  $ npx servercn-cli add bp <blueprint-name>
+
+Examples:
+  $ npx servercn-cli add oauth
+  $ npx servercn-cli init express-starter
+  $ npx servercn-cli add tl prettier
+  $ npx servercn-cli add pr mongodb-prisma
+  $ npx servercn-cli add sc auth
+  $ npx servercn-cli add bp stateless-auth
+```  
 
 ---
 
