@@ -5,7 +5,8 @@ import type {
   OrmList,
   FrameworkList,
   RuntimeList,
-  LanguageList
+  LanguageList,
+  GENERATOR_TYPES
 } from "@/constants/app.constants";
 
 export type Architecture = (typeof ArchitectureList)[number];
@@ -16,6 +17,8 @@ export type FrameworkType = (typeof FrameworkList)[number];
 export type RuntimeType = (typeof RuntimeList)[number];
 export type LanguageType = (typeof LanguageList)[number];
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+
+export type GeneratorType = (typeof GENERATOR_TYPES)[number];
 
 export type RegistryData = {
   type: RegistryType;

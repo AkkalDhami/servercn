@@ -18,10 +18,7 @@
       "description": "Learn about the servercn CLI and how to use it to manage your Servercn projects.",
       "type": "cli",
       "status": "stable",
-      "docs": "/docs/cli/overview",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/cli/overview"
     },
     {
       "slug": "commands",
