@@ -1,3 +1,6 @@
+import fs from "fs-extra";
+import path from "node:path";
+
 import type {
   Architecture,
   DatabaseType,
@@ -5,6 +8,8 @@ import type {
   OrmType,
   RegistryItem
 } from "@/types";
+import { logger } from "./logger";
+import { highlighter } from "./highlighter";
 
 /**
  * Extracts files from a built registry item based on the template path.
@@ -143,4 +148,50 @@ export function findFilesByPath(
 
     return null;
   }
+}
+
+function formatPath(filePath: string) {
+  return path.relative(process.cwd(), filePath);
+}
+
+/**
+ * Write file safely
+ * @param filePath
+ * @param content
+ */
+
+export async function writeFileSafe({
+  filePath,
+  content,
+  force
+}: {
+  filePath: string;
+  content: string;
+  force?: boolean;
+}) {
+  const exists = await fs.pathExists(filePath);
+  const displayPath = formatPath(filePath);
+
+  if (exists && !force) {
+    logger.log(`${highlighter.warn("File already exists:")} ${displayPath}`);
+    logger.info(`Use --force to overwrite\n`);
+    process.exit(1);
+  }
+
+  await fs.outputFile(filePath, content);
+
+  if (force) {
+    logger.overwrite(`${displayPath}`);
+  } else {
+    logger.create(`${displayPath}`);
+  }
+}
+/**
+ * Resolve path
+ * @param paths
+ * @returns
+ */
+
+export function resolvePath(...paths: string[]) {
+  return path.join(process.cwd(), ...paths);
 }

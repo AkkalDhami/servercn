@@ -9,12 +9,13 @@ import {
   type listOptionType,
   listProviders
 } from "./list.handlers";
+import { APP_NAME } from "@/constants/app.constants";
 
 export function registryListCommands(program: Command) {
   const list = program
     .command("list")
     .alias("ls")
-    .description("List available ServerCN resources")
+    .description(`List available ${APP_NAME} resources`)
     .option("--json", "Output resources as JSON")
     .option("--all", "Display all available registries")
     .option("--local", "Display only local registries")
