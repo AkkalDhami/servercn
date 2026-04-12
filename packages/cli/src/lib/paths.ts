@@ -50,5 +50,21 @@ export const paths = {
     "index.json"
   ),
   templates: () => path.join(getMonorepoRoot(), "packages/templates"),
-  targets: (folderName: string) => resolveTargetDir(folderName)
+  targets: (folderName: string) => resolveTargetDir(folderName),
+
+  cliTemplates: ({
+    fileName,
+    runtime,
+    framework,
+    architecture
+  }: {
+    fileName: string;
+    runtime: string;
+    framework: string;
+    architecture: string;
+  }) =>
+    path.join(
+      getMonorepoRoot(),
+      `packages/cli/src/templates/${runtime}/${framework}/${architecture}/${fileName}.hbs`
+    )
 };
