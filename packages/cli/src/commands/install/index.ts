@@ -3,7 +3,7 @@ import {
   resolveInstallMode,
   type InstallOptions,
   installRegistryItemDeps
-} from "./install.handler";
+} from "./install.handlers";
 
 export function registryInstallCommand(program: Command) {
   program
