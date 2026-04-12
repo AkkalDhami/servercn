@@ -8,3 +8,4 @@ dist
 **/*.md
 coverage
 apps/web/public/sr/
+**/*.hbs
