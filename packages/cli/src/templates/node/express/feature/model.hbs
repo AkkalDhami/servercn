@@ -1,0 +1,28 @@
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface I{{modelName}} extends Document {
+  _id: mongoose.Types.ObjectId;
+
+  test: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const {{modelSchemaName}} = new Schema<I{{modelName}}>(
+  {
+    test: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+const {{modelName}}: Model<I{{modelName}}> =
+  mongoose.models.{{modelName}} || mongoose.model<I{{modelName}}>("{{modelName}}", {{modelSchemaName}});
+
+export default {{modelName}};
