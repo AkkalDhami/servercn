@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { viewRegistryItem } from "./view.handler";
+import { viewRegistryItem } from "./view.handlers";
 import type {
   Architecture,
   DatabaseType,
