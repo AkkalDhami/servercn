@@ -43,6 +43,7 @@ async function runGenerator({
 
   if (!outputPath) {
     logger.error("Failed to resolve output path");
+    logger.break();
     process.exit(1);
   }
 
