@@ -1,0 +1,51 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "drizzle-neon-pg",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "drizzle-neon-pg/mvc",
+            "feature": "drizzle-neon-pg/feature"
+          },
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "drizzle-orm",
+              "@neondatabase/serverless",
+              "pino-pretty",
+              "pino",
+              "dotenv-flow",
+              "cross-env",
+              "source-map-support",
+              "zod",
+              "swagger-autogen",
+              "swagger-ui-express"
+            ],
+            "dev": [
+              "@types/express",
+              "morgan",
+              "@types/cors",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "drizzle-kit",
+              "@types/source-map-support",
+              "@types/swagger-ui-express"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ]
+        }
+      }
+    }
+  }
+}
