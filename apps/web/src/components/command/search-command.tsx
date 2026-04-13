@@ -55,6 +55,7 @@ export function SearchCommand({
   const schemas = getRegistryTypeItems("schema", framework);
   const toolings = getRegistryTypeItems("tooling");
   const providers = getRegistryTypeItems("provider", framework);
+  const cli = getRegistryTypeItems("cli", framework);
 
   return (
     <>
@@ -144,6 +145,25 @@ export function SearchCommand({
               ))}
             </CommandGroup>
           )}
+
+          {cli.length > 0 && (
+            <CommandGroup heading={ITEM_GROUP_NAMING.cli.toUpperCase()}>
+              {cli.map(item => (
+                <CommandItem asChild key={item.title}>
+                  <Link
+                    href={
+                      injectFramework(item.url as string, framework) as Route
+                    }
+                    onClick={() => setOpen(!open)}
+                    className="mb-0.5 w-full cursor-pointer">
+                    <CircleIcon className="text-muted-secondary size-2.5" />{" "}
+                    {item.title}
+                  </Link>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+
           {foundations.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.foundation.toUpperCase()}>
               {foundations.map(item => (
@@ -161,6 +181,7 @@ export function SearchCommand({
               ))}
             </CommandGroup>
           )}
+
           {toolings.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.tooling.toUpperCase()}>
               {toolings.map(item => (
@@ -178,6 +199,7 @@ export function SearchCommand({
               ))}
             </CommandGroup>
           )}
+
           {components.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.component.toUpperCase()}>
               {components.map(item => (
@@ -195,6 +217,7 @@ export function SearchCommand({
               ))}
             </CommandGroup>
           )}
+
           {blueprints.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.blueprint.toUpperCase()}>
               {blueprints.map(item => (
@@ -247,6 +270,7 @@ export function SearchCommand({
               ))}
             </CommandGroup>
           )}
+
           {PAGE_ITEMS.length > 0 && (
             <CommandGroup heading={ITEM_GROUP_NAMING.page.toUpperCase()}>
               <>

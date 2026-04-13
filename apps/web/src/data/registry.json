@@ -32,6 +32,17 @@
       }
     },
     {
+      "slug": "generators",
+      "title": "Generators",
+      "description": "Generate controllers, services, models, routes, and more using servercn CLI.",
+      "type": "cli",
+      "status": "stable",
+      "docs": "/docs/cli/generators",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "slug": "installation",
       "title": "Installation",
       "description": "Learn how to install and set up Servercn in your project.",
@@ -799,10 +810,7 @@
       "frameworks": ["express"],
       "title": "Resend Mail",
       "description": "Email provider using the Resend API for Express applications.",
-      "docs": "/docs/providers/resend-mail",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/resend-mail"
     },
     {
       "slug": "redis",
@@ -811,10 +819,7 @@
       "frameworks": ["express"],
       "title": "Redis",
       "description": "Redis cache and key-value provider with the official Node client for Express applications.",
-      "docs": "/docs/providers/redis",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/redis"
     }
   ]
 }
