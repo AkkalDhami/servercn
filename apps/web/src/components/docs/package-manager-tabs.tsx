@@ -68,8 +68,12 @@ export default function PackageManagerTabs({
                   data-slot="code-block"
                   data-language="bash"
                   className="font-code leading-none">
-                  <span className="text-green-600 dark:text-[#ffc799]">{bin}</span>{" "}
-                  <span className="text-blue-700 dark:text-[#52e1e3]">{remaining}</span>
+                  <span className="text-[#eb7520] dark:text-[#ffc799]">
+                    {bin}
+                  </span>{" "}
+                  <span className="text-[#0e99d9] dark:text-[#52e1e3]">
+                    {remaining}
+                  </span>
                 </code>
               </pre>
             </CodeWrapper>
