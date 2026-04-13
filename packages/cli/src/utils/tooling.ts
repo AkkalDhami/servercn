@@ -50,12 +50,13 @@ export async function getToolingChoices(): Promise<ToolingKey[]> {
     message: "Choose tooling setup:",
     choices: [
       {
-        title: "Prettier + ESLint + TypeScript",
-        value: "recommended"
+        title:
+          "All (Prettier + ESLint + TypeScript + Husky + Lint Staged + Commitlint)",
+        value: "all"
       },
       {
-        title: "All (Prettier + ESLint + TypeScript + Husky + Lint Staged + Commitlint)",
-        value: "all"
+        title: "Prettier + ESLint + TypeScript",
+        value: "recommended"
       },
       { title: "Custom", value: "custom" }
     ]

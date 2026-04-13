@@ -39,5 +39,7 @@ export const GENERATOR_TYPES = [
   "service",
   "route",
   "model",
-  "resource"
+  "resource",
+  "dto",
+  "validator"
 ] as const;
