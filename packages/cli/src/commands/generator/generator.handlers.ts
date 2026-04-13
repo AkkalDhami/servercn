@@ -5,6 +5,8 @@ import { resolvePath, writeFileSafe } from "@/utils/file";
 import { toKebabCase, toPascalCase } from "@/utils/naming";
 import { compileTemplate } from "@/utils/template";
 
+import { resolve } from "path";
+
 import { validateStack } from "@/commands/add";
 import type { Architecture, GeneratorType } from "@/types";
 import { logger } from "@/utils/logger";
@@ -98,6 +100,15 @@ export async function generateResource(
   await generateService(name, options);
   await generateRoute(name, options);
   await generateModel(name, options);
+  await generateDTO({
+    name,
+    fields: [],
+    options: {
+      ...options,
+      flat: true
+    },
+    type: "dto"
+  });
 }
 
 export async function generateModel(name: string, options?: GeneratorOptions) {
@@ -114,6 +125,75 @@ export async function generateRoute(name: string, options?: GeneratorOptions) {
     type: "route",
     options
   });
+}
+
+export async function generateDTO({
+  name,
+  fields,
+  options,
+  type
+}: {
+  name: string;
+  fields: string[];
+  options: GeneratorOptions;
+  type: "dto" | "validator";
+}) {
+  await assertInitialized();
+
+  const config = await getServerCNConfig();
+  validateStack(config);
+
+  const { architecture } = config;
+
+  const fileName = `${toKebabCase(name)}.${type}.ts`;
+
+  const outputPath = resolveDTOPath({
+    name,
+    fileName,
+    architecture,
+    flat: options.flat,
+    type
+  });
+
+  const className = toPascalCase(name);
+
+  const parsedFields = parseFields(fields || []);
+
+  const content = buildDTOContent({
+    name,
+    className,
+    fields: parsedFields,
+    crud: true,
+    type
+  });
+
+  await writeFileSafe({
+    filePath: outputPath,
+    content,
+    force: options.force
+  });
+}
+
+function resolveDTOPath({
+  name,
+  fileName,
+  architecture,
+  flat,
+  type
+}: {
+  name: string;
+  fileName: string;
+  architecture: string;
+  flat?: boolean;
+  type: "dto" | "validator";
+}) {
+  if (architecture === "feature") {
+    return flat
+      ? resolve(`src/modules/${toKebabCase(name)}`, fileName)
+      : resolve(`src/modules/${toKebabCase(name)}/${type}s`, fileName);
+  }
+
+  return resolve(`src/${type}s`, fileName);
 }
 
 function resolveOutputPath({
@@ -140,6 +220,8 @@ function resolveOutputPath({
       return resolvePath("src/services", fileName);
     } else if (type === "route") {
       return resolvePath("src/routes", fileName);
+    } else if (type === "dto") {
+      return resolvePath("src/dtos", fileName);
     }
   }
 
@@ -152,7 +234,9 @@ export function resolveGeneratorType(type: GeneratorType) {
     se: "service",
     mo: "model",
     ro: "route",
-    re: "resource"
+    re: "resource",
+    dt: "dto",
+    va: "validator"
   };
 
   const resolved = typeAliases[type] || type;
@@ -164,9 +248,90 @@ export function resolveGeneratorType(type: GeneratorType) {
     logger.info(" → service (se)");
     logger.info(" → model (mo)");
     logger.info(" → route (ro)");
-    logger.info(" → resource (re)");
+    logger.info(" → dt (dto)");
+    logger.info(" → va (validator)");
+    logger.info(
+      " → re (re → controller, service, route, model, dto, validator)"
+    );
     process.exit(1);
   }
 
   return resolved;
+}
+
+function parseFields(fields: string[]) {
+  return fields.map(field => {
+    const [key, type] = field.split(":");
+
+    return {
+      key,
+      type: type || "string"
+    };
+  });
+}
+
+function mapToZod(type: string) {
+  switch (type) {
+    case "string":
+      return "z.string()";
+    case "number":
+      return "z.number()";
+    case "url":
+      return "z.url()";
+    case "boolean":
+      return "z.boolean()";
+    case "email":
+      return "z.email()";
+    case "date":
+      return "z.coerce.date()";
+    default:
+      return "z.string()";
+  }
+}
+
+function buildDTOContent({
+  name,
+  className,
+  fields,
+  crud,
+  type
+}: {
+  name: string;
+  className: string;
+  fields: {
+    key: string;
+    type: string;
+  }[];
+  crud: boolean;
+  type: "dto" | "validator";
+}) {
+  const baseFields =
+    fields.length > 0
+      ? fields.map(f => `  ${f.key}: ${mapToZod(f.type)},`).join("\n")
+      : `  // TODO: define fields
+  name: z.string().min(2),`;
+
+  return `import { z } from "zod";
+
+//* Base schema for ${className}
+export const ${name}BaseSchema = z.object({
+${baseFields}
+});
+
+${
+  crud
+    ? `
+//* Create ${className} ${type}
+export const Create${className}${capitalize(type)} = ${name}BaseSchema;
+
+export type Create${className}${capitalize(type)}Type = z.infer<typeof Create${className}${capitalize(type)}>;
+
+//* Update ${className} ${type}
+export const Update${className}${capitalize(type)} = ${name}BaseSchema.partial();
+
+export type Update${className}${capitalize(type)}Type = z.infer<typeof Update${className}${capitalize(type)}>;
+`
+    : ""
+}
+`;
 }
