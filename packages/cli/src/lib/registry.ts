@@ -20,7 +20,9 @@ export async function getRegistry<T extends keyof RegistryMap>(
 
   if (local) {
     const registryPath = paths.localRegistry(type);
-
+    console.log({
+      registryPath
+    });
     if (!(await fs.pathExists(registryPath))) {
       logger.break();
       logger.error(
