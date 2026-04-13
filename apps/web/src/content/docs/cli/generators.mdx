@@ -1,0 +1,251 @@
+---
+title: Generators  | CLI
+description: Generate controllers, services, models, routes, and more using servercn CLI.
+---
+
+# Generators
+
+Generators allow you to quickly scaffold boilerplate code for your application.
+
+Instead of manually creating files, you can use the CLI:
+
+<PackageManagerTabs command="npx servercn-cli g <type> <name> [options]" />
+
+---
+
+## Aliases
+```
+| Alias | Type       |
+| ----- | ---------- |
+| co    | controller |
+| se    | service    |
+| ro    | route      |
+| mo    | model      |
+| dt    | dto        |
+| va    | validator  |
+| re    | resource   |
+```
+
+---
+
+## Options
+
+- <Code>--force</Code>:  Overwrite existing files
+- <Code>--flat</Code>:   Generate files in a flat structure
+- <Code>-h</Code>, <Code>--help</Code>: display help for command
+
+<br />
+---
+
+## Available Generators
+
+### Controller
+
+<PackageManagerTabs command="npx servercn-cli g co auth" />
+
+##### Creates:
+
+- MVC: <Code>src/controllers/auth.controller.ts</Code>
+- Feature: <Code>src/modules/auth/auth.controller.ts</Code>
+
+##### Examples:
+
+```
+# MVC Architecture
+> npx servercn-cli g co auth
+
+CREATE: src\controllers\auth.controller.ts
+
+✔ Successfully generated controller: auth
+```
+```
+# Feature Architecture
+> npx servercn-cli g co auth
+
+CREATE: src\modules\auth\auth.controller.ts
+
+✔ Successfully generated controller: auth
+```
+
+---
+
+### Service
+
+<PackageManagerTabs command="npx servercn-cli g se auth" />
+
+##### Creates:
+
+- MVC: <Code>src/services/auth.controller.ts</Code>
+- Feature: <Code>src/modules/auth/auth.service.ts</Code>
+
+<br />
+---
+
+### Route
+
+<PackageManagerTabs command="npx servercn-cli g ro auth" />
+
+##### Creates:
+
+- MVC: <Code>src/routes/auth.route.ts</Code>
+- Feature: <Code>src/modules/auth/auth.route.ts</Code>
+
+<br />
+---
+
+### Model
+
+<PackageManagerTabs command="npx servercn-cli g mo user" />
+
+##### Creates:
+
+- MVC: <Code>src/models/user.model.ts</Code>
+- Feature: <Code>src/modules/auth/user.model.ts</Code>
+
+<br />
+---
+
+### DTO
+
+Generate **Data Transfer Objects (DTOs)** using <Code>zod</Code> for validation and type inference.
+
+DTOs are used to validate incoming data (e.g. request body, params, query).
+
+<PackageManagerTabs command="npx servercn-cli g dto <name> [fields...] [options]" />
+
+**fields:** 
+Define fields using: <Code>key:type</Code>
+
+<PackageManagerTabs command="npx servercn-cli g dto auth" />
+
+<PackageManagerTabs command="npx servercn-cli g dt user --flat" />
+
+<PackageManagerTabs command="npx servercn-cli g dt user name:string email:email age:number" />
+
+##### Creates:
+
+- MVC: <Code>src/dtos/auth.dto.ts</Code>
+- Feature: <Code>src/modules/auth/auth.dto.ts</Code>
+
+<br />
+---
+
+### Validator
+
+Generate **Validators** using <Code>zod</Code> for validation and type inference.
+
+<PackageManagerTabs command="npx servercn-cli g va <name> [fields...] [options]" />
+
+**fields:** 
+Define fields using: <Code>key:type</Code>
+
+<PackageManagerTabs command="npx servercn-cli g va auth" />
+<PackageManagerTabs command="npx servercn-cli g va auth --flat" />
+<PackageManagerTabs command="npx servercn-cli g va user name:string email:email age:number" />
+
+##### Creates:
+
+- MVC: <Code>src/validators/auth.validator.ts</Code>
+- Feature: <Code>src/modules/auth/auth.validator.ts</Code>
+
+<br />
+---
+
+### Resource
+
+<PackageManagerTabs command="npx servercn-cli g re post" />
+
+##### Creates:
+
+**1. MVC:**
+  - <Code>src/controllers/post.controller.ts</Code>
+  - <Code>src/services/post.service.ts</Code>
+  - <Code>src/routes/post.route.ts</Code>
+  - <Code>src/models/post.model.ts</Code>
+  - <Code>src/dtos/post.dto.ts</Code>
+
+#### Example:
+
+```
+> npx servercn-cli g re post
+
+CREATE: src\controllers\post.controller.ts
+CREATE: src\services\post.service.ts
+CREATE: src\routes\post.route.ts
+CREATE: src\models\post.model.ts
+CREATE: src\dtos\post.dto.ts
+
+✔ Successfully generated resource: post
+```
+
+**2. Feature:**
+
+- <Code>src\modules\post\post.controller.ts</Code>
+- <Code>src\modules\post\post.service.ts</Code>
+- <Code>src\modules\post\post.route.ts</Code>
+- <Code>src\modules\post\post.model.ts</Code>
+- <Code>src\modules\post\post.dto.ts</Code>
+
+#### Example:
+
+```
+> npx servercn-cli g re post
+
+CREATE: src\modules\post\post.controller.ts
+CREATE: src\modules\post\post.service.ts
+CREATE: src\modules\post\post.route.ts
+CREATE: src\modules\post\post.model.ts
+CREATE: src\modules\post\post.dto.ts
+
+✔ Successfully generated resource: post
+```
+
+<br />
+---
+
+## Help
+
+<PackageManagerTabs command="npx servercn-cli g --help" />
+
+```
+Usage: servercn-cli generate|g [options] <type> <name> [fields...]
+
+Generate resources (controller, service, resource, model,
+route, dto, validator, etc.)
+
+Options:
+  --force     Overwrite existing files
+  --flat      Generate files in a flat structure
+  -h, --help  display help for command
+
+Aliases:
+  co → controller
+  se → service
+  mo → model
+  ro → route
+  re → resource
+  dt → dto
+  va → validator
+
+Examples:
+  $ npx servercn-cli g co user
+  $ npx servercn-cli g re auth 
+  $ npx servercn-cli g mo user
+  $ npx servercn-cli g ro user
+  $ npx servercn-cli g se user
+  $ npx servercn-cli g dt user
+  $ npx servercn-cli g va user
+```
+
+---
+
+## Summary
+
+<PackageManagerTabs command="npx servercn-cli g co auth" />
+<PackageManagerTabs command="npx servercn-cli g se user" />
+<PackageManagerTabs command="npx servercn-cli g mo user" />
+<PackageManagerTabs command="npx servercn-cli g ro auth" />
+<PackageManagerTabs command="npx servercn-cli g re post" />
+<PackageManagerTabs command="npx servercn-cli g dt auth" />
+<PackageManagerTabs command="npx servercn-cli g va auth" />
+<PackageManagerTabs command="npx servercn-cli g --help" />
