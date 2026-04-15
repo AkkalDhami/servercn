@@ -3,3 +3,44 @@ title: Drizzle Neon PostgreSQL | Foundation
 description: A production-ready Neon PostgreSQL foundation using Drizzle ORM for type-safe database interactions.
 command: npx servercn-cli init drizzle-neon-pg
 ---
+
+# Drizzle Neon PostgreSQL
+
+A production-ready Neon PostgreSQL foundation using Drizzle ORM for type-safe database interactions.
+
+[Drizzle Official Docs](https://orm.drizzle.team/docs/tutorials/drizzle-with-neon)
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli init drizzle-neon-pg" />
+
+## What This Starter Solves
+
+Setting up Drizzle with PostgreSQL repeatedly involves:
+
+- Database connection management
+- Schema organization
+- Migration configuration
+- Environment‑based credentials
+- Type safety across queries
+
+
+## Migrations Workflow
+
+### Generate migrations
+
+<PackageManagerTabs command="npm run db:generate" />
+
+### Apply migrations
+
+<PackageManagerTabs command="npm run db:migrate" />
+
+Migrations are SQL‑first and fully auditable.
+
+### Database Studio
+
+<PackageManagerTabs command="npm run db:studio" />
+
+## Summary
+
+The **Drizzle Neon PostgreSQL** gives you a clean, production‑ready database foundation using **PostgreSQL + Neon + Drizzle ORM**.
