@@ -1,0 +1,29 @@
+{
+  "name": "drizzle-neon-pg-starter",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npx tsx watch src/server.ts",
+    "build": "rm -rf dist && tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write",
+    "docs": "npx tsx swagger.config.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "tsc --noEmit"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

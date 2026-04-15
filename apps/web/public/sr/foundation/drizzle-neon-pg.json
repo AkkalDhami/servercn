@@ -1,0 +1,311 @@
+{
+  "slug": "drizzle-neon-pg",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "dependencies": {
+            "runtime": [
+              "express",
+              "cors",
+              "helmet",
+              "cookie-parser",
+              "drizzle-orm",
+              "@neondatabase/serverless",
+              "pino-pretty",
+              "pino",
+              "dotenv-flow",
+              "cross-env",
+              "source-map-support",
+              "zod",
+              "swagger-autogen",
+              "swagger-ui-express"
+            ],
+            "dev": [
+              "@types/express",
+              "morgan",
+              "@types/cors",
+              "@types/morgan",
+              "@types/cookie-parser",
+              "drizzle-kit",
+              "@types/source-map-support",
+              "@types/swagger-ui-express"
+            ]
+          },
+          "env": [
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "PORT",
+            "CORS_ORIGIN",
+            "DATABASE_URL"
+          ],
+          "architectures": {
+            "mvc": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "swagger.config.ts",
+                  "content": "import swaggerAutoGen from \"swagger-autogen\";\n\nconst doc = {\n  info: {\n    title: \"Drizzle + Neon + PostgreSQL Starter\",\n    description: \"Drizzle + Neon + PostgreSQL Starter\",\n    version: \"1.0.0\"\n  },\n  host: \"localhost:9000\",\n  schemes: [\"http\"]\n};\n\nconst outputFile = \"./src/docs/swagger.json\";\nconst endpointsFiles = [\"./src/routes/*.ts\"];\n\nswaggerAutoGen(outputFile, endpointsFiles, doc);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "package.json",
+                  "content": "{\n  \"name\": \"drizzle-neon-pg-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx watch src/server.ts\",\n    \"build\": \"rm -rf dist && tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint:check\": \"eslint .\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\",\n    \"docs\": \"npx tsx swagger.config.ts\",\n    \"db:generate\": \"drizzle-kit generate\",\n    \"db:migrate\": \"drizzle-kit migrate\",\n    \"db:studio\": \"drizzle-kit studio\"\n  },\n  \"lint-staged\": {\n    \"src/**/*.ts\": [\n      \"eslint --fix\",\n      \"prettier --write\",\n      \"tsc --noEmit\"\n    ]\n  },\n  \"dependencies\": {},\n  \"devDependencies\": {}\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "drizzle.config.ts",
+                  "content": "import { defineConfig } from \"drizzle-kit\";\r\nimport { env } from \"./src/configs/env\";\r\n\r\nexport default defineConfig({\r\n  out: \"./migrations\",\r\n  schema: \"./src/db/index.ts\",\r\n  dialect: \"postgresql\",\r\n  dbCredentials: {\r\n    url: env.DATABASE_URL\r\n  },\r\n  verbose: true,\r\n  strict: true\r\n});\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/server.ts",
+                  "content": "import app from \"./app\";\nimport env from \"./configs/env\";\nimport { main } from \"./db.test\";\nimport { logger } from \"./utils/logger\";\nimport { configureGracefulShutdown } from \"./utils/shutdown\";\n\nconst port = env.PORT || 9000;\n\nconst server = app.listen(port, () => {\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\n  logger.info(`[server]: Environment: ${env.NODE_ENV}`);\n  logger.info(\n    `[server]: Swagger docs are available at http://localhost:${port}/api/docs`\n  );\n});\n\nmain();\n\nconfigureGracefulShutdown(server);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db.test.ts",
+                  "content": "import db from \"./configs/db\";\r\nimport { usersTable } from \"./db/schemas/user.schema\";\r\n\r\nexport async function main() {\r\n  const user: typeof usersTable.$inferInsert = {\r\n    name: \"John\",\r\n    age: 30,\r\n    email: \"john@example.com\"\r\n  };\r\n  await db.insert(usersTable).values(user);\r\n \r\n  const users = await db.select().from(usersTable);\r\n  console.log({ users });\r\n}\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/app.ts",
+                  "content": "import express, { Express, Request, Response } from \"express\";\nimport cors from \"cors\";\nimport helmet from \"helmet\";\nimport cookieParser from \"cookie-parser\";\nimport morgan from \"morgan\";\nimport { notFoundHandler } from \"./middlewares/not-found-handler\";\nimport { errorHandler } from \"./middlewares/error-handler\";\nimport { setupSwagger } from \"./configs/swagger\";\nimport healthRoutes from \"./routes/health.routes\";\nimport env from \"./configs/env\";\nimport sourceMapSupport from \"source-map-support\";\nsourceMapSupport.install();\n\nconst app: Express = express();\n\napp.use(express.json());\napp.use(express.urlencoded({ extended: true }));\napp.use(\n  cors({\n    origin: env.CORS_ORIGIN,\n    methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\n    allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"],\n    credentials: true\n  })\n);\napp.use(helmet());\napp.use(cookieParser());\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\n\n//? Swagger Setup\nsetupSwagger(app);\n\n//? Routes\napp.get(\"/\", (req: Request, res: Response) => {\n  res.redirect(\"/api/health\");\n});\n\napp.use(\"/api/health\", healthRoutes);\n\n// Not found handler (should be after routes)\napp.use(notFoundHandler);\n\n// Global error handler (should be last)\napp.use(errorHandler);\n\nexport default app;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/0000_short_cobalt_man.sql",
+                  "content": "CREATE TABLE \"users\" (\n\t\"id\" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name \"users_id_seq\" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),\n\t\"name\" varchar(255) NOT NULL,\n\t\"age\" integer NOT NULL,\n\t\"email\" varchar(255) NOT NULL,\n\tCONSTRAINT \"users_email_unique\" UNIQUE(\"email\")\n);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/shutdown.ts",
+                  "content": "import { Server } from \"http\";\nimport { logger } from \"./logger\";\n\nexport const configureGracefulShutdown = (server: Server) => {\n  const signals = [\"SIGTERM\", \"SIGINT\"];\n\n  signals.forEach(signal => {\n    process.on(signal, () => {\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\n\n      server.close(err => {\n        if (err) {\n          logger.error(err, \"Error during server close\");\n          process.exit(1);\n        }\n\n        logger.info(\"HTTP server closed.\");\n        process.exit(0);\n      });\n\n      // Force shutdown after 10 seconds\n      setTimeout(() => {\n        logger.error(\n          \"Could not close connections in time, forcefully shutting down\"\n        );\n        process.exit(1);\n      }, 10000);\n    });\n  });\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/logger.ts",
+                  "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL,\n  transport:\n    env.NODE_ENV !== \"production\"\n      ? {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"yyyy-mm-dd HH:MM:ss\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      : undefined\n});\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/async-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve()\n      .then(() => fn(req, res, next))\n      .catch(next);\n  };\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/api-response.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\nimport type { Response } from \"express\";\n\ntype ApiResponseParams<T> = {\n  success: boolean;\n  message: string;\n  statusCode: StatusCode;\n  data?: T | null;\n  errors?: unknown;\n};\n\nexport class ApiResponse<T = unknown> {\n  public readonly success: boolean;\n  public readonly message: string;\n  public readonly statusCode: StatusCode;\n  public readonly data?: T | null;\n  public readonly errors?: unknown;\n\n  constructor({\n    success,\n    message,\n    statusCode,\n    data,\n    errors\n  }: ApiResponseParams<T>) {\n    this.success = success;\n    this.message = message;\n    this.statusCode = statusCode;\n    this.data = data;\n    this.errors = errors;\n  }\n\n  send(res: Response): Response {\n    return res.status(this.statusCode).json({\n      success: this.success,\n      message: this.message,\n      statusCode: this.statusCode,\n      ...(this.data !== undefined && { data: this.data }),\n      ...(this.errors !== undefined && { errors: this.errors })\n    });\n  }\n\n  static Success<T>(\n    res: Response,\n    message: string,\n    data?: T,\n    statusCode: StatusCode = STATUS_CODES.OK\n  ): Response {\n    return new ApiResponse<T>({\n      success: true,\n      message,\n      data,\n      statusCode\n    }).send(res);\n  }\n\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\n  }\n\n  static created<T>(res: Response, message = \"Created\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\n  }\n}\n\n/*\n * Usage:\n * ApiResponse.ok(res, \"OK\", data);\n * ApiResponse.created(res, \"Created\", data);\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/utils/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/docs/swagger.json",
+                  "content": "{\n  \"swagger\": \"2.0\",\n  \"info\": {\n    \"title\": \"Drizzle + Neon + PostgreSQL Starter\",\n    \"description\": \"Drizzle + Neon + PostgreSQL Starter\",\n    \"version\": \"1.0.0\"\n  },\n  \"host\": \"localhost:9000\",\n  \"basePath\": \"/\",\n  \"schemes\": [\n    \"http\"\n  ],\n  \"paths\": {\n    \"/\": {\n      \"get\": {\n        \"description\": \"\",\n        \"responses\": {\n          \"default\": {\n            \"description\": \"\"\n          }\n        }\n      }\n    },\n    \"/detailed\": {\n      \"get\": {\n        \"description\": \"\",\n        \"responses\": {\n          \"default\": {\n            \"description\": \"\"\n          }\n        }\n      }\n    }\n  }\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../utils/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { ApiError } from \"../utils/api-error\";\nimport { logger } from \"../utils/logger\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/swagger.ts",
+                  "content": "import swaggerUi from \"swagger-ui-express\";\nimport { Express } from \"express\";\nimport env from \"./env\";\n\nimport swaggerDocument from \"../docs/swagger.json\";\n\nexport const setupSwagger = (app: Express) => {\n  if (env.NODE_ENV !== \"development\") return;\n\n  app.use(\"/api/docs\", swaggerUi.serve, swaggerUi.setup(swaggerDocument));\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.url(),\n\n  DATABASE_URL: z.url()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/db.ts",
+                  "content": "import { neon } from \"@neondatabase/serverless\";\nimport { drizzle } from \"drizzle-orm/neon-http\";\nimport env from \"./env\";\n\nconst sql = neon(env.DATABASE_URL);\nconst db = drizzle({ client: sql });\n\nexport default db;"
+                },
+                {
+                  "type": "file",
+                  "path": "src/controllers/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../utils/api-response\";\nimport { AsyncHandler } from \"../utils/async-handler\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = AsyncHandler(\n  async (_req: Request, res: Response) => {\n    return ApiResponse.Success(res, \"Service is healthy\", {\n      status: \"healthy\",\n      timestamp: new Date().toISOString(),\n      uptime: process.uptime()\n    });\n  }\n);\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = AsyncHandler(\n  async (_req: Request, res: Response) => {\n    const healthData = {\n      status: \"healthy\",\n      timestamp: new Date().toISOString(),\n      uptime: process.uptime(),\n      environment: process.env.NODE_ENV || \"development\",\n      version: process.env.npm_package_version || \"1.0.0\",\n      memory: {\n        used:\n          Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) /\n          100,\n        total:\n          Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) /\n          100,\n        unit: \"MB\"\n      },\n      cpu: {\n        usage: process.cpuUsage()\n      }\n    };\n\n    return ApiResponse.Success(res, \"Service is healthy\", healthData);\n  }\n);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/health.routes.ts",
+                  "content": "import { Router } from \"express\";\nimport {\n  healthCheck,\n  detailedHealthCheck\n} from \"../controllers/health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/index.ts",
+                  "content": "//? Export all schemas from schemas directory\r\n\r\nexport * from \"./schemas/user.schema\";\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/meta/_journal.json",
+                  "content": "{\n  \"version\": \"7\",\n  \"dialect\": \"postgresql\",\n  \"entries\": [\n    {\n      \"idx\": 0,\n      \"version\": \"7\",\n      \"when\": 1776053253155,\n      \"tag\": \"0000_short_cobalt_man\",\n      \"breakpoints\": true\n    }\n  ]\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/meta/0000_snapshot.json",
+                  "content": "{\n  \"id\": \"91e3c7e6-1d92-48d8-b3f7-cfab36082ea6\",\n  \"prevId\": \"00000000-0000-0000-0000-000000000000\",\n  \"version\": \"7\",\n  \"dialect\": \"postgresql\",\n  \"tables\": {\n    \"public.users\": {\n      \"name\": \"users\",\n      \"schema\": \"\",\n      \"columns\": {\n        \"id\": {\n          \"name\": \"id\",\n          \"type\": \"integer\",\n          \"primaryKey\": true,\n          \"notNull\": true,\n          \"identity\": {\n            \"type\": \"always\",\n            \"name\": \"users_id_seq\",\n            \"schema\": \"public\",\n            \"increment\": \"1\",\n            \"startWith\": \"1\",\n            \"minValue\": \"1\",\n            \"maxValue\": \"2147483647\",\n            \"cache\": \"1\",\n            \"cycle\": false\n          }\n        },\n        \"name\": {\n          \"name\": \"name\",\n          \"type\": \"varchar(255)\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        },\n        \"age\": {\n          \"name\": \"age\",\n          \"type\": \"integer\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        },\n        \"email\": {\n          \"name\": \"email\",\n          \"type\": \"varchar(255)\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        }\n      },\n      \"indexes\": {},\n      \"foreignKeys\": {},\n      \"compositePrimaryKeys\": {},\n      \"uniqueConstraints\": {\n        \"users_email_unique\": {\n          \"name\": \"users_email_unique\",\n          \"nullsNotDistinct\": false,\n          \"columns\": [\n            \"email\"\n          ]\n        }\n      },\n      \"policies\": {},\n      \"checkConstraints\": {},\n      \"isRLSEnabled\": false\n    }\n  },\n  \"enums\": {},\n  \"schemas\": {},\n  \"sequences\": {},\n  \"roles\": {},\n  \"policies\": {},\n  \"views\": {},\n  \"_meta\": {\n    \"columns\": {},\n    \"schemas\": {},\n    \"tables\": {}\n  }\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/schemas/user.schema.ts",
+                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;"
+                }
+              ]
+            },
+            "feature": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "swagger.config.ts",
+                  "content": "import swaggerAutoGen from \"swagger-autogen\";\n\nconst doc = {\n  info: {\n    title: \"Drizzle + Neon + PostgreSQL Starter\",\n    description: \"Drizzle + Neon + PostgreSQL Starter\",\n    version: \"1.0.0\"\n  },\n  host: \"localhost:9000\",\n  schemes: [\"http\"]\n};\n\nconst outputFile = \"./src/docs/swagger.json\";\nconst endpointsFiles = [\"./src/routes/*.ts\"];\n\nswaggerAutoGen(outputFile, endpointsFiles, doc);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "package.json",
+                  "content": "{\n  \"name\": \"drizzle-neon-pg-starter\",\n  \"version\": \"1.0.0\",\n  \"main\": \"dist/server.js\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"cross-env NODE_ENV=development npx tsx watch src/server.ts\",\n    \"build\": \"rm -rf dist && tsc && tsc-alias\",\n    \"start\": \"cross-env NODE_ENV=production node dist/server.js\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint:check\": \"eslint .\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\",\n    \"docs\": \"npx tsx swagger.config.ts\",\n    \"db:generate\": \"drizzle-kit generate\",\n    \"db:migrate\": \"drizzle-kit migrate\",\n    \"db:studio\": \"drizzle-kit studio\"\n  },\n  \"lint-staged\": {\n    \"src/**/*.ts\": [\n      \"eslint --fix\",\n      \"prettier --write\",\n      \"tsc --noEmit\"\n    ]\n  },\n  \"dependencies\": {},\n  \"devDependencies\": {}\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "drizzle.config.ts",
+                  "content": "import { Config, defineConfig } from \"drizzle-kit\";\n\nimport env from \"./src/shared/configs/env\";\n\nexport default defineConfig({\n  out: \"./migrations\",\n  schema: \"./src/db/index.ts\",\n  dialect: \"postgresql\",\n  dbCredentials: {\n    url: env.DATABASE_URL!\n  },\n  verbose: true,\n  strict: true\n}) satisfies Config;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/server.ts",
+                  "content": "import app from \"./app\";\nimport env from \"./shared/configs/env\";\nimport { logger } from \"./shared/utils/logger\";\nimport { configureGracefulShutdown } from \"./shared/utils/shutdown\";\n\nconst port = env.PORT || 9000;\n\nconst server = app.listen(port, () => {\n  logger.info(`[server]: Server is running at http://localhost:${port}`);\n  logger.info(`[server]: Environment: ${env.NODE_ENV}`);\n  logger.info(\n    `[server]: Swagger docs are available at http://localhost:${port}/api/docs`\n  );\n});\n\nconfigureGracefulShutdown(server);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db.test.ts",
+                  "content": "import db from \"./shared/configs/db\";\r\nimport { usersTable } from \"./db/schemas/user.schema\";\r\n\r\nexport async function main() {\r\n  const user: typeof usersTable.$inferInsert = {\r\n    name: \"John\",\r\n    age: 30,\r\n    email: \"john@example.com\"\r\n  };\r\n  await db.insert(usersTable).values(user);\r\n \r\n  const users = await db.select().from(usersTable);\r\n  console.log({ users });\r\n}\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/app.ts",
+                  "content": "import express, { Express, Request, Response } from \"express\";\nimport cors from \"cors\";\nimport helmet from \"helmet\";\nimport cookieParser from \"cookie-parser\";\nimport morgan from \"morgan\";\n\nimport Routes from \"./routes/index\";\n\nimport { errorHandler } from \"./shared/middlewares/error-handler\";\nimport { notFoundHandler } from \"./shared/middlewares/not-found-handler\";\nimport { setupSwagger } from \"./shared/configs/swagger\";\nimport env from \"./shared/configs/env\";\n\nimport sourceMapSupport from \"source-map-support\";\nsourceMapSupport.install();\n\nconst app: Express = express();\n\napp.use(express.json());\napp.use(express.urlencoded({ extended: true }));\napp.use(\n  cors({\n    origin: env.CORS_ORIGIN || \"*\",\n    methods: [\"GET\", \"POST\", \"PUT\", \"DELETE\", \"PATCH\", \"OPTIONS\"],\n    allowedHeaders: [\"Content-Type\", \"Authorization\", \"X-Requested-With\"],\n    credentials: true\n  })\n);\napp.use(helmet());\napp.use(cookieParser());\napp.use(morgan(env.NODE_ENV === \"development\" ? \"dev\" : \"combined\"));\n\n//? Swagger Setup\nsetupSwagger(app);\n\n//? Routes\napp.get(\"/\", (req: Request, res: Response) => {\n  res.redirect(\"/api/v1/health\");\n});\n\napp.use(\"/api/v1\", Routes);\n\n// Not found handler (should be after routes)\napp.use(notFoundHandler);\n\n// Global error handler (should be last)\napp.use(errorHandler);\n\nexport default app;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/0000_short_cobalt_man.sql",
+                  "content": "CREATE TABLE \"users\" (\n\t\"id\" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name \"users_id_seq\" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),\n\t\"name\" varchar(255) NOT NULL,\n\t\"age\" integer NOT NULL,\n\t\"email\" varchar(255) NOT NULL,\n\tCONSTRAINT \"users_email_unique\" UNIQUE(\"email\")\n);\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/routes/index.ts",
+                  "content": "import { Router } from \"express\";\nimport HealthRouter from \"../modules/health/health.routes\";\n\nconst router = Router();\n\nrouter.use(\"/health\", HealthRouter);\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/docs/swagger.json",
+                  "content": "{}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/index.ts",
+                  "content": "//? Export all schemas from schemas directory\r\n\r\nexport * from \"./schemas/user.schema\";\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/meta/_journal.json",
+                  "content": "{\n  \"version\": \"7\",\n  \"dialect\": \"postgresql\",\n  \"entries\": [\n    {\n      \"idx\": 0,\n      \"version\": \"7\",\n      \"when\": 1776053253155,\n      \"tag\": \"0000_short_cobalt_man\",\n      \"breakpoints\": true\n    }\n  ]\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/meta/0000_snapshot.json",
+                  "content": "{\n  \"id\": \"91e3c7e6-1d92-48d8-b3f7-cfab36082ea6\",\n  \"prevId\": \"00000000-0000-0000-0000-000000000000\",\n  \"version\": \"7\",\n  \"dialect\": \"postgresql\",\n  \"tables\": {\n    \"public.users\": {\n      \"name\": \"users\",\n      \"schema\": \"\",\n      \"columns\": {\n        \"id\": {\n          \"name\": \"id\",\n          \"type\": \"integer\",\n          \"primaryKey\": true,\n          \"notNull\": true,\n          \"identity\": {\n            \"type\": \"always\",\n            \"name\": \"users_id_seq\",\n            \"schema\": \"public\",\n            \"increment\": \"1\",\n            \"startWith\": \"1\",\n            \"minValue\": \"1\",\n            \"maxValue\": \"2147483647\",\n            \"cache\": \"1\",\n            \"cycle\": false\n          }\n        },\n        \"name\": {\n          \"name\": \"name\",\n          \"type\": \"varchar(255)\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        },\n        \"age\": {\n          \"name\": \"age\",\n          \"type\": \"integer\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        },\n        \"email\": {\n          \"name\": \"email\",\n          \"type\": \"varchar(255)\",\n          \"primaryKey\": false,\n          \"notNull\": true\n        }\n      },\n      \"indexes\": {},\n      \"foreignKeys\": {},\n      \"compositePrimaryKeys\": {},\n      \"uniqueConstraints\": {\n        \"users_email_unique\": {\n          \"name\": \"users_email_unique\",\n          \"nullsNotDistinct\": false,\n          \"columns\": [\n            \"email\"\n          ]\n        }\n      },\n      \"policies\": {},\n      \"checkConstraints\": {},\n      \"isRLSEnabled\": false\n    }\n  },\n  \"enums\": {},\n  \"schemas\": {},\n  \"sequences\": {},\n  \"roles\": {},\n  \"policies\": {},\n  \"views\": {},\n  \"_meta\": {\n    \"columns\": {},\n    \"schemas\": {},\n    \"tables\": {}\n  }\n}"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/shutdown.ts",
+                  "content": "import { Server } from \"http\";\nimport { logger } from \"./logger\";\n\nexport const configureGracefulShutdown = (server: Server) => {\n  const signals = [\"SIGTERM\", \"SIGINT\"];\n\n  signals.forEach(signal => {\n    process.on(signal, () => {\n      logger.info(`\\n${signal} signal received. Shutting down gracefully...`);\n\n      server.close(err => {\n        if (err) {\n          logger.error(err, \"Error during server close\");\n          process.exit(1);\n        }\n\n        logger.info(\"HTTP server closed\");\n        process.exit(0);\n      });\n\n      // Force shutdown after 10 seconds\n      setTimeout(() => {\n        logger.error(\n          \"Could not close connections in time, forcefully shutting down\"\n        );\n        process.exit(1);\n      }, 10000);\n    });\n  });\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/logger.ts",
+                  "content": "import pino from \"pino\";\nimport env from \"../configs/env\";\n\nconst isProduction = env.NODE_ENV === \"production\";\n\nexport const logger = pino({\n  level: env.LOG_LEVEL || \"info\",\n\n  base: {\n    pid: process.pid\n  },\n\n  timestamp: pino.stdTimeFunctions.isoTime,\n\n  formatters: {\n    level(label) {\n      return { level: label };\n    }\n  },\n\n  redact: {\n    paths: [\n      \"req.headers.authorization\",\n      \"req.headers.cookie\",\n      \"password\",\n      \"token\",\n      \"refreshToken\"\n    ],\n    censor: \"[REDACTED]\"\n  },\n\n  ...(isProduction\n    ? {}\n    : {\n        transport: {\n          target: \"pino-pretty\",\n          options: {\n            colorize: true,\n            translateTime: \"SYS:standard\",\n            ignore: \"pid,hostname\"\n          }\n        }\n      })\n});\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/async-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\n\nexport type AsyncRouteHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => Promise<unknown>;\n\nexport function AsyncHandler(fn: AsyncRouteHandler) {\n  return function (req: Request, res: Response, next: NextFunction) {\n    Promise.resolve()\n      .then(() => fn(req, res, next))\n      .catch(next);\n  };\n}\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/utils/api-response.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\nimport type { Response } from \"express\";\n\ntype ApiResponseParams<T> = {\n  success: boolean;\n  message: string;\n  statusCode: StatusCode;\n  data?: T | null;\n  errors?: unknown;\n};\n\nexport class ApiResponse<T = unknown> {\n  public readonly success: boolean;\n  public readonly message: string;\n  public readonly statusCode: StatusCode;\n  public readonly data?: T | null;\n  public readonly errors?: unknown;\n\n  constructor({\n    success,\n    message,\n    statusCode,\n    data,\n    errors\n  }: ApiResponseParams<T>) {\n    this.success = success;\n    this.message = message;\n    this.statusCode = statusCode;\n    this.data = data;\n    this.errors = errors;\n  }\n\n  send(res: Response): Response {\n    return res.status(this.statusCode).json({\n      success: this.success,\n      message: this.message,\n      statusCode: this.statusCode,\n      ...(this.data !== undefined && { data: this.data }),\n      ...(this.errors !== undefined && { errors: this.errors })\n    });\n  }\n\n  static Success<T>(\n    res: Response,\n    message: string,\n    data?: T,\n    statusCode: StatusCode = STATUS_CODES.OK\n  ): Response {\n    return new ApiResponse<T>({\n      success: true,\n      message,\n      data,\n      statusCode\n    }).send(res);\n  }\n\n  static ok<T>(res: Response, message = \"OK\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.OK);\n  }\n\n  static created<T>(res: Response, message = \"Created\", data?: T) {\n    return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);\n  }\n}\n\n/*\n * Usage:\n * ApiResponse.ok(res, \"OK\", data);\n * ApiResponse.created(res, \"Created\", data);\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/not-found-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const notFoundHandler = (\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/error-handler.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport env from \"../configs/env\";\n\nimport { logger } from \"../utils/logger\";\nimport { ApiError } from \"../errors/api-error\";\n\nexport const errorHandler = (\n  err: Error,\n  req: Request,\n  res: Response,\n  next: NextFunction\n) => {\n  if (res.headersSent) {\n    return next(err);\n  }\n  let statusCode = 500;\n  let message = \"Internal server error\";\n  let errors: unknown;\n\n  if (err instanceof ApiError) {\n    statusCode = err.statusCode;\n    message = err.message;\n    errors = err.errors;\n  }\n\n  logger.error(\n    err,\n    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`\n  );\n\n  const response = {\n    success: false,\n    message,\n    statusCode,\n    ...(errors !== undefined && { errors }),\n    ...(env.NODE_ENV === \"development\" && { stack: err.stack })\n  };\n\n  res.status(statusCode).json(response);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/errors/api-error.ts",
+                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/swagger.ts",
+                  "content": "import swaggerUi from \"swagger-ui-express\";\nimport { Express } from \"express\";\nimport env from \"./env\";\n\nimport swaggerDocument from \"../../docs/swagger.json\";\n\nexport const setupSwagger = (app: Express) => {\n  if (env.NODE_ENV !== \"development\") return;\n  app.use(\"/api/docs\", swaggerUi.serve, swaggerUi.setup(swaggerDocument));\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/env.ts",
+                  "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  DATABASE_URL: z.url(),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  CORS_ORIGIN: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/configs/db.ts",
+                  "content": "import { neon } from \"@neondatabase/serverless\";\nimport { drizzle } from \"drizzle-orm/neon-http\";\nimport env from \"./env\";\n\nconst sql = neon(env.DATABASE_URL);\nconst db = drizzle({ client: sql });\n\nexport default db;"
+                },
+                {
+                  "type": "file",
+                  "path": "src/modules/health/health.routes.ts",
+                  "content": "import { Router } from \"express\";\nimport { healthCheck, detailedHealthCheck } from \"./health.controller\";\n\nconst router = Router();\n\nrouter.get(\"/\", healthCheck);\nrouter.get(\"/detailed\", detailedHealthCheck);\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/modules/health/health.controller.ts",
+                  "content": "import { Request, Response } from \"express\";\nimport { ApiResponse } from \"../../shared/utils/api-response\";\n\n/**\n * Basic health check endpoint\n * GET /api/health\n */\nexport const healthCheck = async (_req: Request, res: Response) => {\n  return ApiResponse.Success(res, \"Service is healthy\", {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime()\n  });\n};\n\n/**\n * Detailed health check with system information\n * GET /api/health/detailed\n */\nexport const detailedHealthCheck = async (_req: Request, res: Response) => {\n  const healthData = {\n    status: \"healthy\",\n    timestamp: new Date().toISOString(),\n    uptime: process.uptime(),\n    environment: process.env.NODE_ENV || \"development\",\n    version: process.env.npm_package_version || \"1.0.0\",\n    memory: {\n      used:\n        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,\n      total:\n        Math.round((process.memoryUsage().heapTotal / 1024 / 1024) * 100) / 100,\n      unit: \"MB\"\n    },\n    cpu: {\n      usage: process.cpuUsage()\n    }\n  };\n\n  return ApiResponse.Success(res, \"Service is healthy\", healthData);\n};\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/schemas/user.schema.ts",
+                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -285,6 +285,13 @@
     },
     {
       "type": "foundation",
+      "slug": "drizzle-neon-pg",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "foundation",
       "slug": "drizzle-mysql-starter",
       "frameworks": [
         "express"

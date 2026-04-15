@@ -86,6 +86,11 @@
                   "files": [
                     {
                       "type": "file",
+                      "path": "src/utils/send-mail.ts",
+                      "content": "import env from \"../configs/env\";\nimport { resend } from \"../configs/resend\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  return await resend.emails.send({\n    from: from || `<${env.EMAIL_FROM}>`,\n    to: email,\n    subject,\n    replyTo: email,\n    html\n  });\n}\n"
+                    },
+                    {
+                      "type": "file",
                       "path": "src/configs/resend.ts",
                       "content": "import { Resend } from \"resend\";\nimport env from \"./env\";\n\nexport const resend = new Resend(env.RESEND_API_KEY);\n"
                     },
@@ -93,11 +98,6 @@
                       "type": "file",
                       "path": "src/configs/env.ts",
                       "content": "import \"dotenv-flow/config\";\nimport { z } from \"zod\";\n\nexport const envSchema = z.object({\n  NODE_ENV: z\n    .enum([\"development\", \"test\", \"production\"])\n    .default(\"development\"),\n\n  PORT: z.string().regex(/^\\d+$/, \"PORT must be a number\").transform(Number),\n\n  LOG_LEVEL: z\n    .enum([\"fatal\", \"error\", \"warn\", \"info\", \"debug\", \"trace\"])\n    .default(\"info\"),\n\n  EMAIL_FROM: z.email(),\n  RESEND_API_KEY: z.string()\n});\n\nexport type Env = z.infer<typeof envSchema>;\n\nconst result = envSchema.safeParse(process.env);\n\nif (!result.success) {\n  console.error(\"❌ Invalid environment configuration\");\n  console.error(z.prettifyError(result.error));\n  process.exit(1);\n}\n\nexport const env: Readonly<Env> = Object.freeze(result.data);\n\nexport default env;\n"
-                    },
-                    {
-                      "type": "file",
-                      "path": "src/utils/send-mail.ts",
-                      "content": "import env from \"../configs/env\";\nimport { resend } from \"../configs/resend\";\n\ntype sendMail = {\n  from?: string;\n  subject: string;\n  data: Record<string, any>;\n  email: string;\n  html: string;\n};\n\nexport async function sendEmail({ from, email, subject, html }: sendMail) {\n  return await resend.emails.send({\n    from: from || `<${env.EMAIL_FROM}>`,\n    to: email,\n    subject,\n    replyTo: email,\n    html\n  });\n}\n"
                     }
                   ]
                 },
