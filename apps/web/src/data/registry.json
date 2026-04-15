@@ -425,6 +425,18 @@
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
     {
+      "slug": "drizzle-neon-pg",
+      "title": "Drizzle Neon PostgreSQL",
+      "description": "A production-ready Neon PostgreSQL foundation using Drizzle ORM for type-safe database interactions.",
+      "type": "foundation",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/foundations/drizzle-neon-pg",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "slug": "prisma-mongodb-starter",
       "title": "Prisma MongoDB Starter",
       "description": "A production-ready MongoDB foundation using Prisma ORM for type-safe database interactions.",
