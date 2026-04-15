@@ -1,0 +1,21 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/foundation.registry.json",
+  "slug": "pg-drizzle-neon",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "pg-drizzle-neon/mvc",
+            "feature": "pg-drizzle-neon/feature"
+          },
+          "dependencies": {
+            "runtime": ["drizzle-orm", "@neondatabase/serverless"],
+            "dev": ["drizzle-kit"]
+          },
+          "env": ["DATABASE_URL"]
+        }
+      }
+    }
+  }
+}
