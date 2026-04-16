@@ -13,7 +13,7 @@
             "runtime": ["@prisma/client@6"],
             "dev": ["prisma@6"]
           },
-          "env": ["DATABASE_URL"]
+          "env": ["DATABASE_URL", "NODE_ENV"]
         }
       }
     }

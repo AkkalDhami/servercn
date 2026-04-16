@@ -13,7 +13,7 @@
             "runtime": ["drizzle-orm", "pg"],
             "dev": ["drizzle-kit", "@types/pg"]
           },
-          "env": ["DATABASE_URL"]
+          "env": ["DATABASE_URL", "NODE_ENV"]
         }
       }
     }

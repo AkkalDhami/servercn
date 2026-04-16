@@ -1,0 +1,84 @@
+---
+title: PostgreSQL + Neon (Drizzle) | Provider
+description: PostgreSQL + Neon provider with Drizzle ORM for Express applications.
+command: npx servercn-cli add pr pg-drizzle-neon
+---
+
+# PostgreSQL(Drizzle) Provider
+
+This provider sets up PostgreSQL + Neon connectivity with Drizzle ORM for Express projects, including environment validation, a database client, and a logger.
+
+## Features
+
+- Type-safe environment validation with Zod
+- Ready-to-use Drizzle client for PostgreSQL
+- Pino logger configured for dev and production
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add pr pg-drizzle-neon" />
+
+
+## Environment Configuration
+
+<Code children="src/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+  DATABASE_URL: z.url(),
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Database Client
+
+<Code children="src/configs/db.ts" />
+
+```ts
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import env from "./env";
+
+const sql = neon(env.DATABASE_URL);
+const db = drizzle({ client: sql });
+
+export default db;
+```
+
+## Usage
+
+```ts
+import db from "./configs/db";
+
+// Example insert call:
+// await db.insert(usersTable).values(user);
+```
+
+## Example .env
+
+```bash
+NODE_ENV=development
+PORT=8000
+DATABASE_URL=postgresql://username:password@localhost:5432/mydb?schema=public
+CORS_ORIGIN=http://localhost:3000
+LOG_LEVEL=info
+```

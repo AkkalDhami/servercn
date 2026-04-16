@@ -13,7 +13,7 @@
             "runtime": ["drizzle-orm", "mysql2"],
             "dev": ["drizzle-kit"]
           },
-          "env": ["DATABASE_URL"]
+          "env": ["DATABASE_URL", "NODE_ENV"]
         }
       }
     }
