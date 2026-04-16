@@ -351,6 +351,13 @@
     },
     {
       "type": "provider",
+      "slug": "pg-drizzle-neon",
+      "frameworks": [
+        "express"
+      ]
+    },
+    {
+      "type": "provider",
       "slug": "nodemailer-smtp",
       "frameworks": [
         "express"

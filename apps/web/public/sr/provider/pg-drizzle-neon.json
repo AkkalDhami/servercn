@@ -1,5 +1,5 @@
 {
-  "slug": "mysql-drizzle",
+  "slug": "pg-drizzle-neon",
   "runtimes": {
     "node": {
       "frameworks": {
@@ -9,7 +9,7 @@
               "drizzle-orm",
               "pino",
               "pino-pretty",
-              "mysql2"
+              "@neondatabase/serverless"
             ],
             "dev": [
               "drizzle-kit"
@@ -25,7 +25,7 @@
                 {
                   "type": "file",
                   "path": "drizzle.config.ts",
-                  "content": "import { defineConfig } from \"drizzle-kit\";\r\nimport { env } from \"./src/configs/env\";\r\n\r\nexport default defineConfig({\r\n  out: \"./migrations\",\r\n  schema: \"./src/db/index.ts\",\r\n  dialect: \"mysql\",\r\n  dbCredentials: {\r\n    url: env.DATABASE_URL\r\n  },\r\n  verbose: true,\r\n  strict: true\r\n});\r\n"
+                  "content": "import { defineConfig } from \"drizzle-kit\";\r\nimport { env } from \"./src/configs/env\";\r\n\r\nexport default defineConfig({\r\n  out: \"./migrations\",\r\n  schema: \"./src/db/index.ts\",\r\n  dialect: \"postgresql\",\r\n  dbCredentials: {\r\n    url: env.DATABASE_URL\r\n  },\r\n  verbose: true,\r\n  strict: true\r\n});\r\n"
                 },
                 {
                   "type": "file",
@@ -50,12 +50,12 @@
                 {
                   "type": "file",
                   "path": "src/configs/db.ts",
-                  "content": "import { drizzle } from \"drizzle-orm/mysql2\";\r\nimport env from \"./env\";\r\n\r\nconst db = drizzle(env.DATABASE_URL!, {\r\n  logger: env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
+                  "content": "import { neon } from \"@neondatabase/serverless\";\r\nimport { drizzle } from \"drizzle-orm/neon-http\";\r\nimport env from \"./env\";\r\n\r\nconst sql = neon(env.DATABASE_URL);\r\nconst db = drizzle({ client: sql });\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
                 },
                 {
                   "type": "file",
                   "path": "src/db/schemas/user.schema.ts",
-                  "content": "import { mysqlTable, serial, varchar } from \"drizzle-orm/mysql-core\";\r\n\r\nexport const usersTable = mysqlTable(\"users\", {\r\n  id: serial().primaryKey(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique(),\r\n  password: varchar(\"password\", { length: 255 }).notNull()\r\n});\r\n"
+                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;\r\n"
                 }
               ]
             },
@@ -64,7 +64,7 @@
                 {
                   "type": "file",
                   "path": "drizzle.config.ts",
-                  "content": "import { defineConfig } from \"drizzle-kit\";\r\nimport { env } from \"./src/shared/configs/env\";\r\n\r\nexport default defineConfig({\r\n  out: \"./migrations\",\r\n  schema: \"./src/db/index.ts\",\r\n  dialect: \"mysql\",\r\n  dbCredentials: {\r\n    url: env.DATABASE_URL\r\n  },\r\n  verbose: true,\r\n  strict: true\r\n});\r\n"
+                  "content": "import { defineConfig } from \"drizzle-kit\";\r\nimport { env } from \"./src/shared/configs/env\";\r\n\r\nexport default defineConfig({\r\n  out: \"./migrations\",\r\n  schema: \"./src/db/index.ts\",\r\n  dialect: \"postgresql\",\r\n  dbCredentials: {\r\n    url: env.DATABASE_URL\r\n  },\r\n  verbose: true,\r\n  strict: true\r\n});\r\n"
                 },
                 {
                   "type": "file",
@@ -75,6 +75,11 @@
                   "type": "file",
                   "path": "src/db/index.ts",
                   "content": "//? Export all schemas from schemas directory\r\n\r\nexport * from \"./schemas/user.schema\";\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/schemas/user.schema.ts",
+                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;\r\n"
                 },
                 {
                   "type": "file",
@@ -89,12 +94,7 @@
                 {
                   "type": "file",
                   "path": "src/shared/configs/db.ts",
-                  "content": "import { drizzle } from \"drizzle-orm/mysql2\";\r\nimport env from \"./env\";\r\n\r\nconst db = drizzle(env.DATABASE_URL!, {\r\n  logger: env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */"
-                },
-                {
-                  "type": "file",
-                  "path": "src/db/schemas/user.schema.ts",
-                  "content": "import { mysqlTable, serial, varchar } from \"drizzle-orm/mysql-core\";\r\n\r\nexport const usersTable = mysqlTable(\"users\", {\r\n  id: serial().primaryKey(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique(),\r\n  password: varchar(\"password\", { length: 255 }).notNull()\r\n});\r\n"
+                  "content": "import { neon } from \"@neondatabase/serverless\";\r\nimport { drizzle } from \"drizzle-orm/neon-http\";\r\nimport env from \"./env\";\r\n\r\nconst sql = neon(env.DATABASE_URL);\r\nconst db = drizzle({ client: sql });\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
                 }
               ]
             }
