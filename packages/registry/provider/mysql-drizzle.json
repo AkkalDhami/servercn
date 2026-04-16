@@ -10,10 +10,10 @@
             "feature": "mysql-drizzle/feature"
           },
           "dependencies": {
-            "runtime": ["drizzle-orm", "pino", "pino-pretty", "mysql2"],
+            "runtime": ["drizzle-orm", "mysql2"],
             "dev": ["drizzle-kit"]
           },
-          "env": ["DATABASE_URL", "LOG_LEVEL"]
+          "env": ["DATABASE_URL", "NODE_ENV"]
         }
       }
     }

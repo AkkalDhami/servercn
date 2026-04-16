@@ -10,15 +10,10 @@
             "feature": "pg-drizzle-neon/feature"
           },
           "dependencies": {
-            "runtime": [
-              "drizzle-orm",
-              "pino",
-              "pino-pretty",
-              "@neondatabase/serverless"
-            ],
+            "runtime": ["drizzle-orm", "@neondatabase/serverless"],
             "dev": ["drizzle-kit"]
           },
-          "env": ["DATABASE_URL", "LOG_LEVEL"]
+          "env": ["DATABASE_URL"]
         }
       }
     }

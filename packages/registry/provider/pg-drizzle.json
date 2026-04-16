@@ -10,10 +10,10 @@
             "feature": "pg-drizzle/feature"
           },
           "dependencies": {
-            "runtime": ["drizzle-orm", "pino", "pino-pretty", "pg"],
+            "runtime": ["drizzle-orm", "pg"],
             "dev": ["drizzle-kit", "@types/pg"]
           },
-          "env": ["DATABASE_URL", "LOG_LEVEL"]
+          "env": ["DATABASE_URL", "NODE_ENV"]
         }
       }
     }
