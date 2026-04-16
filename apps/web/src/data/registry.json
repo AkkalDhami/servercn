@@ -768,6 +768,18 @@
       }
     },
     {
+      "slug": "pg-drizzle-neon",
+      "type": "provider",
+      "status": "stable",
+      "frameworks": ["express"],
+      "title": "PostgreSQL Neon (Drizzle)",
+      "description": "PostgreSQL + Neon provider with Drizzle ORM for Express applications.",
+      "docs": "/docs/providers/pg-drizzle-neon",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "slug": "pg-prisma",
       "type": "provider",
       "status": "stable",

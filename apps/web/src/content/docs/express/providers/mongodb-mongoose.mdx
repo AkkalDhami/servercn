@@ -1,36 +1,21 @@
 ---
 title: Mongodb(Mongoose) | Provider
 description: MongoDB provider with Mongoose ORM for Express applications.
-command: npx servercn-cli add provider mongodb-mongoose
+command: npx servercn-cli add pr mongodb-mongoose
 ---
 
 # Mongodb(Mongoose) Provider
 
-This provider sets up MongoDB connectivity with Mongoose for Express projects, including environment validation, a database connection helper, and a logger.
+This provider sets up MongoDB connectivity with Mongoose for Express projects, including environment validation, a database connection helper.
 
 ## Features
 
 - Type-safe environment validation with Zod
 - Ready-to-use MongoDB connection helper
-- Pino logger configured for dev and production
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr mongodb-mongoose" />
-
-## File Structure
-
-### MVC
-
-- <Code children="src/configs/env.ts" />
-- <Code children="src/configs/db.ts" />
-- <Code children="src/utils/logger.ts" />
-
-### Feature
-
-- <Code children="src/shared/configs/env.ts" />
-- <Code children="src/db/db.ts" />
-- <Code children="src/shared/utils/logger.ts" />
 
 ## Environment Configuration
 
@@ -41,15 +26,7 @@ import "dotenv-flow/config";
 import { z } from "zod";
 
 export const envSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "test", "production"])
-    .default("development"),
-  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
   DATABASE_URL: z.url(),
-  CORS_ORIGIN: z.url(),
-  LOG_LEVEL: z
-    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-    .default("info")
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -74,7 +51,6 @@ export default env;
 ```ts
 import mongoose from "mongoose";
 import env from "./env";
-import { logger } from "../utils/logger";
 
 if (!env.DATABASE_URL) {
   throw new Error("Please provide DATABASE_URL in the environment variables");
@@ -83,36 +59,14 @@ if (!env.DATABASE_URL) {
 export const connectDB = async (): Promise<void> => {
   try {
     const conn = await mongoose.connect(env.DATABASE_URL as string);
-    logger.info(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    logger.error(error, "MongoDB Connection Failed:");
+    console.error("MongoDB Connection Failed:", error);
     process.exit(1);
   }
 };
-```
 
-## Logger
 
-<Code children="src/utils/logger.ts" />
-
-```ts
-import pino from "pino";
-import env from "../configs/env";
-
-export const logger = pino({
-  level: env.LOG_LEVEL,
-  transport:
-    env.NODE_ENV !== "production"
-      ? {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "yyyy-mm-dd HH:MM:ss",
-            ignore: "pid,hostname"
-          }
-        }
-      : undefined
-});
 ```
 
 ## Usage
@@ -126,9 +80,5 @@ await connectDB();
 ## Example .env
 
 ```bash
-NODE_ENV=development
-PORT=8000
 DATABASE_URL=mongodb://localhost:27017/app
-CORS_ORIGIN=http://localhost:3000
-LOG_LEVEL=info
 ```

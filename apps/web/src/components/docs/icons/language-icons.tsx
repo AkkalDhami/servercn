@@ -594,7 +594,7 @@ export function getIconForLanguageExtension(
   if (fileName?.endsWith(".jsx")) {
     return <LanguageIcons.tsx className="size-4" />;
   }
-  if (fileName?.endsWith(".gitignore")) {
+  if (fileName?.endsWith(".gitignore") || fileName?.endsWith(".gitkeep")) {
     return <FaGitAlt className="size-4 text-[#e64a19]" />;
   }
   if (fileName?.endsWith(".ejs") || fileName?.endsWith(".html")) {
