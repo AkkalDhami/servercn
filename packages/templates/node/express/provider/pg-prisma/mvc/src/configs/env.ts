@@ -6,15 +6,7 @@ export const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
 
-  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
-
-  DATABASE_URL: z.url(),
-
-  CORS_ORIGIN: z.url(),
-
-  LOG_LEVEL: z
-    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-    .default("info")
+  DATABASE_URL: z.url()
 });
 
 export type Env = z.infer<typeof envSchema>;
