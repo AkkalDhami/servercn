@@ -42,7 +42,7 @@ export default function InitCopyButton() {
       <CopyButton
         handleCopy={handleCopy}
         copied={copied}
-        className="group-hover:text-accent-foreground bottom-[-2px] relative"
+        className="group-hover:text-accent-foreground relative bottom-[-2px] hover:bg-transparent"
       />
     </div>
   );
