@@ -9,16 +9,6 @@ command: npx servercn-cli add email-service
 
 The **Email Service** component provides a production-ready solution for sending emails in Servercn using **nodemailer**. It supports multiple email providers including Gmail, SMTP servers, SendGrid, and more.
 
-## Features
-
-- **Multiple email providers** - Gmail, SMTP, SendGrid, AWS SES, and more
-- **HTML and plain text emails** - Support for both HTML and text content
-- **Attachments** - Send files as email attachments
-- **Multiple recipients** - Support for CC, BCC, and multiple recipients
-- **Type-safe** - Full TypeScript support
-- **Error handling** - Comprehensive error handling and validation
-- **Email verification** - Verify email configuration before sending
-
 ## Installation Guide
 
 Install this component using the following command:
@@ -292,22 +282,3 @@ await sendEmail({
   from: "Servercn <servercn@example.com>"
 });
 ```
-
-
-## Best Practices
-
-1. **Use environment variables** - Never hardcode email credentials
-2. **Validate email addresses** - Validate recipient emails before sending
-3. **Handle errors gracefully** - Implement proper error handling and logging
-4. **Use HTML templates** - Use template engines for consistent email design
-5. **Rate limiting** - Implement rate limiting for email endpoints
-6. **Email queuing** - Use job queues (Bull, BullMQ) for bulk emails
-7. **Test emails** - Use services like Mailtrap for testing in development
-
-## Security Considerations
-
-1. **App Passwords** - Use app-specific passwords for Gmail
-2. **Environment Variables** - Store credentials securely
-3. **Rate Limiting** - Prevent email spam and abuse
-4. **Input Validation** - Validate email addresses and content
-5. **HTTPS** - Use secure connections (EMAIL_SECURE=true for port 465)
