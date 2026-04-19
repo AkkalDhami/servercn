@@ -14,6 +14,17 @@
             "dev": []
           },
           "env": []
+        },
+
+        "nextjs": {
+          "templates": {
+            "file-api": "generate-otp-token/file-api"
+          },
+          "dependencies": {
+            "runtime": [""],
+            "dev": []
+          },
+          "env": []
         }
       }
     }
