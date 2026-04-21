@@ -136,7 +136,8 @@
       "type": "component",
       "slug": "generate-otp-token",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
