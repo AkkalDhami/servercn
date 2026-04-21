@@ -1,4 +1,4 @@
-import env from "../configs/env";
+import env from "@/configs/env";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 
