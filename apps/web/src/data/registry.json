@@ -376,7 +376,7 @@
       "description": "Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/generate-otp-token"
     },
     {
