@@ -1,31 +1,26 @@
 ---
-title: Generate OTP/Token Helper Functions
+title: Generate OTP/Token | Next.js
 description: Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
-command: npx servercn-cli add generate-otp-token
+command: npx servercn-cli@latest add generate-otp-token
 ---
 
 # Generate OTP/Token Helper Functions
 
-The **Generate OTP/Token Helper Functions** component provides **cryptographically secure** utility functions for generating one-time passwords (OTPs), random tokens, and unique identifiers.
-
-
-All functions use Node.js's built-in <Code>node:crypto</Code> module to ensure **cryptographic randomness** and security.
+Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
 
 ## Installation Guide
 
 Install the component using the servercn CLI:
 
-<PackageManagerTabs command="npx servercn-cli add generate-otp-token" />
+<PackageManagerTabs command="npx servercn-cli@latest add generate-otp-token" />
 
 ---
 
 ## File Structure
 
-**MVC:** <Code children="src/helpers/token.helpers.ts" />
+<Code children="src/helpers/token.helper.ts" />
 
-**Feature:** <Code children="src/shared/helpers/token.helpers.ts" />
-
-## Core Functions
+## Basic Implementation
 
 ### 1. Generate OTP (One-Time Password)
 
@@ -34,12 +29,6 @@ Generate a cryptographically secure numeric OTP of any length (default: 6 digits
 ```ts
 import crypto from "node:crypto";
 
-/**
- * Generates a cryptographically secure numeric OTP
- * @param length - Length of the OTP (default: 6)
- * @param ttlMinutes - Time to live in minutes (default: 5)
- * @returns An object containing the OTP code, its hash, and expiration time
- */
 
 export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
   //? generate random otp code
@@ -150,7 +139,7 @@ export function generateHashedToken(token: string): string {
 **Usage Example:**
 
 ```ts
-const hashedToken = generateHashedToken("my-token"); // "8958319959f69db8f78e94c0f3bba4df00f01744769c88d459ff189793bd4fa3"
+const hashedToken = generateHashedToken("my-token");
 ```
 
 <br />
@@ -323,120 +312,6 @@ const longCode = generateNumericCode(10); // "8473920156"
 
 ---
 
-## Complete Implementation
-
-Here's a complete implementation file with all utility functions:
-
-**MVC Structure:** <Code children="src/helpers/token.helpers.ts" />
-
-**Feature Structure:** <Code children="src/shared/helpers/token.helpers.ts" />
-
-```ts
-import crypto from "node:crypto";
-
-//? generate otp
-export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
-  const code = crypto
-    .randomInt(0, Math.pow(10, length))
-    .toString()
-    .padStart(length, "0");
-  const hashCode = crypto
-    .createHash("sha256")
-    .update(String(code))
-    .digest("hex");
-  const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
-  return { code, hashCode, expiresAt };
-}
-
-//? verify otp
-export function verifyOTP(code: string, hashCode: string): boolean {
-  const validCode = crypto
-    .createHash("sha256")
-    .update(String(code))
-    .digest("hex");
-  return validCode === hashCode;
-}
-
-//? hash otp
-export function hashOTP(otp: string): string {
-  return crypto.createHash("sha256").update(String(otp)).digest("hex");
-}
-
-//? generate secure token
-export function generateSecureToken(length: number = 32): string {
-  return crypto.randomBytes(length).toString("hex");
-}
-
-//? generate hashed token
-export function generateHashedToken(token: string): string {
-  return crypto.createHash("sha256").update(String(token)).digest("hex");
-}
-
-//? generate token and hashed token
-export function generateTokenAndHashedToken(id: string) {
-  const cryptoSecret = process.env.CRYPTO_SECRET! || "secret";
-  const token = crypto
-    .createHmac("sha256", cryptoSecret)
-    .update(String(id))
-    .digest("hex");
-
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(String(token))
-    .digest("hex");
-  return { token, hashedToken };
-}
-
-//? verify hashed token
-export function verifyHashedToken(token: string, hashedToken: string): boolean {
-  return (
-    crypto.createHash("sha256").update(String(token)).digest("hex") ===
-    hashedToken
-  );
-}
-
-//? generate uuid
-export function generateUUID(): string {
-  return crypto.randomUUID();
-}
-
-//? generate alphanumeric token
-export function generateAlphanumericToken(length: number = 32): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const randomBytes = crypto.randomBytes(length);
-  let token = "";
-
-  for (let i = 0; i < length; i++) {
-    token += chars[randomBytes[i] % chars.length];
-  }
-
-  return token;
-}
-
-//? generate url safe token
-export function generateURLSafeToken(length: number = 32): string {
-  return crypto
-    .randomBytes(length)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
-
-//? generate numeric code
-export function generateNumericCode(length: number = 6): string {
-  const digits = "0123456789";
-  const randomBytes = crypto.randomBytes(length);
-  let code = "";
-
-  for (let i = 0; i < length; i++) {
-    code += digits[randomBytes[i] % 10];
-  }
-
-  return code;
-}
-```
 
 ## Usage Examples
 
@@ -509,66 +384,6 @@ export async function sendPasswordResetEmail(email: string) {
     subject: "Password Reset Request",
     html: `Click here to reset your password: <a href="${resetURL}">${resetURL}</a>`
   });
-}
-```
-
-### API Key Generation
-
-```ts
-import { generateSecureToken, generateUUID } from "@/helpers/token.helpers";
-import ApiKey from "@/models/apiKey";
-
-export async function createAPIKey(userId: string, name: string) {
-  // Generate API key
-  const apiKey = `sk_${generateSecureToken(32)}`;
-
-  // Hash the key before storing
-  const hashedKey = crypto.createHash("sha256").update(apiKey).digest("hex");
-
-  // Create record
-  await ApiKey.create({
-    id: generateUUID(),
-    userId,
-    name,
-    keyHash: hashedKey,
-    createdAt: new Date()
-  });
-
-  // Return the plain key (only shown once)
-  return apiKey;
-}
-```
-
-### Session Token Generation
-
-```ts
-import { generateSecureToken } from "@/helpers/token.helpers";
-import Session from "@/models/session";
-
-export async function createSession(
-  userId: string,
-  userAgent: string,
-  ipAddress: string
-) {
-  // Generate session token
-  const sessionToken = generateSecureToken(32);
-
-  // Hash the token
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(sessionToken)
-    .digest("hex");
-
-  // Create session
-  await Session.create({
-    userId,
-    tokenHash: hashedToken,
-    userAgent,
-    ipAddress,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-  });
-
-  return sessionToken;
 }
 ```
 
