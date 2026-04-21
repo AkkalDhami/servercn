@@ -99,7 +99,8 @@
       "type": "component",
       "slug": "logger",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
