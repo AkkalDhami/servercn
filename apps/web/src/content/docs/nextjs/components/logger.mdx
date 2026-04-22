@@ -1,0 +1,293 @@
+---
+title: Logger | Next.js
+description: Structured and configurable logging for Node.js applications using Winston or Pino.
+command: npx servercn-cli@latest add logger
+---
+
+# Logger
+
+Logging is a foundational requirement for **debugging**, **monitoring**, and **operating** production-grade backend systems.
+
+- **Winston** — flexible, feature-rich, file-based logging
+- **Pino** — ultra-fast, JSON-first logging optimized for performance
+
+---
+
+## Installation Guide
+
+Install the component using the servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli@latest add logger" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select a logging library:  » - Use arrow-keys. Return to submit.
+>   Pino (High-performance)
+    Winston (Flexible)
+```
+
+The CLI will then automatically configure the component based on your selected library.
+
+---
+
+## Prerequisites
+
+Ensure the following environment variables are defined before running the application:
+
+```ts
+NODE_ENV = "development";
+LOG_LEVEL = "info";
+```
+
+<Code children="src/configs/env.ts" />
+
+Ensure the following configuration are defined:
+
+```ts
+import z from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info")
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+---
+
+## Basic Implementation
+
+### 1. Winston Logger
+
+<Code children="src/utils/logger.ts" />
+
+#### Minimal Configuration
+
+```ts
+import winston from "winston";
+
+export const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [new winston.transports.Console()]
+});
+```
+
+---
+
+#### Advanced Configuration
+
+```ts
+import env from "@/configs/env";
+import winston from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
+
+const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+const logFormat = printf(({ level, message, timestamp, stack }) => {
+  return `${timestamp} [${level}] : ${stack || message}`;
+});
+
+const transports: winston.transport[] = [];
+
+/**
+ * Console logging (development / local)
+ */
+if (env.NODE_ENV !== "production") {
+  transports.push(
+    new winston.transports.Console({
+      format: combine(
+        colorize(),
+        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        errors({ stack: true }),
+        logFormat
+      )
+    })
+  );
+}
+
+/**
+ * File logging (staging / production)
+ */
+if (env.NODE_ENV !== "development") {
+  transports.push(
+    new DailyRotateFile({
+      dirname: "logs/app",
+      filename: "app-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "14d",
+      level: "info"
+    })
+  );
+
+  transports.push(
+    new DailyRotateFile({
+      dirname: "logs/error",
+      filename: "errors-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      zippedArchive: true,
+      maxSize: "20m",
+      maxFiles: "30d",
+      level: "error"
+    })
+  );
+}
+
+export const logger = winston.createLogger({
+  level: env.LOG_LEVEL,
+  format: combine(
+    timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    errors({ stack: true }),
+    logFormat
+  ),
+  transports,
+  exitOnError: false
+});
+```
+
+
+---
+
+### 2. Pino Logger
+
+
+<Code children="src/utils/logger.ts" />
+
+#### Minimal Configuration
+
+```ts
+import pino from "pino";
+import env from "@/configs/env";
+
+export const logger = pino({
+  level: env.LOG_LEVEL,
+  transport:
+    env.NODE_ENV !== "production"
+      ? {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "yyyy-mm-dd HH:MM:ss",
+            ignore: "pid,hostname"
+          }
+        }
+      : undefined
+});
+```
+
+---
+
+#### Advanced Configuration
+
+```ts
+import pino from "pino";
+import env from "@/configs/env";
+
+const isProduction = env.NODE_ENV !== "production";
+
+export const logger = pino({
+  level: env.LOG_LEVEL || "info",
+
+  base: {
+    pid: process.pid
+  },
+
+  timestamp: pino.stdTimeFunctions.isoTime,
+
+  formatters: {
+    level(label) {
+      return { level: label };
+    }
+  },
+
+  redact: {
+    paths: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "password",
+      "token",
+      "refreshToken"
+    ],
+    censor: "[REDACTED]"
+  },
+
+  ...(isProduction
+    ? {}
+    : {
+        transport: {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname"
+          }
+        }
+      })
+});
+```
+
+---
+
+## Usage Example
+
+```ts
+import { logger } from "@/utils/logger";
+```
+
+### 1. Winston
+
+```ts
+logger.info("Server started successfully");
+logger.warn("Disk space running low");
+logger.error("Failed to connect to database");
+
+// Child Logger
+const authLogger = logger.child({ module: "auth" });
+authLogger.info("Login started");
+authLogger.error({ userId }, "Invalid credentials");
+```
+
+---
+
+### 2. Pino
+
+
+```ts
+logger.info("Server started");
+logger.warn({ userId: "123" }, "Suspicious activity detected");
+logger.error(
+  { err: "Database connection failed" },
+  "Database connection failed"
+);
+
+// Child Logger
+
+const authLogger = logger.child({ module: "auth" });
+authLogger.info("Login started");
+authLogger.error({ userId }, "Invalid credentials");
+````
