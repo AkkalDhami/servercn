@@ -190,7 +190,7 @@
       "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/logger",
       "meta": {
         "new": true
