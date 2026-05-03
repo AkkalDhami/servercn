@@ -56,7 +56,8 @@
       "type": "component",
       "slug": "request-validator",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
