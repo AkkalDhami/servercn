@@ -105,9 +105,6 @@ export default function SupportedFrameworks() {
             const Icon = framework.icon;
             const isAvailable = framework.status === "available";
             const isWorking = framework.status === "working";
-            const stats = framework.frameworks
-              ? calculateFrameworkStats(framework.frameworks as FrameworkType[])
-              : null;
 
             return (
               <div
@@ -125,9 +122,15 @@ export default function SupportedFrameworks() {
                       className={
                         isAvailable
                           ? "border-green-500 bg-green-500/10 text-green-500 uppercase"
-                          : isWorking ? "border-blue-500 text-blue-600 bg-blue-500/10 uppercase" :  "border-yellow-500 bg-yellow-500/10 text-yellow-600 uppercase"
+                          : isWorking
+                            ? "border-blue-500 bg-blue-500/10 text-blue-600 uppercase"
+                            : "border-yellow-500 bg-yellow-500/10 text-yellow-600 uppercase"
                       }>
-                      {isAvailable ? "Available" : isWorking ? "Working" : "Coming Soon"}
+                      {isAvailable
+                        ? "Available"
+                        : isWorking
+                          ? "Working"
+                          : "Coming Soon"}
                     </Badge>
                   </div>
                   <h3 className="mt-4 text-xl font-medium">{framework.name}</h3>
@@ -135,65 +138,6 @@ export default function SupportedFrameworks() {
                     {framework.description}
                   </p>
                 </div>
-                {stats ? (
-                  <div className="space-y-4">
-                    {stats.components > 0 &&
-                      stats.blueprints > 0 &&
-                      stats.foundations > 0 &&
-                      stats.schemas > 0 &&
-                      stats.providers > 0 && (
-                        <div className="mt-2 grid grid-cols-2 gap-2">
-                          <p className="text-muted-foreground text-sm">
-                            <span className="text-foreground font-bold">
-                              {stats.components}+{" "}
-                            </span>
-                            Components
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            <span className="text-foreground font-bold">
-                              {stats.blueprints}+{" "}
-                            </span>
-                            Blueprints
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            <span className="text-foreground font-bold">
-                              {stats.providers}+{" "}
-                            </span>
-                            Providers
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            <span className="text-foreground font-bold">
-                              {stats.foundations}+{" "}
-                            </span>
-                            Foundations
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            <span className="text-foreground font-bold">
-                              {stats.schemas}+{" "}
-                            </span>
-                            Schemas
-                          </p>
-                        </div>
-                      )}
-                  </div>
-                ) : null}
-
-                {framework.githubLink && (
-                  <div className="pt-4">
-                    <Button
-                      variant="outline"
-                      className="primary-ring w-full gap-2"
-                      asChild>
-                      <Link
-                        href={framework.githubLink as Route}
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        <FaGithub className="size-4" />
-                        Contribute on GitHub
-                      </Link>
-                    </Button>
-                  </div>
-                )}
               </div>
             );
           })}

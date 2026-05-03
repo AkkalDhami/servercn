@@ -247,7 +247,7 @@
       "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in Servercn using Zod.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/request-validator"
     },
     {
