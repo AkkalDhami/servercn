@@ -334,7 +334,7 @@ export default async function DocsPage({
             </div>
           )}
 
-          <div className="border-t">
+          <div className="border-t mb-2">
             <NextSteps
               next={next}
               prev={prev}
