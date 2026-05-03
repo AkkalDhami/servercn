@@ -203,7 +203,7 @@ export default async function DocsPage({
       <FrameworkRedirect />
       <div className="flex w-full overflow-x-auto px-2">
         <div id="docs-content" className="flex-1">
-          <article className="prose prose-neutral dark:prose-invert mb-6 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
+          <article className="prose prose-neutral dark:prose-invert mb-4 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
             <div className="mb-6 flex items-center justify-between pt-6">
               <OpenInAi />
 
@@ -262,7 +262,7 @@ export default async function DocsPage({
             />
           </article>
           <div className="w-full overflow-x-auto">
-            <div className="border-edge mt-4">
+            <div className="border-edge border-y py-4">
               {lastSlug &&
                 FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
                 !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
