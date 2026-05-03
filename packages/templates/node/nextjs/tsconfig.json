@@ -15,6 +15,10 @@
       "@/utils/*": [
         "./component/route-handler/file-api/src/utils/*",
         "./component/error-handler/file-api/src/utils/*"
+      ],
+      "@/configs/*": [
+        "./component/logger/pino/file-api/src/configs/*",
+        "./component/logger/winston/file-api/src/configs/*"
       ]
     }
   },

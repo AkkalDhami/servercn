@@ -44,6 +44,33 @@
               }
             }
           }
+        },
+        "nextjs": {
+          "prompt": "Select a logging library: ",
+          "variants": {
+            "pino": {
+              "label": "Pino (High-performancer)",
+              "templates": {
+                "file-api": "logger/pino/file-api"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": ["pino", "pino-pretty", "zod"],
+                "dev": []
+              }
+            },
+            "winston": {
+              "label": "Winston (Flexible)",
+              "templates": {
+                "file-api": "logger/winston/file-api"
+              },
+              "env": ["LOG_LEVEL", "NODE_ENV"],
+              "dependencies": {
+                "runtime": ["winston", "winston-daily-rotate-file", "zod"],
+                "dev": []
+              }
+            }
+          }
         }
       }
     }
