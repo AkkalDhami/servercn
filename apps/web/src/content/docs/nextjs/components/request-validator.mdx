@@ -1,0 +1,115 @@
+---
+title: Request Validator (Zod) | Next.js
+description: A lightweight, type-safe request validation utility built on top of Zod. It standardizes validation handling and error formatting for server-side logic (e.g. route handlers, server actions).
+command: npx servercn-cli@latest add request-validator
+---
+
+# Request Validator (Zod)
+
+A lightweight, type-safe request validation utility built on top of Zod. It standardizes validation handling and error formatting for server-side logic (e.g. route handlers, server actions).
+
+
+## Installation Guide
+
+Install the component using the servercn CLI:
+
+<PackageManagerTabs command="npx servercn-cli@latest add request-validator" />
+
+---
+
+## Basic Implementation
+
+<Code children="src/lib/validate-request.ts" />
+
+```ts
+import { z, ZodType } from "zod";
+
+type ValidationResult<T> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      errors: Record<string, string[]>;
+    };
+
+export function validateRequest<TSchema extends ZodType>(
+  schema: TSchema,
+  input: unknown
+): ValidationResult<z.infer<TSchema>> {
+  const result = schema.safeParse(input);
+
+  if (result.success) {
+    return {
+      success: true,
+      data: result.data
+    };
+  }
+
+  const formattedErrors: Record<string, string[]> = {};
+
+  result.error.issues.forEach(err => {
+    const key = err.path.join(".") || "root";
+
+    if (!formattedErrors[key]) {
+      formattedErrors[key] = [];
+    }
+
+    formattedErrors[key].push(err.message);
+  });
+
+  return {
+    success: false,
+    errors: formattedErrors
+  };
+}
+
+/*
+? Usage:
+
+import { validateRequest } from "@/lib/validate-request";
+import { ApiResponse } from "@/utils/api-response";
+
+const body = await req.json();
+const result = validateRequest(SigninSchema, body);
+
+if (!result.success) {
+  return ApiResponse({
+    success: false,
+    statusCode: STATUS_CODES.BAD_REQUEST,
+    message: "Invalid data received!",
+    error: result.errors
+  });
+}
+
+const { email, password } = result.data;
+*/
+```
+
+---
+
+## Usage Example
+
+```ts
+import { validateRequest } from "@/lib/validate-request";
+```
+
+```ts {4}
+import { ApiResponse } from "@/utils/api-response";
+
+const body = await req.json();
+const result = validateRequest(SigninSchema, body);
+
+if (!result.success) {
+  return ApiResponse({
+    success: false,
+    statusCode: STATUS_CODES.BAD_REQUEST,
+    message: "Invalid data received!",
+    error: result.errors
+  });
+}
+
+const { email, password } = result.data;
+//? Proceed with your logic
+```
