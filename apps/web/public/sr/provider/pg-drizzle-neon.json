@@ -70,11 +70,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/db/schemas/user.schema.ts",
-                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;\r\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/configs/env.ts",
                   "content": "import \"dotenv-flow/config\";\r\nimport { z } from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  DATABASE_URL: z.url()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
                 },
@@ -82,6 +77,11 @@
                   "type": "file",
                   "path": "src/shared/configs/db.ts",
                   "content": "import { neon } from \"@neondatabase/serverless\";\r\nimport { drizzle } from \"drizzle-orm/neon-http\";\r\nimport env from \"./env\";\r\n\r\nconst sql = neon(env.DATABASE_URL);\r\nconst db = drizzle({ client: sql });\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/schemas/user.schema.ts",
+                  "content": "import { integer, pgTable, varchar } from \"drizzle-orm/pg-core\";\r\n\r\nexport const usersTable = pgTable(\"users\", {\r\n  id: integer().primaryKey().generatedAlwaysAsIdentity(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  age: integer().notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique()\r\n});\r\n\r\nexport type User = typeof usersTable.$inferSelect;\r\nexport type NewUser = typeof usersTable.$inferInsert;\r\n"
                 }
               ]
             }

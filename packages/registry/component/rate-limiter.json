@@ -23,7 +23,7 @@
             "runtime": ["@upstash/ratelimit", "@upstash/redis"],
             "dev": [""]
           },
-          "env": []
+          "env": ["UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_URL"]
         }
       }
     }

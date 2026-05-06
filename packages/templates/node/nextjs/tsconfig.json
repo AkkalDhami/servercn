@@ -17,9 +17,11 @@
         "./component/error-handler/file-api/src/utils/*"
       ],
       "@/configs/*": [
+        "./component/rate-limiter/file-api/src/configs/*",
         "./component/logger/pino/file-api/src/configs/*",
         "./component/logger/winston/file-api/src/configs/*"
-      ]
+      ],
+      "@/lib/*": ["./component/rate-limiter/file-api/src/lib/*"]
     }
   },
   "include": ["component/**/*.ts"]

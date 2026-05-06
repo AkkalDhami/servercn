@@ -304,7 +304,7 @@
       "description": "The Rate Limiter component provides a standardized way to handle rate limiting in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/rate-limiter"
     },
     {

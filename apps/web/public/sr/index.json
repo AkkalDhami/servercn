@@ -71,7 +71,8 @@
       "type": "component",
       "slug": "rate-limiter",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
