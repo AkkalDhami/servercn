@@ -56,7 +56,10 @@ export const mdxComponents: MDXComponents = {
   ),
   p: ({ className, ...props }) => (
     <p
-      className={cn("mt-4 mb-3 text-muted-primary leading-relaxed not-first:mt-4", className)}
+      className={cn(
+        "text-muted-primary mt-4 mb-3 leading-relaxed not-first:mt-4",
+        className
+      )}
       {...props}
     />
   ),
@@ -117,7 +120,7 @@ export const mdxComponents: MDXComponents = {
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "mt-8 scroll-m-32 text-[19px] font-medium tracking-tight",
+        "mt-4 mb-1 scroll-m-32 text-[19px] font-medium tracking-tight",
         className
       )}
       {...props}
@@ -155,7 +158,7 @@ export const mdxComponents: MDXComponents = {
   }: React.ComponentProps<typeof TabsTrigger>) => (
     <TabsTrigger
       className={cn(
-        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
+        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-4 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
         className
       )}
       {...props}
