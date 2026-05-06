@@ -1,0 +1,255 @@
+---
+title: Rate Limiter | Next.js
+description: A simple IP-based rate limiter using `@upstash/ratelimit` and Redis. Designed for Next.js route handlers and middleware.e.
+command: npx servercn-cli@latest add rate-limiter
+---
+
+# Rate Limiter
+
+A simple IP-based rate limiter using <Code>@upstash/ratelimit</Code> and Redis. Designed for Next.js route handlers and middleware.
+
+Official Docs:
+- [Upstash](https://upstash.com/docs/redis/sdks/ratelimit-ts/gettingstarted)
+- [Usage: Nextjs API Routes](https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs)
+- [Usage: Nextjs Middleware](https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs-middleware)
+
+<br />
+---
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli@latest add rate-limiter" />
+
+---
+
+## Basic Implementation
+
+<Tabs defaultValue="custom">
+<TabsList>
+<TabsTrigger value="custom">
+Custom Rate Limiter
+</TabsTrigger>
+<TabsTrigger value="upstash">
+Upstash Rate Limiter
+</TabsTrigger>
+</TabsList>
+<TabsContent value="custom">
+<Steps>
+<Step>Create util functions</Step>
+<Code>src/utils/rate-limit.ts</Code>
+
+```ts
+export const RATE_LIMIT_WINDOW = 1 * 60 * 1000; // 1 minute
+
+export const RATE_LIMIT_MAX_REQUESTS = 5 as const;
+
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+export function getClientIP(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown"
+  );
+}
+
+export function checkRateLimit(clientIP: string) {
+  const now = Date.now();
+  const data = rateLimitStore.get(clientIP);
+
+  if (!data || now > data.resetTime) {
+    rateLimitStore.set(clientIP, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW
+    });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
+  }
+
+  if (data.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  data.count++;
+  rateLimitStore.set(clientIP, data);
+
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - data.count };
+}
+
+export function resetRateLimit(clientIP: string) {
+  rateLimitStore.delete(clientIP);
+}
+```
+
+<Step>Usage in API Routes</Step>
+
+```ts
+export const POST = async (req: NextRequest) => {
+
+  const clientIP = getClientIP(req);
+  const rateLimit = checkRateLimit(clientIP);
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Too many requests. Please try again later.",
+        error: {
+          retryAfter: RATE_LIMIT_WINDOW / 1000,
+          status: STATUS_CODES.TOO_MANY_REQUESTS
+        }
+      },
+      {
+        status: STATUS_CODES.TOO_MANY_REQUESTS,
+        headers: {
+          "X-RateLimit-Limit": RATE_LIMIT_MAX_REQUESTS.toString(),
+          "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+          "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString()
+        }
+      }
+   );
+  }
+
+  //* Your API logic here
+};
+```
+    
+</Steps>
+</TabsContent>
+<TabsContent value="upstash">
+<Steps>
+
+<Step>Setup Environment Variables</Step>
+
+<Code>src/configs/env.ts</Code>
+
+```ts {4, 5}
+import z from "zod";
+
+export const envSchema = z.object({
+  UPSTASH_REDIS_REST_TOKEN: z.string(),
+  UPSTASH_REDIS_REST_URL: z.string()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+<Step>Create Redis Instance</Step>
+
+<Code>src/configs/redis.ts</Code>
+
+```ts
+import { Redis } from "@upstash/redis";
+
+import env from "@/configs/env";
+
+const redis = new Redis({
+  url: env.UPSTASH_REDIS_REST_URL,
+  token: env.UPSTASH_REDIS_REST_TOKEN
+});
+
+export default redis;
+```
+
+<Step>Implement Rate Limiter</Step>
+
+<Code>src/lib/rate-limiter.ts</Code>
+
+```ts
+import { Ratelimit } from "@upstash/ratelimit";
+
+import redis from "@/configs/redis";
+
+export const ratelimit = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.fixedWindow(100, "10 s"), //* 100 requests per 10 seconds
+  ephemeralCache: new Map(), //* cache for the ratelimit
+  prefix: "@servercn/ratelimit" //* prefix for the ratelimit
+});
+```
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+
+## Usage Examples
+
+```ts
+import { ratelimit } from "@/lib/rate-limiter";
+```
+
+**In API Routes:**
+
+```ts
+import { NextRequest, NextResponse } from "next/server";
+
+export const POST = async (req: NextRequest) => {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "127.0.0.1";
+
+  const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+
+  if (!success) {
+    return NextResponse.json(
+      {
+        message: "Too many requests, please try again later."
+      },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": limit.toString(),
+          "X-RateLimit-Remaining": remaining.toString(),
+          "X-RateLimit-Reset": reset.toString()
+        }
+      }
+    );
+  }
+
+  //* Your API logic here
+};
+```
+
+**In Middleware:**
+
+<Code>proxy.ts</Code>
+
+```ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export async function proxy(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "127.0.0.1";
+
+  const { success, limit, remaining } = await ratelimit.limit(ip);
+  const response = NextResponse.next();
+
+  if (!success) {
+    response.headers.set("X-RateLimit-Success", success.toString());
+    response.headers.set("X-RateLimit-Limit", limit.toString());
+    response.headers.set("X-RateLimit-Remaining", remaining.toString());
+    return response;
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/api/:path*"]
+};
+```
