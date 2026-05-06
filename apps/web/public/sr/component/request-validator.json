@@ -23,23 +23,23 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/validations/user.validation.ts",
-                  "content": "import { z } from \"zod\";\n\nexport const createUserSchema = z.object({\n  name: z.string().min(2, \"Name must be at least 2 characters\"),\n  email: z.email(\"Invalid email address\"),\n  password: z.string().min(8, \"Password must be at least 8 characters\"),\n  age: z.number().int().min(18).max(100).optional()\n});\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/middlewares/validate-request.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport z, { ZodError, type ZodObject } from \"zod\";\n\nimport { ApiError } from \"../utils/api-error\";\n\nexport const validateRequest = (schema: ZodObject<any>) => {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      schema.parse(req.body);\n\n      next();\n    } catch (error) {\n      if (!(error instanceof ZodError)) {\n        return next(error);\n      }\n\n      throw ApiError.badRequest(\n        \"Invalid request data\",\n        z.flattenError(error).fieldErrors || z.flattenError(error)\n      );\n    }\n  };\n};\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/utils/api-error.ts",
                   "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
                 },
                 {
                   "type": "file",
+                  "path": "src/validations/user.validation.ts",
+                  "content": "import { z } from \"zod\";\n\nexport const createUserSchema = z.object({\n  name: z.string().min(2, \"Name must be at least 2 characters\"),\n  email: z.email(\"Invalid email address\"),\n  password: z.string().min(8, \"Password must be at least 8 characters\"),\n  age: z.number().int().min(18).max(100).optional()\n});\n"
+                },
+                {
+                  "type": "file",
                   "path": "src/routes/user.routes.ts",
                   "content": "import { Router } from \"express\";\nimport { validateRequest } from \"../middlewares/validate-request\";\nimport { createUserSchema } from \"../validations/user.validation\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\nconst router = Router();\n\nrouter.post(\"/\", validateRequest(createUserSchema), (req, res) => {\n  return res.status(STATUS_CODES.CREATED).json({\n    success: true,\n    message: \"User created successfully\",\n    data: req.body\n  });\n});\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/middlewares/validate-request.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport z, { ZodError, type ZodObject } from \"zod\";\n\nimport { ApiError } from \"../utils/api-error\";\n\nexport const validateRequest = (schema: ZodObject<any>) => {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      schema.parse(req.body);\n\n      next();\n    } catch (error) {\n      if (!(error instanceof ZodError)) {\n        return next(error);\n      }\n\n      throw ApiError.badRequest(\n        \"Invalid request data\",\n        z.flattenError(error).fieldErrors || z.flattenError(error)\n      );\n    }\n  };\n};\n"
                 },
                 {
                   "type": "file",
@@ -62,11 +62,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/shared/middlewares/validate-request.ts",
-                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport z, { ZodError, type ZodObject } from \"zod\";\n\nimport { ApiError } from \"../errors/api-error\";\n\nexport const validateRequest = (schema: ZodObject<any>) => {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      schema.parse(req.body);\n\n      next();\n    } catch (error) {\n      if (!(error instanceof ZodError)) {\n        return next(error);\n      }\n\n      throw ApiError.badRequest(\n        \"Invalid request data\",\n        z.flattenError(error).fieldErrors || z.flattenError(error)\n      );\n    }\n  };\n};\n"
-                },
-                {
-                  "type": "file",
                   "path": "src/shared/errors/api-error.ts",
                   "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n  ? Usage:\n  * throw new ApiError(404, \"Not found\");\n  * throw ApiError.badRequest(\"Bad request\");\n */\n"
                 },
@@ -84,6 +79,11 @@
                   "type": "file",
                   "path": "src/modules/user/user.routes.ts",
                   "content": "import { Router } from \"express\";\nimport { validateRequest } from \"../../shared/middlewares/validate-request\";\nimport { createUserSchema } from \"./user.validation\";\nimport { STATUS_CODES } from \"../../shared/constants/status-codes\";\n\nconst router = Router();\n\nrouter.post(\"/\", validateRequest(createUserSchema), (req, res) => {\n  return res.status(STATUS_CODES.CREATED).json({\n    success: true,\n    message: \"User created successfully\",\n    data: req.body\n  });\n});\n\nexport default router;\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/shared/middlewares/validate-request.ts",
+                  "content": "import { Request, Response, NextFunction } from \"express\";\nimport z, { ZodError, type ZodObject } from \"zod\";\n\nimport { ApiError } from \"../errors/api-error\";\n\nexport const validateRequest = (schema: ZodObject<any>) => {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      schema.parse(req.body);\n\n      next();\n    } catch (error) {\n      if (!(error instanceof ZodError)) {\n        return next(error);\n      }\n\n      throw ApiError.badRequest(\n        \"Invalid request data\",\n        z.flattenError(error).fieldErrors || z.flattenError(error)\n      );\n    }\n  };\n};\n"
                 }
               ]
             }
