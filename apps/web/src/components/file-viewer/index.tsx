@@ -3,7 +3,7 @@
 import * as React from "react";
 import FileTree, { type FileNode } from "@/components/file-viewer/file-tree";
 import { getRegistryFileTree } from "@/lib/files";
-import { useCodeTheme, useCodeThemeBg } from "@/store/use-code-theme";
+import { useCodeTheme } from "@/store/use-code-theme";
 import { highlightCode } from "@/app/actions/highlight";
 import {
   ResizableHandle,
@@ -53,7 +53,7 @@ export default function ComponentFileViewer({
   const [error, setError] = React.useState<string | null>(null);
   const { copied, copy } = useCopyToClipboard();
   const { theme } = useCodeTheme();
-  const { bg } = useCodeThemeBg();
+
   const [html, setHtml] = React.useState("");
 
   React.useEffect(() => {
@@ -135,21 +135,18 @@ export default function ComponentFileViewer({
           "thin-scrollbar relative rounded-lg",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
-            : "min-h-130 max-w-md md:min-w-200"
+            : "min-h-130 max-w-md md:min-w-full"
         )}
         style={{
-          backgroundColor: bg,
-          border: `1px solid ${bg}`
+          backgroundColor: "var(--code)",
+          border: `1px solid var(--border)`
         }}>
         <Link
           href={
             `/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}${database ? `&database=${database}` : ""}${orm ? `&orm=${orm}` : ""}` as Route
           }
           target="_blank"
-          style={{
-            backgroundColor: bg
-          }}
-          className="hover:bg-muted hover:text-primary text-muted-foreground absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md p-1.5 transition-all">
+          className="hover:bg-muted bg-secondary hover:text-primary text-muted-foreground absolute right-3 bottom-3 z-20 flex items-center justify-center rounded-md p-1.5 transition-all">
           <Maximize2Icon className="h-5 w-5" />
         </Link>
 
@@ -175,11 +172,10 @@ export default function ComponentFileViewer({
               {selectedFile?.name || "No file selected"}
             </div>
             <CopyButton
-              bg={bg}
               handleCopy={handleCopy}
               copied={copied}
               className={cn(
-                "absolute right-2 z-20 flex items-center justify-center transition-all",
+                "bg-code absolute right-2 z-20 flex items-center justify-center transition-all",
                 selectedFile?.content ? "cursor-pointer" : "cursor-not-allowed"
               )}
             />
@@ -194,9 +190,9 @@ export default function ComponentFileViewer({
                 "h-full max-h-140 w-full",
                 from === "structure" ? "max-h-154" : "max-h-140"
               )}
-              style={{ backgroundColor: bg }}>
+              style={{ backgroundColor: "var(--code)" }}>
               <div
-                className="relative [&_pre]:h-full [&_pre]:p-3.5 [&_pre]:pb-2"
+                className="[&_pre]:bg-code! relative [&_pre]:h-full [&_pre]:p-3.5 [&_pre]:pb-2"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </div>

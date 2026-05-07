@@ -50,13 +50,14 @@ export default function ArchitectureTabs({
   return (
     <div
       className={cn(
-        "bg-background text-muted-primary my-6 w-full overflow-auto rounded-md border sm:max-w-200",
+        "bg-background text-muted-primary my-3 w-full overflow-auto rounded-md sm:max-w-full",
+        availableArchs.length === 2 && "border",
         className
       )}>
       <div
         className={cn(
           "bg-background grid gap-3",
-          availableArchs.length === 2 ? "grid-cols-2" : "grid-cols-1"
+          availableArchs.length === 2 ? "grid-cols-2" : "hidden grid-cols-1"
         )}>
         {availableArchs.map(arch => (
           <button

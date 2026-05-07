@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-code: var(--code);
   --color-card-hover: var(--color-card-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -71,6 +72,7 @@
 }
 
 :root {
+  --code: var(--color-neutral-50);
   --muted-secondary: #666;
   --color-card-hover: color-mix(in oklab, var(--accent) 50%, transparent);
   --background: #fcfcfc;
@@ -140,6 +142,7 @@
 }
 
 .dark {
+  --code: var(--color-neutral-950);
   --muted-secondary: #888;
   --color-card-hover: #ffffff0c;
   --background: #000000;
@@ -347,22 +350,9 @@
     color: gray;
   }
 
-  code[data-theme*=" "],
-  code[data-theme*=" "] span {
-    color: var(--shiki-light);
-    background-color: var(--shiki-light-bg);
-  }
-
   [data-rehype-pretty-code-figure] {
     position: relative;
-  }
-
-  [data-rehype-pretty-code-title] {
-    padding-block: calc(var(--spacing) * 2);
-    /* padding-inline: calc(var(--spacing) * 4); */
-    font-size: var(--text-sm);
-    font-family: var(--font-mono);
-    background-color: var(--color-code);
+    @apply bg-code mb-3 rounded-lg border border-neutral-500/10;
   }
 
   [data-line] {
@@ -371,14 +361,6 @@
     min-height: calc(var(--spacing) * 1);
     width: 100%;
     display: inline-block;
-  }
-
-  [data-line] span {
-    color: var(--shiki-light);
-
-    @variant dark {
-      color: var(--shiki-dark);
-    }
   }
 
   [data-highlighted-line],

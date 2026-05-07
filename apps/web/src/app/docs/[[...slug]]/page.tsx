@@ -250,6 +250,7 @@ export default async function DocsPage({
                       rehypePrettyCode,
                       {
                         theme: theme || "vesper",
+                        keepBackground: false,
                         defaultLang: {
                           block: "plaintext",
                           inline: "plaintext"
@@ -334,7 +335,7 @@ export default async function DocsPage({
             </div>
           )}
 
-          <div className="border-t mb-2">
+          <div className="mb-2 border-t">
             <NextSteps
               next={next}
               prev={prev}
