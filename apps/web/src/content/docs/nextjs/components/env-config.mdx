@@ -23,24 +23,11 @@ Install the component using the servercn CLI:
 
 ---
 
-## File Structure
-
-The Next.js template creates the following files:
-
-- <Code children="src/configs/env/index.ts" />
-- <Code children="src/configs/env/env.schema.ts" />
-- <Code children="src/configs/env/env.server.ts" />
-- <Code children="src/configs/env/env.client.ts" />
-- <Code children="src/configs/env/env.types.ts" />
-
-<br />
----
 
 ## Basic Implementation
 
-<Code children="src/configs/env/env.schema.ts" />
 
-```ts
+```ts title="src/configs/env/env.schema.ts"
 import { z } from "zod";
 
 export const baseEnvSchema = z.object({
@@ -85,9 +72,8 @@ export const baseEnvSchema = z.object({
 ---
 <br />
 
-<Code children="src/configs/env/env.server.ts" />
 
-```ts
+```ts title="src/configs/env/env.server.ts"
 import z from "zod";
 import { baseEnvSchema } from "./env.schema";
 
@@ -107,9 +93,8 @@ export default env;
 ---
 <br />
 
-<Code children="src/configs/env/env.client.ts" />
 
-```ts
+```ts title="src/configs/env/env.client.ts"
 import { z } from "zod";
 
 const clientSchema = z.object({
@@ -129,12 +114,10 @@ const clientEnv = parsed.data;
 export default clientEnv;
 ```
 
-<br />
 ---
+<br />
 
-<Code children="src/configs/env/index.ts" />
-
-```ts
+```ts title="src/configs/env/index.ts"
 export { default as env } from "./env.server";
 export { default as clientEnv } from "./env.client";
 ```
@@ -183,5 +166,3 @@ GITHUB_CLIENT_SECRET=your_github_secret
 GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/github/callback
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
-
----
