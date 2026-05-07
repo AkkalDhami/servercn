@@ -11,6 +11,7 @@ Logging is a foundational requirement for **debugging**, **monitoring**, and **o
 - **Winston** — flexible, feature-rich, file-based logging
 - **Pino** — ultra-fast, JSON-first logging optimized for performance
 
+<br/>
 ---
 
 ## Installation Guide
@@ -40,11 +41,9 @@ NODE_ENV = "development";
 LOG_LEVEL = "info";
 ```
 
-<Code children="src/configs/env.ts" />
-
 Ensure the following configuration are defined:
 
-```ts
+```ts title="src/configs/env.ts"
 import z from "zod";
 
 export const envSchema = z.object({
@@ -78,11 +77,9 @@ export default env;
 
 ### 1. Winston Logger
 
-<Code children="src/utils/logger.ts" />
-
 #### Minimal Configuration
 
-```ts
+```ts title="src/utils/logger.ts"
 import winston from "winston";
 
 export const logger = winston.createLogger({
@@ -100,7 +97,7 @@ export const logger = winston.createLogger({
 
 #### Advanced Configuration
 
-```ts
+```ts title="src/utils/logger.ts"
 import env from "@/configs/env";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
@@ -176,11 +173,9 @@ export const logger = winston.createLogger({
 ### 2. Pino Logger
 
 
-<Code children="src/utils/logger.ts" />
-
 #### Minimal Configuration
 
-```ts
+```ts title="src/utils/logger.ts"
 import pino from "pino";
 import env from "@/configs/env";
 
@@ -204,7 +199,7 @@ export const logger = pino({
 
 #### Advanced Configuration
 
-```ts
+```ts title="src/utils/logger.ts"
 import pino from "pino";
 import env from "@/configs/env";
 
@@ -275,7 +270,6 @@ authLogger.error({ userId }, "Invalid credentials");
 ---
 
 ### 2. Pino
-
 
 ```ts
 logger.info("Server started");
