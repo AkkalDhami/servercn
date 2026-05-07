@@ -33,9 +33,7 @@ export default function PackageManagerTabs({
   return (
     <Tabs
       value={pkgManager}
-      className={cn(
-        "my-6 rounded-md border-0 bg-neutral-100 sm:max-w-200 dark:bg-[#101010]"
-      )}>
+      className={cn("bg-code my-6 rounded-lg sm:max-w-full")}>
       <TabsList className={cn("bg-transparent pt-3 pl-3")}>
         <TerminalIcon className="text-muted-foreground mr-3 size-6 pt-1" />
         {Object.keys(managers).map(m => {
