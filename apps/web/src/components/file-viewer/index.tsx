@@ -132,15 +132,11 @@ export default function ComponentFileViewer({
       <ResizablePanelGroup
         orientation="horizontal"
         className={cn(
-          "thin-scrollbar relative rounded-lg",
+          "thin-scrollbar bg-code relative rounded-lg border border-neutral-500/10",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
-            : "min-h-130 max-w-md md:min-w-full"
-        )}
-        style={{
-          backgroundColor: "var(--code)",
-          border: `1px solid var(--border)`
-        }}>
+            : "min-h-130 max-w-md md:min-w-200"
+        )}>
         <Link
           href={
             `/structure?type=${type}&slug=${slug}&arch=${architecture}&framework=${framework}${database ? `&database=${database}` : ""}${orm ? `&orm=${orm}` : ""}` as Route

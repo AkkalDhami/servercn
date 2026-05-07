@@ -117,31 +117,8 @@ export async function GET(req: Request) {
 }
 ```
 
-## Utilities
-
-### extractTokenFromHeader(authHeader?)
-
-Parses an <Code children="Authorization" /> header of the form <Code children="Bearer <token>" />.
-
-- Returns the token string if valid
-- Returns <Code children="null" /> if missing or not in the expected format
-
-### decodeToken(token)
-
-Decodes (does **not** verify) a JWT.
-
-Useful for debugging or reading untrusted claims **without** treating them as authenticated.
-
 ```ts
 import { decodeToken } from "@/lib/jwt";
 
 const decoded = decodeToken<{ sub?: string; type?: string }>(token);
 ```
-
-## Notes & gotchas
-
-- **No runtime checks for missing secrets**: <Code children="JWT_ACCESS_SECRET" /> / <Code children="JWT_REFRESH_SECRET" /> are cast to <Code children="string" />. Make sure they are set in your environment, or signing/verifying will fail at runtime.
-- **Fixed expirations**: access is **15m**, refresh is **7d**. If you need configurability, change <Code children="expiresIn" /> in <Code children="jwt.sign.ts" />.
-
-
----

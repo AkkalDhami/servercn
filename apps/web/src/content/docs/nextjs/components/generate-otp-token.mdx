@@ -18,17 +18,14 @@ Install the component using the servercn CLI:
 
 ## File Structure
 
-<Code children="src/helpers/token.helper.ts" />
-
 ## Basic Implementation
 
 ### 1. Generate OTP (One-Time Password)
 
 Generate a cryptographically secure numeric OTP of any length (default: 6 digits).
 
-```ts
+```ts title="src/helpers/token.helper.ts"
 import crypto from "node:crypto";
-
 
 export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
   //? generate random otp code
