@@ -20,9 +20,7 @@ Install the component using the servercn CLI:
 
 ## Basic Implementation
 
-<Code children="src/constants/status-codes.ts" />
-
-```ts
+```ts title="src/constants/status-codes.ts"
 export const STATUS_CODES = {
   OK: 200,
   CREATED: 201,
@@ -106,5 +104,3 @@ export async function POST() {
 | 503         | SERVICE_UNAVAILABLE    | Server unavailable or overloaded.             |
 | 504         | GATEWAY_TIMEOUT        | Upstream server timed out.                    |
 ```
-
----
