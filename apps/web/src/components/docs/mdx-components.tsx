@@ -79,7 +79,7 @@ export const mdxComponents: MDXComponents = {
     return (
       <figcaption
         className={cn(
-          "text-code-foreground [&_svg]:text-code-foreground flex items-center gap-2 [&_svg]:size-4 [&_svg]:opacity-70",
+          "text-code-foreground text-muted-primary font-code [&_svg]:text-code-foreground flex items-center gap-2 border-b border-neutral-500/10 px-3 py-2 text-base [&_svg]:size-4 [&_svg]:opacity-100",
           className
         )}
         {...props}>
@@ -91,7 +91,7 @@ export const mdxComponents: MDXComponents = {
   code: ({ className, ...props }) => (
     <code
       className={cn(
-        "thin-scrollbar max-h-120 max-w-[400.5px] overflow-x-auto rounded-lg px-3 py-2.5 font-mono leading-relaxed sm:max-w-200",
+        "thin-scrollbar max-h-120 overflow-x-auto px-3 py-2.5 font-mono leading-relaxed",
         className
       )}
       {...props}
