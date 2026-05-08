@@ -48,6 +48,38 @@
               "env": ["MAILTRAP_API_KEY", "EMAIL_FROM"]
             }
           }
+        },
+        "nextjs": {
+          "prompt": "Select an email provider: ",
+          "variants": {
+            "nodemailer": {
+              "label": "Nodemailer (SMTP)",
+              "templates": {
+                "file-api": "email-service/nodemailer/file-api"
+              },
+              "dependencies": {
+                "runtime": ["nodemailer", "zod"],
+                "dev": ["@types/nodemailer"]
+              },
+              "env": [
+                "SMTP_HOST",
+                "SMTP_PORT",
+                "SMTP_USER",
+                "SMTP_PASS",
+                "EMAIL_FROM"
+              ]
+            },
+            "resend": {
+              "label": "Resend",
+              "templates": {
+                "file-api": "email-service/resend/file-api"
+              },
+              "dependencies": {
+                "runtime": ["resend", "zod"]
+              },
+              "env": ["RESEND_API_KEY", "EMAIL_FROM"]
+            }
+          }
         }
       }
     }
