@@ -3,7 +3,6 @@
 import * as React from "react";
 import CopyButton from "./copy-button";
 import { cn } from "@/lib/utils";
-import { useCodeThemeBg } from "@/store/use-code-theme";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 export function Pre({
@@ -14,7 +13,6 @@ export function Pre({
   const ref = React.useRef<HTMLPreElement>(null);
   const { copied, copy } = useCopyToClipboard();
 
-  const { bg } = useCodeThemeBg();
   async function handleCopy() {
     if (!ref.current) return;
 
@@ -32,13 +30,12 @@ export function Pre({
         className={cn("thin-scrollbar relative", className)}
         style={{
           backgroundColor: "var(--code)"
-        }}
-      >
+        }}>
         <CopyButton
           handleCopy={handleCopy}
           copied={copied}
           className={cn(
-            "absolute right-4 bg-code bottom-3 z-20 flex items-center justify-center transition-all"
+            "bg-code absolute right-4 bottom-3 z-20 flex items-center justify-center transition-all"
           )}
         />
         {children}
