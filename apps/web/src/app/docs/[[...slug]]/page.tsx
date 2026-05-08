@@ -263,35 +263,34 @@ export default async function DocsPage({
             />
           </article>
           <div className="w-full overflow-x-auto">
-            <div className="border-edge border-y py-4">
-              {lastSlug &&
-                FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
-                !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
-                  <>
-                    <h2 className="mb-2 text-2xl font-semibold tracking-tight">
-                      File &amp; Folder Structure
-                    </h2>
-                    <ArchitectureTabs
-                      current={currentArch || "mvc"}
-                      framework={currentFramework}
-                    />
-                    <ComponentFileViewer
-                      slug={blueprintSlug ?? slug[slug.length - 1]}
-                      from="docs"
-                      database={database}
-                      orm={orm}
-                      variant={variant}
-                      architecture={currentArch}
-                      framework={currentFramework || slug[0]}
-                      type={
-                        ["tooling", ""].includes(slug[1])
-                          ? (slug[1] as ItemType)
-                          : (slug[1]?.slice(0, -1) as ItemType)
-                      }
-                    />
-                  </>
-                )}
-            </div>
+            {lastSlug &&
+              FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
+              !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
+                <div className="border-edge border-y py-4">
+                  <h2 className="mb-2 text-2xl font-semibold tracking-tight">
+                    File &amp; Folder Structure
+                  </h2>
+                  <ArchitectureTabs
+                    current={currentArch || "mvc"}
+                    framework={currentFramework}
+                  />
+                  <ComponentFileViewer
+                    slug={blueprintSlug ?? slug[slug.length - 1]}
+                    from="docs"
+                    database={database}
+                    orm={orm}
+                    variant={variant}
+                    architecture={currentArch}
+                    framework={currentFramework || slug[0]}
+                    type={
+                      ["tooling", ""].includes(slug[1])
+                        ? (slug[1] as ItemType)
+                        : (slug[1]?.slice(0, -1) as ItemType)
+                    }
+                  />
+                </div>
+              )}
+
             {data.command && (
               <>
                 <h2 className="my-4 text-2xl font-semibold tracking-tight">

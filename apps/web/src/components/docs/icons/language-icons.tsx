@@ -509,7 +509,7 @@ export function getIconForLanguageExtension(
   if (["package.json", ".nvmrc"].includes(fileName || "")) {
     return <LanguageIcons.nodejs className="size-4" />;
   }
-  if (fileName === "tsconfig.json") {
+  if (fileName === "tsconfig.json" || fileName?.startsWith("tsconfig.")) {
     return <LanguageIcons.tsconfig className="size-4" />;
   }
   if (fileName === "components.json") {
@@ -686,6 +686,6 @@ export function getIconForPackageManager(manager: PackageManagerType) {
         </svg>
       );
     default:
-      // return <TerminalIcon />;
+    // return <TerminalIcon />;
   }
 }
