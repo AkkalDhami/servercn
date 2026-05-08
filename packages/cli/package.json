@@ -1,6 +1,6 @@
 {
   "name": "servercn-cli",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
@@ -38,7 +38,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AkkalDhami/servercn.git",
+    "url": "git+https://github.com/AkkalDhami/servercn.git",
     "directory": "packages/cli"
   },
   "type": "module",
