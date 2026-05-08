@@ -76,7 +76,7 @@ const { code, hashCode, expiresAt } = generateOTP(8, 10);
 
 Verify an OTP code against its hash and expiration time.
 
-```ts
+```ts title="src/helpers/token.helper.ts"
 import crypto from "node:crypto";
 
 export function verifyOTP(code: string, hashCode: string): boolean {
