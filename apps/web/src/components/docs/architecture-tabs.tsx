@@ -50,7 +50,7 @@ export default function ArchitectureTabs({
   return (
     <div
       className={cn(
-        "bg-background text-muted-primary my-3 w-full overflow-auto rounded-md sm:max-w-full",
+        "bg-background text-muted-primary my-3 w-full overflow-auto rounded-md sm:max-w-200",
         availableArchs.length === 2 && "border",
         className
       )}>
