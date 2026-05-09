@@ -1,10 +1,15 @@
-import { Framework, FrameworkType, IRegistryItems, ItemType } from "@/@types/registry";
+import {
+  Framework,
+  FrameworkType,
+  IRegistryItems,
+  ItemType
+} from "@/@types/registry";
 import registry from "@/data/registry.json";
 
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
   "installation",
   "introduction",
-  "cli",
+  "cli"
 ];
 
 export const FRAMEWORK_SECTIONS = [
@@ -12,7 +17,7 @@ export const FRAMEWORK_SECTIONS = [
   "components",
   "foundations",
   "schemas",
-  "providers",
+  "providers"
 ];
 
 export function injectFramework(
@@ -140,4 +145,30 @@ export function getRegistryTypeItems(
       type: item.type
     }));
   return items.length > 0 ? (items as IRegistryItems[]) : [];
+}
+
+export function getRegistryVariants(name: string) {
+  switch (name) {
+    case "email-service":
+      return ["nodemailer", "resend", "mailtrap"];
+    case "logger":
+      return ["pino", "winston"];
+    case "file-upload":
+      return ["cloudinary", "imagekit"];
+    case "password-hashing":
+      return ["argon2", "bcryptjs", "scrypt", "pbkdf2"];
+    case "oauth":
+      return [
+        "google",
+        "github",
+        "facebook",
+        "google-github",
+        "github-facebook",
+        "google-facebook",
+        "google-facebook-github"
+      ];
+
+    default:
+      return [];
+  }
 }
