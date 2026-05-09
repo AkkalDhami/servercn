@@ -78,6 +78,16 @@
                 "runtime": ["resend", "zod"]
               },
               "env": ["RESEND_API_KEY", "EMAIL_FROM"]
+            },
+            "mailtrap": {
+              "label": "Mailtrap",
+              "templates": {
+                "file-api": "email-service/mailtrap/file-api"
+              },
+              "dependencies": {
+                "runtime": ["mailtrap", "zod"]
+              },
+              "env": ["MAILTRAP_API_KEY", "EMAIL_FROM"]
             }
           }
         }
