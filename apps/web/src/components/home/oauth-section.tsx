@@ -25,7 +25,6 @@ export default function OAuthSection() {
             architecture={"mvc"}
             framework={"express"}
             type={"component"}
-            variant="google"
           />
         </div>
       </div>
