@@ -1,0 +1,132 @@
+---
+title: Email Service | Next.js
+description: Production-ready email service for sending emails in Servercn using nodemailer with support for multiple providers (Nodemailer, Resend, Mailtrap, etc.).
+command: npx servercn-cli@latest add email-service
+---
+
+# Email Service
+
+The **Email Service** component provides a production-ready solution for sending emails in Servercn using **nodemailer**, **resend** and **mailtrap**.
+
+
+---
+
+## Installation Guide
+
+Install this component using the following command:
+
+<PackageManagerTabs command="npx servercn-cli@latest add email-service" />
+
+---
+
+
+## Basic Implementation
+
+### Env Configuration
+
+```ts title="src/configs/env.ts"
+import z from "zod";
+
+export const envSchema = z.object({
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z
+    .string()
+    .regex(/^\d+$/, "SMTP_PORT must be a number")
+    .transform(Number),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+  EMAIL_FROM: z.email()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+### Nodemailer Configuration
+
+```ts title="src/configs/nodemailer.ts"
+import nodemailer from "nodemailer";
+import { env } from "./env";
+
+let transporter: nodemailer.Transporter | null = null;
+
+export function getTransporter() {
+  if (transporter) return transporter;
+  const host = env.SMTP_HOST;
+  const port = Number(env.SMTP_PORT || 587);
+  const user = env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = env.EMAIL_FROM;
+  if (!host || !user || !pass || !from) {
+    throw new Error("SMTP/EMAIL env not configured");
+  }
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass }
+  });
+  return transporter;
+}
+```
+
+### Send Mail Function
+
+```ts title="src/utils/send-mail.ts"
+import env from "@/configs/env";
+import { getTransporter } from "@/configs/nodemailer";
+
+type sendMail = {
+  from?: string;
+  subject: string;
+  data: Record<string, any>;
+  email: string;
+  html: string;
+};
+
+export async function sendEmail({ from, email, subject, html }: sendMail) {
+  const transporter = getTransporter();
+
+  return transporter
+    .sendMail({
+      from: from || `<${env.EMAIL_FROM}>`,
+      to: email,
+      subject,
+      html
+    })
+    .catch(() => {
+      throw new Error("Failed to send email");
+    });
+}
+```
+
+## Usage Example
+
+```ts
+import { sendEmail } from "@/utils/send-mail.ts"
+```
+
+```ts
+const html = `
+  <h1>Reset Your Password</h1>
+  <p>Click <a href="https://example.com/reset">here</a> to reset your password.</p>
+`;
+
+await sendEmail({
+  email: "john.doe@example.com",
+  subject: "Reset Your Password",
+  html,
+  from: "Servercn <servercn@example.com>"
+});
+```
