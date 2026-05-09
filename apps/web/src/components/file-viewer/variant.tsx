@@ -1,0 +1,29 @@
+"use client";
+
+import { getRegistryVariants } from "@/lib/source";
+import { cn } from "@/lib/utils";
+import { useVariant } from "@/store/use-variant";
+import { useState } from "react";
+
+export function Variant({ name }: { name: string }) {
+  const { variant, setVariant } = useVariant();
+  const variants = getRegistryVariants(name);
+
+  return (
+    variants.length > 0 && (
+      <div className="text-muted-foreground mb-3 flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-lg border p-2 sm:gap-1">
+        {variants.map(v => (
+          <div
+            key={v}
+            onClick={() => setVariant(v)}
+            className={cn(
+              "hover:bg-secondary hover:text-accent-foreground h-full cursor-pointer rounded-lg px-2 py-1.5",
+              variant === v && "bg-secondary text-accent-foreground"
+            )}>
+            {v}
+          </div>
+        ))}
+      </div>
+    )
+  );
+}
