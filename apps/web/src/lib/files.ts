@@ -455,7 +455,6 @@ export async function getRegistryFileTree(
         architecture
       );
 
-      console.log({ result });
       return {
         files: {
           ...result.files,

@@ -27,6 +27,7 @@ import { buttonVariants } from "@/components/ui/button";
 import ComponentFileViewer from "@/components/file-viewer";
 import { resolveRegistryItem } from "@/lib/resolver";
 import { cn } from "@/lib/utils";
+import { Variant } from "@/components/file-viewer/variant";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -267,6 +268,8 @@ export default async function DocsPage({
               FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
               !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
                 <div className="border-edge border-y py-4">
+                  <Variant name={blueprintSlug ?? slug[slug.length - 1]} />
+
                   <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                     File &amp; Folder Structure
                   </h2>
@@ -279,7 +282,6 @@ export default async function DocsPage({
                     from="docs"
                     database={database}
                     orm={orm}
-                    variant={variant}
                     architecture={currentArch}
                     framework={currentFramework || slug[0]}
                     type={

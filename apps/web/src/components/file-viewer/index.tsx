@@ -19,6 +19,7 @@ import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
 import { Route } from "next";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { useVariant } from "@/store/use-variant";
 type Props = {
   slug: string;
   runtime?: string;
@@ -29,7 +30,6 @@ type Props = {
   database?: string;
   orm?: string;
   template?: string;
-  variant?: string;
 };
 
 export default function ComponentFileViewer({
@@ -40,7 +40,6 @@ export default function ComponentFileViewer({
   from = "docs",
   type = "component",
   database,
-  variant,
   template,
   orm
 }: Props) {
@@ -53,6 +52,8 @@ export default function ComponentFileViewer({
   const [error, setError] = React.useState<string | null>(null);
   const { copied, copy } = useCopyToClipboard();
   const { theme } = useCodeTheme();
+
+  const { variant } = useVariant();
 
   const [html, setHtml] = React.useState("");
 
@@ -71,7 +72,7 @@ export default function ComponentFileViewer({
           database,
           orm,
           template,
-          variant
+          variant: variant ?? undefined
         });
         // console.log({ fileTree });
         setTree(fileTree.tree);
@@ -89,7 +90,7 @@ export default function ComponentFileViewer({
     }
 
     loadFiles();
-  }, [slug, runtime, framework, architecture]);
+  }, [slug, runtime, framework, architecture, variant]);
 
   React.useEffect(() => {
     if (!selectedFile?.content) {
@@ -135,7 +136,7 @@ export default function ComponentFileViewer({
           "thin-scrollbar bg-code relative rounded-lg border border-neutral-500/10",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
-            : "min-h-130 max-w-md md:min-w-200"
+            : "min-h-130 max-w-md md:min-w-210"
         )}>
         <Link
           href={
