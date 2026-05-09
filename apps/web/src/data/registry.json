@@ -211,7 +211,7 @@
     {
       "slug": "file-upload-imagekit",
       "title": "File Upload (ImageKit)",
-      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using ImageKit as the storage provider.",
+      "description": "The File Upload component provides a standardized way to handle file uploads in servercn using ImageKit as the storage provider.",
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
@@ -223,10 +223,10 @@
     {
       "slug": "email-service",
       "title": "Email Service",
-      "description": "The Send Email component provides a standardized way to send emails in Servercn using nodemailer as the email service provider.",
+      "description": "The Send Email component provides a standardized way to send emails in servercn using nodemailer, resend and mailtrap as the email service provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/email-service",
       "meta": {
         "new": true

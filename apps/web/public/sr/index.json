@@ -170,7 +170,8 @@
       "type": "component",
       "slug": "email-service",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
