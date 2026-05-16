@@ -91,6 +91,7 @@
     "pino": "^10.1.0",
     "redis": "^5.11.0",
     "resend": "^6.9.1",
+    "stripe": "^17.7.0",
     "servercn": "^1.0.0",
     "source-map-support": "^0.5.21",
     "swagger-autogen": "^2.23.7",
