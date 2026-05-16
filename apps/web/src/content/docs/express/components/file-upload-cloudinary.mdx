@@ -9,17 +9,9 @@ command: npx servercn-cli add file-upload
 
 The **File Upload** component provides a standardized way to handle file uploads in Servercn using **Cloudinary** as the storage provider.
 
-It abstracts common concerns such as multipart handling, Cloudinary configuration, and secure uploads, while integrating cleanly with the rest of the Servercn backend utilities.
-
-[Official Cloudinary Documentation](https://cloudinary.com/), [Cloudinary Node.js SDK](https://cloudinary.com/documentation/node_integration)
-
-## Features
-
-- Cloudinary-backed file storage
-- Supports images, videos, and raw files
-- Secure server-side uploads
-- Express-compatible middleware
-- Works seamlessly with <Code children='ApiError' />, <Code children='AsyncHandler' />, and middleware
+#### Docs:
+- [Official Cloudinary Documentation](https://cloudinary.com/)
+- [Cloudinary Node.js SDK](https://cloudinary.com/documentation/node_integration)
 
 ## Installation Guide
 
@@ -56,30 +48,37 @@ CLOUDINARY_API_SECRET="your-api-secret"
 
 Ensure the following configuration is defined:
 
-**MVC:** <Code children="src/configs/env.ts" />
+```ts title="src/configs/env.ts"
+import "dotenv-flow/config";
+import { z } from "zod";
 
-**Feature:** <Code children="src/shared/configs/env.ts" />
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
 
-```ts
-interface Config {
-  PORT: number;
-  NODE_ENV: string;
-  LOG_LEVEL: string;
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
 
-  CLOUDINARY_CLOUD_NAME: string;
-  CLOUDINARY_API_KEY: string;
-  CLOUDINARY_API_SECRET: string;
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string()
+}); 
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
 }
 
-const env: Config = {
-  PORT: Number(process.env.PORT) || 3000,
-  NODE_ENV: process.env.NODE_ENV || "development",
-  LOG_LEVEL: process.env.LOG_LEVEL || "info",
-
-  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY!,
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET!
-};
+export const env: Readonly<Env> = Object.freeze(result.data);
 
 export default env;
 ```
@@ -90,11 +89,7 @@ export default env;
 
 Create a Cloudinary configuration file:
 
-**MVC:** <Code children="src/configs/cloudinary.ts" />
-
-**Feature:** <Code children="src/shared/configs/cloudinary.ts" />
-
-```ts
+```ts title="src/configs/cloudinary.ts"
 import { v2 as cloudinary } from "cloudinary";
 import env from "./env";
 
@@ -111,11 +106,7 @@ export default cloudinary;
 
 Servercn uses **multer** to handle multipart file uploads.
 
-**MVC:** <Code children="src/middlewares/upload-file.ts" />
-
-**Feature:** <Code children="src/shared/middlewares/upload-file.ts" />
-
-```ts
+```ts title="src/middlewares/upload-file.ts"
 import multer from "multer";
 
 export const ALLOWED_FILE_TYPES = [
@@ -152,11 +143,7 @@ export default upload;
 
 Services for uploading files to Cloudinary and deleting files from Cloudinary.
 
-**MVC:** <Code children="src/services/cloudinary.service.ts" /> or <Code children="src/utils/cloudinary.ts" /> 
-
-**Feature:** <Code children="src/modules/upload/upload.service.ts" />
-
-```ts
+```ts title="src/services/cloudinary.service.ts"
 import { DeleteApiResponse } from "cloudinary";
 import cloudinary from "../configs/cloudinary";
 
@@ -215,9 +202,7 @@ export const deleteFileFromCloudinary = (
 
 ### 1. Setup controllers
 
-**MVC:** <Code children="src/controllers/upload.controller.ts" />
-
-```ts
+```ts title="src/controllers/upload.controller.ts"
 import { Request, Response, NextFunction } from "express";
 
 import {
@@ -280,75 +265,9 @@ export const deleteFile = AsyncHandler(
 );
 ```
 
-**Feature:** <Code children="src/modules/upload/upload.controller.ts" />
-
-```ts
-import { NextFunction, Request, Response } from "express";
-
-import { ApiResponse } from "../../shared/utils/api-response";
-import { AsyncHandler } from "../../shared/utils/async-handler";
-import {
-  CloudinaryUploadResult,
-  deleteFileFromCloudinary,
-  uploadToCloudinary
-} from "./upload.service";
-import { ApiError } from "../../shared/errors/api-error";
-
-export const uploadFile = AsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.file) {
-      return next(ApiError.badRequest("File is required"));
-    }
-
-    const file = await uploadToCloudinary(req.file.buffer, {
-      folder: "uploads/files",
-      resource_type: "auto"
-    });
-
-    return ApiResponse.created(res, "File uploaded successfully", file);
-  }
-);
-
-export const uploadMultipleFile = AsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const files = req.files as Express.Multer.File[];
-
-    if (!files || files.length === 0) {
-      return next(ApiError.badRequest("Files are required"));
-    }
-
-    const results: CloudinaryUploadResult[] = await Promise.all(
-      files.map(async file => {
-        return await uploadToCloudinary(file.buffer, {
-          folder: "uploads/images"
-        });
-      })
-    );
-
-    return ApiResponse.created(res, "Files uploaded successfully", results);
-  }
-);
-
-export const deleteFile = AsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { public_id } = req.body;
-
-    if (!public_id) {
-      return next(ApiError.badRequest("File ID is required"));
-    }
-
-    await deleteFileFromCloudinary([public_id]);
-
-    return ApiResponse.Success(res, "File deleted successfully", null, 200);
-  }
-);
-```
-
 ### 2. Setup routes
 
-**MVC:** <Code children="src/routes/upload.routes.ts" />
-
-```ts
+```ts title="src/routes/upload.routes.ts"
 import { Router } from "express";
 
 import upload from "../middlewares/upload-file";
@@ -367,31 +286,9 @@ router.delete("/", deleteFile);
 export default router;
 ```
 
-**Feature:** <Code children="src/modules/upload/upload.routes.ts" />
+### 3. Setup application
 
-```ts
-import { Router } from "express";
-
-import upload from "../../shared/middlewares/upload-file";
-import {
-  deleteFile,
-  uploadFile,
-  uploadMultipleFile
-} from "./upload.controller";
-
-const router = Router();
-
-router.post("/file", upload.single("file"), uploadFile);
-router.post("/files", upload.array("files", 10), uploadMultipleFile);
-router.delete("/", deleteFile);
-
-export default router;
-```
-
-<br />
-<Code children="src/app.ts" />
-
-```ts
+```ts title="src/app.ts" {7, 19}
 import express, { Application } from "express";
 import "dotenv-flow/config";
 
@@ -419,12 +316,3 @@ app.listen(PORT, () => {
   logger.info(`Server is running on http://localhost:${PORT}`);
 });
 ```
-
-## Security Best Practices
-
-- Enforce file size limits
-- Validate MIME types when required
-- Use private folders for sensitive uploads
-- Never expose Cloudinary API keys/secrets to the client
-- Prefer authenticated routes for uploads
-- Use environment variables for all sensitive configuration

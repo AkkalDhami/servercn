@@ -6,8 +6,7 @@ command: npx servercn-cli add generate-otp-token
 
 # Generate OTP/Token Helper Functions
 
-The **Generate OTP/Token Helper Functions** component provides **cryptographically secure** utility functions for generating one-time passwords (OTPs), random tokens, and unique identifiers.
-
+Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
 
 All functions use Node.js's built-in <Code>node:crypto</Code> module to ensure **cryptographic randomness** and security.
 
@@ -21,25 +20,14 @@ Install the component using the servercn CLI:
 
 ## File Structure
 
-**MVC:** <Code children="src/helpers/token.helpers.ts" />
-
-**Feature:** <Code children="src/shared/helpers/token.helpers.ts" />
-
 ## Core Functions
 
 ### 1. Generate OTP (One-Time Password)
 
 Generate a cryptographically secure numeric OTP of any length (default: 6 digits).
 
-```ts
+```ts title="src/helpers/token.helpers.ts"
 import crypto from "node:crypto";
-
-/**
- * Generates a cryptographically secure numeric OTP
- * @param length - Length of the OTP (default: 6)
- * @param ttlMinutes - Time to live in minutes (default: 5)
- * @returns An object containing the OTP code, its hash, and expiration time
- */
 
 export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
   //? generate random otp code
@@ -90,7 +78,7 @@ const { code, hashCode, expiresAt } = generateOTP(8, 10);
 
 Verify an OTP code against its hash and expiration time.
 
-```ts
+```ts 
 import crypto from "node:crypto";
 
 export function verifyOTP(code: string, hashCode: string): boolean {
@@ -327,11 +315,7 @@ const longCode = generateNumericCode(10); // "8473920156"
 
 Here's a complete implementation file with all utility functions:
 
-**MVC Structure:** <Code children="src/helpers/token.helpers.ts" />
-
-**Feature Structure:** <Code children="src/shared/helpers/token.helpers.ts" />
-
-```ts
+```ts title="src/helpers/token.helpers.ts"
 import crypto from "node:crypto";
 
 //? generate otp
@@ -435,162 +419,5 @@ export function generateNumericCode(length: number = 6): string {
   }
 
   return code;
-}
-```
-
-## Usage Examples
-
-### Email Verification Flow
-
-```ts
-import { generateOTP, generateSecureToken } from "@/helpers/token.helpers";
-import { hashOTP } from "@/helpers/auth.helpers";
-import Otp from "@/models/otp";
-import { sendEmail } from "@/services/email.service";
-
-export async function sendVerificationEmail(userId: string, email: string) {
-  // Generate 6-digit OTP
-  const otp = generateOTP(6);
-
-  // Hash the OTP before storing
-  const hashedOTP = await hashOTP(otp);
-
-  // Store in database
-  await Otp.create({
-    userId,
-    email,
-    otpHashCode: hashedOTP,
-    type: "email-verification",
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
-    nextResendAllowedAt: new Date(Date.now() + 60 * 1000) // 1 minute
-  });
-
-  // Send email with plain OTP (never store it)
-  await sendEmail({
-    to: email,
-    subject: "Verify Your Email",
-    text: `Your verification code is: ${otp}. Valid for 15 minutes.`
-  });
-}
-```
-
-### Password Reset Flow
-
-```ts
-import { generateURLSafeToken } from "@/helpers/token.helpers";
-import User from "@/models/user";
-import { sendEmail } from "@/services/email.service";
-
-export async function sendPasswordResetEmail(email: string) {
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  // Generate secure token
-  const resetToken = generateURLSafeToken(32);
-
-  // Hash and store token
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-
-  user.passwordResetToken = hashedToken;
-  user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-  await user.save();
-
-  // Send email with reset link
-  const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-  await sendEmail({
-    to: email,
-    subject: "Password Reset Request",
-    html: `Click here to reset your password: <a href="${resetURL}">${resetURL}</a>`
-  });
-}
-```
-
-### API Key Generation
-
-```ts
-import { generateSecureToken, generateUUID } from "@/helpers/token.helpers";
-import ApiKey from "@/models/apiKey";
-
-export async function createAPIKey(userId: string, name: string) {
-  // Generate API key
-  const apiKey = `sk_${generateSecureToken(32)}`;
-
-  // Hash the key before storing
-  const hashedKey = crypto.createHash("sha256").update(apiKey).digest("hex");
-
-  // Create record
-  await ApiKey.create({
-    id: generateUUID(),
-    userId,
-    name,
-    keyHash: hashedKey,
-    createdAt: new Date()
-  });
-
-  // Return the plain key (only shown once)
-  return apiKey;
-}
-```
-
-### Session Token Generation
-
-```ts
-import { generateSecureToken } from "@/helpers/token.helpers";
-import Session from "@/models/session";
-
-export async function createSession(
-  userId: string,
-  userAgent: string,
-  ipAddress: string
-) {
-  // Generate session token
-  const sessionToken = generateSecureToken(32);
-
-  // Hash the token
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(sessionToken)
-    .digest("hex");
-
-  // Create session
-  await Session.create({
-    userId,
-    tokenHash: hashedToken,
-    userAgent,
-    ipAddress,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-  });
-
-  return sessionToken;
-}
-```
-
-### Invite Code Generation
-
-```ts
-import { generateAlphanumericToken } from "@/helpers/token.helpers";
-import Invite from "@/models/invite";
-
-export async function createInviteCode(userId: string, maxUses: number = 1) {
-  // Generate user-friendly invite code
-  const inviteCode = generateAlphanumericToken(8).toUpperCase();
-
-  // Create invite
-  await Invite.create({
-    code: inviteCode,
-    createdBy: userId,
-    maxUses,
-    usedCount: 0,
-    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-  });
-
-  return inviteCode;
 }
 ```

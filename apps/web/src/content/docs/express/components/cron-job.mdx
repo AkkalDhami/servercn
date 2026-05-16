@@ -39,9 +39,7 @@ Depending on your architecture, the jobs are organized as follows:
 
 Create individual job files for different tasks to keep your code modular and readable.
 
-**File:** <Code children="src/jobs/example.job.ts" />
-
-```ts
+```ts title="src/jobs/example.job.ts"
 import cron from "node-cron";
 
 /**
@@ -74,9 +72,7 @@ export const dailyCleanupJob = cron.schedule(
 
 Export a central initialization function to start all your jobs at once.
 
-**File:** <Code children="src/jobs/index.ts" />
-
-```ts
+```ts title="src/jobs/index.ts"
 import { dailyCleanupJob } from "./daily-cleanup.job";
 import { reportGenerationJob } from "./report-generation.job";
 
@@ -92,7 +88,7 @@ export const initJobs = () => {
 
 Import and call the <Code children="initJobs" /> function in your main entry file (usually <Code children="server.ts" />).
 
-```ts
+```ts title="server.ts"
 import app from "./app";
 import { initJobs } from "./jobs";
 
@@ -124,9 +120,7 @@ Here are some common scenarios where background jobs are used in production-grad
 
 ### 1. Expired Refresh Tokens Cleanup
 
-<Code children="src/cron/cleanup-refresh-tokens.cron.ts"/> or <Code children="src/jobs/cleanup-refresh-tokens.job.ts"/>
-
-```ts
+```ts title="src/jobs/cleanup-refresh-tokens.job.ts"
 import cron from "node-cron";
 import { lt, or, eq } from "drizzle-orm";
 import { refreshTokens } from "../drizzle";
