@@ -8,18 +8,9 @@ command: npx servercn-cli add oauth
 
 The **Google OAuth** component provides a secure and standardized way to integrate Google authentication into your Servercn Express applications using the official **passport, passport-google-oauth20**.
 
-It handles the complete OAuth 2.0 flow including authorization URL generation, token exchange, user information retrieval, and token refresh.
-
 [Official Docs](https://www.passportjs.org/)
 
-## Features
-
-- **Complete OAuth 2.0 flow** - Authorization, token exchange, and user info retrieval
-- **Secure by default** - CSRF protection with state parameter
-- **Token management** - Access token, refresh token, and ID token verification
-- **Express integration** - Ready-to-use route handlers
-- **Type-safe** - Full TypeScript support
-- **Flexible scopes** - Customizable OAuth scopes
+---
 
 ## Installation Guide
 
@@ -35,6 +26,8 @@ You will be prompted to select a file upload provider:
 ```
 
 The CLI will then automatically configure the component based on your selected provider.
+
+---
 
 ## Prerequisites
 
@@ -53,6 +46,9 @@ The CLI will then automatically configure the component based on your selected p
    - Authorized redirect URIs: Add your callback URL (e.g., <Code children="http://localhost:9000/api/auth/google/callback" />)
 7. Copy the **Client ID** and **Client Secret**
 
+<br />
+---
+
 ### Environment Variables
 
 Add the following to your <Code children=".env" /> file:
@@ -66,11 +62,7 @@ GOOGLE_REDIRECT_URI="http://localhost:9000/api/auth/google/callback"
 
 Ensure the following configuration are defined:
 
-**MVC:** <Code children="src/configs/env.ts" />
-
-**Feature:** <Code children="src/shared/configs/env.ts" />
-
-```ts
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 
 interface Config {
@@ -98,13 +90,13 @@ const env: Config = {
 export default env;
 ```
 
+---
+
 ## Basic Implementation
 
-### 1. MVC Structure
+### 1. Configure Passport Strategy
 
-**1. Configure passport in** <Code children="src/configs/passport.ts" />:
-
-```ts
+```ts title="src/configs/passport.ts"
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import env from "./env";
@@ -127,9 +119,11 @@ passport.use(
 );
 ```
 
-**2. Create a Google OAuth controller in** <Code children="src/controllers/google-oauth.controller.ts" /> **or** <Code children="src/controllers/auth.controller.ts" />
+---
 
-```ts
+### 2. Create a Google OAuth Controller
+
+```ts title="src/controllers/google-oauth.controller.ts"
 import { NextFunction, Request, Response } from "express";
 import { Profile } from "passport-google-oauth20";
 
@@ -176,9 +170,11 @@ export const googleOAuth = AsyncHandler(
 );
 ```
 
-**3. Create a Google OAuth router in** <Code children="src/routes/google-oauth.routes.ts" /> **or** <Code children="src/routes/auth.routes.ts" />
+---
 
-```ts
+### 3. Create a Google OAuth Router
+
+```ts title="src/routes/google-oauth.routes.ts"
 import { Router } from "express";
 import passport from "passport";
 
@@ -206,9 +202,11 @@ router.get(
 export default router;
 ```
 
-**4. Create a server in** <Code children="src/app.ts" />
+---
 
-```ts {8}
+### 4. Initialize passport
+
+```ts title="src/app.ts" {8}
 import express, { Express, Request, Response } from "express";
 
 import { notFoundHandler } from "./middlewares/not-found-handler";
@@ -235,153 +233,6 @@ app.use(errorHandler);
 export default app;
 ```
 
-### 2. Feature Structure
-
-**1. Configure passport in** <Code children="src/shared/configs/passport.ts" />:
-
-```ts
-import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import env from "./env";
-
-const clientId = env.GOOGLE_CLIENT_ID;
-const clientSecret = env.GOOGLE_CLIENT_SECRET;
-const redirectUri = env.GOOGLE_REDIRECT_URI;
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: clientId,
-      clientSecret,
-      callbackURL: redirectUri
-    },
-    function (accessToken, refreshToken, profile, cb) {
-      return cb(null, profile);
-    }
-  )
-);
-```
-
-**2. Create a Google OAuth controller in** <Code children="src/modules/oauth/google-oauth.controller.ts" /> **or** <Code children="src/modules/auth/auth.controller.ts" />
-
-```ts
-import { NextFunction, Request, Response } from "express";
-import { Profile } from "passport-google-oauth20";
-
-import { AsyncHandler } from "../../shared/utils/async-handler";
-import { ApiError } from "../../shared/errors/api-error";
-import { ApiResponse } from "../../shared/utils/api-response";
-
-//? login with google
-export const googleOAuth = AsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const data = req.user as Profile | undefined;
-    const user = data?._json;
-
-    if (!user || !data) {
-      return next(ApiError.unauthorized("Authenticated failed!"));
-    }
-
-    const userInfo = {
-      provider: data?.provider,
-      providerId: data.id,
-      name: data.displayName,
-      email: data?.emails && data?.emails[0]?.value,
-      isEmailVerified: data?.emails && data?.emails[0]?.verified,
-      avatar: data.profileUrl || (data.photos && data.photos[0].value)
-    };
-
-    const userInfo2 = {
-      provider: data?.provider,
-      providerId: user.sub,
-      name: user.name,
-      email: user.email,
-      isEmailVerified: user.email_verified,
-      avatar: user.picture
-    };
-
-    //? save the data into your databases
-
-    ApiResponse.ok(res, "Auth Successfull", {
-      userInfo,
-      userInfo2
-    });
-  }
-);
-```
-
-**3. Create a Google OAuth router in** <Code children="src/modules/oauth/google-oauth.routes.ts" /> **or** <Code children="src/modules/auth/auth.routes.ts" />
-
-```ts
-import { Router } from "express";
-import passport from "passport";
-
-import { googleOAuth } from "./google-oauth.controller";
-
-const router = Router();
-
-router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["email", "profile", "openid"],
-    prompt: "consent"
-  })
-);
-
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login", //? redirect route if authenticated is failed
-    session: false
-  }),
-  googleOAuth
-);
-
-export default router;
-```
-
-**4. Create a index route in** <Code children="src/routes/index.ts" />
-
-```ts
-import { Router } from "express";
-import OAuthRoutes from "../modules/oauth/google-oauth.routes";
-
-const router = Router();
-
-router.use("/auth", OAuthRoutes);
-
-export default router;
-```
-
-**5. Create a server in** <Code children="src/app.ts" />
-
-```ts
-import express, { Express } from "express";
-
-import { notFoundHandler } from "./shared/middlewares/not-found-handler";
-import { errorHandler } from "./shared/middlewares/error-handler";
-
-import Routes from "./routes/index";
-
-import "./shared/configs/passport";
-
-const app: Express = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Routes
-app.use("/api", Routes);
-
-// Not found handler (should be after routes)
-app.use(notFoundHandler);
-
-// Global error handler (should be last)
-app.use(errorHandler);
-
-export default app;
-```
-
 ## Success Response
 
 ```json
@@ -396,15 +247,7 @@ export default app;
       "name": "Akkal Dhami",
       "email": "dhamiakkal21@gmail.com",
       "isEmailVerified": true,
-      "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUYqyuQ4khZ_2DGd3G4iZPj8RXBtkTPv8avzN4L3ifb--QOXKomzOM6nOwG4Sau24uQmWCBfj6Id3DBdoyabVah8hPWFpZ9aIfyj6nBn4OTzSEYF0vxUXL-oPM4qszzCo7TXsJF2RySN45fuC8l-aZzzxl_qetw8-27Y9zZLh8MZytQXezVPRovI2VqZ1NJDQTfFBzF4VrK8XdkNC39pgO3exH65m1pM__I7zjB-wV5zN2AFrHfVT-ucllEQMGWoK4sXdRZXZBI3za8K-bqxVlaXFtqJyaBv13RKTuR32lfDMtqNp0q4tvH0FgTSV6bn1Yk80NIjxn8fsoPYHYAXgFDxY_wwuL9zhHRAl-niBC5acuSgSzN-JhOrSjYNAT3CxQ_UbtZ2X6Lw9NPalQDakHxahJTayJPzdvbU-fpDDpxIywz_-oBn_c44MrBbUX5ktY6-eioXigyZdeeRH4PTeXfAkhQBSnYD2cVDwACEjo0znVM5JJakmPsDInHBJGi3jQSJfQ52luqZGDXDF7CGmy7fU7-jZMmq1gRAPcxdhrS2m0srkuOwyopfxonXuJV59uYSEioRXe9nMjA-_wjkGy5jSxiCEaUnF10strkD51xGYvXzjUAYb4GH_iz4K0RjS8WJGfDHGG-wLfMB5qtIS2ZckYO38NT3FcEZ4v7hrFV78vXxdX9lotWX0S_IaVBv8siZVNQ2irvQHFcNDcfDVl4uCVIk9kkS4TBtBO9TosZI14IOnjFbMYua3z2ljQPLg_B1nT3CqC5UAOJ5GJG6Hl-M7dHXaJrKoOnJ5HeTbB84UbVOCB-4IXZoIpg6G1II73pCowX1eA8meWNLKHor6Eii-mOk3TTPSm_hgsArfTbv60uGGKyOzlTutY1Goi6yxN85iKkpzAJPUdkvPLbNbebm9XP8xIDKPae1U-okzm60l5lf-dmFlogBqiWKbDDgHeG0I-HRDGqSeTBv-C5sFSsczPmB5eVXHwV244nS0T-oFMy1OuzatYEM5-qo8YOy7tTSZv0swtMiA1MLhA128qV_ZB28LDC9BrB6v7ayH9C37vVzpCo8m0=s96-c"
-    },
-    "userInfo2": {
-      "provider": "google",
-      "providerId": "1163181840105620881",
-      "name": "Akkal Dhami",
-      "email": "dhamiakkal21@gmail.com",
-      "isEmailVerified": true,
-      "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUYqyuQ4khZ_2DGd3G4iZPj8RXBtkTPv8avzN4L3ifb--QOXKomzOM6nOwG4Sau24uQmWCBfj6Id3DBdoyabVah8hPWFpZ9aIfyj6nBn4OTzSEYF0vxUXL-oPM4qszzCo7TXsJF2RySN45fuC8l-aZzzxl_qetw8-27Y9zZLh8MZytQXezVPRovI2VqZ1NJDQTfFBzF4VrK8XdkNC39pgO3exH65m1pM__I7zjB-wV5zN2AFrHfVT-ucllEQMGWoK4sXdRZXZBI3za8K-bqxVlaXFtqJyaBv13RKTuR32lfDMtqNp0q4tvH0FgTSV6bn1Yk80NIjxn8fsoPYHYAXgFDxY_wwuL9zhHRAl-niBC5acuSgSzN-JhOrSjYNAT3CxQ_UbtZ2X6Lw9NPalQDakHxahJTayJPzdvbU-fpDDpxIywz_-oBn_c44MrBbUX5ktY6-eioXigyZdeeRH4PTeXfAkhQBSnYD2cVDwACEjo0znVM5JJakmPsDInHBJGi3jQSJfQ52luqZGDXDF7CGmy7fU7-jZMmq1gRAPcxdhrS2m0srkuOwyopfxonXuJV59uYSEioRXe9nMjA-_wjkGy5jSxiCEaUnF10strkD51xGYvXzjUAYb4GH_iz4K0RjS8WJGfDHGG-wLfMB5qtIS2ZckYO38NT3FcEZ4v7hrFV78vXxdX9lotWX0S_IaVBv8siZVNQ2irvQHFcNDcfDVl4uCVIk9kkS4TBtBO9TosZI14IOnjFbMYua3z2ljQPLg_B1nT3CqC5UAOJ5GJG6Hl-M7dHXaJrKoOnJ5HeTbB84UbVOCB-4IXZoIpg6G1II73pCowX1eA8meWNLKHor6Eii-mOk3TTPSm_hgsArfTbv60uGGKyOzlTutY1Goi6yxN85iKkpzAJPUdkvPLbNbebm9XP8xIDKPae1U-okzm60l5lf-dmFlogBqiWKbDDgHeG0I-HRDGqSeTBv-C5sFSsczPmB5eVXHwV244nS0T-oFMy1OuzatYEM5-qo8YOy7tTSZv0swtMiA1MLhA128qV_ZB28LDC9BrB6v7ayH9C37vVzpCo8m0=s96-c"
+      "avatar": "https://lh3.googleusercontent.com/..."
     }
   }
 }

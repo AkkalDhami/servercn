@@ -36,25 +36,10 @@ Express was originally designed around **synchronous middleware**. Express.js do
 
 Async Handler wraps async routes and properly forwards all errors.
 
-As a result:
-
-- Errors thrown synchronously are caught automatically
-- Errors thrown inside **async** functions are **not**
-  <br />
-
-```ts
-router.get("/users", async (_req, res) => {
-  throw new Error("Database unavailable");
-});
-```
 
 ## Basic Implementation
 
-**MVC:** <Code children="src/utils/async-handler.ts" />
-
-**Feature:** <Code children="src/shared/utils/async-handler.ts" />
-
-```ts
+```ts title="src/utils/async-handler.ts"
 import { Request, Response, NextFunction } from "express";
 
 export type AsyncRouteHandler = (
