@@ -161,7 +161,7 @@ export default function ComponentFileViewer({
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="65%">
           <div className="relative flex items-center justify-between border-b">
-            <div className="text-muted-foreground flex items-center gap-1 px-2 py-2 text-sm">
+            <div className="text-muted-foreground font-code flex items-center gap-1 px-2 py-2 text-[15px]">
               {getIconForLanguageExtension(
                 selectedFile?.lang || "ts",
                 selectedFile?.name
