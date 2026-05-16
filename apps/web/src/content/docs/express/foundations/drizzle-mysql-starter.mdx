@@ -71,11 +71,9 @@ The server fails fast if required database variables are missing.
 
 ## Defining Schemas
 
-Schemas are written using Drizzle’s SQL‑first, type‑safe API.
+Schemas are written using Drizzle's SQL-first, type-safe API.
 
-<Code children="src/drizzle/schemas/user.schema.ts" />
-
-```ts
+```ts title="src/drizzle/schemas/user.schema.ts"
 import { mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
 
 export const usersTable = mysqlTable("users", {
@@ -89,14 +87,12 @@ export const usersTable = mysqlTable("users", {
 Schemas are:
 
 - Explicit
-- Version‑controlled
+- Version-controlled
 - Fully typed across queries
 
 ## Database Client Setup
 
-<Code children="src/configs/db.ts" /> or <Code children="src/db/db.ts" />
-
-```ts
+```ts title="src/configs/db.ts"
 import { drizzle } from "drizzle-orm/mysql2";
 import env from "./env";
 
@@ -119,7 +115,7 @@ No repositories or hidden layers — you interact directly with Drizzle.
 
 <PackageManagerTabs command="npm run db:migrate" />
 
-Migrations are SQL‑first and fully auditable.
+Migrations are SQL-first and fully auditable.
 
 ### Database Studio
 
@@ -127,6 +123,6 @@ Migrations are SQL‑first and fully auditable.
 
 ## Summary
 
-The **Drizzle MySQL Starter** gives you a clean, production‑ready database foundation using **MySQL + Drizzle ORM**.
+The **Drizzle MySQL Starter** gives you a clean, production-ready database foundation using **MySQL + Drizzle ORM**.
 
-It prioritizes clarity, type safety, and long‑term maintainability — without taking control away from you.
+It prioritizes clarity, type safety, and long-term maintainability — without taking control away from you.
