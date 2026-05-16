@@ -39,7 +39,7 @@ export default function Navbar() {
         className="bg-background fixed top-0 left-0 z-40 w-full pt-2">
         <nav
           className={cn(
-            "mx-auto flex max-w-360 items-center justify-between px-4 py-2.5",
+            "mx-auto flex max-w-368 items-center justify-between px-4 py-2.5",
             "border-edge border-x",
             "screen-line-before screen-line-after",
             "dark:bg-[radial-gradient(35%_128px_at_50%_0%,--theme(--color-foreground/.08),transparent)]"
@@ -165,7 +165,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
               className={cn(
                 "text-muted-foreground hover:text-foreground text-2xl font-semibold transition-colors",
                 path === link.href &&
-                  "text-foreground underline underline-offset-5"
+                "text-foreground underline underline-offset-5"
               )}>
               {link.label}
             </Link>
