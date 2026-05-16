@@ -69,9 +69,7 @@ The server fails fast if required database variables are missing.
 
 Schemas are written using Mongoose's Schema API with TypeScript support.
 
-<Code children="src/models/user.model.ts" />
-
-```ts
+```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IUser extends Document {
@@ -132,9 +130,7 @@ Schemas are:
 
 ## Database Client Setup
 
-<Code children="src/configs/db.ts" />
-
-```ts
+```ts title="src/configs/db.ts"
 import mongoose from "mongoose";
 import env from "./env";
 import { logger } from "../utils/logger";
