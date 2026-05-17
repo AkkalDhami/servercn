@@ -27,7 +27,7 @@ import { changeCodeBlockBg } from "@/app/actions/theme";
 
 export { STORAGE_THEME_KEY };
 
-export default function CodeTheme() {
+export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
   const { theme, setTheme } = useCodeTheme();
   const { setBg } = useCodeThemeBg();
   const router = useRouter();
@@ -52,11 +52,11 @@ export default function CodeTheme() {
 
   return (
     <div className="space-y-2">
-      <Label
+      {!minimal && <Label
         htmlFor={id}
         className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
         Code Theme
-      </Label>
+      </Label>}
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
