@@ -8,18 +8,17 @@ command: npx servercn-cli add pr cloudinary-storage
 
 This provider adds [Cloudinary](https://cloudinary.com/) SDK configuration, Zod-validated environment variables, and a Multer middleware that accepts in-memory uploads (images, video, PDF) with type and size limits.
 
-## Features
-
-- Zod-validated <Code>CLOUDINARY_*</Code> environment variables
-- Configured Cloudinary SDK (<Code>v2</Code>)
-- Multer memory storage with allowlist MIME types and 5&nbsp;MB max file size
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr cloudinary-storage" />
 
-## Environment Configuration
+---
+
+## Basic Implementation
+
+### 1. Env Configuration
 
 ```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
@@ -46,7 +45,9 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Cloudinary client
+---
+
+### 2. Cloudinary client
 
 ```ts title="src/configs/cloudinary.ts"
 import { v2 as cloudinary } from "cloudinary";
@@ -63,7 +64,9 @@ export default cloudinary;
 
 The template also includes a commented <Code>uploadToCloudinary</Code> / <Code>deleteFileFromCloudinary</Code> example in the same file—copy it into a service or util when you wire routes.
 
-## Upload middleware (Multer)
+---
+
+### 3. Upload middleware (Multer)
 
 ```ts title="src/middlewares/upload-file.ts" 
 import multer from "multer";
@@ -97,6 +100,8 @@ const upload = multer({
 
 export default upload;
 ```
+
+---
 
 ## Usage
 
@@ -155,12 +160,4 @@ export const deleteFileFromCloudinary = (
         });
     });
 };
-```
-
-## Example .env
-
-```bash
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
 ```

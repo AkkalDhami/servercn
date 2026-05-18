@@ -8,20 +8,19 @@ command: npx servercn-cli add pr mongodb-mongoose
 
 This provider sets up MongoDB connectivity with Mongoose for Express projects, including environment validation, a database connection helper.
 
-## Features
-
-- Type-safe environment validation with Zod
-- Ready-to-use MongoDB connection helper
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr mongodb-mongoose" />
 
-## Environment Configuration
+---
 
-<Code children="src/configs/env.ts" />
+## Basic Implementation
 
-```ts
+### 1. Env Configuration
+
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -44,11 +43,11 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Database Connection
+---
 
-<Code children="src/configs/db.ts" />
+### 2. Database Connection
 
-```ts
+```ts title="src/configs/db.ts"
 import mongoose from "mongoose";
 import env from "./env";
 
@@ -65,9 +64,9 @@ export const connectDB = async (): Promise<void> => {
     process.exit(1);
   }
 };
-
-
 ```
+
+---
 
 ## Usage
 
@@ -75,10 +74,4 @@ export const connectDB = async (): Promise<void> => {
 import { connectDB } from "./configs/db";
 
 await connectDB();
-```
-
-## Example .env
-
-```bash
-DATABASE_URL=mongodb://localhost:27017/app
 ```

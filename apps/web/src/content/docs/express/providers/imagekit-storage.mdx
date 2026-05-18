@@ -8,22 +8,19 @@ command: npx servercn-cli add pr imagekit-storage
 
 This provider adds the [ImageKit Node SDK](https://github.com/imagekit-developer/imagekit-nodejs), validates <Code>IMAGEKIT_PRIVATE_KEY</Code> with Zod, and ships the same Multer memory-upload middleware pattern as the Cloudinary provider.
 
-## Features
-
-- Zod-validated ImageKit credentials
-- Shared <Code>ImageKit</Code> client instance from config
-- Multer memory storage with allowlist MIME types and 5&nbsp;MB max file size
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr imagekit-storage" />
 
-## Environment Configuration
+---
 
-<Code children="src/configs/env.ts" />
+## Basic Implementation
 
-```ts
+### 1. Env Configuration
+
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -46,11 +43,11 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## ImageKit client
+---
 
-<Code children="src/configs/imagekit.ts" />
+### 2. ImageKit client
 
-```ts
+```ts title="src/configs/imagekit.ts"
 import ImageKit from "@imagekit/nodejs";
 import env from "./env";
 
@@ -63,11 +60,11 @@ export default imagekitClient;
 
 The template file includes commented <Code>uploadToImageKit</Code> and <Code>deleteFileFromImageKit</Code> helpers using <Code>toFile</Code> from <Code>@imagekit/nodejs</Code>—use those as a starting point in a service layer.
 
-## Upload middleware (Multer)
+---
 
-<Code children="src/middlewares/upload-file.ts" />
+### 3. Upload middleware (Multer)
 
-```ts
+```ts title="src/middlewares/upload-file.ts" 
 import multer from "multer";
 
 export const ALLOWED_FILE_TYPES = [
@@ -99,13 +96,61 @@ const upload = multer({
 
 export default upload;
 ```
+---
 
 ## Usage
 
 Use <Code>upload.single("fieldName")</Code> (or array/fields) on your route, then upload <Code>req.file.buffer</Code> via the helpers described in the template’s <Code>imagekit.ts</Code> comments.
 
-## Example .env
 
-```bash
-IMAGEKIT_PRIVATE_KEY=your_private_key
+```ts title="src/services/imagekit.service.ts"
+import imagekitClient from "../configs/imagekit";
+import { toFile } from "@imagekit/nodejs";
+ 
+export interface UploadOptions {
+  folder: string;
+  fileName?: string;
+}
+ 
+export interface ImageKitUploadResult {
+  url: string;
+  fileId: string;
+  size: number;
+}
+ 
+export const uploadToImageKit = async (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<ImageKitUploadResult> => {
+  try {
+    const fileName = options.fileName || `file-${Date.now()}`;
+    const file = await toFile(buffer, fileName);
+ 
+    const result = await imagekitClient.files.upload({
+      file: file,
+      fileName: fileName,
+      folder: options.folder || "uploads"
+    });
+ 
+    return {
+      url: result.url || "",
+      fileId: result.fileId || "",
+      size: result.size || 0
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+ 
+export const deleteFileFromImageKit = async (
+  fileIds: string[]
+): Promise<void> => {
+  try {
+    await Promise.all(
+      fileIds.map(fileId => imagekitClient.files.delete(fileId))
+    );
+  } catch (error) {
+    throw error;
+  }
+};
 ```

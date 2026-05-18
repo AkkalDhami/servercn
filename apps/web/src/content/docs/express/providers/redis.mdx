@@ -8,35 +8,19 @@ command: npx servercn-cli add pr redis
 
 This provider wires the official [redis](https://github.com/redis/node-redis) package to <Code>REDIS_URL</Code>, validates the URL with Zod, and includes small <Code>setCache</Code> / <Code>getCache</Code> / <Code>deleteCache</Code> helpers.
 
-## Features
-
-- Zod-validated <Code>REDIS_URL</Code>
-- <Code>createClient</Code> configured from env
-- Optional TTL helpers for string keys (seconds or milliseconds)
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr redis" />
 
-## File Structure
+---
 
-### MVC
+## Basic Implementation
 
-- <Code children="src/configs/env.ts" />
-- <Code children="src/configs/redis.ts" />
+### 1. Env Configuration
 
-### Feature
-
-- <Code children="src/shared/configs/env.ts" />
-- <Code children="src/shared/configs/redis.ts" />
-
-## Environment Configuration
-
-<Code children="src/configs/env.ts" />
-
-```ts
-/* eslint-disable no-console */
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -59,11 +43,11 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Redis client and cache helpers
+---
 
-<Code children="src/configs/redis.ts" />
+### 2. Redis Client
 
-```ts
+```ts title="src/configs/redis.ts"
 import { createClient } from "redis";
 import { env } from "./env.ts";
 
@@ -107,6 +91,8 @@ export const deleteCache = async (key: string) => {
 };
 ```
 
+---
+
 ## Usage
 
 Connect the client when your app boots (after importing the module so the client exists), then use the helpers or the raw client.
@@ -122,8 +108,3 @@ const otp = await getCache("otp:123");
 
 The template includes inline comment examples for OTP-style keys at the bottom of <Code>redis.ts</Code>.
 
-## Example .env
-
-```bash
-REDIS_URL=redis://localhost:6379
-```

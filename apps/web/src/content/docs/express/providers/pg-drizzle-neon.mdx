@@ -8,21 +8,19 @@ command: npx servercn-cli add pr pg-drizzle-neon
 
 This provider sets up PostgreSQL + Neon connectivity with Drizzle ORM for Express projects, including environment validation, a database client.
 
-## Features
-
-- Type-safe environment validation with Zod
-- Ready-to-use Drizzle client for PostgreSQL
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr pg-drizzle-neon" />
 
+---
 
-## Environment Configuration
+## Basic Implementation
 
-<Code children="src/configs/env.ts" />
+### 1. Env Configuration
 
-```ts
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -49,11 +47,11 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Database Client
+---
 
-<Code children="src/configs/db.ts" />
+### 2. Database Client
 
-```ts
+```ts title="src/configs/db.ts"
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import env from "./env";
@@ -64,6 +62,8 @@ const db = drizzle({ client: sql });
 export default db;
 ```
 
+---
+
 ## Usage
 
 ```ts
@@ -71,12 +71,4 @@ import db from "./configs/db";
 
 // Example insert call:
 // await db.insert(usersTable).values(user);
-```
-
-## Example .env
-
-```bash
-NODE_ENV=development
-
-DATABASE_URL=postgresql://username:password@localhost:5432/mydb?schema=public
 ```
