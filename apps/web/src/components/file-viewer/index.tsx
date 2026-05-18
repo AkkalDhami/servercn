@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import FileTree, { type FileNode } from "@/components/file-viewer/file-tree";
-import { getRegistryFileTree } from "@/lib/files";
+import { addPaths, getRegistryFileTree } from "@/lib/files";
 import { useCodeTheme } from "@/store/use-code-theme";
 import { highlightCode } from "@/app/actions/highlight";
 import {
@@ -11,6 +11,7 @@ import {
   ResizablePanelGroup
 } from "@/components/ui/resizable";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
 import CopyButton from "@/components/docs/copy-button";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
@@ -50,7 +51,9 @@ export default function ComponentFileViewer({
   >(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const { copied, copy } = useCopyToClipboard();
+  const { copied: copiedContent, copy: copyContent } = useCopyToClipboard();
+  const { copied: copiedPath, copy: copyPath } = useCopyToClipboard();
+  const [path, setPath] = React.useState<string>("");
   const { theme } = useCodeTheme();
 
   const { variant } = useVariant();
@@ -75,12 +78,14 @@ export default function ComponentFileViewer({
           variant: variant ?? undefined
         });
         // console.log({ fileTree });
-        setTree(fileTree.tree);
+        const treeWithPaths = addPaths(fileTree.tree);
+        setTree(treeWithPaths);
         // auto-select first file
-        const firstFile = findFirstFile(fileTree.tree);
+        const firstFile = findFirstFile(treeWithPaths);
         if (firstFile) {
           setSelectedFile(firstFile);
           setActiveFile(firstFile.name);
+          setPath(firstFile.path || "");
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
@@ -113,17 +118,29 @@ export default function ComponentFileViewer({
   function handleSelect(file: FileNode & { type: "file" }) {
     setSelectedFile(file);
     setActiveFile(file.name);
+    setPath(file.path || "");
   }
 
   async function handleCopy() {
     if (!selectedFile?.content) return;
 
     try {
-      await copy(selectedFile.content);
+      await copyContent(selectedFile.content);
     } catch (error) {
       console.error("Failed to copy file content:", error);
     }
   }
+
+  async function handleFilePathCopy() {
+    if (!path) return;
+
+    try {
+      await copyPath(path);
+    } catch (error) {
+      console.error("Failed to copy file path:", error);
+    }
+  }
+
 
   if (loading) return <div className="p-4">Loading files...</div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
@@ -161,16 +178,27 @@ export default function ComponentFileViewer({
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="65%">
           <div className="relative flex items-center justify-between border-b">
-            <div className="text-muted-foreground flex items-center gap-1 px-2 py-2 text-sm">
-              {getIconForLanguageExtension(
-                selectedFile?.lang || "ts",
-                selectedFile?.name
-              )}{" "}
-              {selectedFile?.name || "No file selected"}
+            <div className="group relative">
+              <div className="text-muted-foreground font-code flex items-center gap-1 px-2 py-2 text-[15px]">
+                {getIconForLanguageExtension(
+                  selectedFile?.lang || "ts",
+                  selectedFile?.name
+                )}{" "}
+                {selectedFile?.name || "No file selected"}
+              </div>
+
+              <CopyButton
+                handleCopy={handleFilePathCopy}
+                copied={copiedPath}
+                className={cn(
+                  "bg-code opacity-0 group-hover:opacity-100 absolute -right-8 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center transition-all",
+                  selectedFile?.name ? "cursor-pointer" : "cursor-not-allowed"
+                )}
+              />
             </div>
             <CopyButton
               handleCopy={handleCopy}
-              copied={copied}
+              copied={copiedContent}
               className={cn(
                 "bg-code absolute right-2 z-20 flex items-center justify-center transition-all",
                 selectedFile?.content ? "cursor-pointer" : "cursor-not-allowed"

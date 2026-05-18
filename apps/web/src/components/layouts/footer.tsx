@@ -59,7 +59,7 @@ export default function Footer() {
       )}>
       <div
         className={cn(
-          "relative mx-auto w-full max-w-360 py-4",
+          "relative mx-auto w-full max-w-368 py-4",
           "screen-line-before screen-line-after",
           "border-edge border-x",
           "dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]"

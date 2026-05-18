@@ -8,33 +8,19 @@ command: npx servercn-cli add pr resend-mail
 
 This provider adds the official [Resend](https://resend.com/) SDK, validates <Code>RESEND_API_KEY</Code> with Zod, and exports a ready-to-use <Code>resend</Code> client.
 
-## Features
-
-- Minimal env surface: API key only (extend <Code>env.ts</Code> if you want a default <Code>from</Code> address)
-- Shared <Code>Resend</Code> instance
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr resend-mail" />
 
-## File Structure
+---
 
-### MVC
+## Basic Implementation
 
-- <Code children="src/configs/env.ts" />
-- <Code children="src/configs/resend.ts" />
+### 1. Env Configuration
 
-### Feature
-
-- <Code children="src/shared/configs/env.ts" />
-- <Code children="src/shared/configs/resend.ts" />
-
-## Environment Configuration
-
-<Code children="src/configs/env.ts" />
-
-```ts
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -57,20 +43,22 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Resend client
+---
 
-<Code children="src/configs/resend.ts" />
+### 2. Resend client
 
-```ts
+```ts title="src/configs/resend.ts"
 import { Resend } from "resend";
 import env from "./env";
 
 export const resend = new Resend(env.RESEND_API_KEY);
 ```
 
+---
+
 ## Usage
 
-Use a [verified domain](https://resend.com/docs/dashboard/domains/introduction) or Resend’s test sender for <Code>from</Code>.
+Use a [verified domain](https://resend.com/docs/dashboard/domains/introduction) or Resend's test sender for <Code>from</Code>.
 
 ```ts
 import { resend } from "./configs/resend";
@@ -88,9 +76,3 @@ export async function sendWelcomeEmail(to: string) {
 ```
 
 To default the sender from env, add something like <Code>EMAIL_FROM: z.string()</Code> to <Code>envSchema</Code> alongside the API key (same pattern as the Nodemailer provider).
-
-## Example .env
-
-```bash
-RESEND_API_KEY=re_xxxxxxxx
-```

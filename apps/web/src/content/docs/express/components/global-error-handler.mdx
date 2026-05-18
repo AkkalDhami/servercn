@@ -2,47 +2,19 @@
 title: Global Error Handler
 description: Centralized error handling for Express applications using TypeScript.
 command: npx servercn-cli add global-error-handler
-
 ---
 
 # Global Error Handling
 
 A <Code children="global error handler" /> is a core part of any production-ready Express application.  
-It ensures that **all errors—expected or unexpected—are handled consistently**, securely, and predictably.
 
-Servercn provides a structured approach using:
-
-- <Code children="ApiError" /> for operational errors
-- <Code children="ApiResponse" /> for consistent responses
-- <Code children="STATUS_CODES" /> for standardized HTTP status codes
-- Express error middleware for central handling
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add global-error-handler" />
 
-## Why a Global Error Handler?
-
-Without a global error handler:
-
-- Errors leak stack traces to clients
-- Response formats become inconsistent
-- Debugging and logging are fragmented
-- Async errors may crash the process
-
-With a global error handler:
-
-- One place to handle all errors
-- Consistent API response shape
-- Clear separation of **operational** vs **programmer** errors
-- Easier logging and monitoring
-
-## Error Flow in Servercn
-
-- Route or service throws an error (**ApiError** or native error)
-- Error bubbles through **AsyncHandler**
-- Express forwards it to the global error middleware
-- The middleware formats and sends a standardized response
+---
 
 ## Prerequisites
 
@@ -56,9 +28,7 @@ LOG_LEVEL="info"
 
 Ensure the following configuration are defined:
 
-<Code children="src/configs/env.ts" />
-
-```ts
+```ts title="src/configs/env.ts"
 interface Config {
   PORT: number;
   NODE_ENV: string;
@@ -74,13 +44,11 @@ const env: Config = {
 export default env;
 ```
 
+---
+
 ## Basic Implementation
 
-### 1. MVC Structure
-
-<Code children="src/middlewares/error-handler.ts" />
-
-```ts
+```ts title="src/middlewares/error-handler.ts"
 import { Request, Response, NextFunction } from "express";
 import env from "../configs/env";
 
@@ -117,52 +85,11 @@ export const errorHandler = (
 };
 ```
 
-### 1. Feature Structure
-
-<Code children="src/shared/middlewares/error-handler.ts" />
-
-```ts
-import { Request, Response, NextFunction } from "express";
-import env from "../configs/env";
-
-import { ApiError } from "../errors/api-error";
-import { logger } from "../utils/logger";
-import { STATUS_CODES } from "../constants/status-codes";
-
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  let statusCode = 500;
-  let message = "Internal server error";
-
-  if (err instanceof ApiError) {
-    statusCode = err.statusCode;
-    message = err.message;
-  }
-
-  logger.error(
-    err,
-    `Error: ${message} | Status: ${statusCode} | Path: ${req.method} ${req.originalUrl}`
-  );
-
-  const response = {
-    success: false,
-    message,
-    ...(env.NODE_ENV === "development" && { stack: err.stack })
-  };
-
-  res.status(statusCode).json(response);
-};
-```
+---
 
 ## Usage Example
 
-<Code children="src/app.ts" />
-
-```ts
+```ts title="src/app.ts" { 13 }
 import express, { type Application } from "express";
 import "dotenv-flow/config";
 import { errorHandler } from "./middlewares/error-handler";
