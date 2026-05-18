@@ -35,7 +35,7 @@ export const generateMetadata = (): Metadata => {
 
 export default function FoundationsPage() {
   return (
-    <Container className="border-edge w-full max-w-360 border-x px-0 pt-16">
+    <Container className="border-edge w-full border-x px-0 pt-16">
       <div className="dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)] flex justify-between flex-wrap mb-6 px-4 pt-2">
         <div>
           <Heading className="tracking-tight capitalize">

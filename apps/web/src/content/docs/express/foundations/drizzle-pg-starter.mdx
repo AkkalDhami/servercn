@@ -22,7 +22,7 @@ Setting up Drizzle with PostgreSQL repeatedly involves:
 - Database connection management
 - Schema organization
 - Migration configuration
-- Environment‑based credentials
+- Environment-based credentials
 - Type safety across queries
 
 The Drizzle PostgreSQL Starter standardizes these concerns using a **minimal, explicit setup**.
@@ -34,20 +34,20 @@ After initialization, your project includes:
 ### Database Core
 
 - Drizzle ORM configured for PostgreSQL
-- Type‑safe schema definitions
+- Type-safe schema definitions
 - Centralized database client
 
 ### Configuration
 
-- Environment‑based database config
+- Environment-based database config
 - Safe startup validation
-- Production‑ready connection handling
+- Production-ready connection handling
 
 ### Migrations
 
 - Drizzle migration setup
 - Structured migration folder
-- CLI‑ready workflow
+- CLI-ready workflow
 
 ### Developer Experience
 
@@ -71,11 +71,9 @@ The server fails fast if required database variables are missing.
 
 ## Defining Schemas
 
-Schemas are written using Drizzle’s SQL‑first, type‑safe API.
+Schemas are written using Drizzle's SQL-first, type-safe API.
 
-<Code children="src/drizzle/schema.ts" />
-
-```ts
+```ts title="src/drizzle/schema.ts"
 import { PgTable, serial, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = PgTable("users", {
@@ -94,9 +92,7 @@ Schemas are:
 
 ## Database Client Setup
 
-<Code children="src/configs/db.ts" /> or <Code children="src/db/db.ts" />
-
-```ts
+```ts title="src/configs/db.ts"
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "./env";
 
@@ -125,6 +121,6 @@ Migrations are SQL‑first and fully auditable.
 
 ## Summary
 
-The **Drizzle PostgreSQL Starter** gives you a clean, production‑ready database foundation using **PostgreSQL + Drizzle ORM**.
+The **Drizzle PostgreSQL Starter** gives you a clean, production-ready database foundation using **PostgreSQL + Drizzle ORM**.
 
-It prioritizes clarity, type safety, and long‑term maintainability — without taking control away from you.
+It prioritizes clarity, type safety, and long-term maintainability — without taking control away from you.

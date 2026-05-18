@@ -10,7 +10,7 @@ export const DISCORD_URL = "https://discord.gg/2fXqnTXF8d";
 
 export const BASE_GITHUB_URL = "https://github.com/akkaldhami";
 
-export const X_URL = "https://x.com/AavashDhami2127";
+export const X_URL = "https://x.com/_akkal_dhami";
 
 export const GITHUB_URL = `${BASE_GITHUB_URL}/servercn`;
 

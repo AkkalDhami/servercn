@@ -2,7 +2,10 @@
 title: Email Service
 description: Production-ready email service for sending emails in Servercn using nodemailer with support for multiple providers (Nodemailer, Resend, Mailtrap, etc.).
 command: npx servercn-cli add email-service
-
+contributor:
+ -  name: Akkal Dhami
+    url: https://www.akkal.com.np
+    avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
 ---
 
 # Email Service
@@ -60,11 +63,7 @@ MAILTRAP_API_KEY="your-mailtrap-api-key"
 <Steps>
   <Step>Nodemailer SMTP Configuration</Step>
   
-**MVC Path:** <Code children="src/configs/nodemailer.ts" />
-
-**Feature Path:** <Code children="src/shared/configs/nodemailer.ts" />
-
-```ts
+```ts title="src/configs/nodemailer.ts"
 import nodemailer from "nodemailer";
 import env from "./env";
 
@@ -94,11 +93,7 @@ export function getTransporter() {
 
 <Step>Send Email Function</Step>
 
-**MVC Path:** <Code children="src/utils/send-mail.ts" />
-
-**Feature Path:** <Code children="src/shared/utils/send-mail.ts" />
-
-```ts
+```ts title="src/utils/send-mail.ts"
 import env from "../configs/env";
 import { getTransporter } from "../configs/nodemailer";
 import { ApiError } from "./api-error";
@@ -142,11 +137,7 @@ export async function sendEmail({
 
 <Step>Resend configuration</Step>
 
-**MVC Path:** <Code children="src/configs/resend.ts" />
-
-**Feature Path:** <Code children="src/shared/configs/resend.ts" />
-
-```ts
+```ts title="src/configs/resend.ts"
 import { Resend } from "resend";
 import env from "./env";
 
@@ -155,11 +146,7 @@ export const resend = new Resend(env.RESEND_API_KEY);
 
 <Step>Send Email Function</Step>
 
-**MVC Path:** <Code children="src/utils/send-mail.ts" />
-
-**Feature Path:** <Code children="src/shared/utils/send-mail.ts" />
-
-```ts
+```ts title="src/utils/send-mail.ts"
 import env from "../configs/env";
 import { resend } from "../configs/resend";
 import { ApiError } from "./api-error";
@@ -198,11 +185,7 @@ export async function sendEmail({
   
 <Step>Mailtrap configuration</Step>
   
-**MVC Path:** <Code children="src/configs/mailtrap.ts" />
-
-**Feature Path:** <Code children="src/shared/configs/mailtrap.ts" />
-
-```ts
+```ts title="src/configs/mailtrap.ts"
 import { MailtrapClient } from "mailtrap";
 import env from "./env";
 
@@ -213,11 +196,7 @@ export const mailtrap = new MailtrapClient({
 
 <Step>Send Email Function</Step>
 
-**MVC Path:** <Code children="src/utils/send-mail.ts" />
-
-**Feature Path:** <Code children="src/shared/utils/send-mail.ts" />
-
-```ts
+```ts title="src/utils/send-mail.ts"
 import env from "../configs/env";
 import { mailtrap } from "../configs/mailtrap";
 

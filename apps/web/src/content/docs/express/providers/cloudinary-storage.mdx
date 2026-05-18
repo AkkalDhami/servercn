@@ -8,22 +8,19 @@ command: npx servercn-cli add pr cloudinary-storage
 
 This provider adds [Cloudinary](https://cloudinary.com/) SDK configuration, Zod-validated environment variables, and a Multer middleware that accepts in-memory uploads (images, video, PDF) with type and size limits.
 
-## Features
-
-- Zod-validated <Code>CLOUDINARY_*</Code> environment variables
-- Configured Cloudinary SDK (<Code>v2</Code>)
-- Multer memory storage with allowlist MIME types and 5&nbsp;MB max file size
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr cloudinary-storage" />
 
-## Environment Configuration
+---
 
-<Code children="src/configs/env.ts" />
+## Basic Implementation
 
-```ts
+### 1. Env Configuration
+
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -48,11 +45,11 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Cloudinary client
+---
 
-<Code children="src/configs/cloudinary.ts" />
+### 2. Cloudinary client
 
-```ts
+```ts title="src/configs/cloudinary.ts"
 import { v2 as cloudinary } from "cloudinary";
 import env from "./env.ts";
 
@@ -67,11 +64,11 @@ export default cloudinary;
 
 The template also includes a commented <Code>uploadToCloudinary</Code> / <Code>deleteFileFromCloudinary</Code> example in the same file—copy it into a service or util when you wire routes.
 
-## Upload middleware (Multer)
+---
 
-<Code children="src/middlewares/upload-file.ts" />
+### 3. Upload middleware (Multer)
 
-```ts
+```ts title="src/middlewares/upload-file.ts" 
 import multer from "multer";
 
 export const ALLOWED_FILE_TYPES = [
@@ -104,29 +101,63 @@ const upload = multer({
 export default upload;
 ```
 
+---
+
 ## Usage
 
 Attach the middleware to a route, then pass <Code>req.file?.buffer</Code> to an upload helper that streams to Cloudinary (see the commented block in <Code>cloudinary.ts</Code> in the template).
 
-```ts
-import upload from "./middlewares/upload-file";
-import type { RequestHandler } from "express";
+```ts title="src/services/cloudinary.service.ts"
+import { DeleteApiResponse } from "cloudinary";
+import cloudinary from "../configs/cloudinary";
 
-export const uploadAvatar: RequestHandler[] = [
-  upload.single("file"),
-  async (req, res, next) => {
-    const buffer = req.file?.buffer;
-    if (!buffer) return res.status(400).json({ error: "No file" });
-    // call uploadToCloudinary(buffer, { folder: "avatars" })
-    next();
-  }
-];
-```
+export interface UploadOptions {
+    folder: string;
+    resource_type?: "image" | "video" | "raw" | "auto";
+}
 
-## Example .env
+export interface CloudinaryUploadResult {
+    url: string;
+    public_id: string;
+    size: number;
+}
 
-```bash
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+export const uploadToCloudinary = (
+    buffer: Buffer,
+    options: UploadOptions
+): Promise<CloudinaryUploadResult> => {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder: options.folder || "uploads",
+                resource_type: options.resource_type || "auto"
+            },
+            (error, result) => {
+                if (error || !result) {
+                    return reject(error);
+                }
+                resolve({
+                    url: result.secure_url,
+                    public_id: result.public_id,
+                    size: result.bytes
+                });
+            }
+        );
+
+        stream.end(buffer);
+    });
+};
+
+export const deleteFileFromCloudinary = (
+    publicIds: string[]
+): Promise<DeleteApiResponse> => {
+    return new Promise((resolve, reject) => {
+        cloudinary.api.delete_resources(publicIds, (error, result) => {
+            if (error || !result) {
+                return reject(error);
+            }
+            resolve(result);
+        });
+    });
+};
 ```

@@ -76,9 +76,7 @@ The server fails fast if required database variables are missing.
 
 Schemas are defined in using Prisma's declarative schema language.
 
-<Code children="prisma/schema.prisma" />
-
-```prisma
+```prisma title="prisma/schema.prisma"
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
@@ -104,9 +102,7 @@ Schemas are:
 
 ## Database Client Setup
 
-<Code children="src/configs/prisma.ts" />
-
-```ts
+```ts title="src/configs/prisma.ts"
 import { PrismaClient } from "@prisma/client";
 import env from "./env";
 
@@ -136,8 +132,7 @@ Browse and inspect your MongoDB data visually in the browser.
 
 For the best experience working with Prisma schemas, install the official Prisma extension for VS Code.
 
-<Code children=".vscode/extensions.json" />
-```json
+```json title=".vscode/extensions.json"
 {
   "recommendations": [
     "Prisma.prisma"

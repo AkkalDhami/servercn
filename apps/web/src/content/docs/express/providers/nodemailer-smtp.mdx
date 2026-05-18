@@ -8,22 +8,18 @@ command: npx servercn-cli add pr nodemailer-smtp
 
 This provider configures [Nodemailer](https://nodemailer.com/) with SMTP settings from the environment, validates host/port/credentials with Zod, and exposes a lazy singleton <Code>getTransporter()</Code> for sending mail.
 
-## Features
-
-- Zod schema for <Code>SMTP_*</Code> and <Code>EMAIL_FROM</Code>
-- Single reused transporter instance
-- TLS mode inferred from port (<Code>secure</Code> when port is 465)
-- MVC and Feature architecture variants
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr nodemailer-smtp" />
+---
 
-## Environment Configuration
+## Basic Implementation
 
-<Code children="src/configs/env.ts" />
+### 1. Env Configuration
 
-```ts
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -53,11 +49,9 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Nodemailer transporter
+### 2. Nodemailer Transporter
 
-<Code children="src/configs/nodemailer.ts" />
-
-```ts
+```ts title="src/configs/nodemailer.ts"
 import nodemailer from "nodemailer";
 import env from "./env";
 
@@ -84,6 +78,8 @@ export function getTransporter() {
 }
 ```
 
+---
+
 ## Usage
 
 ```ts
@@ -104,14 +100,4 @@ export async function sendEmail(opts: {
     html: opts.html
   });
 }
-```
-
-## Example .env
-
-```bash
-SMTP_HOST=smtp.example.com
-SMTP_PORT=465
-SMTP_USER=you@example.com
-SMTP_PASS=your_password
-EMAIL_FROM=you@example.com
 ```

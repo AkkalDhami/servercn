@@ -2,6 +2,7 @@ import { FrameworkType, ItemType } from "@/@types/registry";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import CodeTheme from "@/components/docs/code-theme";
 import ComponentFileViewer from "@/components/file-viewer";
+import { Variant } from "@/components/file-viewer/variant";
 import { Container } from "@/components/ui/container";
 
 export default async function page(props: PageProps<"/components">) {
@@ -17,8 +18,9 @@ export default async function page(props: PageProps<"/components">) {
             current={(searchParams?.arch as string) || "mvc"}
             framework={(searchParams?.framework as FrameworkType) || "express"}
           />
-          <CodeTheme />
+          <CodeTheme minimal={true} />
         </div>
+        <Variant name={(searchParams?.slug as string) || ""} />
         <ComponentFileViewer
           from="structure"
           slug={(searchParams?.slug as string) || ""}

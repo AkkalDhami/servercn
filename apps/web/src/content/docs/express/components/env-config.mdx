@@ -25,17 +25,10 @@ Install the component using the servercn CLI:
 
 ## Basic Implementation
 
-Create a file named <Code children="src/configs/env.ts"/>  (or similar) and add the following code:
-
-```ts
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
-/**
- * Environment variable schema
- * - All validation happens at startup
- * - Fails fast on misconfiguration
- */
 export const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -80,10 +73,6 @@ export const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-/**
- * Parse and validate environment variables once.
- * This module must be imported before app bootstrap.
- */
 const result = envSchema.safeParse(process.env);
 
 if (!result.success) {
@@ -92,9 +81,6 @@ if (!result.success) {
   process.exit(1);
 }
 
-/**
- * Validated, immutable environment object
- */
 export const env: Readonly<Env> = Object.freeze(result.data);
 
 export default env;

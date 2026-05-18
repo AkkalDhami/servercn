@@ -4,9 +4,6 @@ import * as React from "react";
 import {
   ChevronDown,
   ChevronRight,
-  File,
-  Folder,
-  FolderOpenIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
@@ -14,16 +11,18 @@ import { FaFolder, FaFolderOpen } from "react-icons/fa6";
 
 export type FileNode =
   | {
-      type: "folder";
-      name: string;
-      children: FileNode[];
-    }
+    path?: string;
+    type: "folder";
+    name: string;
+    children: FileNode[];
+  }
   | {
-      type: "file";
-      name: string;
-      content: string;
-      lang?: string;
-    };
+    path?: string;
+    type: "file";
+    name: string;
+    content: string;
+    lang?: string;
+  };
 
 type Props = {
   data: FileNode[];
@@ -90,7 +89,7 @@ function TreeNode({
       className={cn(
         "text-muted-foreground hover:bg-muted hover:text-accent-foreground my-1 ml-0.5 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 border border-transparent hover:border-edge text-left",
         activeFile === node.name &&
-          "bg-muted text-accent-foreground border-edge"
+        "bg-muted text-accent-foreground border-edge"
       )}>
       {getIconForLanguageExtension(node.lang || "ts", node.name)}
       {node.name}
