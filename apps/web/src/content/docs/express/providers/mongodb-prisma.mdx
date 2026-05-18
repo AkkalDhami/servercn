@@ -8,21 +8,19 @@ command: npx servercn-cli add pr mongodb-prisma
 
 This provider sets up MongoDB connectivity with Prisma for Express projects, including environment validation, a Prisma client configuration, and a starter schema.
 
-## Features
-
-- Type-safe environment validation with Zod
-- Prisma client configured for development and production logging
-- Starter Prisma schema for MongoDB with a <Code>User</Code> model
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add pr mongodb-prisma" />
 
-## Environment Configuration
+---
 
-<Code children="src/configs/env.ts" />
+## Basic Implementation
 
-```ts
+### 1. Env Configuration
+
+```ts title="src/configs/env.ts"
 import "dotenv-flow/config";
 import { z } from "zod";
 
@@ -49,11 +47,9 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-## Prisma Client
+### 2. Prisma Client
 
-<Code children="src/configs/prisma.ts" />
-
-```ts
+```ts title="src/configs/prisma.ts"
 import { PrismaClient } from "@prisma/client";
 import env from "./env";
 
@@ -64,11 +60,11 @@ const prisma = new PrismaClient({
 export default prisma;
 ```
 
-## Prisma Schema
+---
 
-<Code children="src/prisma/schema.prisma" />
+### 3. Prisma Schema
 
-```prisma
+```prisma title="src/prisma/schema.prisma"
 generator client {
   provider = "prisma-client-js"
 }
@@ -85,6 +81,8 @@ model User {
   password String
 }
 ```
+
+---
 
 ## Usage
 
