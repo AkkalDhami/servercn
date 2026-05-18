@@ -1,0 +1,229 @@
+---
+title: Prisma PostgreSQL Starter | Foundation
+description: The Prisma PostgreSQL Starter Foundation provides a production-ready Express backend with Prisma ORM and PostgreSQL.
+command: npx servercn-cli init prisma-pg-starter
+contributor:
+  - name: pawanbhayde
+    url: https://github.com/pawanbhayde
+    avatar: https://github.com/pawanbhayde.png
+---
+
+# Prisma PostgreSQL Starter
+
+The **Prisma PostgreSQL Starter** is a database foundation provided by **servercn** for projects that use **PostgreSQL with Prisma ORM**.
+
+[Prisma Official Docs](https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases-typescript-postgresql)
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli init prisma-pg-starter" />
+
+## What This Starter Solves
+
+Setting up Prisma with PostgreSQL repeatedly involves:
+
+- Database connection setup
+- Prisma client initialization
+- Schema definition and migrations
+- Environment configuration
+- Query logging and debugging
+
+The Prisma PostgreSQL Starter standardizes these concerns so every project starts with a **reliable, type-safe database layer**.
+
+## What You Get Out of the Box
+
+After initialization, your project includes:
+
+### Database Core
+
+- Prisma ORM configured for PostgreSQL
+- Prisma Client for type-safe queries
+- Centralized database configuration
+
+### Configuration
+
+- Environment-based database config with Zod validation
+- Safe startup validation — server exits immediately on missing variables
+- Production-ready connection handling
+
+### Schema Management
+
+- Prisma schema definition
+- PostgreSQL models with auto-increment IDs and timestamps
+- Type-safe access across the application
+
+### Developer Experience
+
+- Fully typed queries
+- Swagger/OpenAPI docs auto-generated on startup
+- Graceful shutdown handling
+- Structured logging with Pino
+- CORS, Helmet, and Cookie-Parser pre-configured
+
+## Environment Configuration
+
+Database credentials are loaded via environment variables.
+
+```bash
+NODE_ENV='development'
+PORT='9000'
+LOG_LEVEL='info'
+
+DATABASE_URL='postgresql://<user>:<password>@<host>:<port>/<dbname>?schema=public'
+
+CORS_ORIGIN='http://localhost:3000'
+```
+
+The server fails fast if required variables are missing or invalid.
+
+## Defining Schemas
+
+Schemas are defined using Prisma's declarative schema language.
+
+<Code children="prisma/schema.prisma" />
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+Schemas are:
+
+- Explicit
+- Version-controlled
+- Fully typed across queries
+
+## Database Client Setup
+
+**MVC:** <Code children="src/configs/prisma.ts" />
+
+**Feature:** <Code children="src/shared/configs/prisma.ts" />
+
+```ts
+import { PrismaClient } from "@prisma/client";
+import env from "./env";
+
+const prisma = new PrismaClient({
+  log: env.NODE_ENV === "development" ? ["query", "warn", "error"] : ["error"]
+});
+
+export default prisma;
+```
+
+No repositories or hidden layers — you interact directly with Prisma Client.
+
+## Running Migrations
+
+Generate and apply a migration after changing your schema:
+
+<PackageManagerTabs command="npx prisma migrate dev --name init" />
+
+## Applying Schema Without Migration History
+
+Push your schema changes directly to the database (useful during early development):
+
+<PackageManagerTabs command="npm run db:push" />
+
+## Prisma Studio
+
+Browse and inspect your PostgreSQL data visually in the browser.
+
+<PackageManagerTabs command="npm run db:studio" />
+
+## Project Structure
+
+**MVC:**
+
+```
+src/
+├── configs/
+│   ├── env.ts          # Zod-validated environment config
+│   ├── prisma.ts       # Prisma client instance
+│   └── swagger.ts      # Swagger setup
+├── controllers/
+│   └── health.controller.ts
+├── middlewares/
+│   ├── error-handler.ts
+│   └── not-found-handler.ts
+├── routes/
+│   └── health.routes.ts
+├── utils/
+│   ├── api-error.ts
+│   ├── api-response.ts
+│   ├── async-handler.ts
+│   ├── logger.ts
+│   └── shutdown.ts
+├── app.ts
+└── server.ts
+prisma/
+└── schema.prisma
+```
+
+**Feature:**
+
+```
+src/
+├── modules/
+│   └── health/
+│       ├── health.controller.ts
+│       └── health.routes.ts
+├── routes/
+│   └── index.ts
+├── shared/
+│   ├── configs/
+│   │   ├── env.ts
+│   │   ├── prisma.ts
+│   │   └── swagger.ts
+│   ├── errors/
+│   │   └── api-error.ts
+│   ├── middlewares/
+│   │   ├── error-handler.ts
+│   │   └── not-found-handler.ts
+│   └── utils/
+│       ├── api-response.ts
+│       ├── async-handler.ts
+│       ├── logger.ts
+│       └── shutdown.ts
+├── app.ts
+└── server.ts
+prisma/
+└── schema.prisma
+```
+
+## Recommended Extensions
+
+For the best experience working with Prisma schemas, install the official Prisma extension for VS Code.
+
+<Code children=".vscode/extensions.json" />
+
+```json
+{
+  "recommendations": [
+    "Prisma.prisma"
+  ]
+}
+```
+
+The extension provides:
+
+- Syntax highlighting for `.prisma` files
+- Auto-formatting on save
+- IntelliSense and field autocomplete
+- Jump to definition for models and enums
+
+VS Code will automatically prompt anyone who clones the project to install it.
