@@ -33,7 +33,7 @@ export default function PackageManagerTabs({
   return (
     <Tabs
       value={pkgManager}
-      className={cn("bg-code my-6 rounded-lg sm:max-w-210")}>
+      className={cn("bg-code my-6 border border-neutral-500/10 rounded-lg sm:max-w-210")}>
       <TabsList className={cn("bg-transparent pt-3 pl-3")}>
         <TerminalIcon className="text-muted-foreground mr-3 size-6 pt-1" />
         {Object.keys(managers).map(m => {
@@ -58,7 +58,7 @@ export default function PackageManagerTabs({
         const [bin, ...rest] = cmd.split(" ");
         const remaining = rest.join(" ");
         return (
-          <TabsContent key={key} value={key}>
+          <TabsContent key={key} value={key} className="border-t border-neutral-500/10">
             <CodeWrapper code={cmd}>
               {/* <CodeBlock code={cmd} /> */}
               <pre className="overflow-x-auto overscroll-x-contain p-4">
