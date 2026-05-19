@@ -27,30 +27,6 @@ Setting up Mongoose with MongoDB repeatedly involves:
 - Environment‑based credentials
 - TypeScript integration
 
-The Mongoose Starter standardizes these concerns using a **structured, explicit setup**.
-
-## What You Get Out of the Box
-
-After initialization, your project includes:
-
-### Database Core
-
-- Mongoose configured for MongoDB
-- Typed Schema definitions
-- Centralized database connection logic
-
-### Configuration
-
-- Environment‑based database config
-- Connection event handling (success, error)
-- Production‑ready settings
-
-### Developer Experience
-
-- Type inference from schemas
-- Clean model separation
-- Ready-to-use patterns
-
 ## Environment Configuration
 
 Database credentials are loaded via environment variables.
@@ -147,9 +123,3 @@ export const connectDB = async (): Promise<void> => {
 ```
 
 This setup ensures a robust connection handling strategy, exiting the process on failure to prevent undefined behaviors.
-
-## Summary
-
-The **Mongoose Starter** gives you a clean, production‑ready database foundation using **MongoDB + Mongoose**.
-
-It prioritizes developer experience, schema validation, and rapid iteration — providing a reliable data layer for your Node.js applications.
