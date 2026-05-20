@@ -1,6 +1,6 @@
-import { z } from "zod";
+import z from "zod";
 
-export const baseEnvSchema = z.object({
+export const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
@@ -34,5 +34,27 @@ export const baseEnvSchema = z.object({
 
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
-  GITHUB_REDIRECT_URI: z.url()
+  GITHUB_REDIRECT_URI: z.url(),
+
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
 });
+
+export type Env = z.infer<typeof envSchema>;
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  console.error("❌ Invalid environment variables");
+  console.error(z.prettifyError(parsed.error));
+  process.exit(1);
+}
+
+const env = Object.freeze(parsed.data);
+
+export default env;
+
+/*
+* ? Usage:
+* import env from "@/configs/env";
+* console.log(env.DATABASE_URL);
+*/
