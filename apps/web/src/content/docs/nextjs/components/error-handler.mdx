@@ -7,16 +7,6 @@ command: npx servercn-cli@latest add error-handler
 # API Error Handler
 A standardized error handling utility for Next.js Route Handlers that ensures consistent error responses across your application.
 
-## Overview
-
-The <Code>handleError</Code> function, in conjunction with the <Code>ApiError</Code> class, provides a structured way to manage and return error responses with:
-
-- Consistent shape for error messages
-- Proper HTTP status handling
-- Centralized error logging
-- Specific handling for validation errors (ZodError)
-
-<br />
 ---
 
 ## Installation Guide
@@ -188,7 +178,7 @@ export class ApiError extends Error {
 }
 ```
 
-The <Code>ApiError</Code> class extends the native <Code>Error</Code> class, adding <Code>statusCode</Code>, <Code>isOperational</Code>, and <Code>errors</Code> properties. It provides static helper methods for common HTTP error types, making it easy to create consistent error instances.
+---
 
 ### 2. <Code>handleError</Code> Function
 
@@ -229,11 +219,6 @@ export function handleError(error: unknown) {
   );
 }
 ```
-
-The <Code>handleError</Code> function is the central point for processing errors. It logs the error, then checks the error type:
-- If it's a <Code>ZodError</Code>, it formats a "Bad Request" response with validation details.
-- If it's an <Code>ApiError</Code>, it uses the error's <Code>statusCode</Code> and <Code>message</Code> to create a <Code>NextResponse</Code>. In development, it also includes the stack trace.
-- For any other error, it returns a generic "Internal Server Error" response.
 
 <br />
 ---

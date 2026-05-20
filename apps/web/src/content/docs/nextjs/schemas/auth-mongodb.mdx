@@ -1,7 +1,7 @@
 ---
 title: Auth | MongoDB (Mongoose) | Schema
 description: Complete authentication system schemas for MongoDB using Mongoose, including User, OTP, Session, and Refresh Token models.
-command: npx servercn-cli add sc auth
+command: npx servercn-cli@latest add sc auth
 
 ---
 
@@ -11,20 +11,19 @@ This page documents the authentication schemas for projects using <Code children
 
 The Auth Domain provides a set of production-ready models that handle user identity, verification, and session management.
 
+---
+
 ## Installation Guide
 
 Add these schemas using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add sc auth" />
 
+---
 
 ## 1. User Schema
 
-The **User Schema** is the core component for storing user identity, credentials, and profile information.
-
-<Code children="src/models/user.model.ts"/>
-
-```ts
+```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IAvatar {
@@ -141,15 +140,14 @@ export default User;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/user" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+
+---
 
 ## 2. OTP Schema
 
-The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
 
-<Code children="src/models/otp.model.ts"/>  
-
-```ts
+```ts title="src/models/otp.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export const OTP_MAX_ATTEMPTS = 5;
@@ -244,15 +242,14 @@ export default Otp;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/otp" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/otp" />
+
+---
 
 ## 3. Session Schema
 
-The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
-<Code children="src/models/session.model.ts"/>  
-
-```ts
+```ts title="src/models/session.model.ts"
 import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface ISession extends Document {
@@ -321,15 +318,13 @@ export default Session;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/session" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/session" />
+
+---
 
 ## 4. Refresh Token Schema
 
-The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
-
-<Code children="src/models/refresh-token.model.ts" />  
-
-```ts
+```ts title="src/models/refresh-token.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -396,15 +391,13 @@ export default RefreshToken;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/refresh-token" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/refresh-token" />
+
+---
 
 ## 5. Auth Constants
 
-The **Auth Constants** file centralizes all authentication-related configuration values, such as OTP expiry times, maximum login attempts, and token durations.
-
-<Code children="src/constants/auth.ts"/>  
-
-```ts
+```ts title="src/constants/auth.ts"
 export const OTP_MAX_ATTEMPTS = 5;
 
 export const OTP_TYPES = [
