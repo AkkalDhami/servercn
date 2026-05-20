@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
         source: "/docs",
         destination: "/docs/installation",
         permanent: true
+      },
+      {
+        source: "/docs/express/components/route-handler",
+        destination: "/docs/express/components/async-handler",
+        permanent: true
+      },
+      {
+        source: "/docs/nextjs/components/async-handler",
+        destination: "/docs/nextjs/components/route-handler",
+        permanent: true
       }
     ];
   }

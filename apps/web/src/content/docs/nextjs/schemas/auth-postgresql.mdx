@@ -1,13 +1,15 @@
 ---
 title: Auth | PostgreSQL (Drizzle) | Schema
 description: Complete authentication system schemas for PostgreSQL using Drizzle ORM, including User, OTP, Session, and Refresh Token models.
-command: npx servercn-cli add schema auth
+command: npx servercn-cli add sc auth
 
 ---
 
 # Auth Domain (PostgreSQL with Drizzle)
 
 This page documents the authentication schemas for projects using **PostgreSQL** with **Drizzle ORM**.
+
+---
 
 ## Installation Guide
 
@@ -17,13 +19,12 @@ Add these schemas using the servercn CLI:
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
 
+---
+
 ## 1. User Schema
 
-The **User Schema** is the core component for storing user identity, credentials, and profile information.
 
-<Code children="src/db/schemas/user.schema.ts" />
-
-```ts
+```ts title="src/db/schemas/user.schema.ts"
 import {
   pgTable,
   serial,
@@ -98,15 +99,13 @@ export type NewUser = typeof users.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/user" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+
+---
 
 ## 2. OTP Schema
 
-The **OTP Schema** handles one-time passwords for email verification, password resets, and 2FA.
-
-<Code children="src/db/schemas/otp.schema.ts" />
-
-```ts
+```ts title="src/db/schemas/otp.schema.ts"
 import {
   pgTable,
   serial,
@@ -163,15 +162,14 @@ export type NewOtp = typeof otps.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/otp" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/otp" />
+
+---
 
 ## 3. Session Schema
 
-The **Session Schema** manages stateful user sessions, tracking devices and IPs.
 
-<Code children="src/db/schemas/session.schema.ts" />
-
-```ts
+```ts title="src/db/schemas/session.schema.ts"
 import {
   pgTable,
   serial,
@@ -223,15 +221,13 @@ export type NewSession = typeof sessions.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/session" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/session" />
+
+---
 
 ## 4. Refresh Token Schema
 
-The **Refresh Token Schema** manages long-lived tokens for JWT renewal flows.
-
-<Code children="src/db/schemas/refresh-token.schema.ts" />
-
-```ts
+```ts title="src/db/schemas/refresh-token.schema.ts"
 import {
   pgTable,
   serial,
@@ -287,16 +283,14 @@ export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/refresh-token" />
+<PackageManagerTabs command="npx servercn-cli add sc auth/refresh-token" />
+
+---
 
 ## 5. Export all schemas
 
-All database schemas must be re-exported from a single entry point.
-This allows Drizzle to load every table definition from one file during migration generation.
 
-<Code children="src/db/index.ts" />
-
-```ts
+```ts title="src/db/index.ts"
 export * from "./schemas/user.schema";
 export * from "./schemas/refresh-token.schema";
 export * from "./schemas/otp.schema";
@@ -305,14 +299,14 @@ export * from "./schemas/session.schema";
 
 _This file acts as the schema registry for Drizzle._
 
+---
+
 ## 6. drizzle.config.ts
 
 Create a <Code children="drizzle.config.ts" /> file at the project root.
 This file defines how Drizzle connects to the database and where it should read schemas and write migrations.
 
-<Code children="drizzle.config.ts" />
-
-```ts
+```ts title="drizzle.config.ts"
 import { Config, defineConfig } from "drizzle-kit";
 import env from "./src/configs/env";
 
@@ -328,12 +322,6 @@ export default defineConfig({
 }) satisfies Config;
 ```
 
-**Notes:**
-
-- <Code children="schema" /> must point to the file that exports all schemas.
-- <Code children="env.DATABASE_URL" /> should be validated via Env Configuration
-  before use.
-- <Code children="strict: true" /> helps catch schema issues early during
-  migration generation.
+---
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won’t be automatic—you’ll need to implement them manually." />
