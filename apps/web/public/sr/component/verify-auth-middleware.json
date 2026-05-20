@@ -59,13 +59,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/models/user.model.ts",
-                  "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
+                  "path": "src/routes/user.routes.ts",
+                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/routes/user.routes.ts",
-                  "content": "import { Response, Router } from \"express\";\nimport { verifyAuthentication } from \"../middlewares/verify-auth\";\nimport { UserRequest } from \"../types/user\";\nimport { ApiResponse } from \"../utils/api-response\";\n\nconst router = Router();\n\nrouter.get(\n  \"/profile\",\n  verifyAuthentication,\n  (req: UserRequest, res: Response) => {\n    return ApiResponse.ok(res, \"User profile\", req.user);\n  }\n);\n\nexport default router;\n"
+                  "path": "src/models/user.model.ts",
+                  "content": "import mongoose, { Document, Model, Schema } from \"mongoose\";\n\nexport interface IUser extends Document {\n  _id: mongoose.Types.ObjectId;\n  name: string;\n  email: string;\n  password: string;\n  role: \"user\" | \"admin\";\n  isEmailVerified: boolean;\n\n  createdAt: Date;\n  updatedAt: Date;\n}\n\nconst userSchema = new Schema<IUser>(\n  {\n    name: {\n      type: String,\n      required: [true, \"Name is required\"],\n      trim: true\n    },\n    email: {\n      type: String,\n      required: [true, \"Email is required\"],\n      unique: true,\n      lowercase: true,\n      trim: true\n    },\n    password: {\n      type: String,\n      select: false,\n      default: null\n    },\n    role: {\n      type: String,\n      enum: [\"user\", \"admin\"],\n      default: \"user\"\n    },\n    isEmailVerified: {\n      type: Boolean,\n      default: false\n    }\n  },\n  {\n    timestamps: true\n  }\n);\n\nconst User: Model<IUser> = mongoose.model<IUser>(\"User\", userSchema);\nexport default User;\n"
                 },
                 {
                   "type": "file",
