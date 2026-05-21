@@ -49,9 +49,7 @@ Servercn provides a **sensible default configuration** focused on backend correc
 
 Below is the canonical configuration with inline explanations.
 
-<Code children="eslint.config.mjs" />
-
-```ts
+```ts title="eslint.config.mjs"
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
 import prettierPlugin from "eslint-plugin-prettier/recommended";
@@ -89,7 +87,7 @@ export default [
 
 Add the following scripts to your <Code children="package.json" /> to standardize linting across environments:
 
-```json {3-4}
+```json title="package.json" {3-4}
 {
   "scripts": {
     "lint:check": "eslint .",

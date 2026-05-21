@@ -20,9 +20,7 @@ Install the Prettier configuration using the Servercn CLI:
 
 The component installs a <Code children=".prettierrc" /> file and a <Code children=".prettierignore" /> file with sensible defaults for backend development.
 
-<Code children=".prettierrc" />
-
-```json
+```json title=".prettierrc"
 {
   "singleQuote": false,
   "semi": true,
@@ -38,7 +36,7 @@ The component installs a <Code children=".prettierrc" /> file and a <Code childr
 
 Add the following scripts to your <Code children="package.json" />:
 
-```json {3-4}
+```json title="package.json" {3-4} 
 {
   "scripts": {
     "format:check": "npx prettier . --check",
