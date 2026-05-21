@@ -11,6 +11,7 @@ This page documents the Todo schema for projects using <Code children="MongoDB" 
 
 The Todo schema provides a production-ready model for managing tasks, complete with user validation and performance considerations.
 
+---
 
 ## Installation Guide
 
@@ -18,7 +19,7 @@ To add this schema to your project, run:
 
 <PackageManagerTabs command="npx servercn-cli add sc todo" />
 
-During initialization, ensure you select <Code children="MongoDB" /> when prompted for the database.
+---
 
 ## Database Design
 
@@ -26,14 +27,11 @@ To see the complete database design, including the User schema from the Auth Dom
 
 [Database Design](https://www.drawdb.app/editor?shareId=577068fc81a9a9faba35fa9133dd5392)
 
+---
 
 ## Todo Model
 
-The **Todo Model** stores individual task information and maintains a reference to the user who created it.
-
-<Code children="src/models/todo.model.ts"/>
-
-```ts
+```ts title="src/models/todo.model.ts"
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
 /**
@@ -98,11 +96,11 @@ export default Todo;
 
 <PackageManagerTabs command="npx servercn-cli add sc todo/todo" />
 
+---
+
 ## User Model
 
-<Code children="src/models/user.model.ts"/>
-
-```ts
+```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IAvatar {
@@ -216,6 +214,8 @@ const User: Model<IUser> =
 export default User;
 ```
 
+---
+
 ## Relationship Reference
 
 The <Code children="userId" /> field uses a reference to the <Code children="User" /> model. When querying todos, you can easily populate user information:
@@ -225,10 +225,3 @@ const userTodos = await Todo.find({ userId: req.user._id })
   .populate("userId", "name email")
   .sort("-createdAt");
 ```
-
-## Key Benefits
-
-- **Strict Validation**: Ensures all todos have a user and a title.
-- **Auto-Timestamps**: Leverages Mongoose's built-in timestamp support.
-- **Optimized Queries**: Includes indexes for common access patterns.
-- **MLean Ready**: Compatible with <Code children=".lean()" /> for faster read operations.

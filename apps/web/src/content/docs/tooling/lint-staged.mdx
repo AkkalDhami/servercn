@@ -23,9 +23,8 @@ The Servercn setup automatically adds a <Code children="lint-staged" />  configu
 You can customize this configuration to match your project’s structure and tooling.
 
 #### Basic Example (TypeScript)
-<Code children="package.json" />
 
-```json {4-12}
+```json title="package.json" {4-12} 
 {
   "scripts": {...},
 
@@ -44,9 +43,8 @@ You can customize this configuration to match your project’s structure and too
 }
 ```
 #### Express + TypeScript Example
-<Code children="package.json" />
 
-```json 
+```json title="package.json"
 {
   "lint-staged":{
     "src/**/*.{ts,tsx}": [
@@ -60,10 +58,8 @@ You can customize this configuration to match your project’s structure and too
 }
 ```
 
-#### With Type Checking (Strict)e
-<Code children="package.json" />
-
-```json
+#### With Type Checking (Strict)
+```json title="package.json" {4-12} 
 {
   "lint-staged":{
     "src/**/*.ts": [
@@ -80,9 +76,7 @@ _**⚠️ Use this with caution on large projects, as type checking may slow dow
 
 Instead of <Code children="package.json" />, you can define your rules in <Code children=".lintstagedrc.json" />:
 
-<Code children=".lintstagedrc.json" />
-
-```json
+```json title=".lintstagedrc.json"
 {
   "*.{js,ts}": [ "eslint --fix", "prettier --write" ],
   "*.{json,md,yml}": "prettier --write"
