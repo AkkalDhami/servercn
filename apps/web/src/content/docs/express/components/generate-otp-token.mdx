@@ -8,8 +8,7 @@ command: npx servercn-cli add generate-otp-token
 
 Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
 
-All functions use Node.js's built-in <Code>node:crypto</Code> module to ensure **cryptographic randomness** and security.
-
+---
 ## Installation Guide
 
 Install the component using the servercn CLI:
@@ -48,6 +47,8 @@ export function generateOTP(length: number = 6, ttlMinutes: number = 5) {
   return { code, hashCode, expiresAt };
 }
 ```
+
+---
 
 **Usage Examples:**
 

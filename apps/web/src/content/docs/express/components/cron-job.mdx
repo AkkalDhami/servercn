@@ -9,14 +9,9 @@ command: npx servercn-cli add cron-job
 
 The **Background Jobs** component provides a standardized way to schedule and manage recurring tasks in your Servercn application using <Code children="node-cron" />.
 
-Background jobs are essential for tasks like:
-
-- Generating and sending daily reports.
-- Cleaning up temporary files or expired sessions.
-- Synchronizing data with third-party APIs.
-- Sending scheduled notifications or emails.
-
 [NPM Docs](https://www.npmjs.com/package/node-cron)
+
+---
 
 ## Installation Guide
 
@@ -24,14 +19,8 @@ Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add cron-job" />
 
-This will install <Code children="node-cron" /> and its types, and create the basic jobs structure in your project.
+---
 
-## Project Structure
-
-Depending on your architecture, the jobs are organized as follows:
-
-- **MVC**: <Code children="src/jobs/" />
-- **Feature**: <Code children="src/shared/jobs/" />
 
 ## Implementation
 
@@ -84,11 +73,13 @@ export const initJobs = () => {
 };
 ```
 
+---
+
 ### 3. Usage in Server
 
-Import and call the <Code children="initJobs" /> function in your main entry file (usually <Code children="server.ts" />).
+Import and call the <Code>initJobs</Code> function in your main entry file (usually server.ts).
 
-```ts title="server.ts"
+```ts title="server.ts" {2}
 import app from "./app";
 import { initJobs } from "./jobs";
 
@@ -102,17 +93,21 @@ app.listen(PORT, () => {
 });
 ```
 
+---
+
 ## Cron Syntax Refresher
 
 ```bash
 | Schedule               | Syntax       |
-| :--------------------- | :----------- |
+| ---------------------- | ------------ |
 | Every minute           | `* * * * *`  |
 | Every hour             | `0 * * * *`  |
 | Every day at midnight  | `0 0 * * *`  |
 | Every Sunday at noon   | `0 12 * * 0` |
 | Every 1st of the month | `0 0 1 * *`  |
 ```
+
+---
 
 ## Real-World Examples
 
@@ -157,6 +152,8 @@ export function startRefreshTokenCleanupJob() {
 }
 ```
 
+---
+
 ### 2. Daily Database Cleanup
 
 Remove unverified users who haven't verified their email within 24 hours.
@@ -184,6 +181,8 @@ export const cleanupUnverifiedUsers = cron.schedule("0 0 * * *", async () => {
 });
 ```
 
+---
+
 ### 3. System Health Heartbeat
 
 Send a heartbeat or log system performance metrics every 15 minutes.
@@ -205,6 +204,8 @@ export const systemMonitorJob = cron.schedule("*/15 * * * *", () => {
   }
 });
 ```
+
+---
 
 ### 4. Syncing Exchange Rates
 
@@ -229,6 +230,3 @@ export const syncExchangeRates = cron.schedule("0 * * * *", async () => {
 });
 ```
 
-## Summary
-
-The **Background Jobs** component using <Code children="node-cron" /> is a powerful and lightweight solution for adding scheduled tasks to your Servercn application without the complexity of a full-blown message queue.

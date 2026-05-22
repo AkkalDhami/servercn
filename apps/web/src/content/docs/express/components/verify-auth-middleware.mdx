@@ -8,14 +8,7 @@ command: npx servercn-cli add verify-auth-middleware
 
 The <Code children='Verify Authentication Middleware' /> protects private routes by validating user authentication using **JWT access tokens and refresh tokens**.
 
-It automatically:
-
-- Verifies access tokens from cookies
-- Refreshes expired access tokens using refresh tokens
-- Re-attaches authenticated user data to the request
-- Responds with standardized API errors when authentication fails
-
-This middleware is designed for **secure, session-like authentication** in REST APIs.
+---
 
 ## How Authentication Works
 
@@ -32,9 +25,13 @@ The middleware follows this sequence:
 
 This ensures **seamless token rotation** without forcing the user to re-login.
 
+---
+
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add verify-auth-middleware" />
+
+---
 
 ## Prerequisites
 
@@ -50,11 +47,7 @@ JWT_REFRESH_SECRET = "your-refresh-secret";
 
 Ensure the following configuration are defined:
 
-**MVC:** <Code children="src/configs/env.ts" />
-
-**Feature:** <Code children="src/shared/configs/env.ts" />
-
-```ts
+```ts title="src/configs/env.ts"
 interface Config {
   PORT: number;
   NODE_ENV: string;
@@ -74,13 +67,11 @@ const env: Config = {
 export default env;
 ```
 
+---
+
 To ensure the authentication middleware functions correctly, your project must define a User model with a structure similar to the following.
 
-**MVC:** <Code children="src/models/user.model.ts" />
-
-**Feature:** <Code children="src/shared/modules/user/user.model.ts" />
-
-```ts
+```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IUser extends Document {
@@ -133,11 +124,11 @@ const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 export default User;
 ```
 
+---
+
 To access authenticated user data inside request handlers, define a custom request type.
 
-<Code children="src/types/user.ts" />
-
-```ts
+```ts title="src/types/user.ts"
 import { Request } from "express";
 import mongoose from "mongoose";
 
@@ -148,13 +139,12 @@ export interface UserRequest extends Request {
 }
 ```
 
+---
+
 ## Basic Implementation
 
-### 1. MVC Structure
 
-<Code children="src/middlewares/verify-auth.ts" />
-
-```ts
+```ts title="src/middlewares/verify-auth.ts"
 import { NextFunction, Request, Response } from "express";
 import {
   generateAccessToken,
@@ -254,115 +244,11 @@ export async function verifyAuthentication(
 }
 ```
 
-### 2. Feature Structure
-
-<Code children="src/shared/middlewares/verify-auth.ts" />
-
-```ts
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken
-} from "../utils/jwt";
-import { logger } from "../utils/logger";
-import env from "../configs/env";
-import { UserRequest } from "../../types/user";
-import { ApiError } from "../errors/api-error";
-import User from "../../modules/user/user.model";
-import { NextFunction, Response } from "express";
-
-const isProduction = env.NODE_ENV === "production";
-const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000;
-const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000;
-
-export const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? ("none" as const) : ("lax" as const),
-  path: "/"
-};
-
-export async function verifyAuthentication(
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const accessToken = req.cookies?.accessToken;
-  const refreshToken = req.cookies?.refreshToken;
-
-  // Step 1: Try validating access token
-
-  try {
-    if (accessToken) {
-      const decoded = verifyAccessToken(accessToken);
-      req.user = decoded;
-      return next();
-    }
-  } catch (err) {
-    // Access token expired or invalid
-    logger.warn("Access token verification failed");
-  }
-
-  // Step 2: Refresh token required if access token fails
-
-  if (!refreshToken) {
-    return next(ApiError.unauthorized("Unauthorized, Please login first."));
-  }
-
-  try {
-    const decodedRefresh = verifyRefreshToken(refreshToken);
-
-    // Step 3: Ensure user still exists
-
-    const userInDb = await User.findOne({
-      _id: decodedRefresh.userId
-    });
-
-    if (!userInDb) {
-      return next(ApiError.unauthorized("Unauthorized, Please login first."));
-    }
-
-    // Step 4: Issue new tokens
-
-    const newAccessToken = generateAccessToken({
-      _id: userInDb._id.toString()
-    });
-
-    const newRefreshToken = generateRefreshToken(decodedRefresh.userId);
-
-    // Step 5: Saved accessToken and refreshToken in cookie
-    res.cookie("accessToken", newAccessToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: ACCESS_TOKEN_EXPIRY
-    });
-
-    res.cookie("refreshToken", newRefreshToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY
-    });
-
-    // Step 6: Attach user to request
-
-    req.user = {
-      _id: decodedRefresh.userId
-    };
-
-    // you can update the refresh token in the database here if you store it in the database
-
-    return next();
-  } catch (err: any) {
-    logger.warn("Refresh token verification failed");
-    return next(ApiError.unauthorized("Unauthorized, Please login first."));
-  }
-}
-```
+---
 
 ## Usage Example
 
-<Code children="src/routes/user.routes.ts" />
-
-```ts {2} /verifyAuthentication,/
+```ts {2} /verifyAuthentication,/ title="src/routes/user.routes.ts"
 import { Router } from "express";
 import { verifyAuthentication } from "../middlewares/verify-auth";
 
@@ -374,6 +260,8 @@ router.get("/profile", verifyAuthentication, (req, res) => {
 
 export default router;
 ```
+
+---
 
 ## Error Responses
 

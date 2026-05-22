@@ -8,17 +8,13 @@ command: npx servercn-cli add error-handler
 
 A lightweight, production-ready error handling utility for **Express** applications.
 
-This component provides:
-
-- Standardized HTTP status codes
-- A typed **ApiError** class
-- Consistent, predictable error responses
-- Clear separation between operational and programmer errors
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add error-handler" />
 
+---
 
 ## Basic Implementation
 
@@ -97,6 +93,8 @@ export class ApiError extends Error {
  */
 ```
 
+---
+
 ## Usage Example
 
 ```ts {1, 8}
@@ -112,6 +110,8 @@ export const signinUser = AsyncHandler(async (req, res) => {
   // ...
 });
 ```
+
+---
 
 ## Error Response
 

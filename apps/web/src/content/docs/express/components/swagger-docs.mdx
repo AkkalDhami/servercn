@@ -8,14 +8,7 @@ command: npx servercn-cli add swagger-docs
 
 The **Swagger API Documentation** component provides an automated way to generate and serve interactive API documentation.
 
-It leverages <Code children="swagger-autogen" /> to parse JSDoc comments in your route files and <Code children="swagger-ui-express" /> to provide a beautiful web interface for testing your endpoints.
-
-## Why Swagger?
-
-- **Interactive Testing**: Test your API endpoints directly from the browser without Postman or Insomnia.
-- **Auto-generated**: Keep your documentation in sync with your code using JSDoc comments.
-- **Standardized**: Built on the Industry-standard OpenAPI Specification (OAS).
-- **On-boarding**: Makes it easy for frontend developers or third-party consumers to understand your API.
+---
 
 ## Installation
 
@@ -23,15 +16,15 @@ Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add swagger-docs" />
 
+---
+
 ## Implementation Guide
 <Steps>
 <Step>Configuration</Step>
 
 The configuration file defines the metadata for your API and where Swagger should look for documentation comments.
 
-<Code children="src/swagger.config.ts" />
-
-```ts
+```ts title="src/swagger.config.ts"
 import swaggerAutoGen from "swagger-autogen";
 
 const doc = {
@@ -50,6 +43,8 @@ const endpointsFiles = ["./routes/*.ts"]; // Endpoints files to be parsed
 swaggerAutoGen(outputFile, endpointsFiles, doc);
 ```
 
+---
+
 <Step>Run the Script</Step>
 
 Run the script to generate the <Code children="swagger.json" /> file.
@@ -60,13 +55,13 @@ node src/swagger.config.ts
 
 It will generate a <Code children="swagger.json" /> file in the <Code children="docs" /> directory.
 
+---
+
 <Step>Setup Swagger</Step>
 
 Create a <Code children="swagger.ts" /> file in the <Code children="src/configs" /> directory.
 
-<Code children="src/configs/swagger.ts" />
-
-```typescript
+```typescript title="src/configs/swagger.ts"
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 
@@ -77,11 +72,13 @@ export const setupSwagger = (app: Express) => {
 };
 ```
 
+---
+
 <Step>Integration with App</Step>
 
 Update your main <Code children="app.ts" /> to initialize the Swagger documentation.
 
-```ts {2, 7, 11}
+```ts {2, 7, 11} title="src/app.ts"
 import express from "express";
 import { setupSwagger } from "./configs/swagger";
 
@@ -96,12 +93,15 @@ app.listen(8000, () => {
 });
 ```
 
+---
+
 <Step>Update swagger.json file (Optional)</Step>
 
 Update the <Code children="swagger.json" /> file with the new API documentation.
 
 </Steps>
 
+---
 
 ## Accessing the Docs
 

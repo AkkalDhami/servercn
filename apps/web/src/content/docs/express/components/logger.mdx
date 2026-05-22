@@ -13,6 +13,8 @@ The Servercn Logger component provides **two interchangeable logging strategies*
 - **Winston** — flexible, feature-rich, file-based logging
 - **Pino** — ultra-fast, JSON-first logging optimized for performance
 
+<br />
+---
 
 ## Installation Guide
 
@@ -30,6 +32,8 @@ You will be prompted to select a file upload provider:
 
 The CLI will then automatically configure the component based on your selected library.
 
+---
+
 ## Choosing a Logger
 
 ```
@@ -39,22 +43,11 @@ The CLI will then automatically configure the component based on your selected l
 | Pino    | High-performance APIs    | Extremely fast, JSON logs, low overhead                    |
 ```
 
+---
+
 ## Prerequisites
 
-Ensure the following environment variables are defined before running the application:
-
-```ts
-PORT = "3000";
-NODE_ENV = "development";
-LOG_LEVEL = "info";
-```
-
-<br />
-<Code children="src/configs/env.ts" />
-
-Ensure the following configuration are defined:
-
-```ts
+```ts title="src/configs/env.ts"
 interface Config {
   PORT: number;
   NODE_ENV: string;
@@ -70,24 +63,15 @@ const config: Config = {
 export default config;
 ```
 
+---
+
 ## Basic Implementation
 
-### 1. Winston Logger ✔️
-
-Winston is ideal if you want:
-
-- File-based logs
-- Daily rotation
-- Human-readable console output
-- Multiple log destinations
-
-**Winston Configuration**
-
-<Code children="src/utils/logger.ts" />
+### 1. Winston Logger
 
 **Minimal Configuration**
 
-```ts
+```ts title="src/utils/logger.ts"
 import winston from "winston";
 
 export const logger = winston.createLogger({
@@ -101,9 +85,11 @@ export const logger = winston.createLogger({
 });
 ```
 
+---
+
 **Advanced Configuration**
 
-```ts
+```ts title="src/utils/logger.ts"
 import env from "../configs/env";
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
@@ -173,6 +159,8 @@ export const logger = winston.createLogger({
 });
 ```
 
+---
+
 **Winston Usage Example**
 
 ```ts
@@ -183,6 +171,8 @@ logger.warn("Disk space running low");
 logger.error("Failed to connect to database");
 ```
 
+---
+
 **Winston Usage Output**
 
 ```bash
@@ -190,6 +180,8 @@ logger.error("Failed to connect to database");
 2026-01-03 18:43:23 [warn] : Disk space running low
 2026-01-03 18:43:23 [error] : Failed to connect to database
 ```
+
+---
 
 **Child Logger**
 
@@ -200,22 +192,13 @@ authLogger.info("Login started");
 authLogger.error({ userId }, "Invalid credentials");
 ```
 
-### 2. Pino Logger ✅
+---
 
-Pino is designed for speed and structured logging.
-It is the recommended choice for:
-
-- High-throughput APIs
-- Containerized deployments
-- Centralized log aggregation (ELK, Loki, Datadog)
-
-**Pino Configuration**
-
-<Code children="src/utils/logger.ts" />
+### 2. Pino Logger
 
 **Minimal Configuration**
 
-```ts
+```ts title="src/utils/logger.ts"
 import pino from "pino";
 import env from "../configs/env";
 
@@ -234,6 +217,8 @@ export const logger = pino({
       : undefined
 });
 ```
+
+---
 
 **Advanced Configuration**
 
@@ -284,6 +269,8 @@ export const logger = pino({
 });
 ```
 
+---
+
 **Pino Usage Example**
 
 ```ts
@@ -297,26 +284,30 @@ logger.error(
 );
 ```
 
+---
+
 **Pino Usage Output**
 
-```json
-// NODE_ENV: production
+> NODE_ENV: production
 
+```json
 {"level":30,"time":1767447427459,"pid":95816,"hostname":"HOST_NAME","msg":"Server started"}
 {"level":40,"time":1767447427460,"pid":95816,"hostname":"HOST_NAME","userId":"123","msg":"Suspicious activity detected"}
 {"level":50,"time":1767447427461,"pid":95816,"hostname":"HOST_NAME","err":"Database connection failed","msg":"Database connection failed"}
 ```
 
-<br />
-```json // NODE_ENV: development
+---
+> NODE_ENV: development
 
+```json
 [2026-01-04 08:17:19] INFO: Server started
 [2026-01-04 08:17:19] WARN: Suspicious activity detected
 userId: "123"
 [2026-01-04 08:17:19] ERROR: Database connection failed
 err: "Database connection failed"
+```
 
-````
+---
 
 **Child Logger**
 
@@ -325,4 +316,4 @@ const authLogger = logger.child({ module: "auth" });
 
 authLogger.info("Login started");
 authLogger.error({ userId }, "Invalid credentials");
-````
+```
