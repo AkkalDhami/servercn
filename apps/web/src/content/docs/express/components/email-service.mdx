@@ -12,11 +12,15 @@ contributor:
 
 The **Email Service** component provides a production-ready solution for sending emails in Servercn using **nodemailer**. It supports multiple email providers including Gmail, SMTP servers and more.
 
+---
+
 ## Installation Guide
 
 Install this component using the following command:
 
 <PackageManagerTabs command="npx servercn-cli add email-service" />
+
+---
 
 ## Prerequisites
 
@@ -32,7 +36,7 @@ Install this component using the following command:
 
 Add the following to your <Code children=".env" /> file:
 
-**SMTP Server**
+**Nodemailer**
 
 ```bash
 SMTP_HOST='smtp.gmail.com'
@@ -131,6 +135,8 @@ export async function sendEmail({
 </Steps>
 
 
+---
+
 ## 2. Resend 
 
 <Steps>
@@ -180,6 +186,8 @@ export async function sendEmail({
 </Steps>
 
 
+---
+
 ## 3. Mailtrap 
 <Steps>
   
@@ -226,6 +234,8 @@ export async function sendEmail({ from, email, subject, html }: sendMail) {
 ```
 </Steps>
 
+---
+
 ## Usage Examples
 
 ### 1. Send HTML Email
@@ -244,6 +254,8 @@ await sendEmail({
   html
 });
 ```
+
+---
 
 ### 2. Send Email with Resend
 

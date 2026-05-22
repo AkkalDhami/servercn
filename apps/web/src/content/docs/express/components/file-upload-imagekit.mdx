@@ -13,6 +13,8 @@ The **File Upload** component provides a standardized way to handle file uploads
 - [Official ImageKit Documentation](https://imagekit.io/)
 - [ImageKit Node.js SDK](https://github.com/imagekit-developer/imagekit-nodejs)
 
+---
+
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add file-upload" />
@@ -26,6 +28,8 @@ You will be prompted to select a file upload provider:
 ```
 
 The CLI will then automatically configure the component based on your selected provider.
+
+---
 
 ## Prerequisites
 
@@ -64,6 +68,8 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
+---
+
 ## Basic Implementation
 
 ### 1. ImageKit Configuration
@@ -80,6 +86,8 @@ const imagekitClient = new ImageKit({
 
 export default imagekitClient;
 ```
+
+---
 
 ### 2. Upload Middleware
 
@@ -117,6 +125,8 @@ const upload = multer({
 
 export default upload;
 ```
+
+---
 
 ### 3. ImageKit Services
 
@@ -173,6 +183,8 @@ export const deleteFileFromImageKit = async (
   }
 };
 ```
+
+---
 
 ## Usage Example
 
@@ -242,6 +254,8 @@ export const deleteFile = AsyncHandler(
 );
 ```
 
+---
+
 ### 2. Setup routes
 
 ```ts title="src/routes/upload.routes.ts"
@@ -262,6 +276,10 @@ router.delete("/", deleteFile);
 
 export default router;
 ```
+
+---
+
+### 3. Setup application
 
 ```ts title="src/app.ts" {7, 19}
 import express, { Application } from "express";
@@ -292,11 +310,3 @@ app.listen(PORT, () => {
 });
 ```
 
-## Security Best Practices
-
-- Enforce file size limits
-- Validate MIME types when required
-- Use private folders for sensitive uploads
-- Never expose ImageKit private keys to the client
-- Prefer authenticated routes for uploads
-- Use environment variables for all sensitive configuration

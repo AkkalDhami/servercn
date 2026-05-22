@@ -8,23 +8,14 @@ command: npx servercn-cli add response-formatter
 
 The <Code>API Response Formatter</Code> component provides a **consistent, predictable, and type-safe response structure** for Express-based APIs.
 
-It enforces a unified response contract across your entire backend, improving:
 
-- Client-side reliability
-- API readability
-- Error handling consistency
-- Developer experience
-
-This component is designed to work seamlessly with:
-
-- Async Handler
-- ApiError
-- Centralized error middleware
-- Frontend API clients
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add response-formatter" />
+
+---
 
 ## The Problem It Solves
 
@@ -36,13 +27,11 @@ res.status(201).send(user);
 res.status(400).json({ error: "Invalid input" });
 ```
 
+---
+
 ## Basic Implementation
 
-**MVC:** <Code children="src/utils/api-response.ts" />
-
-**Feature:** <Code children="src/shared/utils/api-response.ts" />
-
-```ts
+```ts title="src/utils/api-response.ts"
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 import type { Response } from "express";
 
@@ -115,6 +104,8 @@ export class ApiResponse<T = unknown> {
  */
 ```
 
+---
+
 ## Usage Example
 
 ```ts {5, 2}
@@ -125,6 +116,8 @@ export async function healthCheck(_req: Request, res: Response) {
   return ApiResponse.ok(res, "Service is healthy");
 }
 ```
+
+---
 
 ## Response
 
