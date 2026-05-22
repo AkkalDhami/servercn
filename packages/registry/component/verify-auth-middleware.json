@@ -19,7 +19,13 @@
             ],
             "dev": []
           },
-          "env": ["PORT", "LOG_LEVEL", "NODE_ENV"]
+          "env": [
+            "PORT",
+            "LOG_LEVEL",
+            "NODE_ENV",
+            "JWT_ACCESS_SECRET",
+            "JWT_REFRESH_SECRET"
+          ]
         }
       }
     }
