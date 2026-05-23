@@ -8,14 +8,7 @@ command: npx servercn-cli add not-found-handler
 
 The Not Found Handler component provides a centralized and consistent way to handle **unmatched routes**.
 
-Instead of allowing undefined routes to return inconsistent responses or default Express errors, this component ensures that all unknown endpoints respond with a standardized 404 Not Found error.
-
-This component exists to:
-
-- Catch all requests to undefined routes
-- Return a predictable and structured 404 response
-- Integrate seamlessly with Servercn error handling
-- Improve API reliability and developer experience
+---
 
 ## Installation Guide
 
@@ -23,15 +16,14 @@ This component exists to:
 
 This component requires the **API Error Handler** component to function correctly.
 
+---
+
 ## Basic Implementation
 
 The Not Found Handler is a middleware that catches all unmatched routes and throws a standardized 404 error.
 
-### 1. MVC Structure
 
-<Code children="src/middlewares/not-found-handler.ts" />
-
-```ts
+```ts title="src/middlewares/not-found-handler.ts"
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/api-error";
 
@@ -44,34 +36,14 @@ export const notFoundHandler = (
 };
 ```
 
-### 2. Feature Structure
-
-<Code children="src/shared/middlewares/not-found-handler.ts" />
-
-```ts
-import { Request, Response, NextFunction } from "express";
-import { ApiError } from "../errors/api-error";
-
-export const notFoundHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
-};
-```
+---
 
 ## Usage Example
 
 The Not Found Handler must be placed **after all routes** but **before the error handler** in your Express application.
 
-### 1. MVC Structure
-
-<Code children="src/app.ts" />
-
-```ts
+```ts title="src/app.ts" {13, 3}
 import express, { type Application } from "express";
-import "dotenv-flow/config";
 import { errorHandler } from "./middlewares/error-handler";
 import { notFoundHandler } from "./middlewares/not-found-handler";
 
@@ -91,31 +63,7 @@ app.use(errorHandler);
 export default app;
 ```
 
-### 2. Feature Structure
-
-<Code children="src/app.ts" />
-
-```ts
-import express, { type Application } from "express";
-import "dotenv-flow/config";
-import { errorHandler } from "./shared/middlewares/error-handler";
-import { notFoundHandler } from "./shared/middlewares/not-found-handler";
-
-const app: Application = express();
-
-app.use(express.json());
-
-// routes here
-// ...
-
-// Not found handler (should be after routes)
-app.use(notFoundHandler);
-
-// Global error handler (should be last)
-app.use(errorHandler);
-
-export default app;
-```
+---
 
 ## Response Format
 
@@ -131,6 +79,8 @@ When a route is not found, the handler returns a standardized 404 response:
 
 The exact format depends on your <Code children='ApiError' /> and <Code children='ApiResponse' /> configuration.
 
+---
+
 ## How It Works
 
 1. **Route Matching**: Express processes routes in the order they are defined
@@ -138,25 +88,3 @@ The exact format depends on your <Code children='ApiError' /> and <Code children
 3. **Error Throwing**: When a request doesn't match any route, it reaches the Not Found Handler
 4. **Error Propagation**: The handler throws an <Code children='ApiError' /> with a 404 status code
 5. **Error Handling**: The global error handler catches the error and returns a standardized response
-
-## Best Practices
-
-- Use <Code children="ApiError.notFound()" /> for consistency
-- Always place the Not Found Handler **after** all route definitions
-- Always place the Not Found Handler **before** the global error handler
-- The handler will catch all HTTP methods (GET, POST, PUT, DELETE, etc.)
-- Customize the error message to include the method and path for better debugging
-
-## Why This Component Matters
-
-**Without a dedicated not found handler:**
-
-- Undefined routes may return HTML error pages
-- Error responses become inconsistent
-- Debugging API issues becomes harder
-
-**This component ensures:**
-
-- All API endpoints return JSON
-- Status codes are correct and explicit
-- Errors are handled uniformly

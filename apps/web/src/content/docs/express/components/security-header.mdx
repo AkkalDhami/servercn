@@ -8,10 +8,7 @@ command: npx servercn-cli add security-header
 
 **Security Headers** provides a unified configuration for protecting your Express applications from common web vulnerabilities like Cross-Site Scripting (XSS), Clickjacking, and Cross-Origin Resource Sharing (CORS) issues.
 
-It leverages industry-standard tools:
-
-- **Helmet**: A collection of 15 smaller middleware functions that set security-related HTTP headers.
-- **CORS**: Middleware to enable Cross-Origin Resource Sharing with various options.
+---
 
 ## Installation Guide
 
@@ -19,113 +16,101 @@ Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add security-header" />
 
+---
+
 ## Threat Model Coverage
 
 Below is a precise breakdown of each header, the associated attack vector, and the mitigation strategy.
 
 ### 1. X-Content-Type-Options: nosniff
 
-#### Attack
+#### Attack:
 Browsers attempt MIME sniffing and may execute JavaScript disguised as another file type (e.g., malicious JS embedded in an image upload).
 
-#### Mitigation
+#### Mitigation:
 Forces browsers to strictly honor the declared <Code>Content-Type</Code> header.
 
 ---
 
 ### 2. X-Frame-Options: DENY (or SAMEORIGIN)
 
-#### Attack (Clickjacking)
+#### Attack (Clickjacking):
 An attacker embeds your application inside a malicious <Code>iframe</Code> and overlays invisible UI elements to trick users into clicking privileged actions.
 
-#### Mitigation
+#### Mitigation:
 Prevents your application from being framed.
 
 ---
 
 ### 3. X-XSS-Protection: 0
 
-#### History & Risk
+#### History & Risk:
 Legacy browsers implemented a reflective XSS filter that was unreliable and, in some cases, exploitable.
 
-#### Modern Best Practice
+#### Modern Best Practice:
 Disable it (0) and rely on a properly configured Content-Security-Policy (CSP).
 
 ---
 
 ### 4. Strict-Transport-Security (HSTS)
 
-#### Attack (Protocol Downgrade / MITM)
+#### Attack (Protocol Downgrade / MITM):
 An attacker forces HTTPS traffic to downgrade to HTTP.
 
-#### Mitigation
+#### Mitigation:
 Instructs the browser to only use HTTPS for your domain for a defined duration.
 
 ---
 
 ### 5. Content-Security-Policy (CSP)
 
-#### Attack (XSS Injection)
+#### Attack (XSS Injection):
 An attacker injects malicious <Code children="<script>" /> tags into your pages.
 
-#### Mitigation
+#### Mitigation:
 Whitelists allowed script, style, image, and connection sources.
 
 ---
 
 ### 6. Referrer-Policy
 
-#### Data Leakage Risk
+#### Data Leakage Risk:
 The Referer header may expose full URLs including tokens, internal paths, or identifiers when navigating away.
 
-#### Mitigation
+#### Mitigation:
 Controls how much URL information is shared with external origins.
 
 ---
 
 ### 7. Permissions-Policy
 
-#### Attack Surface Expansion
+#### Attack Surface Expansion:
 Malicious embedded contexts (iframes) attempt to access camera, microphone, geolocation, etc.
 
-#### Mitigation
+#### Mitigation:
 Explicitly disables browser capabilities your application does not require.
 
 ---
 
 ### 8. Remove X-Powered-By
 
-#### Information Disclosure
+#### Information Disclosure:
 X-Powered-By: Express reveals your framework stack.
 
-#### Mitigation
+#### Mitigation:
 Disable to reduce reconnaissance surface area.
 
 ---
 
-## What This Component Solves
-
-Manually configuring security headers can be error-prone and tedious. This component standardizes:
-
-- **XSS Protection**: Prevents browsers from loading scripts that appear to be XSS attacks.
-- **Clickjacking Protection**: Prevents your site from being embedded in an iframe.
-- **Content Type Sniffing**: Prevents browsers from trying to guess the content type.
-- **CORS Policy**: Configures which domains can access your API.
-
-
-## Implementation
+## Basic Implementation
 
 ### 1. Middleware Configuration
 
 The component provides a <Code children="configureSecurityHeaders" /> function that you should call during your Express app initialization.
 
-**MVC:** <Code children="src/middlewares/security-header.ts" />
-
-**Feature:** <Code children="src/shared/middlewares/security-header.ts" />
-
 #### Minimal
 
-```ts
+```ts title="src/middlewares/security-header.ts"
 import cors from "cors";
 import { Express } from "express";
 import helmet from "helmet";
@@ -151,9 +136,11 @@ export const configureSecurityHeaders = (app: Express) => {
 };
 ```
 
+---
+
 #### Advanced
 
-```ts
+```ts title="src/middlewares/security-header.ts"
 import cors from "cors";
 import { Express } from "express";
 import helmet from "helmet";
@@ -217,11 +204,13 @@ export const configureSecurityHeaders = (app: Express) => {
 };
 ```
 
+---
+
 ### 2. Usage in App
 
 Import and use the configuration in your main <Code children="app.ts" /> file.
 
-```ts {2, 7}
+```ts {2, 7} title="src/app.ts"
 import express from "express";
 import { configureSecurityHeaders } from "./middlewares/security-header";
 
@@ -234,7 +223,7 @@ app.use(express.json());
 // ... rest of your app
 ```
 
-
+---
 
 ## Production Recommendations
 
@@ -248,6 +237,8 @@ cors({
   // ...
 });
 ```
+
+---
 
 ### 2. Customize CSP for External Providers
 
@@ -268,23 +259,14 @@ app.use(
 );
 ```
 
+---
 
 ### 3. Enable HSTS Only After HTTPS Is Stable
 
 Once deployed over HTTPS permanently, consider submitting to the HSTS preload list.
 
+---
+
 ## Verification
 
 You can verify your security headers using online tools like [SecurityHeaders.com](https://securityheaders.com/).
-
-
-## Security Outcome
-
-- With this configuration, your Servercn Express application gains:
-- Hardened XSS defense
-- Clickjacking prevention
-- HTTPS enforcement
-- Reduced fingerprinting
-- Controlled cross-origin access
-- Minimized browser feature abuse
-- Referrer data protection

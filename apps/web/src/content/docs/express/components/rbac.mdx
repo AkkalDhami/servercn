@@ -8,10 +8,13 @@ command: npx servercn-cli add rbac
 
 The **RBAC** component provides a clean and reusable middleware to restrict API access based on user roles (e.g., <Code children="admin" />, <Code children="user" />, <Code children="manager" />). It integrates seamlessly with the authentication system.
 
+---
+
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add rbac" />
 
+---
 
 ## Prerequisites
 
@@ -37,9 +40,7 @@ JWT_REFRESH_SECRET = "your-refresh-secret";
 
 Ensure the following configuration are defined:
 
-<Code children="src/configs/env.ts" />
-
-```ts
+```ts title="src/configs/env.ts"
 interface Config {
   PORT: number;
   NODE_ENV: string;
@@ -59,11 +60,11 @@ const env: Config = {
 export default env;
 ```
 
+---
+
 To ensure the authentication middleware functions correctly, your project must define a User model with a structure similar to the following.
 
-<Code children="src/models/user.model.ts" />
-
-```ts
+```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { USER_ROLES, userRoles } from "../types/user";
 
@@ -117,11 +118,11 @@ const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 export default User;
 ```
 
+---
+
 To access authenticated user data inside request handlers, define a custom request type.
 
-<Code children="src/types/user.ts" />
-
-```ts
+```ts title="src/types/user.ts"
 import { Request } from "express";
 import mongoose from "mongoose";
 
@@ -138,6 +139,8 @@ export interface UserRequest extends Request {
 }
 ```
 
+---
+
 ## How It Works
 
 The middleware accepts a list of allowed roles. When a request hits a protected route:
@@ -147,15 +150,14 @@ The middleware accepts a list of allowed roles. When a request hits a protected 
 3.  If matched, the request proceeds (<Code children="next()" />).
 4.  If not matched, it returns a **403 Forbidden** error.
 
+<br />
+---
+
 ## Basic Implementation
 
 Here is the core logic for the RBAC middleware.
 
-### 1. MVC Structure
-
-<Code children="src/middlewares/authorize-role.ts" />
-
-```ts
+```ts title="src/middlewares/authorize-role.ts"
 import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../utils/api-error";
 import { UserRequest, userRoles } from "../types/user";
@@ -184,44 +186,13 @@ export const authorizeRoles = (...allowedRoles: userRoles[]) => {
 };
 ```
 
-### 2. Feature Structure
-
-<Code children="src/shared/middlewares/authorize-role.ts" />
-
-```ts
-import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../errors/api-error";
-import { UserRequest, userRoles } from "../../types/user";
-
-export const authorizeRoles = (...allowedRoles: userRoles[]) => {
-  return (req: UserRequest, res: Response, next: NextFunction) => {
-    // 1. Check if user is authenticated
-    if (!req.user) {
-      return next(ApiError.unauthorized("Unauthorized, Please login first."));
-    }
-
-    // 2. Check if user has required role
-    // Note: Ensure 'role' exists on req.user. You might strictly type this.
-    if (
-      !req.user.role ||
-      !allowedRoles.includes(req?.user?.role as userRoles)
-    ) {
-      return next(
-        ApiError.forbidden(
-          "Forbidden. You do not have permission to access this resource"
-        )
-      );
-    }
-    next();
-  };
-};
-```
+---
 
 ## Usage Example
 
 Use <Code children="authorizeRoles" /> in your route definitions. It typically runs **after** your authentication middleware.
 
-```ts {5, 12}
+```ts {5, 12} 
 import { Response, Router } from "express";
 import { verifyAuthentication } from "../middlewares/verify-auth";
 import { UserRequest } from "../types/user";
@@ -242,13 +213,13 @@ router.get(
 export default router;
 ```
 
+---
+
 ## Extending Types
 
 To make TypeScript happy with <Code children="req.user.role" />, extend your Express Request type definition.
 
-<Code children="src/types/user.ts" />
-
-```ts
+```ts title="src/types/user.ts"
 import { Request } from "express";
 
 // Define your roles type
