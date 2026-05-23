@@ -150,7 +150,7 @@ export default function ComponentFileViewer({
       <ResizablePanelGroup
         orientation="horizontal"
         className={cn(
-          "thin-scrollbar bg-code relative rounded-lg border border-neutral-500/10",
+          "thin-scrollbar bg-code border-edge relative rounded-lg border",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
             : "min-h-130 max-w-md md:min-w-210"
@@ -191,7 +191,7 @@ export default function ComponentFileViewer({
                 handleCopy={handleFilePathCopy}
                 copied={copiedPath}
                 className={cn(
-                  "bg-code opacity-0 group-hover:opacity-100 absolute -right-8 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center transition-all",
+                  "bg-code absolute top-1/2 -right-8 z-20 flex -translate-y-1/2 items-center justify-center opacity-0 transition-all group-hover:opacity-100",
                   selectedFile?.name ? "cursor-pointer" : "cursor-not-allowed"
                 )}
               />

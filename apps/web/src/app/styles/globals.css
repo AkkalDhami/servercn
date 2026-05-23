@@ -142,7 +142,7 @@
 }
 
 .dark {
-  --code: var(--color-neutral-950);
+  --code: var(--color-background);
   --muted-secondary: #888;
   --color-card-hover: #ffffff0c;
   --background: #000000;
@@ -352,7 +352,7 @@
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code mb-3 w-full max-w-210 rounded-lg border border-neutral-500/10;
+    @apply bg-code border-edge mb-3 w-full max-w-210 rounded-lg border;
   }
 
   [data-line] {
