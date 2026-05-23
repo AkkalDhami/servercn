@@ -77,11 +77,26 @@ export default function HeroSection() {
                 transition={{ duration: 0.5 }}
                 className="text-muted-primary mt-6 text-lg leading-relaxed tracking-tight md:text-xl">
                 <span className="text-primary font-medium">
-                  Focus on logic, not setup.
+                  Focus on logic, not boilerplate.
                 </span>{" "}
-                Pick the components you need — oauth, JWT, rate limiting,
-                logging, file-uploading, email-service and more. Drop them into
-                your Express project. You own every line, zero lock-in.
+                Add oauth, file-upload, rate limiting, logging, email-service
+                and more to your project with production-ready components. You
+                own the code. No lock-in.
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                className="mt-3 flex flex-wrap items-center gap-2 font-medium">
+                Built with the{" "}
+                <Link
+                  href={"https://ui.shadcn.com"}
+                  target="_blank"
+                  className="underline-offset-2 hover:underline">
+                  shadcn/ui
+                </Link>{" "}
+                philosophy for Node.js backends
               </motion.div>
 
               <motion.div
