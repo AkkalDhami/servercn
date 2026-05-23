@@ -29,24 +29,25 @@ export default function PackageManagerTabs({
   function onChangePackageManager(pkgManager: PackageManager) {
     setPkgManager(pkgManager);
   }
+  const Icon = getPackageManagerIcon(pkgManager, "size-5");
 
   return (
     <Tabs
       value={pkgManager}
-      className={cn("bg-code my-6 border border-neutral-500/10 rounded-lg sm:max-w-210")}>
-      <TabsList className={cn("bg-transparent pt-3 pl-3")}>
-        <TerminalIcon className="text-muted-foreground mr-3 size-6 pt-1" />
+      className={cn(
+        "bg-background border-edge my-6 rounded-lg border sm:max-w-210"
+      )}>
+      <TabsList className={cn("bg-transparent pt-1 pl-3")}>
+        <div className="mr-4 flex items-center gap-3 pt-3">{Icon}</div>
         {Object.keys(managers).map(m => {
-          const Icon = getPackageManagerIcon(m as PackageManager);
           return (
             <TabsTrigger
               key={m}
               value={m}
               className={cn(
-                "text-muted-foreground flex items-center gap-3 bg-transparent font-medium data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:bg-transparent"
+                "text-muted-foreground flex items-center gap-3 bg-transparent text-base font-medium data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none dark:data-[state=active]:bg-transparent"
               )}
               onClick={() => onChangePackageManager(m as PackageManager)}>
-              {Icon && getIconForPackageManager(m as keyof typeof managers)}
               {m}
             </TabsTrigger>
           );
@@ -58,7 +59,7 @@ export default function PackageManagerTabs({
         const [bin, ...rest] = cmd.split(" ");
         const remaining = rest.join(" ");
         return (
-          <TabsContent key={key} value={key} className="border-t border-neutral-500/10">
+          <TabsContent key={key} value={key} className="border-edge border-t">
             <CodeWrapper code={cmd}>
               {/* <CodeBlock code={cmd} /> */}
               <pre className="overflow-x-auto overscroll-x-contain p-4">
