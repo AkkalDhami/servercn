@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { FileIcon } from "lucide-react";
 import { FaGitAlt, FaStar } from "react-icons/fa";
 import { TbBrandTypescript } from "react-icons/tb";
@@ -628,18 +629,21 @@ export function getIconForLanguageExtension(
   }
 }
 
-export function getPackageManagerIcon(packageManager: PackageManagerType) {
+export function getPackageManagerIcon(
+  packageManager: PackageManagerType,
+  className?: string
+) {
   switch (packageManager) {
     case "npm":
-      return <LanguageIcons.npm className="size-4" />;
+      return <LanguageIcons.npm className={cn("size-4", className)} />;
     case "yarn":
-      return <LanguageIcons.yarn className="size-4" />;
+      return <LanguageIcons.yarn className={cn("size-4", className)} />;
     case "pnpm":
-      return <LanguageIcons.pnpm className="size-4" />;
+      return <LanguageIcons.pnpm className={cn("size-4", className)} />;
     case "bun":
-      return <LanguageIcons.bun className="size-4" />;
+      return <LanguageIcons.bun className={cn("size-4 dark:border", className)} />;
     default:
-      return <LanguageIcons.bash className="size-4" />;
+      return <LanguageIcons.bash className={cn("size-4", className)} />;
   }
 }
 
