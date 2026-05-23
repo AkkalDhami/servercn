@@ -8,25 +8,19 @@ command: npx servercn-cli add health-check
 
 The **Health Check** component provides production-ready endpoints for monitoring your API's status, system health, and service availability. Essential for load balancers, monitoring systems, and deployment tools.
 
-## Features
-
-- **Basic health check** - Simple endpoint to verify service is running
-- **Detailed health check** - System information including memory, CPU, and uptime
-- **Database connectivity check** - Optional database health verification
-- **Customizable** - Easy to extend with additional health checks
-- **Production-ready** - Standardized responses for monitoring tools
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add health-check" />
 
+---
+
 ## Basic Implementation
 
-### 1. MVC Structure
+### 1. Controller Setup
 
-Create health check controller in <Code children="src/controllers/health.controller.ts" />:
-
-```ts
+```ts title="src/controllers/health.controller.ts"
 import { Request, Response } from "express";
 import { ApiResponse } from "../utils/api-response";
 
@@ -37,77 +31,6 @@ export const healthCheck = async (_req: Request, res: Response) => {
     uptime: process.uptime()
   });
 };
-```
-
-Create routes in <Code children="src/routes/health.routes.ts" />:
-
-```ts
-import { Router } from "express";
-import { healthCheck } from "../controllers/health.controller";
-
-const router = Router();
-
-router.get("/", healthCheck);
-
-export default router;
-```
-
-### 2. Feature Structure
-
-For feature-based architecture, place controller in <Code children="src/modules/health/health.controller.ts" />:
-
-```ts
-import { Request, Response } from "express";
-import { ApiResponse } from "../../shared/utils/api-response";
-
-export const healthCheck = async (_req: Request, res: Response) => {
-  return ApiResponse.Success(res, "Service is healthy", {
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-};
-```
-
-## Usage Examples
-
-### 1. Basic Health Check
-
-Simple endpoint that returns service status:
-
-```ts
-import { ApiResponse } from "../utils/api-response";
-
-export const healthCheck = async (_req: Request, res: Response) => {
-  return ApiResponse.Success(res, "Service is healthy", {
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-};
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "Service is healthy",
-  "statusCode": 200,
-  "data": {
-    "status": "healthy",
-    "timestamp": "2024-01-15T10:30:00.000Z",
-    "uptime": 3600.5
-  }
-}
-```
-
-### 2. Detailed Health Check
-
-Include system information:
-
-```ts
-import { ApiResponse } from "../utils/api-response";
 
 export const detailedHealthCheck = async (_req: Request, res: Response) => {
   const healthData = {
@@ -132,7 +55,69 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
 };
 ```
 
-**Response:**
+---
+
+### 2. Route Setup
+
+```ts title="src/routes/health.routes.ts"
+import { Router } from "express";
+import {
+  healthCheck,
+  detailedHealthCheck
+} from "../controllers/health.controller";
+
+const router = Router();
+
+router.get("/", healthCheck);
+router.get("/detailed", detailedHealthCheck);
+
+export default router;
+```
+
+---
+
+### 3. Integration in App
+
+```ts {9} title="src/app.ts"
+import express, { type Application } from "express";
+import healthRoutes from "./routes/health.routes";
+
+const app: Application = express();
+
+app.use(express.json());
+
+// Health check routes (usually placed early)
+app.use("/api/health", healthRoutes);
+
+// Other routes...
+```
+
+
+## Usage Examples
+
+### 1. Basic Health Check
+
+Simple endpoint that returns service status:
+
+```json
+{
+  "success": true,
+  "message": "Service is healthy",
+  "statusCode": 200,
+  "data": {
+    "status": "healthy",
+    "timestamp": "2024-01-15T10:30:00.000Z",
+    "uptime": 3600.5
+  }
+}
+```
+
+---
+
+### 2. Detailed Health Check
+
+Include system information:
+
 
 ```json
 {
@@ -159,59 +144,3 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
   }
 }
 ```
-
-
-## Route Setup
-
-
-<Code children="src/routes/health.routes.ts" />
-
-```ts
-import { Router } from "express";
-import {
-  healthCheck,
-  detailedHealthCheck,
-  healthCheckWithDB
-} from "../controllers/health.controller";
-
-const router = Router();
-
-router.get("/", healthCheck);
-router.get("/detailed", detailedHealthCheck);
-router.get("/db", healthCheckWithDB);
-
-export default router;
-```
-
-
-<Code children="src/app.ts" />
-
-```ts {9}
-import express, { type Application } from "express";
-import healthRoutes from "./routes/health.routes";
-
-const app: Application = express();
-
-app.use(express.json());
-
-// Health check routes (usually placed early)
-app.use("/api/health", healthRoutes);
-
-// Other routes...
-```
-
-
-## Security Considerations
-
-1. **Rate limiting** - Consider rate limiting health check endpoints
-2. **Authentication** - Optionally protect detailed endpoints
-3. **IP whitelisting** - Restrict access to monitoring IPs if needed
-4. **Information disclosure** - Don't expose sensitive system information
-
-## Common Use Cases
-
-- **Load balancer health checks** - Verify service availability
-- **Monitoring systems** - Track service uptime and performance
-- **Deployment verification** - Confirm successful deployments
-- **Auto-scaling** - Determine when to scale services
-- **Incident response** - Quick status verification during outages

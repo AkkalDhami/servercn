@@ -10,12 +10,7 @@ The **GitHub & Google OAuth** component provides a secure and standardized way t
 
 [Official Docs](https://www.passportjs.org/)
 
-## Features
-
-- **Unified OAuth 2.0 flow** - Handle both Google and GitHub logins in a single integration
-- **Secure by default** - CSRF protection
-- **Express integration** - Ready-to-use route handlers
-- **Type-safe** - Full TypeScript support
+---
 
 ## Installation Guide
 
@@ -32,6 +27,8 @@ You will be prompted to select a file upload provider:
 
 The CLI will then automatically configure the component based on your selected provider.
 
+---
+
 ## Prerequisites
 
 ### Google Cloud Console Setup
@@ -42,6 +39,9 @@ The CLI will then automatically configure the component based on your selected p
 4. Authorized Redirect URI: <Code children="http://localhost:3000/api/auth/google/callback" />
 5. Copy **Client ID** and **Client Secret**
 
+<br />
+---
+
 ### GitHub OAuth Setup
 
 1. Go to [GitHub Settings > Developer settings](https://github.com/settings/profile)
@@ -49,11 +49,14 @@ The CLI will then automatically configure the component based on your selected p
 3. Authorization callback URL: <Code children="http://localhost:3000/api/auth/github/callback" />
 4. Copy **Client ID** and **Client Secret**
 
+<br />
+---
+
 ### Environment Variables
 
 Add to your <Code children=".env" />:
 
-```bash
+```bash title=".env"
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 GOOGLE_REDIRECT_URI="your-google-redirect-uri"
@@ -62,6 +65,8 @@ GITHUB_CLIENT_ID="your-github-client-id"
 GITHUB_CLIENT_SECRET="your-github-client-secret"
 GITHUB_REDIRECT_URI="your-github-redirect-uri"
 ```
+
+---
 
 ## Related Components
 

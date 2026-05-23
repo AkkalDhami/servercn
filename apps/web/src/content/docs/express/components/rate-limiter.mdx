@@ -10,26 +10,17 @@ The **Rate Limiter** component protects your application from abuse, denial-of-s
 
 Built on top of <Code children="express-rate-limit" />, it provides a standardized way to apply rate limits globally or to specific sensitive routes.
 
+---
+
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add rate-limiter" />
 
-## Configuration Options
-
-The rate limiter can be customized to fit your application's needs:
-
-- **windowMs**: The timeframe for which requests are checked (in milliseconds).
-- **max**: The maximum number of connections to allow during the <Code children="windowMs" /> before returning a 429 error.
-- **standardHeaders**: Enables the <Code children="RateLimit-*" /> headers in the response.
-- **handler**: A custom function to execute when the limit is reached. In Servercn, we use it to forward the error to our global error handler.
+---
 
 ## Basic Implementation
 
-#### MVC: <Code children="src/middlewares/rate-limiter.ts" />
-
-#### Modular: <Code children="src/shared/middlewares/rate-limiter.ts" />
-
-```ts
+```ts title="src/middlewares/rate-limiter.ts"
 import { rateLimit } from "express-rate-limit";
 import { STATUS_CODES } from "../constants/status-codes";
 import { ApiError } from "../utils/api-error";
@@ -156,15 +147,15 @@ export const changePasswordLimiter = rateLimit({
 });
 ```
 
+---
+
 ## Usage Guide
 
 ### Global Rate Limiting
 
 Apply the rate limiter globally in your main <Code children="app.ts" /> file to protect all routes by default.
 
-<Code children="src/app.ts" />
-
-```ts {7, 2}
+```ts {7, 2} title="src/app.ts"
 import express from "express";
 import { rateLimiter } from "./middlewares/rate-limiter";
 
@@ -176,13 +167,13 @@ app.use(rateLimiter);
 // ... rest of your app configuration
 ```
 
+---
+
 ### Route-Specific Rate Limiting
 
 For sensitive routes like login, password reset, or expensive search operations, you should apply stricter limits.
 
-<Code children="src/routes/auth.routes.ts" />
-
-```ts /authRateLimiter/ {2}
+```ts /authRateLimiter/ {2} title="src/routes/auth.routes.ts"
 import { Router } from "express";
 import { authRateLimiter } from "../middlewares/rate-limiter";
 

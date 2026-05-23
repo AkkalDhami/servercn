@@ -8,38 +8,18 @@ command: npx servercn-cli add request-validator
 
 The **Request Validator** component provides a standardized way to validate request data (body, query parameters, and route parameters) in Servercn using **Zod** schemas.
 
-It automatically:
-
-- Validates request body, query, and params using Zod schemas
-- Returns detailed validation error messages
-- Integrates seamlessly with Servercn error handling
-- Provides type-safe request data after validation
-
-This middleware is designed for **type-safe, schema-based validation** in REST APIs.
+---
 
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add request-validator" />
 
-## How Validation Works
+---
 
-The Request Validator middleware follows this sequence:
-
-1. **Schema Definition**: Define Zod schemas for body, query, or params
-2. **Middleware Application**: Apply <Code children="validateRequest" /> middleware to routes
-3. **Validation**: Middleware validates incoming request data against schemas
-4. **Error Handling**: If validation fails, returns detailed error messages
-5. **Type Safety**: Validated data is typed and attached to the request object
-
-This ensures **type-safe request handling** with clear validation error messages.
-
-## Middleware Implementation
+## Basic Implementation
 
 
-#### MVC: <Code children="src/middlewares/validate-request.ts" />
-#### Feature: <Code children="src/shared/middlewares/validate-request.ts" />
-
-```ts
+```ts title="src/middlewares/validate-request.ts"
 import { Request, Response, NextFunction } from "express";
 import z, { ZodError, type ZodObject } from "zod";
 
@@ -65,14 +45,13 @@ export const validateRequest = (schema: ZodObject<any>) => {
 };
 ```
 
+---
+
 ## Schema Definition
 
 Create validation schemas using Zod.
 
-#### MVC: <Code children="src/validations/user.validation.ts" />
-#### Feature: <Code children="src/modules/user/user.validation.ts" />
-
-```ts
+```ts title="src/validations/user.validation.ts"
 import z from "zod";
 
 export const createUserSchema = z.object({
@@ -83,14 +62,13 @@ export const createUserSchema = z.object({
 });
 ```
 
+---
+
 ## Usage Example
 
 Apply the <Code children="validateRequest" /> middleware to your routes with the appropriate schema.
 
-
-<Code children="src/routes/user.routes.ts" />
-
-```ts {2} /validateRequest(createUserSchema)/
+```ts {2} /validateRequest(createUserSchema)/ title="src/routes/user.routes.ts"
 import { Router } from "express";
 import { validateRequest } from "../middlewares/validate-request";
 import { createUserSchema } from "./user.validation";
@@ -103,6 +81,8 @@ router.post("/", validateRequest(createUserSchema), (req, res) => {
 
 export default router;
 ```
+
+---
 
 ## Validation Error Responses
 
@@ -122,13 +102,3 @@ When validation fails, the handler returns a standardized 400 Bad Request respon
 ```
 
 (The exact structure depends on your <Code children='ApiError' /> implementation.)
-
-## Best Practices
-
-- **Separate Schemas**: Create separate validation files for each resource/module
-- **Reusable Schemas**: Extract common validation patterns into shared schemas
-- **Clear Error Messages**: Provide descriptive error messages in your Zod schemas
-- **Type Safety**: Use Zod's type inference for TypeScript type safety
-- **Transform Data**: Use Zod's transform methods to convert query strings to numbers, dates, etc.
-- **Validate Early**: Apply validation middleware before business logic
-- **Consistent Structure**: Keep validation schemas organized and consistent across your application

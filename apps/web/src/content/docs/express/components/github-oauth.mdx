@@ -10,6 +10,8 @@ The **GitHub OAuth** component provides a secure and standardized way to integra
 
 [Official Docs](https://www.passportjs.org/)
 
+---
+
 ## Installation Guide
 
 <PackageManagerTabs command="npx servercn-cli add oauth" />
@@ -25,6 +27,8 @@ You will be prompted to select a file upload provider:
 
 The CLI will then automatically configure the component based on your selected provider.
 
+---
+
 ## Prerequisites
 
 ### GitHub OAuth Setup
@@ -38,11 +42,14 @@ The CLI will then automatically configure the component based on your selected p
 7. Generate a **Client Secret**
 8. Copy the **Client ID** and **Client Secret**
 
+<br />
+---
+
 ### Environment Variables
 
 Add the following to your <Code children=".env" /> file:
 
-```bash
+```bash 
 # replace all with your values
 GITHUB_CLIENT_ID="your-github-client-id"
 GITHUB_CLIENT_SECRET="your-github-client-secret"
@@ -77,6 +84,8 @@ const env: Config = {
 export default env;
 ```
 
+---
+
 ## Basic Implementation
 
 ### 1. Configure Passport Strategy
@@ -105,6 +114,8 @@ passport.use(
   )
 );
 ```
+
+---
 
 ### 2. Create a GitHub OAuth Controller
 
@@ -171,6 +182,8 @@ router.get(
 export default router;
 ```
 
+---
+
 ### 4. Initialize passport in app
 
 ```ts title="src/app.ts" {8}
@@ -201,6 +214,8 @@ export default app;
 ```
 
 
+---
+
 ## Success Response
 
 ```json
@@ -222,6 +237,8 @@ export default app;
 ```
 
 This response is formated by <Code children="ApiResponse" /> component.
+
+---
 
 ## Common Issues
 

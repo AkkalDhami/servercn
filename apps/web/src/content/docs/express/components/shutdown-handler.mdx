@@ -8,17 +8,15 @@ command: npx servercn-cli add shutdown-handler
 
 The **Graceful Shutdown Handler** ensures that your Express application terminates safely and predictably when the process receives termination signals (like <Code children="SIGTERM" /> or <Code children="SIGINT" />).
 
-It allows the server to:
-
-1. Stop accepting new connections.
-2. Complete all in-flight requests.
-3. Release resources (like database connections) before exiting.
+---
 
 ## Installation Guide
 
 Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add shutdown-handler" />
+
+---
 
 ## Why Graceful Shutdown Matters
 
@@ -28,17 +26,13 @@ When an application is restarted or stopped (e.g., during a deployment or scalin
 - Database connections might be left in a "hanging" state.
 - Background tasks might be interrupted without saving progress.
 
-## Implementation
+<br />
+---
 
-### 1. Utility Setup
+## Basic Implementation
 
-The component provides a <Code children="configureGracefulShutdown" /> function that takes your HTTP server instance.
 
-#### MVC Structure
-
-<Code children="src/utils/shutdown.ts" />
-
-```ts
+```ts title="src/utils/shutdown.ts"
 import { Server } from "http";
 
 export const configureGracefulShutdown = (server: Server) => {
@@ -71,11 +65,13 @@ export const configureGracefulShutdown = (server: Server) => {
 };
 ```
 
-### 2. Usage in Server
+---
+
+## Usage
 
 Import and apply the shutdown handler in your main entry file (usually <Code children="server.ts" />).
 
-```ts
+```ts title="src/server.ts" {3, 14}
 import http from "http";
 import app from "./app";
 import { configureGracefulShutdown } from "./utils/shutdown";
@@ -91,31 +87,3 @@ server.listen(PORT, () => {
 // Apply graceful shutdown
 configureGracefulShutdown(server);
 ```
-
-## Best Practices
-
-### Release Database Connections
-
-You should extend the <Code children="server.close" /> callback to include logic for closing your database connections.
-
-```ts
-server.close(async err => {
-  // Example: Mongoose cleanup
-  await mongoose.connection.close();
-  console.log("Database connection closed.");
-  process.exit(err ? 1 : 0);
-});
-```
-
-### Environment Signals
-
-In modern cloud environments:
-
-- **SIGTERM**: Sent by Kubernetes or Docker when a pod/container is being deleted.
-- **SIGINT**: Sent when you press <Code children="Ctrl+C" /> in your terminal.
-
-Both are handled by this component.
-
-## Summary
-
-The **Graceful Shutdown Handler** is a critical component for production-ready applications, ensuring high availability and data integrity during process termination.

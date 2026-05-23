@@ -8,11 +8,7 @@ command: npx servercn-cli add validate-objectid
 
 The **Validate ObjectId Middleware** ensures that route parameters intended to be MongoDB ObjectIds are valid before the request reaches your controller. This prevents <Code children="CastError" /> exceptions from Mongoose and ensures strictly typed ID handling.
 
-It is designed to be:
-
-- **Robust**: Checks for valid 24-character hex strings using Mongoose's <Code children="isValidObjectId" />.
-- **Flexible**: Can validate any route parameter name (defaults to <Code children="id" />).
-- **Clean**: Throws a standardized <Code children='ApiError' /> if validation fails.
+---
 
 ## Installation Guide
 
@@ -20,14 +16,11 @@ Install the component using the servercn CLI:
 
 <PackageManagerTabs command="npx servercn-cli add validate-objectid" />
 
+---
 
 ## Basic Implementation
 
-#### MVC: <Code children="src/middlewares/validate-id.ts" />
-#### Feature: <Code children="src/shared/middlewares/validate-id.ts" />
-
-
-```ts
+```ts title="src/middlewares/validate-id.ts"
 import { Request, Response, NextFunction } from "express";
 import { isValidObjectId } from "mongoose";
 import { ApiError } from "../utils/api-error";
@@ -53,12 +46,13 @@ export const validateObjectId = (paramName: string = "id") => {
 };
 ```
 
+---
 
 ## Usage Example
 
 Apply the middleware to any route that contains an <Code children=":id" /> parameter.
 
-```ts {2, 8, 11}
+```ts {2, 8, 11} 
 import { Router } from "express";
 import { validateObjectId } from "../middlewares/validate-id";
 import { getUserById, deleteUser } from "../controllers/user.controller";
@@ -73,7 +67,3 @@ router.delete("/:userId", validateObjectId("userId"), deleteUser);
 
 export default router;
 ```
-
-## Why Use This?
-
-Without this middleware, passing an invalid ID (e.g., <Code children="123" />) to a Mongoose query like <Code children="findById" /> causes a <Code children="CastError" />, which might crash your app or result in a generic 500 Internal Server Error if not handled properly. This middleware catches the issue early and returns a proper 400 Bad Request.
