@@ -646,6 +646,8 @@ export function getIconForLanguageExtension(
       return <LanguageIcons.ts className="fill-foreground size-4" />;
     case "bash":
       return <LanguageIcons.bash className="size-4" />;
+    case "dotenv":
+      return <LanguageIcons.env className="size-4" />;
     case "prisma":
       return <LanguageIcons.prisma className="size-4" />;
     case "sql":
