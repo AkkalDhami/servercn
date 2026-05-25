@@ -30,36 +30,6 @@ Setting up Prisma with PostgreSQL repeatedly involves:
 
 The Prisma PostgreSQL Starter standardizes these concerns so every project starts with a **reliable, type-safe database layer**.
 
-## What You Get Out of the Box
-
-After initialization, your project includes:
-
-### Database Core
-
-- Prisma ORM configured for PostgreSQL
-- Prisma Client for type-safe queries
-- Centralized database configuration
-
-### Configuration
-
-- Environment-based database config with Zod validation
-- Safe startup validation — server exits immediately on missing variables
-- Production-ready connection handling
-
-### Schema Management
-
-- Prisma schema definition
-- PostgreSQL models with auto-increment IDs and timestamps
-- Type-safe access across the application
-
-### Developer Experience
-
-- Fully typed queries
-- Swagger/OpenAPI docs auto-generated on startup
-- Graceful shutdown handling
-- Structured logging with Pino
-- CORS, Helmet, and Cookie-Parser pre-configured
-
 ## Environment Configuration
 
 Database credentials are loaded via environment variables.
@@ -80,9 +50,7 @@ The server fails fast if required variables are missing or invalid.
 
 Schemas are defined using Prisma's declarative schema language.
 
-<Code children="prisma/schema.prisma" />
-
-```prisma
+```prisma title="prisma/schema.prisma"
 generator client {
   provider = "prisma-client-js"
 }
@@ -110,11 +78,7 @@ Schemas are:
 
 ## Database Client Setup
 
-**MVC:** <Code children="src/configs/prisma.ts" />
-
-**Feature:** <Code children="src/shared/configs/prisma.ts" />
-
-```ts
+```ts title="src/configs/prisma.ts"
 import { PrismaClient } from "@prisma/client";
 import env from "./env";
 
@@ -204,26 +168,3 @@ src/
 prisma/
 └── schema.prisma
 ```
-
-## Recommended Extensions
-
-For the best experience working with Prisma schemas, install the official Prisma extension for VS Code.
-
-<Code children=".vscode/extensions.json" />
-
-```json
-{
-  "recommendations": [
-    "Prisma.prisma"
-  ]
-}
-```
-
-The extension provides:
-
-- Syntax highlighting for `.prisma` files
-- Auto-formatting on save
-- IntelliSense and field autocomplete
-- Jump to definition for models and enums
-
-VS Code will automatically prompt anyone who clones the project to install it.
