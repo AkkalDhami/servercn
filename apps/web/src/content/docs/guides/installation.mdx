@@ -7,6 +7,8 @@ description: Learn how to install and set up Servercn in your project.
 
 This guide will help you install and set up Servercn in your Node.js project.
 
+---
+
 ## Prerequisites
 
 Before installing Servercn, ensure you have:
@@ -15,6 +17,8 @@ Before installing Servercn, ensure you have:
 - **npm**, **yarn**, **bun** or **pnpm** package manager
 - An existing Node.js project (or create a new with servercn foundations)
 
+<br />
+---
 ## Quick Start
 
 The fastest way to get started with Servercn:
@@ -38,6 +42,7 @@ After running the command, you will be prompted to choose a project foundation:
 
 Choose the foundation that best fits your project requirements and press Enter to continue.
 
+---
 
 ### 2. Add your first component
 
@@ -55,6 +60,8 @@ The Express Starter Foundation is the core starting block provided by servercn.
 
 [Express Starter Docs](/docs/express/foundations/express-starter)
 
+---
+
 ### 2. Drizzle MySQL Starter
 
 The Drizzle MySQL Starter is a database foundation provided by servercn for projects that use MySQL with Drizzle ORM.
@@ -62,6 +69,8 @@ The Drizzle MySQL Starter is a database foundation provided by servercn for proj
 <PackageManagerTabs command="npx servercn-cli init drizzle-mysql-starter" />
 
 [Drizzle MySQL Starter Docs](/docs/express/foundations/drizzle-mysql-starter)
+
+---
 
 ### 3. Drizzle PostgreSQL Starter
 
@@ -71,6 +80,8 @@ The Drizzle PostgreSQL Starter is a database foundation provided by servercn for
 
 [Drizzle PostgreSQL Starter Docs](/docs/express/foundations/drizzle-pg-starter)
 
+---
+
 ### 4. Mongoose Starter
 
 The Mongoose Starter is a database foundation provided by servercn for projects that use MongoDB with Mongoose ODM.
@@ -78,6 +89,8 @@ The Mongoose Starter is a database foundation provided by servercn for projects 
 <PackageManagerTabs command="npx servercn-cli init mongoose-starter" />
 
 [Mongoose Starter Docs](/docs/express/foundations/mongoose-starter)
+
+---
 
 ## Configuration Options
 
@@ -113,6 +126,9 @@ The Mongoose Starter is a database foundation provided by servercn for projects 
 - **PostgreSQL**: With Drizzle ORM
 - More databases coming soon
 
+<br />
+---
+
 ## servercn.config.json
 
 This file stores your project configuration and is used by Servercn to generate components in the correct structure.
@@ -134,6 +150,8 @@ This file stores your project configuration and is used by Servercn to generate 
 }
 ```
 
+---
+
 ## Databases
 
 Servercn provides first-class support for popular databases through well-integrated ORMs and ODMs. This ensures your project follows best practices for data modeling and type safety.
@@ -144,6 +162,8 @@ Servercn provides first-class support for popular databases through well-integra
 
 - PostgreSQL with Drizzle
 
+<br />
+---
 
 ## Adding Components
 
@@ -160,6 +180,8 @@ npx servercn-cli add error-handler
 npx servercn-cli add jwt-utils http-status-codes
 ```
 
+---
+
 ## Updating Configuration
 
 You can manually edit <Code children="servercn.config.json" /> to change your project configuration:
@@ -172,6 +194,8 @@ You can manually edit <Code children="servercn.config.json" /> to change your pr
 
 After updating, new components will use the updated configuration.
 
+---
+
 ## Next Steps
 
 After installation:
@@ -180,6 +204,9 @@ After installation:
 2. **Set up your Express app**: Create <Code children='src/app.ts' />
 3. **Add more components**: Explore available components with <Code children="npx servercn-cli list" />
 4. **Read component docs**: Each component has detailed documentation
+
+<br />
+---
 
 ## Getting Help
 

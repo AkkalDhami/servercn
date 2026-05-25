@@ -105,46 +105,6 @@ The example below references the registry structure for a blueprint:
 }
 ```
 
-
-##### I. $schema
-
-- Points to the official Servercn [blueprint](https://servercn.vercel.app/schema/blueprint.registry.json) schema.
-- Ensures your configuration is validated automatically.
-
-##### II. slug
-
-- Unique identifier of the blueprint.
-- Must be kebab-case.
-- Used internally by CLI commands:
-
-<PackageManagerTabs command="npx servercn-cli add bp my-blueprint" />
-
-##### III. databases & orms
-
-Blueprints are designed to be flexible. You should ideally provide implementations for:
-- **Databases**: PostgreSQL, MySQL, MongoDB.
-- **ORMs**: Drizzle (for SQL), Mongoose (for MongoDB).
-
-##### IV. templates
-
-Templates define the physical location of the code for each combination.
-Template folder paths must exist inside: 
-<Code>packages/templates/node/express/blueprint/blueprint-name/database/orm/architecture/</Code>
-
-Example:
-```bash
-packages/
-  templates/
-    node/
-      express/
-        blueprint/
-          my-blueprint/
-            postgresql/
-              drizzle/
-                mvc/
-                feature/
-```      
-
 <Step>Add Templates</Step>
 
 Ensure your templates:
@@ -201,12 +161,6 @@ Add your blueprint entry to:
 
 Add mdx documentation inside:
 <Code>apps/web/src/content/docs/express/blueprints/blueprint-slug.mdx</Code>
-
-Explain:
-- Key features
-- How the logic works
-- Installation steps
-- Environment variables required
 
 <Step>Commit Properly</Step>
 

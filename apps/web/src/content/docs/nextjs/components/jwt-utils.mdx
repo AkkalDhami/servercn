@@ -26,22 +26,12 @@ Install the component using the servercn CLI:
 
 These helpers read secrets from <Code children="process.env" />:
 
-- <Code children="JWT_ACCESS_SECRET" />: secret for access tokens
-- <Code children="JWT_REFRESH_SECRET" />: secret for refresh tokens
+```dotenv title=".env"
+JWT_ACCESS_SECRET='your_access_secret'
+JWT_REFRESH_SECRET='your_refresh_secret'
+```
 
-## Token types & payloads
-
-The module defines a discriminated union via <Code children="type" />:
-
-- <Code children="JwtType.ACCESS" /> with <Code children="AccessTokenPayload" />
-- <Code children="JwtType.REFRESH" /> with <Code children="RefreshTokenPayload" />
-
-Minimal payload fields:
-
-- **Access**: <Code children="sub" />, <Code children="type" />, <Code children="email" />, <Code children="sid" />
-- **Refresh**: <Code children="sub" />, <Code children="type" />, <Code children="sid" />
-
-<Code children="iat" />/<Code children="exp" /> are optional fields that come from JWT signing.
+---
 
 ## Signing tokens
 

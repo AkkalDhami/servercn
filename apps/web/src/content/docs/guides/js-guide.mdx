@@ -81,7 +81,7 @@ DATABASE_URL='mongodb://127.0.0.1:27017/myDatabase'
 
 Before starting the server, ensure that your <Code>package.json</Code> contains the following scripts:
 
-```json {3-6}
+```json {3-6} title="package.json"
 { 
   "scripts": {
     "dev": "cross-env NODE_ENV=development npx tsx --watch src/server.ts",
@@ -128,8 +128,7 @@ Update your <Code>tsconfig.json</Code> file by replacing its content with the fo
     "useUnknownInCatchVariables": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": [ "./*", "./src/*" ],
-      "@/shared/*": [ "../../shared/*" ]
+      "@/*": [ "./*", "./src/*" ]
     }
   },
   "tsc-alias": {
@@ -177,6 +176,7 @@ Repeat the steps from **Add Servercn Component** for any additional components y
 
 If you encounter any issues while following the steps, feel free to join our [Discord server](https://discord.gg/2fXqnTXF8d) for help and support.
 
+---
 
 ## Getting Help
 
@@ -185,6 +185,8 @@ If you encounter any issues while following the steps, feel free to join our [Di
 - **Community**: Join our [community discussions](https://github.com/AkkalDhami/servercn/discussions)
 - **Discord**: Join our  [Discord](https://discord.gg/2fXqnTXF8d) community.
 
+<br />
+---
 
 <Note text="While this guide helps you use Servercn in JavaScript projects, consider learning TypeScript basics. It'll make integrating Servercn components even easier and unlock better IDE support!" />
 

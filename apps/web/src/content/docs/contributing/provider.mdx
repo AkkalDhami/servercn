@@ -103,72 +103,6 @@ Use this shape as a reference:
 }
 ```
 
-##### I. $schema
-
-- Use the same schema URL currently used by provider registry files in this repository.
-- Keep it exactly aligned with existing provider entries to pass validation checks.
-
-##### II. slug
-
-- Unique identifier of the provider.
-- Must be kebab-case.
-- Used by CLI commands:
-
-<PackageManagerTabs command="npx servercn-cli add pr my-provider" />
-
-##### III. runtimes and frameworks
-
-- Declare only supported runtime/framework combinations.
-- Most current providers target <Code>node</Code> + <Code>express</Code>.
-- Add another framework only if templates are implemented for it.
-
-##### IV. templates
-
-Maps architecture types to template folders:
-
-```json
-{
-  "templates": {
-    "mvc": "my-provider/mvc",
-    "feature": "my-provider/feature"
-  }
-}
-```
-
-<LNote>
-- If you declare both <Code>mvc</Code> and <Code>feature</Code>, both folders must exist.
-- Folder paths are relative to:
-- <Code>packages/templates/node/express/provider/</Code>
-</LNote>
-
-##### V. dependencies
-
-Defines packages auto-installed when the provider is added.
-
-```json
-{
-  "dependencies": {
-    "runtime": ["your-runtime-dependency"],
-    "dev": ["your-dev-dependency"]
-  }
-}
-```
-
-<LNote>
-- Include only dependencies required by provider templates.
-- Keep versions consistent with existing providers when possible.
-</LNote>
-
-##### VI. env
-
-Defines required environment variables:
-
-```json
-{
-  "env": ["DATABASE_URL"]
-}
-```
-
 <LNote>
 - List only truly required variables.
 - Do not include secrets with hardcoded values.
@@ -244,15 +178,6 @@ Add your provider entry to:
 
 Add docs at:
 <Code>apps/web/src/content/docs/express/providers/provider-slug.mdx</Code>
-
-Recommended sections:
-- Overview
-- Features
-- Installation command
-- File structure (MVC + Feature)
-- Core code snippets (<Code>env.ts</Code>, <Code>db.ts</Code>/<Code>prisma.ts</Code>)
-- Usage example
-- Example <Code>.env</Code>
 
 <Step>Commit Properly</Step>
 
