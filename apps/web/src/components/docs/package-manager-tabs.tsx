@@ -35,7 +35,7 @@ export default function PackageManagerTabs({
     <Tabs
       value={pkgManager}
       className={cn(
-        "bg-background border-edge my-6 rounded-lg border sm:max-w-210"
+        "bg-background border-edge my-6 rounded-lg border sm:max-w-220"
       )}>
       <TabsList className={cn("bg-transparent pt-1 pl-3")}>
         <div className="mr-4 flex items-center gap-3 pt-3">{Icon}</div>

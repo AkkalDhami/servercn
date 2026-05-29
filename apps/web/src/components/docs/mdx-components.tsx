@@ -113,14 +113,17 @@ export const mdxComponents: MDXComponents = {
   strong: props => <strong className="text-primary" {...props} />,
   blockquote: ({ className, ...props }: React.ComponentProps<"blockquote">) => (
     <blockquote
-      className={cn("mt-6 border-l-2 pl-6 italic", className)}
+      className={cn(
+        "mt-6 border-l-2 border-l-neutral-500 pl-4 font-mono",
+        className
+      )}
       {...props}
     />
   ),
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "mt-4 mb-1 scroll-m-32 text-[19px] font-medium tracking-tight",
+        "mt-4 mb-3 scroll-m-32 text-[19px] font-medium tracking-tight",
         className
       )}
       {...props}
