@@ -153,7 +153,7 @@ export default function ComponentFileViewer({
           "thin-scrollbar bg-code border-edge relative rounded-lg border",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
-            : "min-h-130 max-w-md md:min-w-210"
+            : "min-h-130 max-w-md md:min-w-220"
         )}>
         <Link
           href={
