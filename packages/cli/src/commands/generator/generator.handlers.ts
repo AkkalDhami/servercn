@@ -1,9 +1,7 @@
 import { assertInitialized } from "@/lib/assert-initialized";
 import { getServerCNConfig } from "@/lib/config";
-import { paths } from "@/lib/paths";
 import { resolvePath, writeFileSafe } from "@/utils/file";
 import { toKebabCase, toPascalCase } from "@/utils/naming";
-import { compileTemplate } from "@/utils/template";
 
 import { resolve } from "path";
 
@@ -12,7 +10,8 @@ import type { Architecture, GeneratorType } from "@/types";
 import { logger } from "@/utils/logger";
 import type { GeneratorOptions } from ".";
 import { capitalize } from "@/utils/capitalize";
-import { GENERATOR_TYPES } from "@/constants/app.constants";
+import { GENERATOR_TYPES, GITHUB_URL } from "@/constants/app.constants";
+import { getGeneratorTemplates } from "@/templates";
 
 async function runGenerator({
   name,
@@ -28,11 +27,11 @@ async function runGenerator({
   const config = await getServerCNConfig();
   validateStack(config);
 
-  const { runtime, framework, architecture } = config;
+  const { framework, architecture } = config;
 
-  const className = toPascalCase(name);
-  const modelName = capitalize(name);
-  const modelSchemaName = `${className}Schema`;
+  // const className = toPascalCase(name);
+  // const modelName = capitalize(name);
+  // const modelSchemaName = `${className}Schema`;
 
   const fileName = `${toKebabCase(name)}.${type}.ts`;
 
@@ -49,19 +48,18 @@ async function runGenerator({
     process.exit(1);
   }
 
-  const templatePath = paths.cliTemplates({
-    fileName: type,
-    runtime,
+  const content = getGeneratorTemplates({
     framework,
-    architecture
+    type,
+    arch: architecture,
+    name
   });
 
-  const content = compileTemplate(templatePath, {
-    name,
-    className,
-    modelName,
-    modelSchemaName
-  });
+  if (!content) {
+    logger.error(`Failed to generate ${type} for ${name}`);
+    logger.break();
+    process.exit(1);
+  }
 
   await writeFileSafe({
     filePath: outputPath,
@@ -225,7 +223,11 @@ function resolveOutputPath({
     }
   }
 
-  logger.error(`Unsupported architecture: ${architecture}`);
+  logger.error(`Something went wrong:
+
+Unsupported architecture: ${architecture}
+
+If you think this is a bug, please open an issue at ${GITHUB_URL}/issues/new`);
 }
 
 export function resolveGeneratorType(type: GeneratorType) {
@@ -311,7 +313,7 @@ function buildDTOContent({
       : `  // TODO: define fields
   name: z.string().min(2),`;
 
-  return `import { z } from "zod";
+  return `import z from "zod";
 
 //* Base schema for ${className}
 export const ${name}BaseSchema = z.object({
@@ -321,16 +323,11 @@ ${baseFields}
 ${
   crud
     ? `
-//* Create ${className} ${type}
 export const Create${className}${capitalize(type)} = ${name}BaseSchema;
-
-export type Create${className}${capitalize(type)}Type = z.infer<typeof Create${className}${capitalize(type)}>;
-
-//* Update ${className} ${type}
 export const Update${className}${capitalize(type)} = ${name}BaseSchema.partial();
 
-export type Update${className}${capitalize(type)}Type = z.infer<typeof Update${className}${capitalize(type)}>;
-`
+export type Create${className}${capitalize(type)}Type = z.infer<typeof Create${className}${capitalize(type)}>;
+export type Update${className}${capitalize(type)}Type = z.infer<typeof Update${className}${capitalize(type)}>;`
     : ""
 }
 `;
