@@ -6,11 +6,35 @@
         "nextjs": {
           "dependencies": {
             "runtime": [
+              "@base-ui/react@^1.3.0",
+              "class-variance-authority@^0.7.1",
+              "clsx@^2.1.1",
+              "lucide-react@^1.7.0",
               "next@16.2.1",
+              "next-themes@^0.4.6",
               "react@19.2.4",
-              "react-dom@19.2.4"
+              "react-dom@19.2.4",
+              "shadcn@^4.1.2",
+              "tailwind-merge@^3.5.0",
+              "tw-animate-css@^1.4.0"
             ],
-            "dev": []
+            "dev": [
+              "@commitlint/cli@^20.5.0",
+              "@commitlint/config-conventional@^20.5.0",
+              "@tailwindcss/postcss@^4",
+              "@types/node@^20",
+              "@types/react@^19",
+              "@types/react-dom@^19",
+              "babel-plugin-react-compiler@1.0.0",
+              "eslint@^9.39.4",
+              "eslint-config-next@16.2.1",
+              "husky@^9.1.7",
+              "lint-staged@^16.4.0",
+              "prettier@^3.8.1",
+              "prettier-plugin-tailwindcss@^0.7.2",
+              "tailwindcss@^4",
+              "typescript@^5"
+            ]
           },
           "env": [],
           "architectures": {
@@ -24,7 +48,7 @@
                 {
                   "type": "file",
                   "path": "README.md",
-                  "content": "# Next.js × Servercn\n\nA Next.js starter template for Servercn, featuring Tailwind CSS, Shadcn, dark mode, and more.\n---\n\n## ⚡ Quick Start\n\n```bash\nnpm install\nnpm run dev\n```\n\n---\n\n## 🧠 Why Servercn?\n\nServercn turns Next.js into a **structured, backend-ready architecture**:\n\n- API-first approach\n- Scalable project structure\n- Built for real-world applications\n\n---\n\n## 🚀 Extend This Starter\n\nUpgrade anytime:\n\n- MongoDB (Mongoose / Prisma)\n- PostgreSQL (Drizzle / Prisma)\n- MySQL (Drizzle / Prisma)\n\n---\n\n## ⚙️ Generate More\n\n```bash\nnpx servercn-cli init nextjs-starter\n```\n\n---\n\n## 🔗 Servercn\n\nBuild faster. Structure better."
+                  "content": "# Next.js × Servercn\n\nA Next.js starter template for Servercn, featuring Tailwind CSS, Shadcn, dark mode, and more.\n\n---\n\n## ⚡ Quick Start\n\n```bash\nnpm install\nnpm run dev\n```\n\n---\n\n## 🧠 Why Servercn?\n\nServercn turns Next.js into a **structured, backend-ready architecture**:\n\n- API-first approach\n- Scalable project structure\n- Built for real-world applications\n\n---\n\n## 🔗 Servercn\n\nBuild faster. Structure better.\n"
                 },
                 {
                   "type": "file",
@@ -34,7 +58,7 @@
                 {
                   "type": "file",
                   "path": "package.json",
-                  "content": "{\n  \"name\": \"servercn-nextjs-starter\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"lint\": \"eslint\",\n    \"prepare\": \"husky\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\"\n  },\n  \"lint-staged\": {\n    \"*.{ts,tsx,js,jsx}\": [\n      \"npx eslint --fix\"\n    ],\n    \"*.{json,css}\": [\n      \"npx prettier --write\"\n    ]\n  },\n  \"dependencies\": {\n    \"@base-ui/react\": \"^1.3.0\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"clsx\": \"^2.1.1\",\n    \"lucide-react\": \"^1.7.0\",\n    \"next\": \"16.2.1\",\n    \"next-themes\": \"^0.4.6\",\n    \"react\": \"19.2.4\",\n    \"react-dom\": \"19.2.4\",\n    \"shadcn\": \"^4.1.2\",\n    \"tailwind-merge\": \"^3.5.0\",\n    \"tw-animate-css\": \"^1.4.0\"\n  },\n  \"devDependencies\": {\n    \"@commitlint/cli\": \"^20.5.0\",\n    \"@commitlint/config-conventional\": \"^20.5.0\",\n    \"@tailwindcss/postcss\": \"^4\",\n    \"@types/node\": \"^20\",\n    \"@types/react\": \"^19\",\n    \"@types/react-dom\": \"^19\",\n    \"babel-plugin-react-compiler\": \"1.0.0\",\n    \"eslint\": \"^9.39.4\",\n    \"eslint-config-next\": \"16.2.1\",\n    \"husky\": \"^9.1.7\",\n    \"lint-staged\": \"^16.4.0\",\n    \"prettier\": \"^3.8.1\",\n    \"prettier-plugin-tailwindcss\": \"^0.7.2\",\n    \"tailwindcss\": \"^4\",\n    \"typescript\": \"^5\"\n  }\n}\n"
+                  "content": "{\n  \"name\": \"servercn-nextjs-starter\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"lint\": \"eslint\",\n    \"prepare\": \"husky\",\n    \"format:check\": \"npx prettier . --check\",\n    \"format:fix\": \"npx prettier . --write\"\n  },\n  \"lint-staged\": {\n    \"*.{ts,tsx,js,jsx}\": [\n      \"npx eslint --fix\"\n    ],\n    \"*.{json,css}\": [\n      \"npx prettier --write\"\n    ]\n  },\n  \"dependencies\": {},\n  \"devDependencies\": {}\n}\n"
                 },
                 {
                   "type": "file",
@@ -104,7 +128,7 @@
                 {
                   "type": "file",
                   "path": "src/app/page.tsx",
-                  "content": "import ThemeToggle from \"@/components/theme-toggle\";\nimport Link from \"next/link\";\n\nexport default function Page() {\n  return (\n    <main className=\"bg-background min-h-screen px-6\">\n      <div className=\"border-border relative mx-auto flex h-screen max-w-2xl flex-col items-center justify-center border-x text-center\">\n        <div className=\"absolute top-4 right-4\">\n          <ThemeToggle />\n        </div>\n        <div className=\"mb-6 flex justify-center\">\n          <span className=\"text-muted-foreground rounded-full border border-neutral-500/30 px-4 py-1 text-sm\">\n            Powered by Servercn\n          </span>\n        </div>\n\n        <h1 className=\"text-4xl font-bold tracking-tight sm:text-6xl\">\n          Next.js Starter\n        </h1>\n\n        <p className=\"text-muted-foreground mt-6 text-lg\">\n          A Next.js starter template for Servercn, featuring Tailwind CSS, Shadcn, dark mode, and more.\n        </p>\n\n        <div className=\"mt-8 flex items-center justify-center gap-4\">\n          <Link\n            href=\"https://github.com/akkaldhami/servercn\"\n            target=\"_blank\"\n            className=\"bg-primary text-accent flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium hover:bg-neutral-300\">\n            <svg\n              xmlns=\"http://www.w3.org/2000/svg\"\n              width=\"24\"\n              height=\"24\"\n              viewBox=\"0 0 24 24\">\n              <path\n                fill=\"currentColor\"\n                d=\"M12.026 2a9.975 9.975 0 0 0-3.153 19.439c.5.09.679-.217.679-.481c0-.237-.008-.865-.011-1.7c-2.775.6-3.361-1.338-3.361-1.338a2.635 2.635 0 0 0-1.107-1.459c-.9-.619.069-.605.069-.605c.64.088 1.205.467 1.527 1.028a2.124 2.124 0 0 0 2.9.829c.046-.506.272-.979.635-1.334c-2.214-.251-4.542-1.107-4.542-4.93a3.865 3.865 0 0 1 1.026-2.671a3.588 3.588 0 0 1 .1-2.64s.837-.269 2.742 1.021a9.439 9.439 0 0 1 4.992 0c1.906-1.291 2.742-1.021 2.742-1.021c.37.835.405 1.78.1 2.64a3.84 3.84 0 0 1 1.024 2.675c0 3.833-2.33 4.675-4.552 4.922c.48.49.725 1.162.675 1.846c0 1.334-.012 2.41-.012 2.737c0 .267.178.577.687.479A9.975 9.975 0 0 0 12.026 2Z\"\n              />\n            </svg>\n            Star on GitHub\n          </Link>\n          <Link\n            href=\"https://servercn.vercel.app\"\n            target=\"_blank\"\n            className=\"rounded-full border border-neutral-400 bg-secondary px-4 py-2.5 text-sm font-medium text-accent-foreground hover:bg-neutral-800\">\n            Get Started\n          </Link>\n        </div>\n      </div>\n    </main>\n  );\n}\n"
+                  "content": "import ThemeToggle from \"@/components/theme-toggle\";\nimport Link from \"next/link\";\n\nexport default function Page() {\n  return (\n    <main className=\"bg-background min-h-screen px-6\">\n      <div className=\"border-border relative mx-auto flex h-screen max-w-2xl flex-col items-center justify-center border-x text-center\">\n        <div className=\"absolute top-4 right-4\">\n          <ThemeToggle />\n        </div>\n        <div className=\"mb-6 flex justify-center\">\n          <span className=\"text-muted-foreground rounded-full border border-neutral-500/30 px-4 py-1 text-sm\">\n            Powered by Servercn\n          </span>\n        </div>\n\n        <h1 className=\"text-4xl font-bold tracking-tight sm:text-6xl\">\n          Next.js Starter\n        </h1>\n\n        <p className=\"text-muted-foreground mt-6 text-lg\">\n          A Next.js starter template for Servercn, featuring Tailwind CSS,\n          Shadcn, dark mode, and more.\n        </p>\n\n        <div className=\"mt-8 flex items-center justify-center gap-4\">\n          <Link\n            href=\"https://github.com/akkaldhami/servercn\"\n            target=\"_blank\"\n            className=\"bg-primary text-accent flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium hover:bg-neutral-300\">\n            <svg\n              xmlns=\"http://www.w3.org/2000/svg\"\n              width=\"24\"\n              height=\"24\"\n              viewBox=\"0 0 24 24\">\n              <path\n                fill=\"currentColor\"\n                d=\"M12.026 2a9.975 9.975 0 0 0-3.153 19.439c.5.09.679-.217.679-.481c0-.237-.008-.865-.011-1.7c-2.775.6-3.361-1.338-3.361-1.338a2.635 2.635 0 0 0-1.107-1.459c-.9-.619.069-.605.069-.605c.64.088 1.205.467 1.527 1.028a2.124 2.124 0 0 0 2.9.829c.046-.506.272-.979.635-1.334c-2.214-.251-4.542-1.107-4.542-4.93a3.865 3.865 0 0 1 1.026-2.671a3.588 3.588 0 0 1 .1-2.64s.837-.269 2.742 1.021a9.439 9.439 0 0 1 4.992 0c1.906-1.291 2.742-1.021 2.742-1.021c.37.835.405 1.78.1 2.64a3.84 3.84 0 0 1 1.024 2.675c0 3.833-2.33 4.675-4.552 4.922c.48.49.725 1.162.675 1.846c0 1.334-.012 2.41-.012 2.737c0 .267.178.577.687.479A9.975 9.975 0 0 0 12.026 2Z\"\n              />\n            </svg>\n            Star on GitHub\n          </Link>\n          <Link\n            href=\"https://servercn.vercel.app\"\n            target=\"_blank\"\n            className=\"bg-secondary text-accent-foreground rounded-full border border-neutral-400 px-4 py-2.5 text-sm font-medium hover:bg-neutral-800\">\n            Get Started\n          </Link>\n        </div>\n      </div>\n    </main>\n  );\n}\n"
                 },
                 {
                   "type": "file",
