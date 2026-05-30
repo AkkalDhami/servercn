@@ -352,7 +352,7 @@
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code border-edge mb-6 w-full max-w-220 rounded-lg border pb-1;
+    @apply bg-code border-edge mb-3 w-full max-w-220 rounded-lg border;
   }
 
   [data-line] {

@@ -5,7 +5,7 @@ import { SubHeading } from "@/components/ui/sub-heading";
 import { Section } from "@/components/ui/section";
 import { Terminal } from "@/components/ui/terminal";
 import { cn } from "@/lib/utils";
-import ComponentFileViewer from "@/components/file-viewer";
+import ComponentFileViewer from "../file-viewer";
 export default function NextjsStarterSection() {
   return (
     <Section id="nextjs-starter-section" className="">
