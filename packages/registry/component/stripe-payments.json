@@ -1,0 +1,24 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "stripe-payments",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "templates": {
+            "mvc": "stripe-payments/mvc",
+            "feature": "stripe-payments/feature"
+          },
+          "dependencies": {
+            "runtime": ["stripe", "dotenv-flow", "cross-env", "zod"]
+          },
+          "env": [
+            "STRIPE_SECRET_KEY",
+            "STRIPE_WEBHOOK_SECRET",
+            "STRIPE_PUBLISHABLE_KEY"
+          ]
+        }
+      }
+    }
+  }
+}
