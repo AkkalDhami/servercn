@@ -30,8 +30,6 @@ const TOOLING_CHOICES = [
   { title: "Commitlint", value: "commitlint" }
 ];
 
-const RECOMMENDED_TOOLING: ToolingKey[] = ["prettier", "eslint", "typescript"];
-
 export async function getToolingChoices(): Promise<ToolingKey[]> {
   const { enable } = await prompts({
     type: "toggle",
@@ -54,17 +52,9 @@ export async function getToolingChoices(): Promise<ToolingKey[]> {
           "All (Prettier + ESLint + TypeScript + Husky + Lint Staged + Commitlint)",
         value: "all"
       },
-      {
-        title: "Prettier + ESLint + TypeScript",
-        value: "recommended"
-      },
       { title: "Custom", value: "custom" }
     ]
   });
-
-  if (mode === "recommended") {
-    return RECOMMENDED_TOOLING;
-  }
 
   if (mode === "all") {
     return Object.keys(TOOLING_MAP) as ToolingKey[];

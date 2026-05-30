@@ -2,6 +2,8 @@ import packageJson from "../../package.json";
 
 export const SERVERCN_URL = "https://servercn.vercel.app";
 
+export const GITHUB_URL = "https://github.com/akkaldhami/servercn";
+
 export const SERVERCN_CONFIG_FILE = "servercn.config.json" as const;
 
 export const APP_NAME = "servercn";
