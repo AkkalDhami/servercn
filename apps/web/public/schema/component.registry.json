@@ -64,7 +64,8 @@
       "properties": {
         "templates": { "$ref": "#/$defs/templates" },
         "dependencies": { "$ref": "#/$defs/dependencies" },
-        "env": { "$ref": "#/$defs/env" }
+        "env": { "$ref": "#/$defs/env" },
+        "message": { "type": "string" }
       },
       "not": {
         "anyOf": [{ "required": ["prompt"] }, { "required": ["variants"] }]
@@ -97,6 +98,7 @@
         "additionalProperties": false,
         "properties": {
           "label": { "type": "string" },
+          "message": { "type": "string" },
           "templates": { "$ref": "#/$defs/templates" },
           "dependencies": { "$ref": "#/$defs/dependencies" },
           "env": { "$ref": "#/$defs/env" }

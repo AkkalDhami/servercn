@@ -87,7 +87,8 @@
       "type": "component",
       "slug": "oauth",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {

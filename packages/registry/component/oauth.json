@@ -219,6 +219,45 @@
               ]
             }
           }
+        },
+        "nextjs": {
+          "prompt": "Select OAuth provider: ",
+          "variants": {
+            "google": {
+              "label": "Google",
+              "templates": {
+                "file-api": "oauth/google/file-api"
+              },
+              "dependencies": {
+                "runtime": ["next-auth@^4.24.14"],
+                "dev": []
+              },
+              "env": [
+                "NEXTAUTH_URL",
+                "NEXTAUTH_SECRET",
+                "GOOGLE_CLIENT_ID",
+                "GOOGLE_CLIENT_SECRET"
+              ],
+              "message": "The `google-auth` component has been added. Remember to wrap your app with the `SessionProvider` component.\n\n```tsx title=\"app/layout.tsx\"\nimport { SessionProvider } from \"@/components/providers/session-provider\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang=\"en\">\n      <body>\n        <SessionProvider>{children}</SessionProvider>\n      </body>\n    </html>\n  );\n}\n```"
+            },
+            "github": {
+              "label": "GitHub",
+              "templates": {
+                "file-api": "oauth/github/file-api"
+              },
+              "dependencies": {
+                "runtime": ["next-auth@^4.24.14"],
+                "dev": []
+              },
+              "env": [
+                "NEXTAUTH_URL",
+                "NEXTAUTH_SECRET",
+                "GITHUB_ID",
+                "GITHUB_SECRET"
+              ],
+              "message": "The `google-auth` component has been added. Remember to wrap your app with the `SessionProvider` component.\n\n```tsx title=\"app/layout.tsx\"\nimport { SessionProvider } from \"@/components/providers/session-provider\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang=\"en\">\n      <body>\n        <SessionProvider>{children}</SessionProvider>\n      </body>\n    </html>\n  );\n}\n```"
+            }
+          }
         }
       }
     }
