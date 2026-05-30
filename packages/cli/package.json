@@ -1,6 +1,6 @@
 {
   "name": "servercn-cli",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Backend components CLI for Node.js & Typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
@@ -48,7 +48,6 @@
     "execa": "^9.6.1",
     "fs-extra": "^11.3.3",
     "glob": "^13.0.6",
-    "handlebars": "^4.7.9",
     "kleur": "^3.0.3",
     "ora": "^9.3.0",
     "prompts": "^2.4.2"
