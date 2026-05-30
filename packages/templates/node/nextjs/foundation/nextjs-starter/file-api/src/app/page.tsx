@@ -19,7 +19,8 @@ export default function Page() {
         </h1>
 
         <p className="text-muted-foreground mt-6 text-lg">
-          A Next.js starter template for Servercn, featuring Tailwind CSS, Shadcn, dark mode, and more.
+          A Next.js starter template for Servercn, featuring Tailwind CSS,
+          Shadcn, dark mode, and more.
         </p>
 
         <div className="mt-8 flex items-center justify-center gap-4">
@@ -42,7 +43,7 @@ export default function Page() {
           <Link
             href="https://servercn.vercel.app"
             target="_blank"
-            className="rounded-full border border-neutral-400 bg-secondary px-4 py-2.5 text-sm font-medium text-accent-foreground hover:bg-neutral-800">
+            className="bg-secondary text-accent-foreground rounded-full border border-neutral-400 px-4 py-2.5 text-sm font-medium hover:bg-neutral-800">
             Get Started
           </Link>
         </div>
