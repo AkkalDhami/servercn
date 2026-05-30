@@ -40,19 +40,19 @@ export const mdxComponents: MDXComponents = {
     <h1 className="text-3xl font-semibold tracking-tight" {...props} />
   ),
   h2: props => (
-    <h2 className="my-3.5 text-2xl font-medium tracking-tight" {...props} />
+    <h2 className="mb-4 mt-5 text-2xl font-medium tracking-tight" {...props} />
   ),
   h3: props => (
     <h3
-      className="this-page-link my-2.5 text-xl font-normal tracking-tight"
+      className="this-page-link my-3 text-[22px] font-normal tracking-tight"
       {...props}
     />
   ),
   h4: props => (
-    <h4 className="my-3 text-lg font-normal tracking-tight" {...props} />
+    <h4 className="my-3 text-xl font-normal tracking-tight" {...props} />
   ),
   h5: props => (
-    <h5 className="my-2.5 text-[17px] font-normal tracking-tight" {...props} />
+    <h5 className="my-2.5 text-lg font-normal tracking-tight" {...props} />
   ),
   p: ({ className, ...props }) => (
     <p
@@ -105,10 +105,10 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   ul: props => (
-    <ul className="text-muted-primary list-disc space-y-3 pl-2" {...props} />
+    <ul className="text-muted-primary mb-3 list-disc space-y-3 pl-2" {...props} />
   ),
   ol: props => (
-    <ol className="text-muted-primary list-decimal space-y-3 pl-2" {...props} />
+    <ol className="text-muted-primary mb-3 list-decimal space-y-3 pl-2" {...props} />
   ),
   strong: props => <strong className="text-primary" {...props} />,
   blockquote: ({ className, ...props }: React.ComponentProps<"blockquote">) => (

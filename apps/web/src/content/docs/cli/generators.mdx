@@ -14,17 +14,45 @@ Instead of manually creating files, you can use the CLI:
 ---
 
 ## Aliases
-```
-| Alias | Type       |
-| ----- | ---------- |
-| co    | controller |
-| se    | service    |
-| ro    | route      |
-| mo    | model      |
-| dt    | dto        |
-| va    | validator  |
-| re    | resource   |
-```
+<Table>
+<THead>
+<TR>
+  <TH>Type</TH>
+  <TH>Alias</TH>
+</TR>
+</THead>
+<TBody>
+<TR>
+<TD>Controller</TD>
+<TD><Endpoint>co</Endpoint></TD>
+</TR>
+<TR>
+<TD>Service</TD>
+<TD><Endpoint>se</Endpoint></TD>
+</TR>
+<TR>
+<TD>Route</TD>
+<TD><Endpoint>ro</Endpoint></TD>
+</TR>
+<TR>
+<TD>Model</TD>
+<TD><Endpoint>mo</Endpoint></TD>
+</TR>
+<TR>
+<TD>DTO</TD>
+<TD><Endpoint>dt</Endpoint></TD>
+</TR>
+<TR>
+<TD>Validator</TD>
+<TD><Endpoint>va</Endpoint></TD>
+</TR>
+<TR>
+<TD>Resource</TD>
+<TD><Endpoint>re</Endpoint></TD>
+</TR>
+</TBody>
+</Table>
+
 
 ---
 
@@ -43,67 +71,237 @@ Instead of manually creating files, you can use the CLI:
 
 <PackageManagerTabs command="npx servercn-cli g co auth" />
 
-##### Creates:
+#### Examples:
 
-- MVC: <Code>src/controllers/auth.controller.ts</Code>
-- Feature: <Code>src/modules/auth/auth.controller.ts</Code>
-
-##### Examples:
-
+##### 1. MVC Architecture
 ```
-# MVC Architecture
 > npx servercn-cli g co auth
 
 CREATE: src\controllers\auth.controller.ts
 
 ✔ Successfully generated controller: auth
 ```
+```ts title="src/controllers/auth.controller.ts"
+import { Request, Response } from "express";
+
+class AuthController {
+  async test(req: Request, res: Response) {
+    res.status(200).json({
+      success: true,
+      message: "Controller added successfully"
+    });
+  }
+}
+
+export const authController = new AuthController();
 ```
-# Feature Architecture
+
+---
+
+##### 2. Feature Architecture
+```
 > npx servercn-cli g co auth
 
 CREATE: src\modules\auth\auth.controller.ts
 
 ✔ Successfully generated controller: auth
 ```
+```ts title="src/modules/auth/auth.controller.ts"
+import { Request, Response } from "express";
 
+class AuthController {
+  async test(req: Request, res: Response) {
+    res.status(200).json({
+      success: true,
+      message: "Controller added successfully"
+    });
+  }
+}
+
+export const authController = new AuthController();
+```
+
+
+<br />
 ---
+<br />
 
 ### Service
 
 <PackageManagerTabs command="npx servercn-cli g se auth" />
 
-##### Creates:
+#### Examples:
 
-- MVC: <Code>src/services/auth.controller.ts</Code>
-- Feature: <Code>src/modules/auth/auth.service.ts</Code>
+##### 1. MVC Architecture
+```
+> npx servercn-cli g se auth
+
+CREATE: src\services\auth.service.ts
+
+✔ Successfully generated service: auth
+```
+```ts title="src/services/auth.service.ts"
+export class AuthService {
+  constructor() {}
+
+  async test() {
+    return "service test";
+  }
+}
+
+export const authService = new AuthService();
+```
+
+---
+
+##### 2. Feature Architecture
+```
+> npx servercn-cli g se auth
+
+CREATE: src\modules\auth\auth.service.ts
+
+✔ Successfully generated service: auth
+```
+```ts title="src/modules/auth/auth.service.ts"
+export class AuthService {
+  constructor() {}
+
+  async test() {
+    return "service test";
+  }
+}
+
+export const authService = new AuthService();
+```
+
 
 <br />
 ---
+<br />
+
 
 ### Route
 
 <PackageManagerTabs command="npx servercn-cli g ro auth" />
 
-##### Creates:
+#### Examples:
 
-- MVC: <Code>src/routes/auth.route.ts</Code>
-- Feature: <Code>src/modules/auth/auth.route.ts</Code>
+##### 1. MVC Architecture
+
+```ts title="src/routes/auth.route.ts"
+import { Router } from "express";
+import { Request, Response } from "express";
+
+const router = Router();
+
+router.get("/", (req: Request, res: Response) => {
+  res.send("Hello World!");
+});
+
+export default router;
+```
+
+---
+
+##### 2. Feature Architecture
+
+```ts title="src/modules/auth/auth.route.ts"
+import { Router } from "express";
+import { Request, Response } from "express";
+
+const router = Router();
+
+router.get("/", (req: Request, res: Response) => {
+  res.send("Hello World!");
+});
+
+export default router;
+```
+
 
 <br />
 ---
+<br />
+
 
 ### Model
 
 <PackageManagerTabs command="npx servercn-cli g mo user" />
 
-##### Creates:
+#### Examples:
 
-- MVC: <Code>src/models/user.model.ts</Code>
-- Feature: <Code>src/modules/auth/user.model.ts</Code>
+##### 1. MVC Architecture
+
+```ts title="src/models/user.model.ts"
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+
+  name: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
+---
+
+##### 2. Feature Architecture
+
+```ts title="src/modules/user/user.model.ts"
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+
+  name: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+
+export default User;
+```
+
 
 <br />
 ---
+<br />
 
 ### DTO
 
@@ -129,6 +327,7 @@ Define fields using: <Code>key:type</Code>
 
 <br />
 ---
+<br />
 
 ### Validator
 
@@ -150,6 +349,7 @@ Define fields using: <Code>key:type</Code>
 
 <br />
 ---
+<br />
 
 ### Resource
 
@@ -202,6 +402,7 @@ CREATE: src\modules\post\post.dto.ts
 
 <br />
 ---
+<br />
 
 ## Help
 
@@ -237,7 +438,9 @@ Examples:
   $ npx servercn-cli g va user
 ```
 
+<br />
 ---
+<br />
 
 ## Summary
 
