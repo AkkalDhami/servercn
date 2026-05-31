@@ -27,6 +27,7 @@ import { SERVERCN_URL } from "@/constants/app.constants";
 import { highlighter } from "@/utils/highlighter";
 import { injectEnvSchema } from "@/utils/inject-env-schema";
 import { mapEnvToZod } from "@/utils/env-helpers";
+import { getMessage } from "@/utils/message";
 
 export async function add(registryItemName: string, options: AddOptions = {}) {
   await assertInitialized();
@@ -100,6 +101,16 @@ export async function add(registryItemName: string, options: AddOptions = {}) {
   );
   logger.break();
   logger.log(highlighter.create(`→ Docs: ${docs}`));
+  const message = getMessage({
+    runtime: config.runtime,
+    framework: config.framework,
+    slug: component.slug
+  });
+
+  if (message) {
+    logger.info(message);
+  }
+
   logger.break();
 }
 

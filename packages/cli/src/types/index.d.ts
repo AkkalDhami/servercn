@@ -102,6 +102,7 @@ export interface SimpleFramework {
   architectures?: ArchitectureSet;
   dependencies?: DependencySet;
   env?: EnvSet;
+  message?: string;
 
   // forbidden
   prompt?: never;
@@ -114,6 +115,7 @@ export interface FrameworkVariant {
   architectures?: ArchitectureSet;
   dependencies?: DependencySet;
   env?: EnvSet;
+  message?: string;
 }
 
 export interface VariantFramework {
@@ -125,6 +127,7 @@ export interface VariantFramework {
   templates?: never;
   dependencies?: never;
   env?: never;
+  message?: never;
 }
 
 export type FrameworkConfig = VariantFramework | SimpleFramework;
