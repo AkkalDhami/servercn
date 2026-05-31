@@ -82,6 +82,7 @@
     "mongoose": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.16.0",
+    "next-auth": "^4.24.14",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
