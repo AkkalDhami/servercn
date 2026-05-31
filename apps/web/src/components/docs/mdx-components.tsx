@@ -40,7 +40,7 @@ export const mdxComponents: MDXComponents = {
     <h1 className="text-3xl font-semibold tracking-tight" {...props} />
   ),
   h2: props => (
-    <h2 className="mb-4 mt-5 text-2xl font-medium tracking-tight" {...props} />
+    <h2 className="mt-5 mb-4 text-2xl font-medium tracking-tight" {...props} />
   ),
   h3: props => (
     <h3
@@ -91,7 +91,7 @@ export const mdxComponents: MDXComponents = {
   code: ({ className, ...props }) => (
     <code
       className={cn(
-        "thin-scrollbar max-h-120 overflow-x-auto px-3 py-2.5 font-mono leading-relaxed",
+        "thin-scrollbar max-h-120 overflow-x-auto px-0 py-2.5 font-mono leading-relaxed",
         className
       )}
       {...props}
@@ -104,11 +104,20 @@ export const mdxComponents: MDXComponents = {
       {...props}
     />
   ),
+  li: props => (
+    <li className="text-muted-primary first:mt-2 mb-3 space-y-3 pl-2" {...props} />
+  ),
   ul: props => (
-    <ul className="text-muted-primary mb-3 list-disc space-y-3 pl-2" {...props} />
+    <ul
+      className="text-muted-primary mb-3 list-disc space-y-3 pl-2"
+      {...props}
+    />
   ),
   ol: props => (
-    <ol className="text-muted-primary mb-3 list-decimal space-y-3 pl-2" {...props} />
+    <ol
+      className="text-muted-primary mb-3 list-decimal space-y-3 pl-2"
+      {...props}
+    />
   ),
   strong: props => <strong className="text-primary" {...props} />,
   blockquote: ({ className, ...props }: React.ComponentProps<"blockquote">) => (
@@ -132,7 +141,7 @@ export const mdxComponents: MDXComponents = {
   Steps: ({ className, ...props }: React.ComponentProps<"div">) => (
     <div
       className={cn(
-        "[&>h3]:step steps relative mb-12 [counter-reset:step] md:ml-2 md:border-l md:pl-8",
+        "[&>h3]:step steps relative mb-12 w-fit [counter-reset:step] md:ml-2 md:border-l md:pl-8",
         className
       )}
       {...props}
