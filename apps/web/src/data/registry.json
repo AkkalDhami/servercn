@@ -265,7 +265,7 @@
       "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/google-oauth",
       "meta": {
         "new": true
@@ -273,11 +273,11 @@
     },
     {
       "slug": "oauth",
-      "title": "OAuth Authentication",
+      "title": "OAuth Component",
       "description": "Add authentication to your backend using prebuilt OAuth providers like Google, Facebook, and GitHub.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/oauth"
     },
     {
