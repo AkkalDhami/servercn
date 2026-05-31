@@ -6,7 +6,22 @@ import { DEFAULT_CODE_THEME } from "@/lib/constants";
 const getHighlighter = (theme: string) =>
   getSingletonHighlighter({
     themes: [theme],
-    langs: ["bash", "ts", "json"]
+    langs: [
+      "bash",
+      "ts",
+      "typescript",
+      "json",
+      "css",
+      "jsx",
+      "tsx",
+      "html",
+      "javascript",
+      "js",
+      "sql",
+      "prisma",
+      "yaml",
+      "markdown"
+    ]
   });
 
 export async function highlightCode(

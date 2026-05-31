@@ -195,15 +195,15 @@ export default async function DocsPage({
   const {
     slug: blueprintSlug,
     database,
-    orm,
-    variant
+    orm
+    // variant
   } = resolveRegistryItem(slug[slug.length - 1]);
 
   return (
     <>
       <FrameworkRedirect />
       <div className="flex w-full overflow-x-auto px-2">
-        <div id="docs-content" className="flex-1">
+        <div id="docs-content" className="w-full [font-variant-ligatures:none]">
           <article className="prose prose-neutral dark:prose-invert mb-4 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
             <div className="mb-6 flex items-center justify-between pt-6">
               <OpenInAi />
