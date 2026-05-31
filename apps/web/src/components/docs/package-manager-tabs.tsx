@@ -1,12 +1,8 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TerminalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  getIconForPackageManager,
-  getPackageManagerIcon
-} from "@/components/docs/icons/language-icons";
+import { getPackageManagerIcon } from "@/components/docs/icons/language-icons";
 import { CodeWrapper } from "@/components/docs/code-wrapper";
 import { usePackageManager } from "@/store/use-package-manager";
 
@@ -35,7 +31,7 @@ export default function PackageManagerTabs({
     <Tabs
       value={pkgManager}
       className={cn(
-        "bg-background border-edge my-6 rounded-lg border sm:max-w-220"
+        "bg-background border-edge my-6 max-w-220 rounded-lg border"
       )}>
       <TabsList className={cn("bg-transparent pt-1 pl-3")}>
         <div className="mr-4 flex items-center gap-3 pt-3">{Icon}</div>
@@ -82,5 +78,3 @@ export default function PackageManagerTabs({
     </Tabs>
   );
 }
-
-// function getColor()

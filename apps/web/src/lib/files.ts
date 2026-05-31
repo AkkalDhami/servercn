@@ -18,18 +18,18 @@ function getLanguageFromFileName(fileName: string): string {
   const ext = fileName.split(".").pop()?.toLowerCase();
   if (fileName.startsWith(".env")) return "bash";
   if (fileName.startsWith("pre-commit")) return "bash";
-  if (fileName.endsWith(".mjs")) return "ts";
-  if (fileName.endsWith(".prisma")) return "ts";
+  if (fileName.endsWith(".mjs")) return "javascript";
+  if (fileName.endsWith(".cjs")) return "javascript";
+  if (fileName.endsWith(".prisma")) return "prisma";
   if (fileName.endsWith("rc")) return "json";
-  if (fileName.endsWith(".css")) return "js";
-  if (fileName.endsWith(".ejs")) return "js";
-  if (fileName.endsWith(".svg")) return "ts";
+  if (fileName.endsWith(".css")) return "css";
+  if (fileName.endsWith(".ejs")) return "html";
+  if (fileName.endsWith(".svg")) return "html";
   switch (ext) {
     case "ts":
-    case "sql":
       return "typescript";
     case "tsx":
-      return "ts";
+      return "tsx";
     case "js":
       return "javascript";
     case "jsx":
@@ -40,7 +40,7 @@ function getLanguageFromFileName(fileName: string): string {
       return "prisma";
     case "md":
     case "mdx":
-      return "text";
+      return "markdown";
     case "yml":
     case "yaml":
       return "yaml";
@@ -48,8 +48,11 @@ function getLanguageFromFileName(fileName: string): string {
     case "bash":
       return "bash";
     case "html":
+      return "html";
     case "css":
       return "css";
+    case "sql":
+      return "sql";
     default:
       return "plaintext";
   }
@@ -480,21 +483,18 @@ export async function getRegistryFileTree(
       );
 
       return {
-        files: {
+        files: [
           ...result.files,
-
-          ...{
+          {
+            type: "file",
+            path: ".env.example",
             content:
               (result?.env &&
                 result?.env?.length > 0 &&
-                result.env?.map(e => `${e}='${e.toLowerCase()}'`).join("\n")) ||
-              "",
-
-            type: "file",
-            name: ".env.example",
-            path: ".env.example"
+                result.env?.map(e => `${e}='${e.toLowerCase()}'\n`).join("\n")) ||
+              ""
           }
-        },
+        ],
         tree: buildFileTree([
           ...result.files,
           ...[

@@ -12,9 +12,9 @@ export default function NextjsStarterSection() {
       <div className="mb-12 text-center">
         <Heading className="text-3xl font-bold">Next.js Starter</Heading>
         <SubHeading className="text-muted-foreground mt-4">
-          Servercn&apos;s Next.js Starter is a production-ready foundation with App
-          Router, TypeScript, and Tailwind—so you can build immediately without
-          boilerplate.
+          Servercn&apos;s Next.js Starter is a production-ready foundation with
+          App Router, TypeScript, and Tailwind—so you can build immediately
+          without boilerplate.
         </SubHeading>
       </div>
 

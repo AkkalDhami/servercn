@@ -147,7 +147,7 @@ export function getRegistryTypeItems(
   return items.length > 0 ? (items as IRegistryItems[]) : [];
 }
 
-export function getRegistryVariants(name: string) {
+export function getRegistryVariants(name: string, framework: FrameworkType) {
   switch (name) {
     case "email-service":
       return ["nodemailer", "resend", "mailtrap"];
@@ -158,6 +158,9 @@ export function getRegistryVariants(name: string) {
     case "password-hashing":
       return ["argon2", "bcryptjs", "scrypt", "pbkdf2"];
     case "oauth":
+      if (framework === "nextjs") {
+        return ["google", "github"];
+      }
       return [
         "google",
         "github",

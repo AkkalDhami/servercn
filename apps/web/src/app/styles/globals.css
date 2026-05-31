@@ -78,7 +78,7 @@
   --background: #fcfcfc;
   --foreground: #000000;
   --card: #ffffff;
-  --highlight: var(--color-green-100);
+  --highlight: var(--color-neutral-200);
   --card-foreground: #000000;
   --popover: #fcfcfc;
   --popover-foreground: #000000;
@@ -148,7 +148,7 @@
   --background: #000000;
   --foreground: #ffffff;
   --card: #090909;
-  --highlight: var(--color-green-950);
+  --highlight: var(--color-neutral-900);
   --card-foreground: #ffffff;
   --popover: #121212;
   --popover-foreground: #ffffff;
@@ -346,13 +346,14 @@
     display: inline-block;
     width: 1rem;
     margin-right: 1.5rem;
+    margin-left: 1rem;
     text-align: right;
-    color: gray;
+    color: var(--muted-foreground);
   }
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code border-edge mb-6 w-full max-w-220 rounded-lg border pb-1;
+    @apply bg-code border-edge mt-2 mb-6 w-full max-w-220 rounded-lg border pb-1;
   }
 
   [data-line] {
@@ -365,16 +366,7 @@
 
   [data-highlighted-line],
   [data-highlighted-chars] {
-    position: relative;
-    background-color: var(--highlight);
-  }
-
-  [data-highlighted-chars] {
-    border-radius: var(--radius-sm);
-    padding-inline: 0.3rem;
-    padding-block: 0.1rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+    @apply bg-highlight border-muted-foreground relative border-l-2;
   }
 }
 
