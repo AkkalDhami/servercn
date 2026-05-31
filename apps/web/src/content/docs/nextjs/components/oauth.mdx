@@ -1,0 +1,56 @@
+---
+title: OAuth | Component | Next.js
+description: Add authentication to your backend using prebuilt OAuth providers like Google, and GitHub.
+command: npx servercn-cli@latest add oauth
+---
+
+# OAuth Component
+
+The OAuth component in servercn provides a unified way to integrate third-party authentication into your backend.
+
+Instead of installing providers individually, this component bundles strategies for:
+
+- Google OAuth
+- GitHub OAuth
+
+All under a single, consistent architecture.
+
+---
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli@latest add oauth" />
+
+```bash
+? Select OAuth provider:  » - Use arrow-keys. Return to submit.
+> Google
+  GitHub
+  Google + GitHub
+```    
+
+---
+
+## Environment Variables
+
+Configure each provider in your <Code>.env</Code> file:
+
+#### Next Auth
+
+```dotenv title=".env"
+NEXTAUTH_URL=
+NEXTAUTH_SECRET=
+```
+
+#### Google
+
+```dotenv title=".env"
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+#### GitHub
+
+```dotenv title=".env"
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+```
