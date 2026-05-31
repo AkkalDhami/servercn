@@ -2,12 +2,13 @@
 
 import { getRegistryVariants } from "@/lib/source";
 import { cn } from "@/lib/utils";
+import { useFramework } from "@/store/use-framework";
 import { useVariant } from "@/store/use-variant";
-import { useState } from "react";
 
 export function Variant({ name }: { name: string }) {
   const { variant, setVariant } = useVariant();
-  const variants = getRegistryVariants(name);
+  const { framework } = useFramework();
+  const variants = getRegistryVariants(name, framework);
 
   return (
     variants.length > 0 && (

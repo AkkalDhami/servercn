@@ -80,11 +80,12 @@ export default function ComponentFileViewer({
         // console.log({ fileTree });
         const treeWithPaths = addPaths(fileTree.tree);
         setTree(treeWithPaths);
+
         // auto-select first file
         const firstFile = findFirstFile(treeWithPaths);
         if (firstFile) {
           setSelectedFile(firstFile);
-          setActiveFile(firstFile.name);
+          setActiveFile(firstFile.path);
           setPath(firstFile.path || "");
         }
       } catch (err) {
@@ -117,7 +118,7 @@ export default function ComponentFileViewer({
 
   function handleSelect(file: FileNode & { type: "file" }) {
     setSelectedFile(file);
-    setActiveFile(file.name);
+    setActiveFile(file.path);
     setPath(file.path || "");
   }
 
@@ -140,7 +141,6 @@ export default function ComponentFileViewer({
       console.error("Failed to copy file path:", error);
     }
   }
-
 
   if (loading) return <div className="p-4">Loading files...</div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
