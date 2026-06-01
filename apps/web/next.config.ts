@@ -24,6 +24,16 @@ const nextConfig: NextConfig = {
         source: "/docs/nextjs/components/async-handler",
         destination: "/docs/nextjs/components/route-handler",
         permanent: true
+      },
+      {
+        source: "/docs/express/foundations/nextjs-starter",
+        destination: "/docs/express/foundations/express-starter",
+        permanent: true
+      },
+      {
+        source: "/docs/nextjs/foundations/express-starter",
+        destination: "/docs/nextjs/foundations/nextjs-starter",
+        permanent: true
       }
     ];
   }
