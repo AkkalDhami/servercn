@@ -21,6 +21,8 @@ import { Maximize2Icon } from "lucide-react";
 import { Route } from "next";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useVariant } from "@/store/use-variant";
+import { FileViewerLoader } from "@/components/file-viewer/loader";
+
 type Props = {
   slug: string;
   runtime?: string;
@@ -142,7 +144,7 @@ export default function ComponentFileViewer({
     }
   }
 
-  if (loading) return <div className="p-4">Loading files...</div>;
+   if (loading) return <FileViewerLoader />;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (

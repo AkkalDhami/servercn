@@ -28,6 +28,7 @@ import ComponentFileViewer from "@/components/file-viewer";
 import { resolveRegistryItem } from "@/lib/resolver";
 import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
+import { ViewAsJson } from "@/components/docs/view-as-json";
 
 export const revalidate = false;
 export const dynamic = "force-dynamic";
@@ -199,6 +200,7 @@ export default async function DocsPage({
     // variant
   } = resolveRegistryItem(slug[slug.length - 1]);
 
+
   return (
     <>
       <FrameworkRedirect />
@@ -206,8 +208,25 @@ export default async function DocsPage({
         <div id="docs-content" className="w-full [font-variant-ligatures:none]">
           <article className="prose prose-neutral dark:prose-invert mb-4 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
             <div className="mb-6 flex items-center justify-between pt-6">
-              <OpenInAi />
-
+              <div className="flex items-center gap-3">
+                <OpenInAi />
+                {![
+                  "cli",
+                  "guides",
+                  "installation",
+                  "introduction",
+                  "contributing"
+                ].includes(slug[0]) && (
+                  <ViewAsJson
+                    type={
+                      ["tooling"].includes(slug[0])
+                        ? (slug[0] as ItemType)
+                        : (slug[1]?.slice(0, -1) as ItemType)
+                    }
+                    slug={blueprintSlug}
+                  />
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <Link
                   className={cn(

@@ -105,7 +105,10 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   li: props => (
-    <li className="text-muted-primary first:mt-2 mb-3 space-y-3 pl-2" {...props} />
+    <li
+      className="text-muted-primary mb-3 space-y-3 pl-2 first:mt-2"
+      {...props}
+    />
   ),
   ul: props => (
     <ul
@@ -132,7 +135,7 @@ export const mdxComponents: MDXComponents = {
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "mt-4 mb-3 scroll-m-32 text-[19px] font-medium tracking-tight",
+        "mt-3 mb-3 scroll-m-32 text-xl  tracking-tight",
         className
       )}
       {...props}
@@ -141,7 +144,7 @@ export const mdxComponents: MDXComponents = {
   Steps: ({ className, ...props }: React.ComponentProps<"div">) => (
     <div
       className={cn(
-        "[&>h3]:step steps relative mb-12 w-fit [counter-reset:step] md:ml-2 md:border-l md:pl-8",
+        "[&>h3]:step steps max-w-code relative mb-12 w-full [counter-reset:step] md:ml-2 md:border-l md:pl-8",
         className
       )}
       {...props}
@@ -170,7 +173,7 @@ export const mdxComponents: MDXComponents = {
   }: React.ComponentProps<typeof TabsTrigger>) => (
     <TabsTrigger
       className={cn(
-        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-4 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
+        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary data-[state=active]:[&_p]:text-accent-foreground! rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-5 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
         className
       )}
       {...props}
@@ -182,7 +185,7 @@ export const mdxComponents: MDXComponents = {
   }: React.ComponentProps<typeof TabsContent>) => (
     <TabsContent
       className={cn(
-        "relative [&_h3.font-heading]:text-base [&_h3.font-heading]:font-medium *:[figure]:first:mt-0 [&>.steps]:mt-6",
+        "relative my-2 [&_h3.font-heading]:text-base *:[figure]:first:mt-0",
         className
       )}
       {...props}
