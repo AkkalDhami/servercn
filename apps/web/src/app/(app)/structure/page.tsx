@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 export default async function page(props: PageProps<"/components">) {
   const searchParams = await props.searchParams;
   return (
-    <Container className="border-edge border-x px-0 pt-18">
+    <Container className="border-edge border-x px-0 pt-18 [font-variant-ligatures:none]">
       <div className="mt-3 w-full px-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-medium tracking-tight">
