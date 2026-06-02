@@ -69,6 +69,8 @@
   --shadow-primary: var(--shadow-primary);
   --shadow-secondary: var(--shadow-secondary);
   --shadow-tertiary: var(--shadow-tertiary);
+
+  --max-width-code: 860px;
 }
 
 :root {
@@ -346,14 +348,14 @@
     display: inline-block;
     width: 1rem;
     margin-right: 1.5rem;
-    margin-left: 1rem;
+    margin-left: 0.8rem;
     text-align: right;
     color: var(--muted-foreground);
   }
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code border-edge mt-2 mb-6 w-full max-w-220 rounded-lg border pb-1;
+    @apply bg-code border-edge max-w-code mt-2 mb-8 w-full rounded-lg border pb-1;
   }
 
   [data-line] {
@@ -380,7 +382,7 @@ body {
 
 h2,
 h3 {
-  scroll-margin-top: 300px;
+  scroll-margin-top: 100px;
 }
 
 .no-scrollbar {
