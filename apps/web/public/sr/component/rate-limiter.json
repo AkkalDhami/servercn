@@ -23,13 +23,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                  "path": "src/middlewares/rate-limiter.ts",
+                  "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../utils/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
                 },
                 {
                   "type": "file",
-                  "path": "src/middlewares/rate-limiter.ts",
-                  "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../utils/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
+                  "path": "src/constants/status-codes.ts",
+                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
                 }
               ]
             },
@@ -55,38 +55,63 @@
           }
         },
         "nextjs": {
-          "dependencies": {
-            "runtime": [
-              "@upstash/ratelimit",
-              "@upstash/redis"
-            ],
-            "dev": [
-              ""
-            ]
-          },
-          "env": [
-            "UPSTASH_REDIS_REST_TOKEN",
-            "UPSTASH_REDIS_REST_URL"
-          ],
-          "architectures": {
-            "file-api": {
-              "files": [
-                {
-                  "type": "file",
-                  "path": "src/lib/rate-limiter.ts",
-                  "content": "import { Ratelimit } from \"@upstash/ratelimit\";\r\n\r\nimport redis from \"@/configs/redis\";\r\n\r\nexport const ratelimit = new Ratelimit({\r\n  redis: redis,\r\n  limiter: Ratelimit.fixedWindow(100, \"10 s\"), //* 100 requests per 10 seconds\r\n  ephemeralCache: new Map(), //* cache for the ratelimit\r\n  prefix: \"@servercn/ratelimit\" //* prefix for the ratelimit\r\n});\r\n\r\n/**\r\n * ? Usage:\r\n \r\nimport { ratelimit } from \"@/lib/rate-limiter\";\r\n\r\n* * 1. proxy.ts (middleware)\r\n\r\nimport { NextResponse } from \"next/server\";\r\nimport type { NextRequest } from \"next/server\";\r\n\r\nexport async function proxy(request: NextRequest) {\r\n  const ip =\r\n    request.headers.get(\"x-forwarded-for\")?.split(\",\")[0]?.trim() ??\r\n    \"127.0.0.1\";\r\n\r\n  const { success, limit, remaining } = await ratelimit.limit(ip);\r\n  const response = NextResponse.next();\r\n\r\n  if (!success) {\r\n    response.headers.set(\"X-RateLimit-Success\", success.toString());\r\n    response.headers.set(\"X-RateLimit-Limit\", limit.toString());\r\n    response.headers.set(\"X-RateLimit-Remaining\", remaining.toString());\r\n    return response;\r\n  }\r\n\r\n  return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n  matcher: [\"/api/:path*\"]\r\n};\r\n\r\n* * 2. API Routes\r\n\r\nexport const POST = async (req: NextRequest) => {\r\n  const ip =\r\n    req.headers.get(\"x-forwarded-for\")?.split(\",\")[0]?.trim() ?? \"127.0.0.1\";\r\n\r\n  const { success, limit, remaining, reset } = await ratelimit.limit(ip);\r\n\r\n  if (!success) {\r\n    return NextResponse.json(\r\n      {\r\n        message: \"Too many requests, please try again later.\"\r\n      },\r\n      {\r\n        status: 429,\r\n        headers: {\r\n          \"X-RateLimit-Limit\": limit.toString(),\r\n          \"X-RateLimit-Remaining\": remaining.toString(),\r\n          \"X-RateLimit-Reset\": reset.toString()\r\n        }\r\n      }\r\n    );\r\n  }\r\n\r\n  //* Your API logic here\r\n};\r\n\r\n** Official Docs:\r\n* https://upstash.com/docs/redis/sdks/ratelimit-ts/gettingstarted\r\n* https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs\r\n* https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs-middleware\r\n**/\r\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/configs/redis.ts",
-                  "content": "import { Redis } from \"@upstash/redis\";\r\n\r\nimport env from \"@/configs/env\";\r\n\r\nconst redis = new Redis({\r\n  url: env.UPSTASH_REDIS_REST_URL,\r\n  token: env.UPSTASH_REDIS_REST_TOKEN\r\n});\r\n\r\nexport default redis;\r\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/configs/env.ts",
-                  "content": "import z from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  UPSTASH_REDIS_REST_TOKEN: z.string(),\r\n  UPSTASH_REDIS_REST_URL: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+          "prompt": "Select rate limiter strategy:",
+          "variants": {
+            "Custom Rate Limiter": {
+              "label": "Custom Rate Limiter",
+              "dependencies": {
+                "runtime": [],
+                "dev": []
+              },
+              "env": [],
+              "architectures": {
+                "file-api": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/lib/rate-limiter.ts",
+                      "content": "import { NextRequest } from \"next/server\";\r\n\r\nexport const RATE_LIMIT_WINDOW = 1 * 60 * 1000; // 1 minute\r\nexport const RATE_LIMIT_MAX_REQUESTS = 5 as const;\r\n\r\nconst rateLimitStore = new Map<string, { count: number; resetTime: number }>();\r\n\r\nexport function getClientIP(request: NextRequest): string {\r\n  return (\r\n    request.headers.get(\"x-forwarded-for\")?.split(\",\")[0].trim() ||\r\n    request.headers.get(\"x-real-ip\") ||\r\n    request.headers.get(\"cf-connecting-ip\") ||\r\n    \"unknown\"\r\n  );\r\n}\r\n\r\nexport function resetRateLimit(clientIP: string) {\r\n  rateLimitStore.delete(clientIP);\r\n}\r\ntype RateLimit = {\r\n  allowed: boolean;\r\n  remaining: number;\r\n  resetTime: number;\r\n};\r\n\r\nexport function checkRateLimit(clientIP: string): RateLimit {\r\n  const now = Date.now();\r\n  const data = rateLimitStore.get(clientIP);\r\n\r\n  if (!data || now > data.resetTime) {\r\n    rateLimitStore.set(clientIP, {\r\n      count: 1,\r\n      resetTime: now + RATE_LIMIT_WINDOW\r\n    });\r\n    return {\r\n      allowed: true,\r\n      remaining: RATE_LIMIT_MAX_REQUESTS - 1,\r\n      resetTime: data?.resetTime || 0\r\n    };\r\n  }\r\n\r\n  if (data.count >= RATE_LIMIT_MAX_REQUESTS) {\r\n    return { allowed: false, remaining: 0, resetTime: data?.resetTime || 0 };\r\n  }\r\n\r\n  data.count++;\r\n  rateLimitStore.set(clientIP, data);\r\n\r\n  return {\r\n    allowed: true,\r\n    remaining: RATE_LIMIT_MAX_REQUESTS - data.count,\r\n    resetTime: data?.resetTime || 0\r\n  };\r\n}\r\n\r\n/**\r\n * ? Usage:\r\nexport const POST = async (req: NextRequest) => {\r\n  const clientIP = getClientIP(req);\r\n  const rateLimit = checkRateLimit(clientIP);\r\n\r\n  if (!rateLimit.allowed) {\r\n    return NextResponse.json(\r\n      {\r\n        message: \"Too many requests, please try again later.\"\r\n      },\r\n      {\r\n        status: 429,\r\n        headers: {\r\n          \"X-RateLimit-Limit\": RATE_LIMIT_MAX_REQUESTS.toString(),\r\n          \"X-RateLimit-Remaining\": rateLimit.remaining.toString(),\r\n          \"X-RateLimit-Reset\": new Date(rateLimit.resetTime)\r\n            .toISOString()\r\n            .substring(0, 19)\r\n            .replace(\"T\", \" \")\r\n            .toString()\r\n        }\r\n      }\r\n    );\r\n  }\r\n  \r\n  //* Your API logic here\r\n};\r\n*/\r\n"
+                    }
+                  ]
                 }
-              ]
+              }
+            },
+            "Upstash Rate Limiter": {
+              "label": "Upstash Rate Limiter",
+              "dependencies": {
+                "runtime": [
+                  "@upstash/ratelimit",
+                  "@upstash/redis"
+                ],
+                "dev": [
+                  ""
+                ]
+              },
+              "env": [
+                "UPSTASH_REDIS_REST_TOKEN",
+                "UPSTASH_REDIS_REST_URL"
+              ],
+              "architectures": {
+                "file-api": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/lib/rate-limiter.ts",
+                      "content": "import { Ratelimit } from \"@upstash/ratelimit\";\r\n\r\nimport redis from \"../configs/redis\";\r\n\r\nexport const ratelimit = new Ratelimit({\r\n  redis: redis,\r\n  limiter: Ratelimit.fixedWindow(100, \"10 s\"), //* 100 requests per 10 seconds\r\n  ephemeralCache: new Map(), //* cache for the ratelimit\r\n  prefix: \"@servercn/ratelimit\" //* prefix for the ratelimit\r\n});\r\n\r\n/**\r\n * ? Usage:\r\n \r\nimport { ratelimit } from \"@/lib/rate-limiter\";\r\n\r\n* * 1. proxy.ts (middleware)\r\n\r\nimport { NextResponse } from \"next/server\";\r\nimport type { NextRequest } from \"next/server\";\r\n\r\nexport async function proxy(request: NextRequest) {\r\n  const ip =\r\n    request.headers.get(\"x-forwarded-for\")?.split(\",\")[0]?.trim() ??\r\n    \"127.0.0.1\";\r\n\r\n  const { success, limit, remaining } = await ratelimit.limit(ip);\r\n  const response = NextResponse.next();\r\n\r\n  if (!success) {\r\n    response.headers.set(\"X-RateLimit-Success\", success.toString());\r\n    response.headers.set(\"X-RateLimit-Limit\", limit.toString());\r\n    response.headers.set(\"X-RateLimit-Remaining\", remaining.toString());\r\n    return response;\r\n  }\r\n\r\n  return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n  matcher: [\"/api/:path*\"]\r\n};\r\n\r\n* * 2. API Routes\r\n\r\nexport const POST = async (req: NextRequest) => {\r\n  const ip =\r\n    req.headers.get(\"x-forwarded-for\")?.split(\",\")[0]?.trim() ?? \"127.0.0.1\";\r\n\r\n  const { success, limit, remaining, reset } = await ratelimit.limit(ip);\r\n\r\n  if (!success) {\r\n    return NextResponse.json(\r\n      {\r\n        message: \"Too many requests, please try again later.\"\r\n      },\r\n      {\r\n        status: 429,\r\n        headers: {\r\n          \"X-RateLimit-Limit\": limit.toString(),\r\n          \"X-RateLimit-Remaining\": remaining.toString(),\r\n          \"X-RateLimit-Reset\": reset.toString()\r\n        }\r\n      }\r\n    );\r\n  }\r\n\r\n  //* Your API logic here\r\n};\r\n\r\n** Official Docs:\r\n* https://upstash.com/docs/redis/sdks/ratelimit-ts/gettingstarted\r\n* https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs\r\n* https://github.com/upstash/ratelimit-js/tree/main/examples/nextjs-middleware\r\n**/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/redis.ts",
+                      "content": "import { Redis } from \"@upstash/redis\";\r\n\r\nimport env from \"./env\";\r\n\r\nconst redis = new Redis({\r\n  url: env.UPSTASH_REDIS_REST_URL,\r\n  token: env.UPSTASH_REDIS_REST_TOKEN\r\n});\r\n\r\nexport default redis;\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/env.ts",
+                      "content": "import z from \"zod\";\r\n\r\nexport const envSchema = z.object({\r\n  UPSTASH_REDIS_REST_TOKEN: z.string(),\r\n  UPSTASH_REDIS_REST_URL: z.string()\r\n});\r\n\r\nexport type Env = z.infer<typeof envSchema>;\r\n\r\nconst result = envSchema.safeParse(process.env);\r\n\r\nif (!result.success) {\r\n  console.error(\"❌ Invalid environment configuration\");\r\n  console.error(z.prettifyError(result.error));\r\n  process.exit(1);\r\n}\r\n\r\nexport const env: Readonly<Env> = Object.freeze(result.data);\r\n\r\nexport default env;\r\n"
+                    }
+                  ]
+                }
+              }
             }
           }
         }
