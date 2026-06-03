@@ -16,14 +16,31 @@
           "env": []
         },
         "nextjs": {
-          "templates": {
-            "file-api": "rate-limiter/file-api"
-          },
-          "dependencies": {
-            "runtime": ["@upstash/ratelimit", "@upstash/redis"],
-            "dev": [""]
-          },
-          "env": ["UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_URL"]
+          "prompt": "Select rate limiter strategy:",
+          "variants": {
+            "Custom Rate Limiter": {
+              "label": "Custom Rate Limiter",
+              "templates": {
+                "file-api": "rate-limiter/custom/file-api"
+              },
+              "dependencies": {
+                "runtime": [],
+                "dev": []
+              },
+              "env": []
+            },
+            "Upstash Rate Limiter": {
+              "label": "Upstash Rate Limiter",
+              "templates": {
+                "file-api": "rate-limiter/upstash/file-api"
+              },
+              "dependencies": {
+                "runtime": ["@upstash/ratelimit", "@upstash/redis"],
+                "dev": [""]
+              },
+              "env": ["UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_URL"]
+            }
+          }
         }
       }
     }
