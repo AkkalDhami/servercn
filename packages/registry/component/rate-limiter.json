@@ -18,7 +18,7 @@
         "nextjs": {
           "prompt": "Select rate limiter strategy:",
           "variants": {
-            "Custom Rate Limiter": {
+            "custom": {
               "label": "Custom Rate Limiter",
               "templates": {
                 "file-api": "rate-limiter/custom/file-api"
@@ -29,7 +29,7 @@
               },
               "env": []
             },
-            "Upstash Rate Limiter": {
+            "upstash": {
               "label": "Upstash Rate Limiter",
               "templates": {
                 "file-api": "rate-limiter/upstash/file-api"
