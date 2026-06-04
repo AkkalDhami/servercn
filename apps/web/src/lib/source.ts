@@ -170,6 +170,8 @@ export function getRegistryVariants(name: string, framework: FrameworkType) {
         "google-facebook",
         "google-facebook-github"
       ];
+    case "rate-limiter":
+      return ["custom", "upstash"];
 
     default:
       return [];
