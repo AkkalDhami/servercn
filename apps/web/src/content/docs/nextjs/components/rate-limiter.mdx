@@ -37,7 +37,7 @@ Upstash Rate Limiter
 <Steps>
 <Step>Create util functions</Step>
 
-```ts title="src/utils/rate-limit.ts"
+```ts title="src/lib/rate-limiter.ts"
 export const RATE_LIMIT_WINDOW = 1 * 60 * 1000; // 1 minute
 
 export const RATE_LIMIT_MAX_REQUESTS = 5 as const;
