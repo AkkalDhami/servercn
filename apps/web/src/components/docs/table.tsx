@@ -2,7 +2,7 @@
 
 export function Table({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-4 w-full overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+    <div className="my-4 w-full overflow-x-auto rounded-md border-x border-t border-neutral-200 dark:border-neutral-800">
       <table className="w-full text-sm">{children}</table>
     </div>
   );
