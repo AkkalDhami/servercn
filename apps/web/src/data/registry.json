@@ -325,7 +325,7 @@
       "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/github-oauth",
       "meta": {
         "new": true
