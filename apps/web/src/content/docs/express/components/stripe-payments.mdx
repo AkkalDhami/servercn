@@ -1,0 +1,62 @@
+---
+title: Stripe Payments
+description: Add Stripe payment integration to your Express application.
+---
+
+# Stripe Payments
+
+Integrate Stripe payments into your Express application with checkout session support and webhook verification.
+
+## Installation
+
+```bash
+npx servercn add stripe-payments
+```
+
+## Features
+
+- **Stripe Client Configuration**: Pre-configured Stripe instance.
+- **Checkout Sessions**: Utility to create Stripe Checkout sessions.
+- **Webhook Verification**: Securely verify Stripe webhook signatures.
+- **Type Safety**: Fully typed with TypeScript and Zod for environment variables.
+
+## Usage
+
+### Creating a Checkout Session
+
+You can use the `createCheckoutSession` utility to redirect users to a Stripe-hosted payment page.
+
+```typescript
+import { createCheckoutSession } from "./utils/create-checkout-session";
+
+const session = await createCheckoutSession();
+// Redirect user to session.url
+```
+
+### Handling Webhooks
+
+To secure your webhook endpoint, use the `verifyWebhook` utility.
+
+```typescript
+import { verifyWebhook } from "./utils/verify-webhook";
+
+app.post("/webhook", (req, res) => {
+  try {
+    const event = verifyWebhook(req.body, req.headers["stripe-signature"]);
+    // Handle the event
+    res.json({ received: true });
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+```
+
+## Environment Variables
+
+Ensure you have the following variables in your `.env` file:
+
+| Variable | Description |
+| :--- | :--- |
+| `STRIPE_SECRET_KEY` | Your Stripe Secret Key from the Dashboard |
+| `STRIPE_PUBLISHABLE_KEY` | Your Stripe Publishable Key |
+| `STRIPE_WEBHOOK_SECRET` | Secret used to verify webhook signatures |
