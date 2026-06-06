@@ -1,12 +1,12 @@
 ---
-title: Google OAuth | Next.js
-description: Production-ready Google OAuth service for authentication in Servercn using NextAuth.js with support for multiple providers (Google, GitHub, Facebook, etc.).
+title: GitHub OAuth | Next.js
+description: Production-ready GitHub OAuth service for authentication in Servercn using NextAuth.js with support for multiple providers (Google, GitHub, Facebook, etc.).
 command: npx servercn-cli@latest add oauth
 ---
 
-# Google OAuth (NextAuth)
+# GitHub OAuth (NextAuth) 
 
-The **Google OAuth** component provides a secure and standardized way to integrate Google authentication into Nextjs applications using <Code>next-auth</Code>.
+The **GitHub OAuth** component provides a secure and standardized way to integrate GitHub authentication into Nextjs applications using <Code>next-auth</Code>.
 
 [Official Docs](https://next-auth.js.org), [Auth.js Docs](https://authjs.dev)
 
@@ -60,9 +60,9 @@ NEXTAUTH_URL='nextauth_url'
 
 NEXTAUTH_SECRET='nextauth_secret'
 
-GOOGLE_CLIENT_ID='google_client_id'
+GITHUB_ID='github_id'
 
-GOOGLE_CLIENT_SECRET='google_client_secret'
+GITHUB_SECRET='github_secret'
 ```
 
 ---
@@ -70,6 +70,7 @@ GOOGLE_CLIENT_SECRET='google_client_secret'
 <Step>Add API route</Step>
 ```ts title="src/app/api/auth/[...nextauth]/route.ts"
 import { authOptions } from "@/lib/next-auth";
+
 import NextAuth from "next-auth";
 
 const handler = NextAuth(authOptions);
@@ -82,7 +83,7 @@ export { handler as GET, handler as POST };
 <Step>Create Next Auth Config</Step>
 ```ts title="src/lib/next-auth.ts"
 import { Account, AuthOptions, Profile as NextAuthProfile } from "next-auth";
-import Google from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 
 interface CustomProfile extends NextAuthProfile {
   picture?: string;
@@ -100,7 +101,7 @@ export const authOptions: AuthOptions = {
       profile?: CustomProfile | undefined;
     }) {
       if (!account || !profile) return false;
-      if (account?.provider === "google") {
+      if (account?.provider === "github") {
         // console.log({ profile, account });
 
         const userInfo = {
@@ -120,18 +121,16 @@ export const authOptions: AuthOptions = {
     }
   },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string,
       authorization: {
         params: {
-          prompt: "consent",
           access_type: "offline",
           response_type: "code"
         }
       }
-    }),
-    
+    })
   ],
 
   secret: process.env.NEXTAUTH_SECRET
@@ -178,15 +177,15 @@ export default function RootLayout({
 
 ---
 
-<Step>Add Signin Component</Step>
+<Step>Add GitHub Signin Component</Step>
 
-```tsx title="src/components/auth/oauth-signin.tsx" {3, 7, 27-29}
+```tsx title="src/components/auth/github-signin.tsx" {3, 7, 24-26}
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
-export function OAuthSignin() {
+export function GitHubSignin() {
   const session = useSession();
 
   if (session.status === "authenticated") {
@@ -194,10 +193,7 @@ export function OAuthSignin() {
   }
 
   return (
-    <div
-      className={
-        "justify-center mt-4 flex flex-col items-center"
-      }>
+    <div className={"mt-4 flex flex-col items-center justify-center"}>
       <h3 className="text-xl font-medium text-white uppercase">
         Continue with
       </h3>
@@ -207,7 +203,7 @@ export function OAuthSignin() {
             "relative flex w-full cursor-pointer items-center justify-center gap-5 rounded-full bg-white px-4 py-3"
           }
           onClick={() =>
-            signIn("google", {
+            signIn("github", {
               callbackUrl: "/"
             })
           }
@@ -216,31 +212,14 @@ export function OAuthSignin() {
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
-            viewBox="0 0 128 128">
+            viewBox="0 0 64 64">
             <path
-              fill="#fff"
-              d="M44.59 4.21a63.28 63.28 0 0 0 4.33 120.9a67.6 67.6 0 0 0 32.36.35a57.13 57.13 0 0 0 25.9-13.46a57.44 57.44 0 0 0 16-26.26a74.3 74.3 0 0 0 1.61-33.58H65.27v24.69h34.47a29.72 29.72 0 0 1-12.66 19.52a36.2 36.2 0 0 1-13.93 5.5a41.3 41.3 0 0 1-15.1 0A37.2 37.2 0 0 1 44 95.74a39.3 39.3 0 0 1-14.5-19.42a38.3 38.3 0 0 1 0-24.63a39.25 39.25 0 0 1 9.18-14.91A37.17 37.17 0 0 1 76.13 27a34.3 34.3 0 0 1 13.64 8q5.83-5.8 11.64-11.63c2-2.09 4.18-4.08 6.15-6.22A61.2 61.2 0 0 0 87.2 4.59a64 64 0 0 0-42.61-.38"
-            />
-            <path
-              fill="#e33629"
-              d="M44.59 4.21a64 64 0 0 1 42.61.37a61.2 61.2 0 0 1 20.35 12.62c-2 2.14-4.11 4.14-6.15 6.22Q95.58 29.23 89.77 35a34.3 34.3 0 0 0-13.64-8a37.17 37.17 0 0 0-37.46 9.74a39.25 39.25 0 0 0-9.18 14.91L8.76 35.6A63.53 63.53 0 0 1 44.59 4.21"
-            />
-            <path
-              fill="#f8bd00"
-              d="M3.26 51.5a63 63 0 0 1 5.5-15.9l20.73 16.09a38.3 38.3 0 0 0 0 24.63q-10.36 8-20.73 16.08a63.33 63.33 0 0 1-5.5-40.9"
-            />
-            <path
-              fill="#587dbd"
-              d="M65.27 52.15h59.52a74.3 74.3 0 0 1-1.61 33.58a57.44 57.44 0 0 1-16 26.26c-6.69-5.22-13.41-10.4-20.1-15.62a29.72 29.72 0 0 0 12.66-19.54H65.27c-.01-8.22 0-16.45 0-24.68"
-            />
-            <path
-              fill="#319f43"
-              d="M8.75 92.4q10.37-8 20.73-16.08A39.3 39.3 0 0 0 44 95.74a37.2 37.2 0 0 0 14.08 6.08a41.3 41.3 0 0 0 15.1 0a36.2 36.2 0 0 0 13.93-5.5c6.69 5.22 13.41 10.4 20.1 15.62a57.13 57.13 0 0 1-25.9 13.47a67.6 67.6 0 0 1-32.36-.35a63 63 0 0 1-23-11.59A63.7 63.7 0 0 1 8.75 92.4"
+              fill="currentColor"
+              d="M32 0C14 0 0 14 0 32c0 21 19 30 22 30c2 0 2-1 2-2v-5c-7 2-10-2-11-5c0 0 0-1-2-3c-1-1-5-3-1-3c3 0 5 4 5 4c3 4 7 3 9 2c0-2 2-4 2-4c-8-1-14-4-14-15q0-6 3-9s-2-4 0-9c0 0 5 0 9 4c3-2 13-2 16 0c4-4 9-4 9-4c2 7 0 9 0 9q3 3 3 9c0 11-7 14-14 15c1 1 2 3 2 6v8c0 1 0 2 2 2c3 0 22-9 22-30C64 14 50 0 32 0"
             />
           </svg>
-          Google
+          GitHub
         </button>
-
       </div>
     </div>
   );
@@ -251,9 +230,10 @@ export function OAuthSignin() {
 
 <Step>Add Profile Card</Step>
 
-```tsx title="src/components/auth/profile-card.tsx" {3, 7, 33}
+```tsx title="src/components/auth/profile-card.tsx" {4, 8, 34}
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
@@ -264,7 +244,7 @@ export function ProfileCard() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8">
         <div className="flex items-center gap-2">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-white">Loading...</p>
         </div>
       </div>
     );
@@ -278,7 +258,7 @@ export function ProfileCard() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8">
         <div className="flex items-center gap-2">
-          <p className="text-muted-foreground">User not found</p>
+          <p className="text-white">User not found</p>
         </div>
       </div>
     );
@@ -313,21 +293,22 @@ export function ProfileCard() {
 </TabsContent>
 </Tabs>
 
-
-
 ---
 
 ## Usage Example
 
 ### Signin Page
 
-```tsx title="src/app/signin/page.tsx" {1, 6}
-import { OAuthSignin } from "@/components/auth/oauth-signin";
+```tsx title="src/app/signin/page.tsx" {1, 9}
+import { GitHubSignin } from "@/components/auth/github-signin";
 
 export default function Page() {
   return (
-    <div className={"flex h-screen w-full items-center justify-center"}>
-      <OAuthSignin />
+    <div
+      className={
+        "flex h-screen w-full items-center justify-center bg-neutral-950"
+      }>
+      <GitHubSignin />
     </div>
   );
 }
