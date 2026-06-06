@@ -135,7 +135,7 @@ export const mdxComponents: MDXComponents = {
   Step: ({ className, ...props }: React.ComponentProps<"h3">) => (
     <h3
       className={cn(
-        "mt-3 mb-3 scroll-m-32 text-xl  tracking-tight",
+        "toc-ignore mt-3 mb-3 scroll-m-32 text-xl tracking-tight",
         className
       )}
       {...props}
