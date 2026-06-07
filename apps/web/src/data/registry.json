@@ -461,6 +461,18 @@
       }
     },
     {
+      "slug": "prisma-pg-starter",
+      "title": "Prisma PostgreSQL Starter",
+      "description": "A production-ready PostgreSQL foundation using Prisma ORM for type-safe database interactions.",
+      "type": "foundation",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/foundations/prisma-pg-starter",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "title": "Nextjs Starter",
       "slug": "nextjs-starter",
       "description": "A production-ready Next.js foundation with TypeScript, error handling, and structured logging.",
