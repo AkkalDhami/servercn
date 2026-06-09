@@ -159,7 +159,7 @@ export function getRegistryVariants(name: string, framework: FrameworkType) {
       return ["argon2", "bcryptjs", "scrypt", "pbkdf2"];
     case "oauth":
       if (framework === "nextjs") {
-        return ["google", "github"];
+        return ["google", "github", "google-github"];
       }
       return [
         "google",
