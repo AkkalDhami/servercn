@@ -1,5 +1,6 @@
 import { Account, AuthOptions, Profile as NextAuthProfile } from "next-auth";
 import Google from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 
 interface CustomProfile extends NextAuthProfile {
   picture?: string;
@@ -17,8 +18,8 @@ export const authOptions: AuthOptions = {
       profile?: CustomProfile | undefined;
     }) {
       if (!account || !profile) return false;
-      if (account?.provider === "google") {
-        // console.log({ profile, account });
+      if (account?.provider === "google" || account?.provider === "github") {
+        console.log({ profile, account });
 
         const userInfo = {
           name: profile?.name as string,
@@ -48,7 +49,16 @@ export const authOptions: AuthOptions = {
         }
       }
     }),
-    
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string,
+      authorization: {
+        params: {
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+    })
   ],
 
   secret: process.env.NEXTAUTH_SECRET
