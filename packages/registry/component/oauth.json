@@ -256,7 +256,7 @@
               ]
             },
             "google-github": {
-              "label": "GitHub",
+              "label": "Google + GitHub",
               "templates": {
                 "file-api": "oauth/google-github/file-api"
               },
