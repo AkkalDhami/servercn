@@ -42,11 +42,20 @@ export const siteConfig = {
     }
   ],
 
-  creator: "Akkal Dhami",
+  creator: "@_akkal_dhami",
 
   description: `${APP_NAME} is a component registry for building production-ready Node.js backends by composition, inspired by shadcn/ui. Servercn standardizes backend patterns so you can focus on business logic, not boilerplate.`,
   applicationName: `${APP_NAME}`,
-  authors: [{ name: "akkaldhami" }],
+  authors: [
+    {
+      name: "akkaldhami",
+      url: "https://www.akkal.com.np"
+    },
+    {
+      name: "servercn",
+      url: "https://www.servercn.xyz"
+    }
+  ],
   generator: "Next.js",
   keywords: [
     `${APP_NAME}`,
@@ -55,11 +64,12 @@ export const siteConfig = {
     "JWT authentication",
     "API error handling",
     "Backend components",
-    "Documentation",
     "Nodejs",
-    "Express",
-    "Server"
+    "Expressjs",
+    "Nextjs",
+    "Nestjs",
+    "TypeScript"
   ],
   author: "Akkal Dhami",
-  metadataBase: new URL("https://servercn.vercel.app")
+  metadataBase: new URL("https://www.servercn.xyz")
 };

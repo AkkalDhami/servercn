@@ -1,4 +1,4 @@
-# Servercn
+# servercn
 
 > **Backend component registry for Node.js & TypeScript**
 
@@ -6,13 +6,13 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
 
-**Servercn** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
+**servercn** is a backend component registry for Node.js & TypeScript. It provides a robust collection of pre-configured components, boilerplates, and utilities for **Node.js** and **TypeScript**, enabling developers to scaffold production-ready code in seconds.
 
 > Shadcn ecosystem for Node.js backend
 
-![Servercn Components](./apps/web/public/og-image.png)
+![Servercn](./apps/web/public/og-image.png)
 
-[Visit website](https://servercn.vercel.app/docs/cli)
+[Visit website](https://www.servercn.xyz)
 
 [Join discord](https://discord.gg/2fXqnTXF8d)
 
