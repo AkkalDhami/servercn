@@ -41,10 +41,18 @@ export const metadata: Metadata = {
       follow: true
     }
   },
+
   twitter: {
     title: siteConfig.title,
     description: siteConfig.description,
-    creator: siteConfig.creator
+    creator: siteConfig.creator,
+    card: "summary_large_image",
+    images: [`${SERVERCN_URL}/og-image.png`]
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico"
   }
 };
 
