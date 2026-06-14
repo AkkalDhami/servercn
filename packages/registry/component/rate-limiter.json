@@ -5,15 +5,45 @@
     "node": {
       "frameworks": {
         "express": {
-          "templates": {
-            "mvc": "rate-limiter/mvc",
-            "feature": "rate-limiter/feature"
-          },
-          "dependencies": {
-            "runtime": ["express-rate-limit"],
-            "dev": [""]
-          },
-          "env": []
+          "prompt": "Select rate limiter strategy:",
+          "variants": {
+            "express-rate-limit": {
+              "label": "Express Rate Limiter",
+              "templates": {
+                "mvc": "rate-limiter/express-rate-limit/mvc",
+                "feature": "rate-limiter/express-rate-limit/feature"
+              },
+              "dependencies": {
+                "runtime": ["express-rate-limit"],
+                "dev": []
+              },
+              "env": []
+            },
+            "upstash": {
+              "label": "Upstash Rate Limiter",
+              "templates": {
+                "mvc": "rate-limiter/upstash/mvc",
+                "feature": "rate-limiter/upstash/feature"
+              },
+              "dependencies": {
+                "runtime": ["@upstash/ratelimit", "@upstash/redis"],
+                "dev": []
+              },
+              "env": ["UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_URL"]
+            },
+            "ioredis": {
+              "label": "IoRedis Rate Limiter",
+              "templates": {
+                "mvc": "rate-limiter/ioredis/mvc",
+                "feature": "rate-limiter/ioredis/feature"
+              },
+              "dependencies": {
+                "runtime": ["ioredis"],
+                "dev": []
+              },
+              "env": ["REDIS_URL"]
+            }
+          }
         },
         "nextjs": {
           "prompt": "Select rate limiter strategy:",
@@ -35,8 +65,8 @@
                 "file-api": "rate-limiter/upstash/file-api"
               },
               "dependencies": {
-                "runtime": ["@upstash/ratelimit", "@upstash/redis"],
-                "dev": [""]
+                "runtime": ["@upstash/ratelimit", "@upstash/redis", "zod"],
+                "dev": []
               },
               "env": ["UPSTASH_REDIS_REST_TOKEN", "UPSTASH_REDIS_REST_URL"]
             }
