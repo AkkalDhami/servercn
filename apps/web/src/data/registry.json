@@ -313,7 +313,7 @@
       "description": "The GitHub & Google OAuth component provides a standardized way to handle GitHub & Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/github-google-oauth",
       "meta": {
         "new": true

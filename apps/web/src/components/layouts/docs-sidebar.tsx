@@ -68,6 +68,10 @@ export const PAGE_ITEMS = [
   {
     title: "Contributing",
     url: "/contributing"
+  },
+  {
+    title: "llms.txt",
+    url: "/llms.txt"
   }
 ];
 
