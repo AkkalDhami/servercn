@@ -4,53 +4,153 @@
     "node": {
       "frameworks": {
         "express": {
-          "dependencies": {
-            "runtime": [
-              "express-rate-limit"
-            ],
-            "dev": [
-              ""
-            ]
-          },
-          "env": [],
-          "architectures": {
-            "mvc": {
-              "files": [
-                {
-                  "type": "file",
-                  "path": "src/utils/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+          "prompt": "Select rate limiter strategy:",
+          "variants": {
+            "express-rate-limit": {
+              "label": "Express Rate Limiter",
+              "dependencies": {
+                "runtime": [
+                  "express-rate-limit"
+                ],
+                "dev": []
+              },
+              "env": [],
+              "architectures": {
+                "mvc": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/utils/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/middlewares/rate-limiter.ts",
+                      "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../utils/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    }
+                  ]
                 },
-                {
-                  "type": "file",
-                  "path": "src/middlewares/rate-limiter.ts",
-                  "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../utils/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                "feature": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/rate-limiter.ts",
+                      "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../errors/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/errors/api-error.ts",
+                      "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/constants/status-codes.ts",
+                      "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
+                    }
+                  ]
                 }
-              ]
+              }
             },
-            "feature": {
-              "files": [
-                {
-                  "type": "file",
-                  "path": "src/shared/middlewares/rate-limiter.ts",
-                  "content": "import { rateLimit } from \"express-rate-limit\";\nimport { ApiError } from \"../errors/api-error\";\nimport { STATUS_CODES } from \"../constants/status-codes\";\n\n/**\n * Standard rate limiter middleware\n * Limits each IP to 100 requests per 15-minute window\n */\n\nexport const rateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per window\n  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers\n  legacyHeaders: false, // Disable the `X-RateLimit-*` headers\n  message: {\n    success: false,\n    message:\n      \"Too many requests from this IP, please try again after 15 minutes\",\n    status: 429\n  },\n  handler: (req, res, next, options) => {\n    next(new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, options.message.message));\n  }\n});\n\n/**\n * Stricter rate limiter for sensitive routes (e.g., auth, login)\n */\nexport const authRateLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 5, // Limit each IP to 5 failed attempts per hour\n  handler: (req, res, next, options) => {\n    next(\n      ApiError.tooManyRequests(\n        \"Too many login attempts, please try again after an hour\"\n      )\n    );\n  }\n});\n\n/**\n * Rate limiter for login route\n */\nexport const signinRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many login attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Rate limiter for registration route\n */\nexport const signupRateLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many registration attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpRequestLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP requests. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const otpVerificationLimiter = rateLimit({\n  windowMs: 10 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many OTP verification attempts. Please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const resetPasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 6,\n  message: {\n    success: false,\n    message: \"Too many password reset attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const deleteAccountLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many account deletion attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\nexport const changePasswordLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,\n  message: {\n    success: false,\n    message: \"Too many password change attempts, please try again later.\",\n    statusCode: 429\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n/**\n * Make sure global error handler is set up to handle ApiError\n */\n"
+            "upstash": {
+              "label": "Upstash Rate Limiter",
+              "dependencies": {
+                "runtime": [
+                  "@upstash/ratelimit",
+                  "@upstash/redis"
+                ],
+                "dev": []
+              },
+              "env": [
+                "UPSTASH_REDIS_REST_TOKEN",
+                "UPSTASH_REDIS_REST_URL"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/middlewares/rate-limiter.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport { ratelimit } from \"../lib/rate-limit\";\r\n\r\nexport async function rateLimiter(\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) {\r\n  const identifier = req.ip ?? \"anonymous\";\r\n\r\n  const { success, limit, remaining, reset } =\r\n    await ratelimit.limit(identifier);\r\n\r\n  res.setHeader(\"X-RateLimit-Limit\", limit);\r\n  res.setHeader(\"X-RateLimit-Remaining\", remaining);\r\n  res.setHeader(\"X-RateLimit-Reset\", Math.floor(reset / 1000));\r\n\r\n  if (!success) {\r\n    return res.status(429).json({\r\n      success: false,\r\n      status: 429,\r\n      message: \"Too many requests. Please try again later.\"\r\n    });\r\n  }\r\n\r\n  next();\r\n}\r\n\r\n/*\r\n* ? GLOBAL USAGE\r\nimport express from \"express\";\r\nimport { rateLimiter } from \"./middlewares/rate-limiter\";\r\n\r\nconst app = express();\r\n\r\napp.use(rateLimiter);\r\n\r\napp.get(\"/\", (req, res) => {\r\n  res.send(\"Hello World!\");\r\n});\r\n\r\napp.listen(3000, () => {\r\n  console.log(\"Server is running on port 3000\");\r\n});\r\n*/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/redis.ts",
+                      "content": "import { Redis } from \"@upstash/redis\";\r\n\r\nconst redis = new Redis({\r\n  url: process.env.UPSTASH_REDIS_REST_URL,\r\n  token: process.env.UPSTASH_REDIS_REST_TOKEN\r\n});\r\n\r\nexport default redis;"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/lib/rate-limit.ts",
+                      "content": "import { Ratelimit } from \"@upstash/ratelimit\";\r\nimport redis from \"../configs/redis\";\r\n\r\n//* Global Rate Limit\r\nexport const ratelimit = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.slidingWindow(100, \"1 m\"), //* 100 requests per minute\r\n  analytics: true,\r\n  prefix: \"@servercn/ratelimit\"\r\n});\r\n\r\n//* Route-Specific Rate Limits\r\nexport const apiLimiter = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.slidingWindow(100, \"1 m\")\r\n});\r\n\r\nexport const loginLimiter = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.fixedWindow(10, \"60 s\") //* 10 requests per minute\r\n});\r\n\r\n/**\r\n* ? Usage Example(Route-Specific)\r\napp.post(\"/login\", async (req, res, next) => {\r\n  const { success } = await loginLimiter.limit(req.ip!);\r\n\r\n  if (!success) {\r\n    return res.status(429).json({\r\n      success: false,\r\n      status: 429,\r\n      message: \"Too many login attempts\",\r\n    });\r\n  }\r\n\r\n  next();\r\n});\r\n\r\n*/\r\n"
+                    }
+                  ]
                 },
-                {
-                  "type": "file",
-                  "path": "src/shared/constants/status-codes.ts",
-                  "content": "export const STATUS_CODES = {\n  // 2xx Success\n  OK: 200,\n  CREATED: 201,\n  ACCEPTED: 202,\n  NO_CONTENT: 204,\n\n  // 3xx Redirection\n  MOVED_PERMANENTLY: 301,\n  FOUND: 302,\n  NOT_MODIFIED: 304,\n\n  // 4xx Client Errors\n  BAD_REQUEST: 400,\n  UNAUTHORIZED: 401,\n  FORBIDDEN: 403,\n  NOT_FOUND: 404,\n  CONFLICT: 409,\n  UNPROCESSABLE_ENTITY: 422,\n  TOO_MANY_REQUESTS: 429,\n\n  // 5xx Server Errors\n  INTERNAL_SERVER_ERROR: 500,\n  NOT_IMPLEMENTED: 501,\n  BAD_GATEWAY: 502,\n  SERVICE_UNAVAILABLE: 503,\n  GATEWAY_TIMEOUT: 504\n} as const;\n\nexport type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];\n"
-                },
-                {
-                  "type": "file",
-                  "path": "src/shared/errors/api-error.ts",
-                  "content": "import { STATUS_CODES, StatusCode } from \"../constants/status-codes\";\n\nexport class ApiError extends Error {\n  public readonly statusCode: StatusCode;\n  public readonly isOperational: boolean;\n  public readonly errors?: unknown;\n\n  constructor(\n    statusCode: StatusCode,\n    message: string,\n    errors?: unknown,\n    isOperational = true\n  ) {\n    super(message);\n    this.name = \"ApiError\";\n    this.statusCode = statusCode;\n    this.errors = errors;\n    this.isOperational = isOperational;\n\n    Error.captureStackTrace(this, this.constructor);\n  }\n\n  static badRequest(message = \"Bad Request\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static unauthorized(message = \"Unauthorized\") {\n    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);\n  }\n\n  static forbidden(message = \"Forbidden\") {\n    return new ApiError(STATUS_CODES.FORBIDDEN, message);\n  }\n\n  static notFound(message = \"Not Found\") {\n    return new ApiError(STATUS_CODES.NOT_FOUND, message);\n  }\n\n  static conflict(message = \"Conflict\") {\n    return new ApiError(STATUS_CODES.CONFLICT, message);\n  }\n\n  static validation(message = \"Validation failed\", errors?: unknown) {\n    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);\n  }\n\n  static notImplemented(message = \"Not Implemented\") {\n    return new ApiError(STATUS_CODES.NOT_IMPLEMENTED, message);\n  }\n\n  static badGateway(message = \"Bad Gateway\") {\n    return new ApiError(STATUS_CODES.BAD_GATEWAY, message);\n  }\n\n  static serviceUnavailable(message = \"Service Unavailable\") {\n    return new ApiError(STATUS_CODES.SERVICE_UNAVAILABLE, message);\n  }\n\n  static tooManyRequests(message = \"Too Many Requests\") {\n    return new ApiError(STATUS_CODES.TOO_MANY_REQUESTS, message);\n  }\n\n  static server(message = \"Internal Server Error\") {\n    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);\n  }\n}\n\n/*\n * Usage:\n * throw new ApiError(STATUS_CODES.NOT_FOUND, \"Not found\");\n * throw ApiError.badRequest(\"Bad request\");\n */\n"
+                "feature": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/rate-limiter.ts",
+                      "content": "import { Request, Response, NextFunction } from \"express\";\r\nimport { ratelimit } from \"../lib/rate-limit\";\r\n\r\nexport async function rateLimiter(\r\n  req: Request,\r\n  res: Response,\r\n  next: NextFunction\r\n) {\r\n  const identifier = req.ip ?? \"anonymous\";\r\n\r\n  const { success, limit, remaining, reset } =\r\n    await ratelimit.limit(identifier);\r\n\r\n  res.setHeader(\"X-RateLimit-Limit\", limit);\r\n  res.setHeader(\"X-RateLimit-Remaining\", remaining);\r\n  res.setHeader(\"X-RateLimit-Reset\", Math.floor(reset / 1000));\r\n\r\n  if (!success) {\r\n    return res.status(429).json({\r\n      success: false,\r\n      status: 429,\r\n      message: \"Too many requests. Please try again later.\"\r\n    });\r\n  }\r\n\r\n  next();\r\n}\r\n\r\n/*\r\n* ? GLOBAL USAGE\r\nimport express from \"express\";\r\nimport { rateLimiter } from \"./middlewares/rate-limiter\";\r\n\r\nconst app = express();\r\n\r\napp.use(rateLimiter);\r\n\r\napp.get(\"/\", (req, res) => {\r\n  res.send(\"Hello World!\");\r\n});\r\n\r\napp.listen(3000, () => {\r\n  console.log(\"Server is running on port 3000\");\r\n});\r\n*/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/lib/rate-limit.ts",
+                      "content": "import { Ratelimit } from \"@upstash/ratelimit\";\r\nimport redis from \"../configs/redis\";\r\n\r\n//* Global Rate Limit\r\nexport const ratelimit = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.slidingWindow(100, \"1 m\"), //* 100 requests per minute\r\n  analytics: true,\r\n  prefix: \"@servercn/ratelimit\"\r\n});\r\n\r\n//* Route-Specific Rate Limits\r\nexport const apiRateLimiter = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.slidingWindow(100, \"1 m\")\r\n});\r\n\r\nexport const loginRateLimiter = new Ratelimit({\r\n  redis,\r\n  limiter: Ratelimit.fixedWindow(10, \"60 s\") //* 10 requests per minute\r\n});\r\n\r\n/**\r\n* ? Usage Example(Route-Specific)\r\napp.post(\"/login\", async (req, res, next) => {\r\n  const { success } = await loginRateLimiter.limit(req.ip!);\r\n\r\n  if (!success) {\r\n    return res.status(429).json({\r\n      success: false,\r\n      status: 429,\r\n      message: \"Too many login attempts\",\r\n    });\r\n  }\r\n\r\n  next();\r\n});\r\n\r\n*/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/redis.ts",
+                      "content": "import { Redis } from \"@upstash/redis\";\r\n\r\nconst redis = new Redis({\r\n  url: process.env.UPSTASH_REDIS_REST_URL,\r\n  token: process.env.UPSTASH_REDIS_REST_TOKEN\r\n});\r\n\r\nexport default redis;\r\n"
+                    }
+                  ]
                 }
-              ]
+              }
+            },
+            "ioredis": {
+              "label": "IoRedis Rate Limiter",
+              "dependencies": {
+                "runtime": [
+                  "ioredis"
+                ],
+                "dev": []
+              },
+              "env": [
+                "REDIS_URL"
+              ],
+              "architectures": {
+                "mvc": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/middlewares/rate-limiter.ts",
+                      "content": "import type { Request, Response, NextFunction } from \"express\";\r\nimport redis from \"../configs/redis\";\r\n\r\n/**\r\n * @export\r\n * @param {number} [limit=100]\r\n * @param {number} [windowInSeconds=60]\r\n * @return {*}\r\n */\r\nexport function rateLimiter(limit = 100, windowInSeconds = 60) {\r\n  return async (req: Request, res: Response, next: NextFunction) => {\r\n    const key = `rate_limit:${req.ip}`;\r\n    const now = Date.now();\r\n    const windowStart = now - windowInSeconds * 1000;\r\n\r\n    await redis\r\n      .multi()\r\n      .zremrangebyscore(key, 0, windowStart)\r\n      .zadd(key, now, `${now}-${Math.random()}`)\r\n      .zcard(key)\r\n      .expire(key, windowInSeconds)\r\n      .exec();\r\n\r\n    const count = await redis.zcard(key);\r\n\r\n    if (count > limit) {\r\n      return res.status(429).json({\r\n        success: false,\r\n        status: 429,\r\n        message: \"Too many requests\"\r\n      });\r\n    }\r\n\r\n    next();\r\n  };\r\n}\r\n\r\n/**\r\n  Usage:\r\n \r\n  import rateLimiter from \"./middlewares/rate-limiter\";\r\n \r\n //* global\r\n  app.use(rateLimiter(5, 60));\r\n\r\n  //* per route\r\n  app.get(\"/\", rateLimiter(5, 60), (req, res) => {\r\n    res.send(\"Hello World!\");\r\n  });\r\n \r\n*/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/configs/redis.ts",
+                      "content": "import Redis from \"ioredis\";\r\n\r\nconst redis = new Redis(process.env.REDIS_URL!);\r\n\r\nredis.on(\"error\", err => console.log(\"Redis Client Error:\", err));\r\n\r\nexport default redis;\r\n"
+                    }
+                  ]
+                },
+                "feature": {
+                  "files": [
+                    {
+                      "type": "file",
+                      "path": "src/shared/middlewares/rate-limiter.ts",
+                      "content": "import type { Request, Response, NextFunction } from \"express\";\r\nimport redis from \"../configs/redis\";\r\n\r\n/**\r\n * @export\r\n * @param {number} [limit=100]\r\n * @param {number} [windowInSeconds=60]\r\n * @return {*}\r\n */\r\nexport function rateLimiter(limit = 100, windowInSeconds = 60) {\r\n  return async (req: Request, res: Response, next: NextFunction) => {\r\n    const key = `rate_limit:${req.ip}`;\r\n    const now = Date.now();\r\n    const windowStart = now - windowInSeconds * 1000;\r\n\r\n    await redis\r\n      .multi()\r\n      .zremrangebyscore(key, 0, windowStart)\r\n      .zadd(key, now, `${now}-${Math.random()}`)\r\n      .zcard(key)\r\n      .expire(key, windowInSeconds)\r\n      .exec();\r\n\r\n    const count = await redis.zcard(key);\r\n\r\n    if (count > limit) {\r\n      return res.status(429).json({\r\n        success: false,\r\n        status: 429,\r\n        message: \"Too many requests\"\r\n      });\r\n    }\r\n\r\n    next();\r\n  };\r\n}\r\n\r\n/**\r\n  Usage:\r\n \r\n  import rateLimiter from \"./middlewares/rate-limiter\";\r\n \r\n //* global\r\n  app.use(rateLimiter(5, 60));\r\n\r\n  //* per route\r\n  app.get(\"/\", rateLimiter(5, 60), (req, res) => {\r\n    res.send(\"Hello World!\");\r\n  });\r\n \r\n*/\r\n"
+                    },
+                    {
+                      "type": "file",
+                      "path": "src/shared/configs/redis.ts",
+                      "content": "import Redis from \"ioredis\";\r\n\r\nconst redis = new Redis(process.env.REDIS_URL!);\r\n\r\nredis.on(\"error\", err => console.log(\"Redis Client Error:\", err));\r\n\r\nexport default redis;\r\n"
+                    }
+                  ]
+                }
+              }
             }
           }
         },
@@ -81,11 +181,10 @@
               "dependencies": {
                 "runtime": [
                   "@upstash/ratelimit",
-                  "@upstash/redis"
+                  "@upstash/redis",
+                  "zod"
                 ],
-                "dev": [
-                  ""
-                ]
+                "dev": []
               },
               "env": [
                 "UPSTASH_REDIS_REST_TOKEN",

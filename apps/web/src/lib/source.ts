@@ -171,7 +171,13 @@ export function getRegistryVariants(name: string, framework: FrameworkType) {
         "google-facebook-github"
       ];
     case "rate-limiter":
-      return ["custom", "upstash"];
+      if (framework === "nextjs") {
+        return ["custom", "upstash"];
+      }
+
+      if (framework === "express") {
+        return ["upstash", "ioredis", "express-rate-limiter"];
+      }
 
     default:
       return [];
