@@ -1,5 +1,4 @@
 import { STATUS_CODES } from "@/constants/status-codes";
-import { logger } from "@/utils/logger";
 import { NextRequest, NextResponse } from "next/server";
 
 type HandlerContext = {
@@ -16,7 +15,7 @@ export function RouteHandler(fn: RouteHandlerFn) {
     try {
       return await fn(req, ctx);
     } catch (error: unknown) {
-      logger.error(error, "API Error");
+      console.error(error, "API Error");
 
       let message = "Internal Server Error";
       let status = STATUS_CODES.INTERNAL_SERVER_ERROR;
