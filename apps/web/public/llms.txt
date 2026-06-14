@@ -1,0 +1,233 @@
+# Servercn
+
+> Backend component registry for backend developers. It's not a framework. It's a way to compose your backend using reusable, copy-pasteable components that you fully own.
+
+## Overview
+
+- [Website](https://servercn.xyz)
+- [Website](https://servercn.vercel.app)
+- [GitHub](https://github.com/akkaldhami/servercn)
+- [Documentation](https://servercn.vercel.app/docs)
+- [Docs](https://servercn.xyz/docs)
+
+
+## Getting Started
+
+- [Installation](https://www.servercn.xyz/docs/installation)
+- [Installation](https://www.servercn.vercel.app/docs/installation)
+- [Introduction](https://www.servercn.vercel.app/docs/introduction)
+- [JavaScript Guide](https://www.servercn.vercel.app/docs/guides/js-guide)
+
+
+## Pages
+
+- [Components](https://www.servercn.xyz/components)
+- [Foundations](https://www.servercn.xyz/foundations)
+- [Blueprints](https://www.servercn.xyz/blueprints)
+- [Providers](https://www.servercn.xyz/providers)
+- [Schemas](https://www.servercn.xyz/schemas)
+- [Contributing Guides](https://www.servercn.xyz/contributing)
+- [Contributors](https://www.servercn.xyz/contributors)
+
+
+## Frameworks
+
+- Next.js
+- Express.js
+- Nest.js(comming-soon)
+
+
+## Database & ORM
+
+- Mongodb
+- MySQL
+- PostgreSQL
+- Drizzle
+- Mongoose
+- Prisma
+
+
+## CLI
+
+- [Overview](https://www.servercn.xyz/docs/cli/overview)
+- [commands](https://www.servercn.xyz/docs/cli/commands)
+- [Generators](https://www.servercn.xyz/docs/cli/generators)
+
+
+## Contributing Guides
+
+- [Servercn Blueprint Contributing Guide](https://www.servercn.xyz/docs/contributing/blueprint)
+- [Contributing Components to Servercn](https://www.servercn.xyz/docs/contributing/component)
+- [Servercn Foundation Contributing Guide](https://www.servercn.xyz/docs/contributing/foundation)
+- [Servercn Provider Contributing Guide](https://www.servercn.xyz/docs/contributing/provider)
+- [Servercn Schema Contributing Guide](https://www.servercn.xyz/docs/contributing/schema)
+
+
+## Foundations
+
+### Express.js
+
+- [Express Starter](https://www.servercn.xyz/docs/express/foundations/express-starter): provides a robust, production‑ready express.js setup with sensible defaults, allowing you to focus on building features rather than boilerplate.
+- [Drizzle MySQL Starter](https://www.servercn.xyz/docs/express/foundations/drizzle-mysql-starter): database foundation provided by servercn for projects that use MySQL with Drizzle ORM.
+- [Drizzle Neon PostgreSQL](https://www.servercn.xyz/docs/express/foundations/drizzle-neon-pg): production-ready Neon PostgreSQL foundation using Drizzle ORM for type-safe database interactions. 
+- [Drizzle PostgreSQL Starter](https://www.servercn.xyz/docs/express/foundations/drizzle-pg-starter): database foundation provided by servercn for projects that use PostgreSQL with Drizzle ORM.
+- [Mongoose Starter](https://www.servercn.xyz/docs/express/foundations/mongoose-starter): database foundation provided by servercn for projects that use MongoDB with Mongoose ODM.
+- [Prisma MongoDB Starter](https://www.servercn.xyz/docs/express/foundations/prisma-mongodb-starter): database foundation provided by servercn for projects that use MongoDB with Prisma ORM.
+- [Prisma MySQL Starter](https://www.servercn.xyz/docs/express/foundations/prisma-mysql-starter): database foundation provided by servercn for projects that use MySQL with Prisma ORM.
+
+### Next.js
+
+- [Nextjs Starter](https://www.servercn.xyz/docs/nextjs/foundations/nextjs-starter): clean App Router setup with TypeScript, Shadcn UI and Tailwind CSS.
+
+
+## Components
+
+### Express.js
+
+- [API Error Handling](https://www.servercn.xyz/docs/express/components/error-handler): a lightweight, production-ready error handling utility for Express applications.
+- [API Response Formatter](https://www.servercn.xyz/docs/express/components/response-formatter): provides a consistent, predictable, and type-safe response structure for Express-based APIs.
+- [Async Handler](https://www.servercn.xyz/docs/express/components/async-handler):  foundational Express utility that ensures all errors thrown inside asynchronous route handlers are reliably captured and forwarded to Express’s global error middleware.
+- [Verify Authentication Middleware](https://www.servercn.xyz/docs/express/components/verify-auth-middleware): protects private routes by validating user authentication using JWT access tokens and refresh tokens.
+- [Background Jobs (Cron)](https://www.servercn.xyz/docs/express/components/cron-job): provides a standardized way to schedule and manage recurring tasks in your Servercn application using node-cron.
+- [Email Service](https://www.servercn.xyz/docs/express/components/email-service): rovides a production-ready solution for sending emails in Servercn using nodemailer, resend & mailtrap.
+- [Env Configuration](https://www.servercn.xyz/docs/express/components/env-config): configure your application based on the environment it's running in (development, testing, production).
+- [File Upload (Cloudinary)](https://www.servercn.xyz/docs/express/components/file-upload-cloudinary): omponent provides a standardized way to handle file uploads in Servercn using Cloudinary as the storage provider.
+- [File Upload (Imagekit)](https://www.servercn.xyz/docs/express/components/file-upload-imagekit): omponent provides a standardized way to handle file uploads in Servercn using Imagekit as the storage provider.
+- [GitHub OAuth (Passport)](https://www.servercn.xyz/docs/express/components/github-oauth):  provides a secure and standardized way to integrate GitHub authentication into your Servercn Express applications using the official passport, passport-github2.
+- [Google OAuth (Passport)](https://www.servercn.xyz/docs/express/components/google-oauth): provides a secure and standardized way to integrate Google authentication into your Servercn Express applications using the official passport, passport-google-oauth20.
+- [GitHub & Google OAuth (Passport)](https://www.servercn.xyz/docs/express/components/github-google-oauth):  provides a secure and standardized way to integrate both GitHub and Google authentication into your Servercn Express applications using passport, passport-google-oauth20, and passport-github2.
+- [Global Error Handling](https://www.servercn.xyz/docs/express/components/global-error-handler): is a core part of any production-ready Express application.
+- [Graceful Shutdown Handler](https://www.servercn.xyz/docs/express/components/shutdown-handler):  ensures that your Express application terminates safely and predictably when the process receives termination signals (like SIGTERM or SIGINT).
+- [Health Check](https://www.servercn.xyz/docs/express/components/health-check): provides production-ready endpoints for monitoring your API's status, system health, and service availability.
+- [HTTP Status Codes](https://www.servercn.xyz/docs/express/components/http-status-codes): provides a centralized and type-safe way to reference HTTP status codes across your backend.
+- [JWT Utils Function](https://www.servercn.xyz/docs/express/components/jwt-utils): provides a production-ready authentication utility based on access tokens and refresh tokens for Express-based applications.
+- [Not Found Handler](https://www.servercn.xyz/docs/express/components/not-found-handler):  provides a centralized and consistent way to handle unmatched routes.
+- [OAuth Component](https://www.servercn.xyz/docs/express/components/oauth): provides a unified way to integrate third-party authentication into your backend.
+- [Password Hashing](https://www.servercn.xyz/docs/express/components/password-hashing): provides secure, battle-tested utilities for hashing and verifying user passwords.
+- [Rate Limiter](https://www.servercn.xyz/docs/express/components/rate-limiter): protects your application from abuse, denial-of-service (DoS) attacks, and brute-force attempts by limiting the frequency of incoming requests from a single IP address.
+- [Request Validator (Zod)](https://www.servercn.xyz/docs/express/components/request-validator): provides a standardized way to validate request data (body, query parameters, and route parameters) in Servercn using Zod schemas.
+- [Role Based Access Control (RBAC)](https://www.servercn.xyz/docs/express/components/rbac): provides a clean and reusable middleware to restrict API access based on user roles (e.g., admin, user, manager).
+- [Security Headers](https://www.servercn.xyz/docs/express/components/security-header): provides a unified configuration for protecting your Express applications from common web vulnerabilities like Cross-Site Scripting (XSS), Clickjacking, and Cross-Origin Resource Sharing (CORS) issues.
+- [Logger](https://www.servercn.xyz/docs/express/components/logger): two interchangeable logging strategies so you can choose what best fits your application: pino & winston
+- [Swagger API Documentation](https://www.servercn.xyz/docs/express/components/swagger-docs): provides an automated way to generate and serve interactive API documentation.
+- [Generate OTP/Token Helper Functions](https://www.servercn.xyz/docs/express/components/generate-otp-token): cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
+- [Validate ObjectId Middleware](https://www.servercn.xyz/docs/express/components/validate-objectid): ensures that route parameters intended to be MongoDB ObjectIds are valid before the request reaches your controller.
+
+### Next.js
+
+- [API Error Handler](https://www.servercn.xyz/docs/nextjs/components/error-handler): standardized error handling utility for Next.js Route Handlers that ensures consistent error responses across your application.
+- [API Response Formatter](https://www.servercn.xyz/docs/nextjs/components/response-formatter): standardized response formatter for Next.js Route Handlers that ensures consistent API responses across your application.
+- [API Route Handler](https://www.servercn.xyz/docs/nextjs/components/route-handler): utility to handle async errors in Next.js Route Handlers with clean, consistent responses.
+- [Email Service](https://www.servercn.xyz/docs/nextjs/components/email-service): provides a production-ready solution for sending emails in Servercn using nodemailer, resend and mailtrap.
+- [Env Configuration](https://www.servercn.xyz/docs/nextjs/components/env-config):  provides a split between server-only and client-safe variables, with Zod-powered validation for both.
+- [Google OAuth (NextAuth)](https://www.servercn.xyz/docs/nextjs/components/google-oauth): provides a secure and standardized way to integrate Google authentication into Nextjs applications using next-auth.
+- [GitHub OAuth (NextAuth)](https://www.servercn.xyz/docs/nextjs/components/github-oauth): provides a secure and standardized way to integrate GitHub authentication into Nextjs applications using next-auth.
+- [GitHub & Google OAuth (NextAuth)](https://www.servercn.xyz/docs/nextjs/components/github-oauth): provides a secure and standardized way to integrate GitHub & Google authentication into Nextjs applications using next-auth.
+- [HTTP Status Codes](https://www.servercn.xyz/docs/nextjs/components/http-status-codes): rovides a centralized and type-safe way to reference HTTP status codes across your Next.js backend.
+- [JWT Utils Function](https://www.servercn.xyz/docs/nextjs/components/jwt-utils): it is a small wrapper around jsonwebtoken.
+- [OAuth Component](https://www.servercn.xyz/docs/nextjs/components/oauth): provides a unified way to integrate third-party authentication into your backend.
+- [Password Hashing](https://www.servercn.xyz/docs/nextjs/components/password-hashing): provides secure, battle-tested utilities for hashing and verifying user passwords.
+- [Rate Limiter](https://www.servercn.xyz/docs/nextjs/components/rate-limiter): simple IP-based rate limiter using @upstash/ratelimit and Redis. Designed for Next.js route handlers and middleware.
+- [Request Validator (Zod)](https://www.servercn.xyz/docs/nextjs/components/request-validator): type-safe request validation utility built on top of zod.
+- [Logger](https://www.servercn.xyz/docs/nextjs/components/logger):  a foundational requirement for debugging, monitoring, and operating production-grade backend systems.
+- [Generate OTP/Token Helper Functions](https://www.servercn.xyz/docs/nextjs/components/generate-otp-token): cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
+
+
+## Blueprints
+
+### Express.js
+
+- [Banking Application](https://www.servercn.xyz/docs/express/blueprints/banking-app): is a comprehensive, production-ready blueprint that demonstrates how to build a complete financial services backend using Express.js and MongoDB.
+  - [Banking Application with MongoDB (Mongoose)](https://www.servercn.xyz/docs/express/blueprints/banking-app-mongodb)
+
+- [Hybrid Authentication](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth):  ships with credential-based login, OAuth providers, refresh-token rotation, and session management backed by Redis.
+  - pHybrid Authentication with MongoDB (Mongoose)(https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-mongodb)
+  - [Hybrid Authentication with PostgreSQL (Drizzle)](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-postgresql)
+
+- [Stateful Authentication](https://www.servercn.xyz/docs/express/blueprints/stateful-auth): provides secure user registration, login, session management, and OAuth integration.
+  - [Stateful Authentication with MongoDB (Mongoose)](https://www.servercn.xyz/docs/express/blueprints/stateful-auth-mongodb)
+
+- [Stateless Authentication](https://www.servercn.xyz/docs/express/blueprints/stateless-auth):  provides a production-ready implementation of stateless authentication using Access Tokens, Refresh Tokens, and Token Rotation strategies to ensure high security and scalability.
+  - [Stateless Auth with MongoDB (Mongoose)](https://www.servercn.xyz/docs/express/blueprints/stateless-auth-mongodb)
+  - [Stateless Auth with MySQL (Drizzle)](https://www.servercn.xyz/docs/express/blueprints/stateless-auth-mysql)
+
+
+## Providers
+
+### Express.js
+
+- [Cloudinary Storage](https://www.servercn.xyz/docs/express/providers/cloudinary-storage): adds Cloudinary SDK configuration, Zod-validated environment variables, and a Multer middleware that accepts in-memory uploads (images, video, PDF) with type and size limits.
+- [Imagekit Storage](https://www.servercn.xyz/docs/express/providers/imagekit-storage): adds the ImageKit Node SDK, validates IMAGEKIT_PRIVATE_KEY with Zod, and ships the same Multer memory-upload middleware pattern as the Cloudinary provider
+- [Mongodb(Mongoose)](https://www.servercn.xyz/docs/express/providers/mongodb-mongoose): sets up MongoDB connectivity with Mongoose for Express projects, including environment validation, a database connection helper.
+- [Mongodb(Prisma)](https://www.servercn.xyz/docs/express/providers/mongodb-prisma): sets up MongoDB connectivity with Prisma for Express projects, including environment validation, a Prisma client configuration, and a starter schema.
+- [Mysql(Drizzle)](https://www.servercn.xyz/docs/express/providers/mysql-drizzle): sets up MySQL connectivity with Drizzle ORM for Express projects, including environment validation, a database client.
+- [Mysql(Prisma)](https://www.servercn.xyz/docs/express/providers/mysql-prisma): provider sets up MySQL connectivity with Prisma for Express projects, including environment validation, Prisma client setup, and a starter schema.
+- [Nodemailer SMTP](https://www.servercn.xyz/docs/express/providers/nodemailer-smtp): configures Nodemailer with SMTP settings from the environment, validates host/port/credentials with Zod, and exposes a lazy singleton getTransporter() for sending mail.
+- [PostgreSQL(Drizzle)](https://www.servercn.xyz/docs/express/providers/pg-drizzle): sets up PostgreSQL connectivity with Drizzle ORM for Express projects, including environment validation, a database client.
+- [PostgreSQL(Prisma)](https://www.servercn.xyz/docs/express/providers/pg-prisma): sets up PostgreSQL connectivity with Prisma for Express projects, including environment validation, Prisma client setup, and a starter schema.
+- [PostgreSQL Neon(Drizzle)](https://www.servercn.xyz/docs/express/providers/pg-drizzle-neon):  sets up PostgreSQL + Neon connectivity with Drizzle ORM for Express projects, including environment validation, a database client.
+- [Redis](https://www.servercn.xyz/docs/express/providers/redis): wires the official redis package to REDIS_URL, validates the URL with Zod, and includes small setCache / getCache / deleteCache helpers.
+- [Resend Mail](https://www.servercn.xyz/docs/express/providers/resend-mail): adds the official Resend SDK, validates RESEND_API_KEY with Zod, and exports a ready-to-use resend client.
+
+
+## Schemas
+
+### Express.js
+
+- [Auth Domain](https://www.servercn.xyz/docs/express/schemas/auth): provides a complete set of production-ready schemas for building secure authentication systems in your Node.js applications.
+  - [Auth Domain (MongoDB with Mongoose)](https://www.servercn.xyz/docs/express/schemas/auth-mongodb)
+  - [Auth Domain (MySQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/auth-mysql)
+  - [Auth Domain (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/auth-postgresql)
+
+- [Banking App](https://www.servercn.xyz/docs/express/schemas/banking-app): a beginner-friendly schema for a banking application. It includes support for MongoDB, PostgreSQL, and MySQL databases.
+  - [Banking App (MongoDB with Mongoose)](https://www.servercn.xyz/docs/express/schemas/banking-app-mongodb)
+  - [Banking App (MySQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/banking-app-mysql)
+  - [Banking App (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/banking-app-postgresql)
+
+- [Blog App](https://www.servercn.xyz/docs/express/schemas/blog-app): a comprehensive schema for a blogging platform. It includes support for MongoDB, PostgreSQL, and MySQL databases with features like posts, categories, comments, and likes.
+  - [Blog App (MongoDB with Mongoose)](https://www.servercn.xyz/docs/express/schemas/blog-app-mongodb)
+  - [Blog App (MySQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/blog-app-mysql)
+  - [Blog App (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/blog-app-postgresql)
+
+- [Todo App](https://www.servercn.xyz/docs/express/schemas/todo): provides a robust foundation for building task management applications. It includes a complete set of fields for managing tasks, tracking completion status, and associating todos with users.
+  - [Todo (MongoDB with Mongoose)](https://www.servercn.xyz/docs/express/schemas/todo-mongodb)
+  - [Todo (MySQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/todo-mysql)
+  - [Todo (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/express/schemas/todo-postgresql)
+
+### Next.js
+
+- [Auth Domain](https://www.servercn.xyz/docs/nextjs/schemas/auth): provides a complete set of production-ready schemas for building secure authentication systems in your Node.js applications.
+  - [Auth Domain (MongoDB with Mongoose)](https://www.servercn.xyz/docs/nextjs/schemas/auth-mongodb)
+  - [Auth Domain (MySQL with Drizzle)](https://www.servercn.xyz/docs/nextjs/schemas/auth-mysql)
+  - [Auth Domain (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/nextjs/schemas/auth-postgresql)
+
+- [Todo App](https://www.servercn.xyz/docs/nextjs/schemas/todo): provides a robust foundation for building task management applications. It includes a complete set of fields for managing tasks, tracking completion status, and associating todos with users.
+  - [Todo (MongoDB with Mongoose)](https://www.servercn.xyz/docs/nextjs/schemas/todo-mongodb)
+  - [Todo (MySQL with Drizzle)](https://www.servercn.xyz/docs/nextjs/schemas/todo-mysql)
+  - [Todo (PostgreSQL with Drizzle)](https://www.servercn.xyz/docs/nextjs/schemas/todo-postgresql)
+
+
+## Tooling
+
+- [Commitlint](https://www.servercn.xyz/docs/tooling/commitlint): enforces consistent, meaningful, and machine-readable commit messages by validating them against the Conventional Commits specification
+- [ESLint](https://www.servercn.xyz/docs/tooling/eslint): static code analysis and linting tool that detects problematic patterns, enforces best practices, and ensures consistent coding standards across a codebase.
+- [Husky](https://www.servercn.xyz/docs/tooling/husky): tool that allows you to easily manage Git hooks. Git hooks are scripts that run automatically every time a particular event occurs in a Git repository.
+- [Lint-Staged](https://www.servercn.xyz/docs/tooling/lint-staged): runs linters only on staged Git files, ensuring that bad code never makes it into your repository—without slowing down your workflow.
+- [Prettier](https://www.servercn.xyz/docs/tooling/prettier): pinionated code formatter. It enforces a consistent style by parsing your code and re-printing it with its own rules that take the maximum line length into account, wrapping code when necessary.
+- [TypeScript](https://www.servercn.xyz/docs/tooling/typescript): strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
+
+
+## Core Principles
+
+- **Open Code** — Components are copied into your project.
+- **Composable** — Build features by combining small modules.
+- **Architecture Agnostic** — Works with Express, Fastify, Next.js, and more.
+- **AI-Friendly** — Explicit, predictable code that works well with AI tools.
+
+
+## Getting Help || Community
+
+- **Documentation**: Check component-specific docs [Docs](https://servercn.xyz)
+- **Issues**: Report issues on [GitHub](https://github.com/AkkalDhami/servercn/issues/new)
+- **Community**: Join our [community discussions](https://github.com/AkkalDhami/servercn/discussions)
+- **Discord**: Join our  [Discord](https://discord.gg/2fXqnTXF8d) community.
