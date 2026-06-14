@@ -38,7 +38,7 @@ export function rateLimiter(limit = 100, windowInSeconds = 60) {
 /**
   Usage:
  
-  import rateLimiter from "./middlewares/rate-limiter";
+  import { rateLimiter } from "./middlewares/rate-limiter";
  
  //* global
   app.use(rateLimiter(5, 60));
