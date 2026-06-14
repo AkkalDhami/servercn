@@ -118,6 +118,9 @@ export const POST = async (req: NextRequest) => {
 <TabsContent value="upstash">
 <Steps>
 
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install @upstash/ratelimit @upstash/redis zod" />
+
 <Step>Setup Environment Variables</Step>
 
 ```ts {4, 5} title="src/configs/env.ts"
