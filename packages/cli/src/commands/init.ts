@@ -96,7 +96,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     logger.break();
     logger.warn(`${APP_NAME} is already initialized in this project.`);
     logger.info(
-      "You can now add components: npx servercn-cli add <component-name>"
+      "You can now add components: npx servercn-cli@latest add <component-name>"
     );
     logger.break();
     process.exit(1);
@@ -562,13 +562,13 @@ export async function init(foundation?: string, options: AddOptions = {}) {
 
   logger.log("You may now add components by running:");
   if (response.root === ".") {
-    logger.muted("1. npx servercn-cli add <component>");
+    logger.muted("1. npx servercn-cli@latest add <component>");
   } else {
     logger.muted(`1. cd ${response.root}`);
-    logger.muted("2. npx servercn-cli add <component>");
+    logger.muted("2. npx servercn-cli@latest add <component>");
   }
   logger.muted(
-    "ex: npx servercn-cli add jwt-utils error-handler http-status-codes"
+    "ex: npx servercn-cli@latest add jwt-utils error-handler http-status-codes"
   );
   logger.break();
 }

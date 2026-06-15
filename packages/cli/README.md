@@ -21,13 +21,13 @@ npx servercn-cli init
 Add specific modules to your existing project. This allows for incremental adoption.
 
 ```bash
-npx servercn-cli add [component-name]
+npx servercn-cli@latest add [component-name]
 ```
 
 Add multiple components like this:
 
 ```bash
-npx servercn-cli add logger jwt-utils
+npx servercn-cli@latest add logger jwt-utils
 ```
 
 Visit [Servercn](https://servercn.vercel.app) for more information.
