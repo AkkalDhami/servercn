@@ -221,6 +221,30 @@
       }
     },
     {
+      "slug": "file-upload-cloudflare-r2",
+      "title": "File Upload (Cloudflare R2)",
+      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudflare R2 as the storage provider.",
+      "type": "component",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/components/file-upload-cloudflare-r2",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "file-upload-aws-s3",
+      "title": "File Upload (AWS S3)",
+      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using AWS S3 as the storage provider.",
+      "type": "component",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/components/file-upload-aws-s3",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "slug": "email-service",
       "title": "Email Service",
       "description": "The Send Email component provides a standardized way to send emails in servercn using nodemailer, resend and mailtrap as the email service provider.",
