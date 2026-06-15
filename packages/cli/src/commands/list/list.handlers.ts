@@ -143,11 +143,11 @@ export async function listComponents(options: listOptionType) {
   );
   const data = {
     type: "component",
-    command: `npx servercn-cli add <component-name>`,
+    command: `npx servercn-cli@latest add <component-name>`,
     total: components.length,
     items: components.map(c => ({
       name: c.slug,
-      command: `npx servercn-cli add ${c.slug}`,
+      command: `npx servercn-cli@latest add ${c.slug}`,
       ...(c?.frameworks &&
         c.frameworks.length > 0 && { framework: c.frameworks })
     })),
@@ -175,7 +175,7 @@ export async function listComponents(options: listOptionType) {
     table.push([
       i + 1,
       c.slug,
-      `npx servercn-cli add ${c.slug}`,
+      `npx servercn-cli@latest add ${c.slug}`,
       (c?.frameworks && c.frameworks.join(", ")) || ""
     ]);
   });
@@ -244,13 +244,13 @@ export async function listProviders(options: listOptionType) {
 
   const data = {
     type: "provider",
-    command: `npx servercn-cli add pr <provider-name>`,
+    command: `npx servercn-cli@latest add pr <provider-name>`,
     total: foundations.length,
     items: foundations
       .sort((a, b) => a.slug.localeCompare(b.slug))
       .map(c => ({
         name: c.slug,
-        command: `npx servercn-cli add pr ${c.slug}`,
+        command: `npx servercn-cli@latest add pr ${c.slug}`,
         ...(c?.frameworks &&
           c.frameworks.length > 0 && { frameworks: c.frameworks })
       })),
@@ -279,7 +279,7 @@ export async function listProviders(options: listOptionType) {
     table.push([
       i + 1,
       c.slug,
-      `npx servercn-cli add pr ${c.slug}`,
+      `npx servercn-cli@latest add pr ${c.slug}`,
       (c?.frameworks && c.frameworks.join(", ")) || ""
     ]);
   });
@@ -297,11 +297,11 @@ export async function listTooling(options: listOptionType) {
   const data = {
     type: "tooling",
     alias: "tl",
-    command: `npx servercn-cli add tooling <tooling-name>`,
+    command: `npx servercn-cli@latest add tooling <tooling-name>`,
     total: toolings.length,
     items: toolings.map(c => ({
       name: c.slug,
-      command: `npx servercn-cli add tl ${c.slug}`
+      command: `npx servercn-cli@latest add tl ${c.slug}`
     })),
     docs: [`${SERVERCN_URL}/docs`, `${SERVERCN_URL}/docs/cli#ls-tl`]
   } satisfies listRegistryDataType;
@@ -324,7 +324,7 @@ export async function listTooling(options: listOptionType) {
   logger.break();
   logger.log(highlighter.create("Available Tooling"));
   toolings.map((c, i) => {
-    table.push([i + 1, c.slug, `npx servercn-cli add tl ${c.slug}`]);
+    table.push([i + 1, c.slug, `npx servercn-cli@latest add tl ${c.slug}`]);
   });
   logger.log(table.toString());
   logger.break();
@@ -340,13 +340,13 @@ export async function listSchemas(options: listOptionType) {
   const data = {
     type: "schema",
     alias: "sc",
-    command: `npx servercn-cli add schema <schema-name>`,
+    command: `npx servercn-cli@latest add schema <schema-name>`,
     total: schemas.length,
     items: schemas
       .sort((a, b) => a.slug.localeCompare(b.slug))
       .map(c => ({
         name: c.slug,
-        command: `npx servercn-cli add sc ${c.slug}`,
+        command: `npx servercn-cli@latest add sc ${c.slug}`,
         ...(c?.frameworks &&
           c.frameworks.length > 0 && { frameworks: c.frameworks })
       })),
@@ -375,7 +375,7 @@ export async function listSchemas(options: listOptionType) {
     table.push([
       i + 1,
       c.slug,
-      `npx servercn-cli add sc ${c.slug}`,
+      `npx servercn-cli@latest add sc ${c.slug}`,
       (c?.frameworks && c.frameworks.join(", ")) || ""
     ]);
   });
@@ -393,11 +393,11 @@ export async function listBlueprints(options: listOptionType) {
   const data = {
     type: "blueprint",
     alias: "bp",
-    command: `npx servercn-cli add blueprint <blueprint-name>`,
+    command: `npx servercn-cli@latest add blueprint <blueprint-name>`,
     total: blueprints.length,
     items: blueprints.map(c => ({
       name: c.slug,
-      command: `npx servercn-cli add bp ${c.slug}`,
+      command: `npx servercn-cli@latest add bp ${c.slug}`,
       ...(c?.frameworks &&
         c.frameworks.length > 0 && { frameworks: c.frameworks })
     })),
@@ -426,7 +426,7 @@ export async function listBlueprints(options: listOptionType) {
     table.push([
       i + 1,
       c.slug,
-      `npx servercn-cli add bp ${c.slug}`,
+      `npx servercn-cli@latest add bp ${c.slug}`,
       (c?.frameworks && c.frameworks.join(", ")) || ""
     ]);
   });

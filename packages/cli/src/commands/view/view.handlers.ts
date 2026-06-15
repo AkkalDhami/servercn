@@ -79,10 +79,10 @@ async function readLocalTemplateFiles(
 
 function installationCommand(type: RegistryType, name: string) {
   if (type === "foundation") return `npx servercn-cli init ${name}`;
-  if (type === "tooling") return `npx servercn-cli add tl ${name}`;
-  if (type === "schema") return `npx servercn-cli add sc ${name}`;
-  if (type === "blueprint") return `npx servercn-cli add bp ${name}`;
-  return `npx servercn-cli add ${name}`;
+  if (type === "tooling") return `npx servercn-cli@latest add tl ${name}`;
+  if (type === "schema") return `npx servercn-cli@latest add sc ${name}`;
+  if (type === "blueprint") return `npx servercn-cli@latest add bp ${name}`;
+  return `npx servercn-cli@latest add ${name}`;
 }
 
 function renderOverview(rows: Array<[string, string]>) {

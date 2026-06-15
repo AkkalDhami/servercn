@@ -65,20 +65,20 @@ Aliases:
   pr → provider
 
 Commands:
-  $ npx servercn-cli add <component-name>
+  $ npx servercn-cli@latest add <component-name>
   $ npx servercn-cli init <foundation-name>
-  $ npx servercn-cli add tooling <tooling-name>
-  $ npx servercn-cli add pr <provider-name>
-  $ npx servercn-cli add sc <schema-name>
-  $ npx servercn-cli add bp <blueprint-name>
+  $ npx servercn-cli@latest add tooling <tooling-name>
+  $ npx servercn-cli@latest add pr <provider-name>
+  $ npx servercn-cli@latest add sc <schema-name>
+  $ npx servercn-cli@latest add bp <blueprint-name>
 
 Examples:
-  $ npx servercn-cli add oauth
+  $ npx servercn-cli@latest add oauth
   $ npx servercn-cli init express-starter
-  $ npx servercn-cli add tl prettier
-  $ npx servercn-cli add pr mongodb-prisma
-  $ npx servercn-cli add sc auth
-  $ npx servercn-cli add bp stateless-auth
+  $ npx servercn-cli@latest add tl prettier
+  $ npx servercn-cli@latest add pr mongodb-prisma
+  $ npx servercn-cli@latest add sc auth
+  $ npx servercn-cli@latest add bp stateless-auth
 `
     )
     .action(
