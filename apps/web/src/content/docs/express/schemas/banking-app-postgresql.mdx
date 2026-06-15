@@ -1,7 +1,7 @@
 ---
 title:  Banking | PostgreSQL (Drizzle) | Schema
 description: A detailed look at the PostgreSQL schema for a modern banking application using Drizzle ORM.
-command: npx servercn-cli add schema banking-app
+command: npx servercn-cli@latest add schema banking-app
 
 ---
 
@@ -15,7 +15,7 @@ The core of our application revolves around four main tables: <Code>User</Code>,
 
 To add these schemas to your project, run:
 
-<PackageManagerTabs command="npx servercn-cli add schema banking-app" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema banking-app" />
 
 <Note text="If you install schema individually, the relationships between them won't be automatic—you'll need to implement them manually." />
 
@@ -99,7 +99,7 @@ export type NewUser = typeof users.$inferInsert;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema banking-app/user" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema banking-app/user" />
 
 ## 2. Account Schema
 
@@ -152,7 +152,7 @@ export type NewAccount = typeof accounts.$inferInsert;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema banking-app/account" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema banking-app/account" />
 
 ## 3. Transaction Schema
 
@@ -215,7 +215,7 @@ export type NewTransaction = typeof transactions.$inferInsert;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema banking-app/transaction" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema banking-app/transaction" />
 
 ## 4. Ledger Schema
 
@@ -269,7 +269,7 @@ export type NewLedger = typeof ledgers.$inferInsert;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema banking-app/ledger" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema banking-app/ledger" />
 
 ## 5. Relations
 

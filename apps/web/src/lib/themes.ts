@@ -37,10 +37,10 @@ export const CODE_THEMES: ITheme[] = [
     label: "Vitesse Dark",
     value: "vitesse-dark"
   },
-  {
-    label: "Vitesse Black",
-    value: "vitesse-black"
-  },
+  // {
+  //   label: "Vitesse Black",
+  //   value: "vitesse-black"
+  // },
   {
     label: "Vesper(Default)",
     value: "vesper",
@@ -83,35 +83,36 @@ export const CODE_THEMES: ITheme[] = [
     favorite: true
   },
   {
-    label: "Gruvbox Dark Hard",
+    label: "Gruvbox Dark",
     value: "gruvbox-dark-hard"
   },
   {
     label: "Material Theme",
-    value: "material-theme"
+    value: "material-theme",
+    favorite: true
   },
   {
     label: "Monokai",
     value: "monokai",
     favorite: true
   },
-  {
-    label: "Material Theme Darker",
-    value: "material-theme-darker",
-    favorite: true
-  },
-  {
-    label: "Material Theme Ocean",
-    value: "material-theme-ocean",
-    favorite: true
-  },
+  // {
+  //   label: "Material Theme Darker",
+  //   value: "material-theme-darker",
+  //   favorite: true
+  // },
+  // {
+  //   label: "Material Theme Ocean",
+  //   value: "material-theme-ocean",
+  //   favorite: true
+  // },
   {
     label: "GitHub Dark",
     value: "github-dark-default",
     favorite: true
   },
   {
-    label: "GitHub Light Default",
+    label: "GitHub Light",
     value: "github-light-default",
     light: true
   },
@@ -132,23 +133,22 @@ export const CODE_THEMES: ITheme[] = [
     value: "min-dark",
     favorite: true
   },
-
-  {
-    label: "GitHub Dark High Contrast",
-    value: "github-dark-high-contrast"
-  },
-  {
-    label: "Slack Dark",
-    value: "slack-dark"
-  },
+  // {
+  //   label: "GitHub Dark High Contrast",
+  //   value: "github-dark-high-contrast"
+  // },
+  // {
+  //   label: "Slack Dark",
+  //   value: "slack-dark"
+  // },
   {
     label: "Rose Pine Moon",
     value: "rose-pine-moon"
   },
-  {
-    label: "Rose Pine",
-    value: "rose-pine"
-  },
+  // {
+  //   label: "Rose Pine",
+  //   value: "rose-pine"
+  // },
   {
     label: "Dark Plus",
     value: "dark-plus"
@@ -161,10 +161,10 @@ export const CODE_THEMES: ITheme[] = [
     label: "Night Owl",
     value: "night-owl"
   },
-  {
-    label: "Catppuccin Mocha",
-    value: "catppuccin-mocha"
-  },
+  // {
+  //   label: "Catppuccin Mocha",
+  //   value: "catppuccin-mocha"
+  // },
   {
     label: "Catppuccin Macchiato",
     value: "catppuccin-macchiato"

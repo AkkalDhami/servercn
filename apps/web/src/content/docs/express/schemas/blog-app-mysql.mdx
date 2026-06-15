@@ -1,7 +1,7 @@
 ---
 title:  Blog App | MySQL (Drizzle) | Schema
 description: A detailed look at the MySQL schema for a modern blog application using Drizzle ORM.
-command: npx servercn-cli add schema blog-app
+command: npx servercn-cli@latest add schema blog-app
 
 ---
 
@@ -15,7 +15,7 @@ The core of our application revolves around six main tables: <Code>User</Code>, 
 
 To add these schemas to your project, run:
 
-<PackageManagerTabs command="npx servercn-cli add schema blog-app" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app" />
 
 <Note text="If you install schema individually, the relationships between them won't be automatic—you'll need to implement them manually." />
 
@@ -84,7 +84,7 @@ export type NewUser = typeof users.$inferInsert;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/user" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/user" />
 
 ## 2. Post Schema
 
@@ -148,7 +148,7 @@ export type Post = typeof posts.$inferSelect;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/post" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/post" />
 
 ## 3. Category Schema
 
@@ -180,7 +180,7 @@ export type Category = typeof categories.$inferSelect;
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/category" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/category" />
 
 ## 4. Comment Schema
 
@@ -209,7 +209,7 @@ export const comments = mysqlTable("comments", {
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/comment" />
 
 ## 5. Post Like Schema
 
@@ -239,7 +239,7 @@ export const postLikes = mysqlTable(
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/post-like" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/post-like" />
 
 ## 6. Comment Like Schema
 
@@ -271,7 +271,7 @@ export const commentLikes = mysqlTable(
 ```
 
 #### Installation
-<PackageManagerTabs command="npx servercn-cli add schema blog-app/comment-like" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema blog-app/comment-like" />
 
 ## 7. Export all schemas
 

@@ -10,10 +10,10 @@ export default function InstallComponentCommands({
   return (
     <div className={cn("h-full", className)}>
       <Terminal
-        command="npx servercn-cli add oauth"
+        command="npx servercn-cli@latest add oauth"
         containerClassName={cn("min-h-140")}
         commands={[
-          "npx servercn-cli add oauth",
+          "npx servercn-cli@latest add oauth",
           "? Select OAuth provider:\n> Google\n  GitHub"
         ]}
         outputs={{

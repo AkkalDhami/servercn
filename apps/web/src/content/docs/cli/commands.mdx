@@ -50,8 +50,8 @@ Again, you will be prompted to configure your stack:
 Servercn initialized successfully.
 
 You may now add components by running:
-1. npx servercn-cli add <component>
-ex: npx servercn-cli add jwt-utils error-handler http-status-codes
+1. npx servercn-cli@latest add <component>
+ex: npx servercn-cli@latest add jwt-utils error-handler http-status-codes
 ```
 
 This generates a <Code>servercn.config.json</Code> file in your project root:
@@ -131,11 +131,11 @@ It reads your <Code>servercn.config.json</Code> and resolves the correct impleme
 
 Use this to install reusable components such as utilities, middleware, or shared modules.
 
-<PackageManagerTabs command="npx servercn-cli add <component-name>" />
+<PackageManagerTabs command="npx servercn-cli@latest add <component-name>" />
 
 **Example:**
 
-<PackageManagerTabs command="npx servercn-cli add jwt-utils" />
+<PackageManagerTabs command="npx servercn-cli@latest add jwt-utils" />
 
 ---
 
@@ -143,9 +143,9 @@ Use this to install reusable components such as utilities, middleware, or shared
 
 Install development tooling such as linters, formatters, logging utilities, or build integrations.
 
-<PackageManagerTabs command="npx servercn-cli add tooling <tooling-name>" />
+<PackageManagerTabs command="npx servercn-cli@latest add tooling <tooling-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add tl prettier" />
+<PackageManagerTabs command="npx servercn-cli@latest add tl prettier" />
 
 Tooling is configured to match your runtime and language setup.
 
@@ -155,9 +155,9 @@ Tooling is configured to match your runtime and language setup.
 
 Install a predefined feature structure that scaffolds a complete module pattern (routes, controller, service, model).
 
-<PackageManagerTabs command="npx servercn-cli add blueprint <blueprint-name>" />
+<PackageManagerTabs command="npx servercn-cli@latest add blueprint <blueprint-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add bp stateless-auth" />
+<PackageManagerTabs command="npx servercn-cli@latest add bp stateless-auth" />
 
 Blueprints accelerate feature-level development while preserving architectural consistency.
 
@@ -167,9 +167,9 @@ Blueprints accelerate feature-level development while preserving architectural c
 
 Install a provider integration for external services, databases.
 
-<PackageManagerTabs command="npx servercn-cli add pr <provider-name>" />
+<PackageManagerTabs command="npx servercn-cli@latest add pr <provider-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add pr mongodb-prisma" />
+<PackageManagerTabs command="npx servercn-cli@latest add pr mongodb-prisma" />
 
 ---
 
@@ -177,9 +177,9 @@ Install a provider integration for external services, databases.
 
 Install a predefined database schema aligned with your selected database and ORM.
 
-<PackageManagerTabs command="npx servercn-cli add schema <schema-name>" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema <schema-name>" />
 
-<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth/user" />
 
 The schema is generated based on your configured database type and ORM.
 
@@ -205,20 +205,20 @@ Aliases:
   pr → provider
 
 Commands:
-  $ npx servercn-cli add <component-name>
+  $ npx servercn-cli@latest add <component-name>
   $ npx servercn-cli init <foundation-name>
-  $ npx servercn-cli add tooling <tooling-name>
-  $ npx servercn-cli add pr <provider-name>
-  $ npx servercn-cli add sc <schema-name>
-  $ npx servercn-cli add bp <blueprint-name>
+  $ npx servercn-cli@latest add tooling <tooling-name>
+  $ npx servercn-cli@latest add pr <provider-name>
+  $ npx servercn-cli@latest add sc <schema-name>
+  $ npx servercn-cli@latest add bp <blueprint-name>
 
 Examples:
-  $ npx servercn-cli add oauth
+  $ npx servercn-cli@latest add oauth
   $ npx servercn-cli init express-starter
-  $ npx servercn-cli add tl prettier
-  $ npx servercn-cli add pr mongodb-prisma
-  $ npx servercn-cli add sc auth
-  $ npx servercn-cli add bp stateless-auth
+  $ npx servercn-cli@latest add tl prettier
+  $ npx servercn-cli@latest add pr mongodb-prisma
+  $ npx servercn-cli@latest add sc auth
+  $ npx servercn-cli@latest add bp stateless-auth
 ```  
 
 ---
@@ -358,7 +358,7 @@ Inspect details of a registry item such as a component, blueprint, provider, or 
 {
   "type": "component",
   "slug": "async-handler",
-  "installation": "npx servercn-cli add async-handler",
+  "installation": "npx servercn-cli@latest add async-handler",
   "runtime": "node",
   "framework": "express",
   "architecture": [
@@ -384,7 +384,7 @@ Inspect details of a registry item such as a component, blueprint, provider, or 
 {
   "type": "component",
   "slug": "oauth",
-  "installation": "npx servercn-cli add oauth",
+  "installation": "npx servercn-cli@latest add oauth",
   "runtime": "node",
   "framework": "express",
   "architecture": "mvc",

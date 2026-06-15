@@ -1,7 +1,7 @@
 ---
 title: Auth | MySQL (Drizzle) | Schema
 description: Complete authentication system schemas for MySQL using Drizzle ORM, including User, OTP, Session, and Refresh Token models.
-command: npx servercn-cli add schema auth
+command: npx servercn-cli@latest add schema auth
 ---
 
 # Auth Domain (MySQL with Drizzle)
@@ -12,7 +12,7 @@ This page documents the authentication schemas for projects using **MySQL** with
 
 To add these schemas to your project, run:
 
-<PackageManagerTabs command="npx servercn-cli add schema auth" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema auth" />
 
 During installation, select **MySQL (Drizzle)** when prompted for the database.
 This will install all authentication-related schemas into the <Code children="src/drizzle/schemas" /> folder.
@@ -104,7 +104,7 @@ export type NewUser = typeof users.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/user" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema auth/user" />
 
 ## 2. OTP Schema
 
@@ -165,7 +165,7 @@ export type NewOtp = typeof otps.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/otp" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema auth/otp" />
 
 ## 3. Session Schema
 
@@ -223,7 +223,7 @@ export type NewSession = typeof sessions.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/session" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema auth/session" />
 
 ## 4. Refresh Token Schema
 
@@ -286,7 +286,7 @@ export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add schema auth/refresh-token" />
+<PackageManagerTabs command="npx servercn-cli@latest add schema auth/refresh-token" />
 
 ## 5. Export all schemas
 
