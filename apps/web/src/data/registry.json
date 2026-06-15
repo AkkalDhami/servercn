@@ -305,7 +305,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/rate-limiter"
+      "docs": "/docs/components/rate-limiter",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "github-google-oauth",

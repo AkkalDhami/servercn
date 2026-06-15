@@ -1,7 +1,7 @@
 ---
 title: Auth | PostgreSQL (Drizzle) | Schema
 description: Complete authentication system schemas for PostgreSQL using Drizzle ORM, including User, OTP, Session, and Refresh Token models.
-command: npx servercn-cli add sc auth
+command: npx servercn-cli@latest add sc auth
 
 ---
 
@@ -15,7 +15,7 @@ This page documents the authentication schemas for projects using **PostgreSQL**
 
 Add these schemas using the servercn CLI:
 
-<PackageManagerTabs command="npx servercn-cli add sc auth" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth" />
 
 <Note text="If you install schema one by one (such as auth/user and auth/session), the relationships between them won't be automatic—you'll need to implement them manually." />
 
@@ -99,7 +99,7 @@ export type NewUser = typeof users.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add sc auth/user" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth/user" />
 
 ---
 
@@ -162,7 +162,7 @@ export type NewOtp = typeof otps.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add sc auth/otp" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth/otp" />
 
 ---
 
@@ -221,7 +221,7 @@ export type NewSession = typeof sessions.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add sc auth/session" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth/session" />
 
 ---
 
@@ -283,7 +283,7 @@ export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 
 **Installation:**
 
-<PackageManagerTabs command="npx servercn-cli add sc auth/refresh-token" />
+<PackageManagerTabs command="npx servercn-cli@latest add sc auth/refresh-token" />
 
 ---
 

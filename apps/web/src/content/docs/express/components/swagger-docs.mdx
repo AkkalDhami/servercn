@@ -1,7 +1,7 @@
 ---
 title: Swagger API Documentation
 description: Set up automated OpenAPI documentation for your Express API using Swagger JSDoc and Swagger UI.
-command: npx servercn-cli add swagger-docs
+command: npx servercn-cli@latest add swagger-docs
 ---
 
 # Swagger API Documentation
@@ -10,16 +10,30 @@ The **Swagger API Documentation** component provides an automated way to generat
 
 ---
 
-## Installation
+## Installation Guide
 
-Install the component using the servercn CLI:
+<Tabs defaultValue="cli">
+<TabsList>
+<TabsTrigger value="cli">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
 
-<PackageManagerTabs command="npx servercn-cli add swagger-docs" />
+<TabsContent value="cli">
+<PackageManagerTabs command="npx servercn-cli@latest add swagger-docs" />
+</TabsContent>
 
----
-
-## Implementation Guide
+<TabsContent value="manual">
 <Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install swagger-autogen swagger-ui-express" />
+<PackageManagerTabs command="npm install -D @types/swagger-ui-express" />
+
+
+
 <Step>Configuration</Step>
 
 The configuration file defines the metadata for your API and where Swagger should look for documentation comments.
@@ -100,7 +114,8 @@ app.listen(8000, () => {
 Update the <Code children="swagger.json" /> file with the new API documentation.
 
 </Steps>
-
+</TabsContent>
+</Tabs>
 ---
 
 ## Accessing the Docs

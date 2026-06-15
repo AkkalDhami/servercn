@@ -31,17 +31,17 @@ npx servercn-cli init
 Add specific modules to your existing project. This allows for incremental adoption.
 
 ```bash
-npx servercn-cli add [component-name]
+npx servercn-cli@latest add [component-name]
 ```
 
 Examples:
 
 ```bash
-npx servercn-cli add logger
+npx servercn-cli@latest add logger
 ```
 
 ```bash
-npx servercn-cli add oauth
+npx servercn-cli@latest add oauth
 ```
 
 ## Components
@@ -49,55 +49,55 @@ npx servercn-cli add oauth
 - ### API Error Handler
 
 ```bash
-npx servercn-cli add error-handler
+npx servercn-cli@latest add error-handler
 ```
 
 - ### API Response Formatter
 
 ```bash
-npx servercn-cli add response-formatter
+npx servercn-cli@latest add response-formatter
 ```
 
 - ### Async Handler
 
 ```bash
-npx servercn-cli add async-handler
+npx servercn-cli@latest add async-handler
 ```
 
 - ### File Upload provider
 
 ```bash
-npx servercn-cli add file-upload
+npx servercn-cli@latest add file-upload
 ```
 
 - ### JWT Utils
 
 ```bash
-npx servercn-cli add jwt-utils
+npx servercn-cli@latest add jwt-utils
 ```
 
 - ### Logger
 
 ```bash
-npx servercn-cli add logger
+npx servercn-cli@latest add logger
 ```
 
 - ### Rate Limiter
 
 ```bash
-npx servercn-cli add rate-limiter
+npx servercn-cli@latest add rate-limiter
 ```
 
 - ### OAuth Provider
 
 ```bash
-npx servercn-cli add oauth
+npx servercn-cli@latest add oauth
 ```
 
 - ### Health Check
 
 ```bash
-npx servercn-cli add health-check
+npx servercn-cli@latest add health-check
 ```
 
 ### And more

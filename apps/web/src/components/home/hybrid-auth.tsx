@@ -20,9 +20,9 @@ export default function HybridAuthSection() {
       <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-5">
         <div className="col-span-2 h-full min-h-144">
           <Terminal
-            command="npx servercn-cli add bp hybrid-auth"
+            command="npx servercn-cli@latest add bp hybrid-auth"
             containerClassName={cn("min-h-144 h-full")}
-            commands={["npx servercn-cli add bp hybrid-auth"]}
+            commands={["npx servercn-cli@latest add bp hybrid-auth"]}
             outputs={{
               0: [
                 "CREATE: src/services/otp.service.ts",
