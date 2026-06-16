@@ -148,7 +148,8 @@
       "type": "component",
       "slug": "file-upload",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
