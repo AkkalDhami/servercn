@@ -1,0 +1,231 @@
+---
+title: File Upload (Cloudinary) | Next.js
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudinary as the storage provider.
+
+command: npx servercn-cli@latest add file-upload
+---
+
+# File Upload (Cloudinary)
+
+The **File Upload** component provides a standardized way to handle file uploads in Servercn using **Cloudinary** as the storage provider.
+
+#### Docs:
+- [Official Cloudinary Documentation](https://cloudinary.com/)
+- [Cloudinary Node.js SDK](https://cloudinary.com/documentation/node_integration)
+
+<br />
+---
+
+## Installation Guide
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+  <PackageManagerTabs command="npx servercn-cli@latest add file-upload" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Install the following dependencies:</Step>
+<PackageManagerTabs command="npm install cloudinary" />
+
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+CLOUDINARY_CLOUD_NAME='cloudinary_cloud_name'
+
+CLOUDINARY_API_KEY='cloudinary_api_key'
+
+CLOUDINARY_API_SECRET='cloudinary_api_secret'
+```
+
+<Step>Create Cloudinary Config</Step>
+```ts title="src/configs/cloudinary.ts"
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+export default cloudinary;
+```
+
+<Step>Add Cloudinary Services</Step>
+```ts title="src/services/cloudinary.service.ts"
+import cloudinary from "@/configs/cloudinary";
+import { DeleteApiResponse } from "cloudinary";
+
+export type CloudinaryResourceType = "image" | "video" | "raw" | "auto";
+
+export interface UploadOptions {
+  folder: string;
+  resource_type?: CloudinaryResourceType;
+}
+
+export interface CloudinaryUploadResult {
+  url: string;
+  public_id: string;
+  size: number;
+}
+
+export const uploadToCloudinary = (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<CloudinaryUploadResult> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: options.folder || "uploads",
+        resource_type: options.resource_type || "auto"
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(error);
+        }
+        resolve({
+          url: result.secure_url,
+          public_id: result.public_id,
+          size: result.bytes
+        });
+      }
+    );
+
+    stream.end(buffer);
+  });
+};
+
+export const deleteFilesFromCloudinary = (
+  publicIds: string[]
+): Promise<DeleteApiResponse> => {
+  return new Promise((resolve, reject) => {
+    cloudinary.api.delete_resources(publicIds, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      if (!result) {
+        return reject(new Error("Failed to delete files."));
+      }
+
+      resolve(result);
+    });
+  });
+};
+
+export const deleteFileFromCloudinary = (
+  publicId: string
+): Promise<DeleteApiResponse> => {
+  return deleteFilesFromCloudinary([publicId]);
+};
+```
+</Steps>
+</TabsContent>
+</Tabs>
+
+
+## Usage Examples
+
+
+```ts
+import {
+  deleteFileFromCloudinary,
+  uploadToCloudinary
+} from "@/services/cloudinary.service";
+```
+
+### Upload file to cloudinary
+
+```ts title="src/app/api/upload/route.ts" {22-26}
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  try {
+    //* Get form data
+    const formData = await req.formData();
+
+    //* Extract file
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json(
+        { success: false, message: "No file provided." },
+        { status: 400 }
+      );
+    }
+
+    //* Convert File - Buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    //* Upload to Cloudinary
+    const uploadedFile = await uploadToCloudinary(buffer, {
+      folder: "test",
+      resource_type: "auto"
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: uploadedFile
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Upload error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to upload file."
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Delete file from cloudinary
+
+```ts title="src/app/api/upload/route.ts" {17-18}
+import { NextRequest, NextResponse } from "next/server";
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { publicId } = await req.json();
+
+    if (!publicId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "publicId is required."
+        },
+        { status: 400 }
+      );
+    }
+
+    const result = await deleteFileFromCloudinary(publicId);
+    // const result = await deleteFilesFromCloudinary([...publicIds]);
+
+    return NextResponse.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error("Delete error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to delete file."
+      },
+      { status: 500 }
+    );
+  }
+}
+```

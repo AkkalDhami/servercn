@@ -94,9 +94,9 @@ export function OnThisPage() {
 
   return (
     <nav className="hidden w-56 px-2 md:block">
-      <h4 className="mb-2 text-sm font-semibold">On This Page</h4>
+      <h4 className="mb-4 text-sm font-semibold">On This Page</h4>
 
-      <ul className="space-y-2 text-sm">
+      <ul className="space-y-3 text-sm">
         {headings.map(h => (
           <li key={h.id} style={{ paddingLeft: `${(h.level - 2) * 16}px` }}>
             <a
