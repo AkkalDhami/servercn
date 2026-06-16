@@ -54,6 +54,26 @@
               }
             }
           }
+        },
+        "nextjs": {
+          "prompt": "Select file upload provider:",
+          "variants": {
+            "cloudinary": {
+              "label": "Cloudinary",
+              "dependencies": {
+                "runtime": ["cloudinary"],
+                "dev": []
+              },
+              "env": [
+                "CLOUDINARY_CLOUD_NAME",
+                "CLOUDINARY_API_KEY",
+                "CLOUDINARY_API_SECRET"
+              ],
+              "templates": {
+                "file-api": "file-upload/cloudinary/file-api"
+              }
+            }
+          }
         }
       }
     }
