@@ -67,10 +67,23 @@ export async function generateStaticParams() {
     { slug: [] },
     { slug: ["introduction"] },
     { slug: ["cli"] },
-    { slug: ["installation"] }
+    { slug: ["installation"] },
+    { slug: ["changelog"] }
   ];
 
-  return [...specialRoutes, ...registryParams, ...contributingParams];
+  const changelogPaths = fs
+    .readdirSync(path.join(DOCS_PATH, "changelog"))
+    .filter(file => file.endsWith(".mdx") && file !== "index.mdx")
+    .map(file => ({
+      slug: ["changelog", file.replace(".mdx", "")]
+    }));
+
+  return [
+    ...specialRoutes,
+    ...registryParams,
+    ...contributingParams,
+    ...changelogPaths
+  ];
 }
 
 export async function generateMetadata(props: {
@@ -132,6 +145,13 @@ function getDocPath(slug?: string[]) {
   }
 
   const actualSlug = slug;
+
+  if (actualSlug.length >= 1 && actualSlug[0] === "changelog") {
+    if (actualSlug.length === 1) {
+      return path.join(DOCS_PATH, "changelog", "index.mdx");
+    }
+    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  }
 
   if (actualSlug.length === 2 && actualSlug[0] === "contributing") {
     return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
@@ -200,7 +220,6 @@ export default async function DocsPage({
     // variant
   } = resolveRegistryItem(slug[slug.length - 1]);
 
-
   return (
     <>
       <FrameworkRedirect />
@@ -215,7 +234,8 @@ export default async function DocsPage({
                   "guides",
                   "installation",
                   "introduction",
-                  "contributing"
+                  "contributing",
+                  "changelog",
                 ].includes(slug[0]) && (
                   <ViewAsJson
                     type={

@@ -39,6 +39,10 @@ export const siteConfig = {
     {
       label: "Contributors",
       href: "/contributors"
+    },
+    {
+      label: "Changelog",
+      href: "/docs/changelog"
     }
   ],
 
