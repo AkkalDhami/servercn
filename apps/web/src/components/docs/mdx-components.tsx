@@ -14,6 +14,7 @@ import { getIconForLanguageExtension } from "./icons/language-icons";
 import { Table, THead, TBody, TR, TH, TD } from "./table";
 import { Method, Endpoint, Auth } from "./api-table";
 import { JSGuideVideo } from "@/components/home/js-guide-video";
+import ComponentFileViewer from "@/components/file-viewer";
 
 export const mdxComponents: MDXComponents = {
   pre: Pre,
@@ -25,6 +26,7 @@ export const mdxComponents: MDXComponents = {
   LNote,
   Warning,
   JSGuideVideo,
+  ComponentFileViewer,
 
   Table,
   THead,

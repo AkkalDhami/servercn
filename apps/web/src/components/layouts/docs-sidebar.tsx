@@ -72,6 +72,10 @@ export const PAGE_ITEMS = [
   {
     title: "llms.txt",
     url: "/llms.txt"
+  },
+  {
+    title: "Changelog",
+    url: "/docs/changelog"
   }
 ];
 
