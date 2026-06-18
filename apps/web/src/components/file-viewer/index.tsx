@@ -27,6 +27,7 @@ type Props = {
   slug: string;
   runtime?: string;
   framework?: string;
+  variant?: string | null;
   architecture?: string;
   type: ItemType;
   from: "structure" | "docs";
@@ -44,7 +45,8 @@ export default function ComponentFileViewer({
   type = "component",
   database,
   template,
-  orm
+  orm,
+  variant
 }: Props) {
   const [tree, setTree] = React.useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = React.useState<string>();
@@ -58,7 +60,8 @@ export default function ComponentFileViewer({
   const [path, setPath] = React.useState<string>("");
   const { theme } = useCodeTheme();
 
-  const { variant } = useVariant();
+  const { variant: Variant } = useVariant();
+  variant = variant ?? Variant;
 
   const [html, setHtml] = React.useState("");
 
@@ -144,7 +147,7 @@ export default function ComponentFileViewer({
     }
   }
 
-   if (loading) return <FileViewerLoader />;
+  if (loading) return <FileViewerLoader />;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
