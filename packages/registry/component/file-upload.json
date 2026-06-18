@@ -72,6 +72,17 @@
               "templates": {
                 "file-api": "file-upload/cloudinary/file-api"
               }
+            },
+            "imagekit": {
+              "label": "Imagekit",
+              "dependencies": {
+                "runtime": ["@imagekit/nodejs"],
+                "dev": []
+              },
+              "env": ["IMAGEKIT_PRIVATE_KEY"],
+              "templates": {
+                "file-api": "file-upload/imagekit/file-api"
+              }
             }
           }
         }
