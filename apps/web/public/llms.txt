@@ -28,6 +28,8 @@
 - [Schemas](https://www.servercn.xyz/schemas)
 - [Contributing Guides](https://www.servercn.xyz/contributing)
 - [Contributors](https://www.servercn.xyz/contributors)
+- [llms.txt](https://www.servercn.xyz/llms.txt)
+- [Changelog](https://www.servercn.xyz/docs/changelog)
 
 
 ## Frameworks
@@ -131,6 +133,8 @@
 - [Request Validator (Zod)](https://www.servercn.xyz/docs/nextjs/components/request-validator): type-safe request validation utility built on top of zod.
 - [Logger](https://www.servercn.xyz/docs/nextjs/components/logger):  a foundational requirement for debugging, monitoring, and operating production-grade backend systems.
 - [Generate OTP/Token Helper Functions](https://www.servercn.xyz/docs/nextjs/components/generate-otp-token): cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.
+- [File Upload (Cloudinary)](https://www.servercn.xyz/docs/nextjs/components/file-upload-cloudinary): omponent provides a standardized way to handle file uploads in Servercn using Cloudinary as the storage provider.
+- [File Upload (Imagekit)](https://www.servercn.xyz/docs/nextjs/components/file-upload-imagekit): omponent provides a standardized way to handle file uploads in Servercn using Imagekit as the storage provider.
 
 
 ## Blueprints
