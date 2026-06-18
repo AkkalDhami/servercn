@@ -214,7 +214,7 @@
       "description": "The File Upload component provides a standardized way to handle file uploads in servercn using ImageKit as the storage provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/file-upload-imagekit",
       "meta": {
         "new": true
