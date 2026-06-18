@@ -1,0 +1,217 @@
+---
+title: File Upload (Imagekit) | Next.js
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using Imagekit as the storage provider.
+
+command: npx servercn-cli@latest add file-upload
+---
+
+# File Upload (Imagekit)
+
+The **File Upload** component provides a standardized way to handle file uploads in Servercn using **Imagekit** as the storage provider.
+
+#### Docs:
+- [Official ImageKit Documentation](https://imagekit.io/)
+- [ImageKit Node.js SDK](https://github.com/imagekit-developer/imagekit-nodejs)
+
+<br />
+---
+
+
+## Installation Guide
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+  <PackageManagerTabs command="npx servercn-cli@latest add file-upload" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Install the following dependencies:</Step>
+<PackageManagerTabs command="npm install @imagekit/nodejs" />
+
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+IMAGEKIT_PRIVATE_KEY='imagekit_private_key'
+```
+
+<Step>Create Imagekit Config</Step>
+```ts title="src/configs/imagekit.ts"
+import ImageKit from "@imagekit/nodejs";
+
+const imagekitClient = new ImageKit({
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY
+});
+
+export default imagekitClient;
+```
+
+<Step>Add Imagekit Services</Step>
+```ts title="src/services/imagekit.service.ts"
+import imagekitClient from "@/configs/imagekit";
+import { toFile } from "@imagekit/nodejs";
+
+export interface UploadOptions {
+  folder: string;
+  fileName?: string;
+}
+
+export interface ImageKitUploadResult {
+  url: string;
+  fileId: string;
+  size: number;
+}
+
+export const uploadToImageKit = async (
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<ImageKitUploadResult> => {
+  try {
+    const fileName = options.fileName || `file-${Date.now()}`;
+    const file = await toFile(buffer, fileName);
+
+    const result = await imagekitClient.files.upload({
+      file: file,
+      fileName: fileName,
+      folder: options.folder || "/uploads"
+    });
+
+    // console.log({ result});
+
+    return {
+      url: result.url || "",
+      fileId: result.fileId || "",
+      size: result.size || 0
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteFilesFromImageKit = async (
+  fileIds: string[]
+): Promise<void> => {
+  try {
+    await Promise.all(
+      fileIds.map(fileId => imagekitClient.files.delete(fileId))
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+```
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+
+## Usage Examples
+
+
+```ts
+import {
+  deleteFilesFromImageKit,
+  uploadToImageKit
+} from "@/services/imagekit.service";
+```
+
+### Upload file to imagekit
+
+```ts title="src/app/api/upload/route.ts" {3, 24-28}
+import { NextRequest, NextResponse } from "next/server";
+
+import { uploadToImageKit } from "@/services/imagekit.service";
+
+export async function POST(req: NextRequest) {
+  try {
+    //* Get form data
+    const formData = await req.formData();
+
+    //* Extract file
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json(
+        { success: false, message: "No file provided." },
+        { status: 400 }
+      );
+    }
+
+    //* Convert File - Buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    //* Upload to ImageKit
+    const uploadedFile = await uploadToImageKit(buffer, {
+      folder: "/uploads",
+      fileName: file.name
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: uploadedFile
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Upload error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to upload file."
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Delete file from imagekit
+
+```ts title="src/app/api/upload/route.ts" {3, 19-20}
+import { NextRequest, NextResponse } from "next/server";
+
+import { deleteFilesFromImageKit } from "@/services/imagekit.service";
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { publicId } = await req.json(); //* { publicId: "publicId" }
+
+    if (!publicId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "publicId is required."
+        },
+        { status: 400 }
+      );
+    }
+
+    //* Delete file from ImageKit
+    const result = await deleteFilesFromImageKit([publicId]);
+
+    return NextResponse.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error("Delete error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to delete file."
+      },
+      { status: 500 }
+    );
+  }
+}
+```
