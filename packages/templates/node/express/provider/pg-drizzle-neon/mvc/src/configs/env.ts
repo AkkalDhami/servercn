@@ -1,8 +1,9 @@
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 import { z } from "zod";
 
 export const envSchema = z.object({
-  DATABASE_URL: z.url(),
+  DATABASE_URL: z.url()
 });
 
 export type Env = z.infer<typeof envSchema>;

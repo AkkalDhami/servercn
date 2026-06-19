@@ -1,5 +1,6 @@
 import express, { type Application } from "express";
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 import Routes from "./routes";
 
 const app: Application = express();

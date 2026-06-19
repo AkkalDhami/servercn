@@ -1,4 +1,5 @@
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 import { z } from "zod";
 
 export const envSchema = z.object({
@@ -11,9 +12,9 @@ export const envSchema = z.object({
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
-  
+
   JWT_REFRESH_SECRET: z.string().nonempty("JWT_REFRESH_SECRET is required"),
-  JWT_ACCESS_SECRET: z.string().nonempty("JWT_ACCESS_SECRET is required"),
+  JWT_ACCESS_SECRET: z.string().nonempty("JWT_ACCESS_SECRET is required")
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,4 +1,5 @@
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 
 interface Config {
   PORT: number;
