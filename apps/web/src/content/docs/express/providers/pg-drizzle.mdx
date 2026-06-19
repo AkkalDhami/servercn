@@ -21,7 +21,8 @@ This provider sets up PostgreSQL connectivity with Drizzle ORM for Express proje
 ### 1. Env Configuration
 
 ```ts title="src/configs/env.ts"
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 import { z } from "zod";
 
 export const envSchema = z.object({

@@ -63,7 +63,8 @@ GOOGLE_REDIRECT_URI="http://localhost:9000/api/auth/google/callback"
 Ensure the following configuration are defined:
 
 ```ts title="src/configs/env.ts"
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 
 interface Config {
   PORT: number;
