@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 import { z } from "zod";
 
 export const envSchema = z.object({
@@ -12,10 +13,9 @@ export const envSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),
 
-
   FACEBOOK_APP_ID: z.string(),
   FACEBOOK_APP_SECRET: z.string(),
-  FACEBOOK_REDIRECT_URI: z.url(),
+  FACEBOOK_REDIRECT_URI: z.url()
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -31,4 +31,3 @@ if (!result.success) {
 export const env: Readonly<Env> = Object.freeze(result.data);
 
 export default env;
-
