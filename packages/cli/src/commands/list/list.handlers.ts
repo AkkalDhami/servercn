@@ -76,7 +76,7 @@ export async function listOverview(options: listOptionType) {
         command: "npx servercn-cli list sc"
       }
     ],
-    docs: ` ${SERVERCN_URL}/docs/cli`
+    docs: ` ${SERVERCN_URL}/docs/cli/commands`
   };
 
   const table = new Table({
@@ -119,7 +119,7 @@ export async function listOverview(options: listOptionType) {
  npx servercn-cli ls sc --json
  npx servercn-cli ls pr --json
 `);
-  logger.info(`Learn more: ${SERVERCN_URL}/docs/cli`);
+  logger.info(`Learn more: ${SERVERCN_URL}/docs/cli/commands`);
   logger.break();
 }
 
@@ -151,7 +151,10 @@ export async function listComponents(options: listOptionType) {
       ...(c?.frameworks &&
         c.frameworks.length > 0 && { framework: c.frameworks })
     })),
-    docs: [`${SERVERCN_URL}/components`, `${SERVERCN_URL}/docs/cli#ls-cp`]
+    docs: [
+      `${SERVERCN_URL}/components`,
+      `${SERVERCN_URL}/docs/cli/commands#ls-cp`
+    ]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -183,7 +186,7 @@ export async function listComponents(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/components`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-cp`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli/commands#ls-cp`);
   logger.break();
 }
 
@@ -202,7 +205,10 @@ export async function listFoundations(options: listOptionType) {
         ...(c?.frameworks &&
           c.frameworks.length > 0 && { frameworks: c.frameworks })
       })),
-    docs: [`${SERVERCN_URL}/foundations`, `${SERVERCN_URL}/docs/cli#ls-fd`]
+    docs: [
+      `${SERVERCN_URL}/foundations`,
+      `${SERVERCN_URL}/docs/cli/commands#ls-fd`
+    ]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -235,7 +241,7 @@ export async function listFoundations(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/foundations`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-fd`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli/commands#ls-fd`);
   logger.break();
 }
 
@@ -254,7 +260,10 @@ export async function listProviders(options: listOptionType) {
         ...(c?.frameworks &&
           c.frameworks.length > 0 && { frameworks: c.frameworks })
       })),
-    docs: [`${SERVERCN_URL}/providers`, `${SERVERCN_URL}/docs/cli#ls-pr`]
+    docs: [
+      `${SERVERCN_URL}/providers`,
+      `${SERVERCN_URL}/docs/cli/commands#ls-pr`
+    ]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -287,7 +296,7 @@ export async function listProviders(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/providers`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-pr`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli/commands#ls-pr`);
   logger.break();
 }
 
@@ -303,7 +312,7 @@ export async function listTooling(options: listOptionType) {
       name: c.slug,
       command: `npx servercn-cli@latest add tl ${c.slug}`
     })),
-    docs: [`${SERVERCN_URL}/docs`, `${SERVERCN_URL}/docs/cli#ls-tl`]
+    docs: [`${SERVERCN_URL}/docs`, `${SERVERCN_URL}/docs/cli/commands#ls-tl`]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -330,7 +339,7 @@ export async function listTooling(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/docs`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-tl`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli/commands#ls-tl`);
   logger.break();
 }
 
@@ -350,7 +359,7 @@ export async function listSchemas(options: listOptionType) {
         ...(c?.frameworks &&
           c.frameworks.length > 0 && { frameworks: c.frameworks })
       })),
-    docs: [`${SERVERCN_URL}/schemas`, `${SERVERCN_URL}/docs/cli#ls-sc`]
+    docs: [`${SERVERCN_URL}/schemas`, `${SERVERCN_URL}/docs/cli/commands#ls-sc`]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -384,7 +393,7 @@ export async function listSchemas(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/schemas`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-sc`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/commands#ls-sc`);
   logger.break();
 }
 
@@ -401,7 +410,10 @@ export async function listBlueprints(options: listOptionType) {
       ...(c?.frameworks &&
         c.frameworks.length > 0 && { frameworks: c.frameworks })
     })),
-    docs: [`${SERVERCN_URL}/blueprints`, `${SERVERCN_URL}/docs/cli#ls-bp`]
+    docs: [
+      `${SERVERCN_URL}/blueprints`,
+      `${SERVERCN_URL}/docs/cli/commands#ls-bp`
+    ]
   } satisfies listRegistryDataType;
 
   if (options?.json) {
@@ -434,7 +446,7 @@ export async function listBlueprints(options: listOptionType) {
   logger.break();
   logger.info(`Learn more: ${SERVERCN_URL}/blueprints`);
   logger.break();
-  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli#ls-bp`);
+  logger.info(`Visit docs: ${SERVERCN_URL}/docs/cli/commands#ls-bp`);
   logger.break();
 }
 
