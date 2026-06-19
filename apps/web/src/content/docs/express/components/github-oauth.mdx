@@ -57,7 +57,8 @@ GITHUB_REDIRECT_URI="your-github-redirectUri"
 ```
 
 ```ts title="src/configs/env.ts"
-import "dotenv-flow/config";
+import dotenv from "dotenv-flow";
+dotenv.config();
 
 interface Config {
   PORT: number;
