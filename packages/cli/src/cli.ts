@@ -19,7 +19,7 @@ process.on("SIGTERM", () => process.exit(0));
 async function main() {
   program
     .name("servercn-cli")
-    .description("Scaffold and manage backend components for Node.js projects")
+    .description("Backend component registry for node.js, typescript.")
     .version(LATEST_VERSION, "-v, --version", "output the current version");
 
   program
