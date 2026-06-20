@@ -1,28 +1,25 @@
 "use client";
 
 import * as React from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
 import { FaFolder, FaFolderOpen } from "react-icons/fa6";
 
 export type FileNode =
   | {
-    path?: string;
-    type: "folder";
-    name: string;
-    children: FileNode[];
-  }
+      path?: string;
+      type: "folder";
+      name: string;
+      children: FileNode[];
+    }
   | {
-    path?: string;
-    type: "file";
-    name: string;
-    content: string;
-    lang?: string;
-  };
+      path?: string;
+      type: "file";
+      name: string;
+      content: string;
+      lang?: string;
+    };
 
 type Props = {
   data: FileNode[];
@@ -58,7 +55,7 @@ function TreeNode({
 
   if (node.type === "folder") {
     return (
-      <div className="pl-1">
+      <div className="relative pl-1">
         <button
           onClick={() => setOpen(!open)}
           className="text-muted-foreground hover:text-accent-foreground flex w-full cursor-pointer items-center gap-1 py-1">
@@ -66,6 +63,10 @@ function TreeNode({
           {open ? <FaFolderOpen size={14} /> : <FaFolder size={14} />}
           <span>{node.name}</span>
         </button>
+        {/* vertical line */}
+        {open && (
+          <div className="absolute top-5 my-auto left-[10.5px] h-[calc(100%-16px)] w-px bg-neutral-500/30" />
+        )}
 
         {open && (
           <div className="space-y-1 pl-3">
