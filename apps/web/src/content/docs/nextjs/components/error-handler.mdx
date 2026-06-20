@@ -9,11 +9,120 @@ A standardized error handling utility for Next.js Route Handlers that ensures co
 
 ---
 
-## Installation Guide
+## Installation Guide 
 
-Install the component using the servercn CLI:
-
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add error-handler" />
+</TabsContent>
+
+<TabsContent value="manual">
+<Steps>
+<Step>Install Zod</Step>
+<PackageManagerTabs command="npm install zod" />
+
+<Step>Create the ApiError Class</Step>
+```ts title="src/utils/api-error.ts"
+import { STATUS_CODES, StatusCode } from "@/constants/status-codes";
+
+export class ApiError extends Error {
+  public readonly statusCode: StatusCode;
+  public readonly isOperational: boolean;
+  public readonly errors?: unknown;
+
+  constructor(
+    statusCode: StatusCode,
+    message: string,
+    errors?: unknown,
+    isOperational = true
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.isOperational = isOperational;
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+
+  static badRequest(message = "Bad Request", errors?: unknown) {
+    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
+  }
+
+  static unauthorized(message = "Unauthorized") {
+    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
+  }
+
+  static forbidden(message = "Forbidden") {
+    return new ApiError(STATUS_CODES.FORBIDDEN, message);
+  }
+
+  static notFound(message = "Not Found") {
+    return new ApiError(STATUS_CODES.NOT_FOUND, message);
+  }
+
+  static conflict(message = "Conflict") {
+    return new ApiError(STATUS_CODES.CONFLICT, message);
+  }
+
+  static server(message = "Internal Server Error") {
+    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
+  }
+}
+```
+
+<Step>Implement the Error Handler</Step>
+```ts title="src/utils/error-handler.ts"
+import z, { ZodError } from "zod";
+import { NextResponse } from "next/server";
+import { ApiError } from "@/utils/api-error";
+import { STATUS_CODES } from "@/constants/status-codes";
+import { logger } from "@/utils/logger";
+
+export function handleError(error: unknown) {
+  logger.error(error);
+  if (error instanceof ZodError) {
+    return ApiError.badRequest("Invalid request data", z.flattenError(error));
+  }
+
+  if (error instanceof ApiError) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: error.message,
+        statusCode: error.statusCode,
+        ...(Array.isArray(error.errors) && { errors: error.errors }),
+        ...(process.env.NODE_ENV === "development" && { stack: error.stack })
+      },
+      { status: error.statusCode }
+    );
+  }
+
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Internal Server Error",
+      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR
+    },
+    { status: STATUS_CODES.INTERNAL_SERVER_ERROR }
+  );
+}
+```
+
+</Steps>    
+</TabsContent>
+</Tabs>
+
 
 ---
 
@@ -117,106 +226,6 @@ export async function GET() {
       ]
     }
   }
-}
-```
-
-<br />
----
-
-## Basic Implementation
-
-### 1. <Code>ApiError</Code> Class
-
-```ts title="src/utils/api-error.ts"
-import { STATUS_CODES, StatusCode } from "@/constants/status-codes";
-
-export class ApiError extends Error {
-  public readonly statusCode: StatusCode;
-  public readonly isOperational: boolean;
-  public readonly errors?: unknown;
-
-  constructor(
-    statusCode: StatusCode,
-    message: string,
-    errors?: unknown,
-    isOperational = true
-  ) {
-    super(message);
-    this.name = "ApiError";
-    this.statusCode = statusCode;
-    this.errors = errors;
-    this.isOperational = isOperational;
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
-  }
-
-  static badRequest(message = "Bad Request", errors?: unknown) {
-    return new ApiError(STATUS_CODES.BAD_REQUEST, message, errors);
-  }
-
-  static unauthorized(message = "Unauthorized") {
-    return new ApiError(STATUS_CODES.UNAUTHORIZED, message);
-  }
-
-  static forbidden(message = "Forbidden") {
-    return new ApiError(STATUS_CODES.FORBIDDEN, message);
-  }
-
-  static notFound(message = "Not Found") {
-    return new ApiError(STATUS_CODES.NOT_FOUND, message);
-  }
-
-  static conflict(message = "Conflict") {
-    return new ApiError(STATUS_CODES.CONFLICT, message);
-  }
-
-  static server(message = "Internal Server Error") {
-    return new ApiError(STATUS_CODES.INTERNAL_SERVER_ERROR, message);
-  }
-}
-```
-
----
-
-### 2. <Code>handleError</Code> Function
-
-
-```ts title="src/utils/error-handler.ts"
-import z, { ZodError } from "zod";
-import { NextResponse } from "next/server";
-import { ApiError } from "./api-error";
-import { STATUS_CODES } from "@/constants/status-codes";
-import { logger } from "./logger";
-
-export function handleError(error: unknown) {
-  logger.error(error);
-  if (error instanceof ZodError) {
-    return ApiError.badRequest("Invalid request data", z.flattenError(error));
-  }
-
-  if (error instanceof ApiError) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-        statusCode: error.statusCode,
-        ...(Array.isArray(error.errors) && { errors: error.errors }),
-        ...(process.env.NODE_ENV === "development" && { stack: error.stack })
-      },
-      { status: error.statusCode }
-    );
-  }
-
-  return NextResponse.json(
-    {
-      success: false,
-      message: "Internal Server Error",
-      statusCode: STATUS_CODES.INTERNAL_SERVER_ERROR
-    },
-    { status: STATUS_CODES.INTERNAL_SERVER_ERROR }
-  );
 }
 ```
 
