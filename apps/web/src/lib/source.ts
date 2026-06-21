@@ -176,7 +176,7 @@ export function getRegistryVariants(name: string, framework: FrameworkType) {
       }
 
       if (framework === "express") {
-        return ["upstash", "ioredis", "express-rate-limiter"];
+        return ["upstash", "ioredis", "express-rate-limit"];
       }
 
     default:

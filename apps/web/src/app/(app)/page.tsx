@@ -21,13 +21,13 @@ export default function Home() {
       <HeroSection />
       <Stats />
       <JSGuideCTA />
-      <NextjsStarterSection />
+      <HybridAuthSection />
 
       <SupportedFrameworks />
       <OAuthSection />
       <WhyServercn />
+      <NextjsStarterSection />
       <ContributorCta />
-      <HybridAuthSection />
       <CallToAction />
     </main>
   );
