@@ -13,17 +13,51 @@ The **Email Service** component provides a production-ready solution for sending
 
 ## Installation Guide
 
-Install this component using the following command:
 
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add email-service" />
+</TabsContent>
+<TabsContent value="manual">
+<Tabs defaultValue="nodemailer" className="mt-0">
+<TabsList>
+<TabsTrigger value="nodemailer">
+Nodemailer
+</TabsTrigger>
+<TabsTrigger value="resend">
+Resend
+</TabsTrigger>
+<TabsTrigger value="mailtrap">
+Mailtrap
+</TabsTrigger>
+</TabsList>
+<TabsContent value="nodemailer">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install nodemailer zod" />
+<PackageManagerTabs command="npm install -D @types/nodemailer" />
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+SMTP_HOST='smtp_host'
 
----
+SMTP_PORT='smtp_port'
 
+SMTP_USER='smtp_user'
 
-## Basic Implementation
+SMTP_PASS='smtp_pass'
 
-### Env Configuration
+EMAIL_FROM='email_from'
+```
 
+<Step>Environment Variable Configuration</Step>
 ```ts title="src/configs/env.ts"
 import z from "zod";
 
@@ -53,8 +87,7 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
-### Nodemailer Configuration
-
+<Step>Nodemailer Configuration</Step>
 ```ts title="src/configs/nodemailer.ts"
 import nodemailer from "nodemailer";
 import { env } from "./env";
@@ -81,8 +114,7 @@ export function getTransporter() {
 }
 ```
 
-### Send Mail Function
-
+<Step>Send Mail Utils Function</Step>
 ```ts title="src/utils/send-mail.ts"
 import env from "@/configs/env";
 import { getTransporter } from "@/configs/nodemailer";
@@ -110,6 +142,161 @@ export async function sendEmail({ from, email, subject, html }: sendMail) {
     });
 }
 ```
+</Steps>
+</TabsContent>
+
+<TabsContent value="resend">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install resend zod" />
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+RESEND_API_KEY='resend_api_key'
+
+EMAIL_FROM='email_from'
+```
+
+<Step>Environment Variable Configuration</Step>
+```ts title="src/configs/env.ts"
+import z from "zod";
+
+export const envSchema = z.object({
+  RESEND_API_KEY: z.string(),
+  EMAIL_FROM: z.email()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+<Step>Resend Configuration</Step>
+```ts title="src/configs/resend.ts"
+import { Resend } from "resend";
+import env from "./env";
+
+export const resend = new Resend(env.RESEND_API_KEY);
+```
+
+<Step>Send Mail Utils Function</Step>
+```ts title="src/utils/send-mail.ts"
+import env from "@/configs/env";
+import { resend } from "@/configs/resend";
+
+type sendMail = {
+  from?: string;
+  subject: string;
+  data: Record<string, any>;
+  email: string;
+  html: string;
+};
+
+export async function sendEmail({ from, email, subject, html }: sendMail) {
+  return await resend.emails.send({
+    from: from || `<${env.EMAIL_FROM}>`,
+    to: email,
+    subject,
+    replyTo: email,
+    html
+  });
+}
+```
+</Steps>
+</TabsContent>
+
+<TabsContent value="mailtrap">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install mailtrap zod" />
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+MAILTRAP_API_KEY='mailtrap_api_key'
+
+EMAIL_FROM='email_from'
+```
+
+<Step>Environment Variable Configuration</Step>
+```ts title="src/configs/env.ts"
+import z from "zod";
+
+export const envSchema = z.object({
+  MAILTRAP_API_KEY: z.string(),
+  EMAIL_FROM: z.email()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+<Step>Resend Configuration</Step>
+```ts title="src/configs/mailtrap.ts"
+import { MailtrapClient } from "mailtrap";
+import env from "./env";
+
+export const mailtrap = new MailtrapClient({
+  token: env.MAILTRAP_API_KEY
+});
+```
+
+<Step>Send Mail Utils Function</Step>
+```ts title="src/utils/send-mail.ts"
+import env from "@/configs/env";
+
+import { mailtrap } from "@/configs/mailtrap";
+
+type sendMail = {
+  from?: string;
+  subject: string;
+  data: Record<string, any>;
+  email: string;
+  html: string;
+};
+
+export async function sendEmail({ from, email, subject, html }: sendMail) {
+  const htmlContent = html || "";
+  try {
+    await mailtrap.send({
+      from: {
+        email: from || env.EMAIL_FROM
+      },
+      to: [{ email }],
+      subject,
+      html: htmlContent
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+```
+</Steps>
+</TabsContent>
+
+</Tabs>
+</TabsContent>
+</Tabs>
+
+---
 
 ## Usage Example
 

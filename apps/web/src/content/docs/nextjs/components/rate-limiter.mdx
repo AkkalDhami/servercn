@@ -18,13 +18,20 @@ Official Docs:
 
 ## Installation Guide
 
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add rate-limiter" />
-
----
-
-## Basic Implementation
-
-<Tabs defaultValue="custom">
+</TabsContent>
+<TabsContent value="manual">
+<Tabs defaultValue="custom" className="mt-0">
 <TabsList>
 <TabsTrigger value="custom">
 Custom Rate Limiter
@@ -177,6 +184,8 @@ export const ratelimit = new Ratelimit({
 ```
 
 </Steps>
+</TabsContent>
+</Tabs>
 </TabsContent>
 </Tabs>
 
