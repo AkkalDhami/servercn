@@ -34,11 +34,8 @@
     "lucide-react": "^0.562.0",
     "mdx": "^0.2.3",
     "motion": "^12.26.2",
-    "next": "^16.1.6",
     "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.6",
-    "next-video": "^2.7.0",
-    "nodemailer": "8.0.4",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -47,7 +44,6 @@
     "rehype-pretty-code": "^0.14.1",
     "shiki": "^3.20.0",
     "tailwind-merge": "^3.4.0",
-    "vfile-matter": "^5.0.1",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
@@ -56,7 +52,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9.39.2",
-    "eslint-config-next": "^0.2.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
