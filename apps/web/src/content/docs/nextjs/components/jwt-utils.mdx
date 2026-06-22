@@ -20,62 +20,190 @@ The <Code>jwt-utils</Code> component is a small wrapper around <Code children="j
 
 Install the component using the servercn CLI:
 
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add jwt-utils" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
 
-## Environment variables
+<Step>Install the following dependencies:</Step>
+<PackageManagerTabs command="npm install jsonwebtoken" />
 
-These helpers read secrets from <Code children="process.env" />:
-
+<Step>Add Env Variables</Step>
 ```dotenv title=".env"
 JWT_ACCESS_SECRET='your_access_secret'
 JWT_REFRESH_SECRET='your_refresh_secret'
 ```
 
----
+<Step>Add Env Variables</Step>
+```ts title="src/lib/jwt/jwt.types.ts"
+export enum JwtType {
+  ACCESS = "access",
+  REFRESH = "refresh"
+}
 
-## Signing tokens
+export type JwtPayloadBase = {
+  sub: string;
+  iat?: number;
+  exp?: number;
+};
 
-### <Code children="signAccessToken(payload)" />
+export type AccessTokenPayload = JwtPayloadBase & {
+  type: JwtType.ACCESS;
+  email: string;
+  sid: string;
+};
 
-Signs an access token with:
+export type RefreshTokenPayload = JwtPayloadBase & {
+  type: JwtType.REFRESH;
+  sid: string;
+};
 
-- **Secret**: <Code children="process.env.JWT_ACCESS_SECRET" />
-- **Expires**: **15m**
-- **Payload**: <Code children='{ sub, type: "access", email, sid }' />
-
-### <Code children="signRefreshToken(payload)" />
-
-Signs a refresh token with:
-
-- **Secret**: <Code children="process.env.JWT_REFRESH_SECRET" />
-- **Expires**: **7d**
-- **Payload**: <Code children='{ sub, type: "refresh", sid }' />
-
-Example:
-
-```ts
-import { signAccessToken, signRefreshToken } from "@/lib/jwt";
-
-const access = signAccessToken({ sub: user.id, email: user.email, sid: session.id });
-const refresh = signRefreshToken({ sub: user.id, sid: session.id });
+export type JwtPayload = AccessTokenPayload | RefreshTokenPayload;
 ```
 
-## Verifying tokens
+<Step>Add JWT Types</Step>
+```ts title="src/lib/jwt/jwt.errors.ts"
+export class JwtError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "JwtError";
+  }
+}
 
-### 1. verifyAccessToken(token)
+export class JwtExpiredError extends JwtError {
+  constructor() {
+    super("Token expired");
+  }
+}
 
-Verifies an access token and returns an <Code children="AccessTokenPayload" />.
+export class JwtInvalidError extends JwtError {
+  constructor() {
+    super("Invalid token");
+  }
+}
+```
 
-### 2. verifyRefreshToken(token)
+<Step>Add JWT Sign Functions</Step>
+```ts title="src/lib/jwt/jwt.sign.ts"
+import jwt from "jsonwebtoken";
+import { AccessTokenPayload, JwtType, RefreshTokenPayload } from "./jwt.types";
 
-Verifies a refresh token and returns a <Code children="RefreshTokenPayload" />.
+export function signAccessToken(payload: {
+  sub: string;
+  email: string;
+  sid: string;
+}): string {
+  const tokenPayload: AccessTokenPayload = {
+    sub: payload.sub,
+    type: JwtType.ACCESS,
+    email: payload.email,
+    sid: payload.sid
+  };
 
-### Errors
+  return jwt.sign(tokenPayload, process.env.JWT_ACCESS_SECRET as string, {
+    expiresIn: "15m"
+  });
+}
 
-Verification throws **typed errors** you can catch:
+export function signRefreshToken(payload: {
+  sub: string;
+  sid: string;
+}): string {
+  const tokenPayload: RefreshTokenPayload = {
+    sub: payload.sub,
+    type: JwtType.REFRESH,
+    sid: payload.sid
+  };
 
-- <Code children="JwtExpiredError" />: token expired (maps from <Code children="jsonwebtoken" />'s <Code children="TokenExpiredError" />)
-- <Code children="JwtInvalidError" />: invalid token (signature/format/etc.)
+  return jwt.sign(tokenPayload, process.env.JWT_REFRESH_SECRET as string, {
+    expiresIn: "7d"
+  });
+}
+```
+
+<Step>Add JWT Verify Functions</Step>
+```ts title="src/lib/jwt/jwt.utils.ts"
+import jwt from "jsonwebtoken";
+
+export function decodeToken<T = unknown>(token: string): T | null {
+  return jwt.decode(token) as T | null;
+}
+
+export function extractTokenFromHeader(authHeader?: string): string | null {
+  if (!authHeader) return null;
+
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    return null;
+  }
+
+  return parts[1];
+}
+```
+
+<Step>Add JWT Verify Functions</Step>
+```ts title="src/lib/jwt/jwt.verify.ts"
+import jwt from "jsonwebtoken";
+import {
+  AccessTokenPayload,
+  JwtPayload,
+  RefreshTokenPayload
+} from "./jwt.types";
+import { JwtExpiredError, JwtInvalidError } from "./jwt.errors";
+
+function verifyToken<T extends JwtPayload>(token: string, secret: string): T {
+  try {
+    return jwt.verify(token, secret) as T;
+  } catch (err: any) {
+    if (err.name === "TokenExpiredError") {
+      throw new JwtExpiredError();
+    }
+    throw new JwtInvalidError();
+  }
+}
+
+export function verifyAccessToken(token: string) {
+  return verifyToken(
+    token,
+    process.env.JWT_ACCESS_SECRET as string
+  ) as AccessTokenPayload;
+}
+
+export function verifyRefreshToken(token: string) {
+  return verifyToken(
+    token,
+    process.env.JWT_REFRESH_SECRET as string
+  ) as RefreshTokenPayload;
+}
+```
+
+<Step>Export JWT Modules</Step>
+```ts title="src/lib/jwt/index.ts"
+export * from "./jwt.types";
+export * from "./jwt.sign";
+export * from "./jwt.verify";
+export * from "./jwt.utils";
+export * from "./jwt.errors";
+```
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+
+## Usage Example
 
 Example (Next.js Route Handler):
 
@@ -89,26 +217,37 @@ import {
 } from "@/lib/jwt";
 
 export async function GET(req: Request) {
-  const token = extractTokenFromHeader(req.headers.get("authorization") ?? undefined);
-  if (!token) return NextResponse.json({ error: "Missing bearer token" }, { status: 401 });
+  const token = extractTokenFromHeader(
+    req.headers.get("authorization") ?? undefined
+  );
+  if (!token)
+    return NextResponse.json(
+      { error: "Missing bearer token" },
+      { status: 401 }
+    );
 
   try {
     const payload = verifyAccessToken(token);
-    return NextResponse.json({ userId: payload.sub, email: payload.email, sid: payload.sid });
+    return NextResponse.json({
+      userId: payload.sub,
+      email: payload.email,
+      sid: payload.sid
+    });
   } catch (err) {
     if (err instanceof JwtExpiredError) {
-      return NextResponse.json({ error: "Access token expired" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Access token expired" },
+        { status: 401 }
+      );
     }
     if (err instanceof JwtInvalidError) {
-      return NextResponse.json({ error: "Invalid access token" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid access token" },
+        { status: 401 }
+      );
     }
     return NextResponse.json({ error: "Auth error" }, { status: 401 });
   }
 }
-```
 
-```ts
-import { decodeToken } from "@/lib/jwt";
-
-const decoded = decodeToken<{ sub?: string; type?: string }>(token);
 ```

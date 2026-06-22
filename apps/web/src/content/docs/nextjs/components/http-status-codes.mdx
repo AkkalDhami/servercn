@@ -12,23 +12,34 @@ Instead of hard-coded numbers like <Code children="200" /> or <Code children="40
 
 ## Installation Guide
 
-Install the component using the servercn CLI:
-
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add http-status-codes" />
-
----
-
-## Basic Implementation
+</TabsContent>
+<TabsContent value="manual">
 
 ```ts title="src/constants/status-codes.ts"
 export const STATUS_CODES = {
+  // 2xx Success
   OK: 200,
   CREATED: 201,
   ACCEPTED: 202,
   NO_CONTENT: 204,
+
+  // 3xx Redirection
   MOVED_PERMANENTLY: 301,
   FOUND: 302,
   NOT_MODIFIED: 304,
+
+  // 4xx Client Errors
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
@@ -36,6 +47,8 @@ export const STATUS_CODES = {
   CONFLICT: 409,
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
+
+  // 5xx Server Errors
   INTERNAL_SERVER_ERROR: 500,
   NOT_IMPLEMENTED: 501,
   BAD_GATEWAY: 502,
@@ -45,8 +58,9 @@ export const STATUS_CODES = {
 
 export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
 ```
+</TabsContent>
+</Tabs>
 
-<br />
 ---
 
 ## Usage Example
