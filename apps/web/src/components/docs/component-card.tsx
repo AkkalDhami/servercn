@@ -8,12 +8,14 @@ export default function ComponentCard({
 }: {
   component: IRegistryItems;
 }) {
+  const isStable = ["stable", "deprecated"].includes(component.status);
+
   return (
     <Link
-      href={(component.status === "stable" ? component.url : "") as Route}
+      href={(isStable ? component.url : "") as Route}
       className={cn(
         "group border-edge hover:bg-card-hover screen-line-before relative p-4 duration-300 last:border-r",
-        component.status !== "stable" && "pointer-events-none",
+        !isStable && "pointer-events-none",
         "dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]"
       )}>
       {component.status !== "stable" && (
