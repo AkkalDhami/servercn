@@ -11,15 +11,25 @@ A lightweight, type-safe request validation utility built on top of Zod. It stan
 
 ## Installation Guide
 
-Install the component using the servercn CLI:
 
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add request-validator" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install zod" />
 
----
-
-## Basic Implementation
-
-
+<Step>Create Validate Request Function</Step>
 ```ts title="src/lib/validate-request.ts"
 import { z, ZodType } from "zod";
 
@@ -63,28 +73,10 @@ export function validateRequest<TSchema extends ZodType>(
     errors: formattedErrors
   };
 }
-
-/*
-? Usage:
-
-import { validateRequest } from "@/lib/validate-request";
-import { ApiResponse } from "@/utils/api-response";
-
-const body = await req.json();
-const result = validateRequest(SigninSchema, body);
-
-if (!result.success) {
-  return ApiResponse({
-    success: false,
-    statusCode: STATUS_CODES.BAD_REQUEST,
-    message: "Invalid data received!",
-    error: result.errors
-  });
-}
-
-const { email, password } = result.data;
-*/
 ```
+</Steps>
+</TabsContent>
+</Tabs>
 
 ---
 
