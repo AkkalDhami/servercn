@@ -51,8 +51,7 @@
         "nextjs": {
           "dependencies": {
             "runtime": [
-              "jsonwebtoken",
-              "zod"
+              "jsonwebtoken"
             ],
             "dev": [
               "@types/jsonwebtoken"
