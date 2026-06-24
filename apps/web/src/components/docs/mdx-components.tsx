@@ -146,7 +146,7 @@ export const mdxComponents: MDXComponents = {
   Steps: ({ className, ...props }: React.ComponentProps<"div">) => (
     <div
       className={cn(
-        "[&>h3]:step steps max-w-code relative mb-12 w-full [counter-reset:step] md:ml-2 md:border-l md:pl-8",
+        "[&>h3]:step steps max-w-code relative mb-6 w-full [counter-reset:step] md:ml-2 md:border-l md:pl-8",
         className
       )}
       {...props}

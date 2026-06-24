@@ -16,33 +16,42 @@ Logging is a foundational requirement for **debugging**, **monitoring**, and **o
 
 ## Installation Guide
 
-Install the component using the servercn CLI:
 
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add logger" />
+</TabsContent>
+<TabsContent value="manual">
+<Tabs defaultValue="pino" className="mt-0">
+<TabsList>
+<TabsTrigger value="pino">
+Pino
+</TabsTrigger>
+<TabsTrigger value="winston">
+Winston
+</TabsTrigger>
+</TabsList>
+<TabsContent value="pino">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install pino pino-pretty zod" />
 
-You will be prompted to select a file upload provider:
+<Step>Add Environment Variables</Step>
+```dotenv title=".env"
+LOG_LEVEL='log_level'
 
+NODE_ENV='node_env'
 ```
-? Select a logging library:  » - Use arrow-keys. Return to submit.
->   Pino (High-performance)
-    Winston (Flexible)
-```
 
-The CLI will then automatically configure the component based on your selected library.
-
----
-
-## Prerequisites
-
-Ensure the following environment variables are defined before running the application:
-
-```ts
-NODE_ENV = "development";
-LOG_LEVEL = "info";
-```
-
-Ensure the following configuration are defined:
-
+<Step>Config Environment Variable</Step>
 ```ts title="src/configs/env.ts"
 import z from "zod";
 
@@ -71,32 +80,98 @@ export const env: Readonly<Env> = Object.freeze(result.data);
 export default env;
 ```
 
----
-
-## Basic Implementation
-
-### 1. Winston Logger
-
-#### Minimal Configuration
-
+<Step>Add logger utils function</Step>
 ```ts title="src/utils/logger.ts"
-import winston from "winston";
+import pino from "pino";
+import env from "@/configs/env";
 
-export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  transports: [new winston.transports.Console()]
+const isProduction = env.NODE_ENV === "production";
+
+export const logger = pino({
+  level: env.LOG_LEVEL || "info",
+
+  base: {
+    pid: process.pid
+  },
+
+  timestamp: pino.stdTimeFunctions.isoTime,
+
+  formatters: {
+    level(label) {
+      return { level: label };
+    }
+  },
+
+  redact: {
+    paths: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "password",
+      "token",
+      "refreshToken"
+    ],
+    censor: "[REDACTED]"
+  },
+
+  ...(isProduction
+    ? {}
+    : {
+        transport: {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname"
+          }
+        }
+      })
 });
 ```
+</Steps>
+</TabsContent>
+<TabsContent value="winston">
+<Steps>
 
----
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install winston winston-daily-rotate-file zod" />
 
-#### Advanced Configuration
+<Step>Add Environment Variables</Step>
+```dotenv title=".env"
+LOG_LEVEL='log_level'
 
+NODE_ENV='node_env'
+```
+
+<Step>Config Environment Variable</Step>
+```ts title="src/configs/env.ts"
+import z from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info")
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+<Step>Add logger utils function</Step>
 ```ts title="src/utils/logger.ts"
 import env from "@/configs/env";
 import winston from "winston";
@@ -166,85 +241,11 @@ export const logger = winston.createLogger({
   exitOnError: false
 });
 ```
-
-
----
-
-### 2. Pino Logger
-
-
-#### Minimal Configuration
-
-```ts title="src/utils/logger.ts"
-import pino from "pino";
-import env from "@/configs/env";
-
-export const logger = pino({
-  level: env.LOG_LEVEL,
-  transport:
-    env.NODE_ENV !== "production"
-      ? {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "yyyy-mm-dd HH:MM:ss",
-            ignore: "pid,hostname"
-          }
-        }
-      : undefined
-});
-```
-
----
-
-#### Advanced Configuration
-
-```ts title="src/utils/logger.ts"
-import pino from "pino";
-import env from "@/configs/env";
-
-const isProduction = env.NODE_ENV !== "production";
-
-export const logger = pino({
-  level: env.LOG_LEVEL || "info",
-
-  base: {
-    pid: process.pid
-  },
-
-  timestamp: pino.stdTimeFunctions.isoTime,
-
-  formatters: {
-    level(label) {
-      return { level: label };
-    }
-  },
-
-  redact: {
-    paths: [
-      "req.headers.authorization",
-      "req.headers.cookie",
-      "password",
-      "token",
-      "refreshToken"
-    ],
-    censor: "[REDACTED]"
-  },
-
-  ...(isProduction
-    ? {}
-    : {
-        transport: {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "SYS:standard",
-            ignore: "pid,hostname"
-          }
-        }
-      })
-});
-```
+</Steps>
+</TabsContent>
+</Tabs>
+</TabsContent>
+</Tabs>
 
 ---
 
@@ -254,8 +255,31 @@ export const logger = pino({
 import { logger } from "@/utils/logger";
 ```
 
-### 1. Winston
+<Tabs defaultValue="pino">
+<TabsList>
+<TabsTrigger value="pino">
+Pino
+</TabsTrigger>
+<TabsTrigger value="winston">
+Winston
+</TabsTrigger>
+</TabsList>
+<TabsContent value="pino">
+```ts
+logger.info("Server started");
+logger.warn({ userId: "123" }, "Suspicious activity detected");
+logger.error(
+  { err: "Database connection failed" },
+  "Database connection failed"
+);
 
+// Child Logger
+const authLogger = logger.child({ module: "auth" });
+authLogger.info("Login started");
+authLogger.error({ userId }, "Invalid credentials");
+```
+</TabsContent>
+<TabsContent value="winston">
 ```ts
 logger.info("Server started successfully");
 logger.warn("Disk space running low");
@@ -266,22 +290,5 @@ const authLogger = logger.child({ module: "auth" });
 authLogger.info("Login started");
 authLogger.error({ userId }, "Invalid credentials");
 ```
-
----
-
-### 2. Pino
-
-```ts
-logger.info("Server started");
-logger.warn({ userId: "123" }, "Suspicious activity detected");
-logger.error(
-  { err: "Database connection failed" },
-  "Database connection failed"
-);
-
-// Child Logger
-
-const authLogger = logger.child({ module: "auth" });
-authLogger.info("Login started");
-authLogger.error({ userId }, "Invalid credentials");
-````
+</TabsContent>
+</Tabs>
