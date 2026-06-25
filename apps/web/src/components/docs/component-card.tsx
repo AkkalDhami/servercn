@@ -8,7 +8,7 @@ export default function ComponentCard({
 }: {
   component: IRegistryItems;
 }) {
-  const isStable = ["stable", "deprecated"].includes(component.status);
+  const isStable = ["stable"].includes(component.status);
 
   return (
     <Link

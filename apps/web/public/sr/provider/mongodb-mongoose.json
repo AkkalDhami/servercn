@@ -43,6 +43,33 @@
               ]
             }
           }
+        },
+        "nextjs": {
+          "dependencies": {
+            "runtime": [
+              "mongoose"
+            ],
+            "dev": []
+          },
+          "env": [
+            "DATABASE_URL"
+          ],
+          "architectures": {
+            "file-api": {
+              "files": [
+                {
+                  "type": "file",
+                  "path": "src/types/global.d.ts",
+                  "content": "import { Connection } from \"mongoose\";\r\n\r\ndeclare global {\r\n  var mongooseCache:\r\n    | {\r\n        conn: Connection | null;\r\n        promise: Promise<Connection> | null;\r\n      }\r\n    | undefined;\r\n}\r\n\r\nexport {};\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/configs/db.ts",
+                  "content": "import mongoose, { Connection } from \"mongoose\";\r\n\r\nconst MONGODB_URI = process.env.DATABASE_URL!;\r\n\r\nif (!MONGODB_URI) {\r\n  throw new Error(\"Missing MONGODB_URI environment variable\");\r\n}\r\n\r\nconst globalCache = global.mongooseCache ?? {\r\n  conn: null,\r\n  promise: null\r\n};\r\n\r\nglobal.mongooseCache = globalCache;\r\n\r\nexport async function dbConnect(): Promise<Connection> {\r\n  if (globalCache.conn) {\r\n    return globalCache.conn;\r\n  }\r\n\r\n  if (!globalCache.promise) {\r\n    globalCache.promise = mongoose.connect(MONGODB_URI).then(m => m.connection);\r\n  }\r\n\r\n  try {\r\n    globalCache.conn = await globalCache.promise;\r\n  } catch (error) {\r\n    console.error(\"❌ Error connecting to MongoDB:\", error);\r\n    globalCache.promise = null;\r\n    throw error;\r\n  }\r\n\r\n  console.log(\"✅ MongoDB connected\");\r\n  return globalCache.conn;\r\n}"
+                }
+              ]
+            }
+          }
         }
       }
     }
