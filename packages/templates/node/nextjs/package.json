@@ -1,0 +1,11 @@
+{
+  "name": "servercn-nextjs",
+  "version": "1.0.0",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "mongoose": "^9.7.2"
+  }
+}
