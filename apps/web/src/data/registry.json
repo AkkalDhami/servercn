@@ -713,9 +713,9 @@
       "slug": "mongodb-mongoose",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "title": "MongoDB (Mongoose)",
-      "description": "MongoDB provider with Mongoose ORM for Express applications.",
+      "description": "MongoDB provider with Mongoose ORM for express & nextjs applications.",
       "docs": "/docs/providers/mongodb-mongoose",
       "meta": {
         "new": true

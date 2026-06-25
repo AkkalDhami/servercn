@@ -1,0 +1,99 @@
+---
+title: Mongodb(Mongoose) | Provider | Next.js
+description: MongoDB provider with Mongoose ORM for nextjs applications.
+command: npx servercn-cli@latest add pr mongodb-mongoose
+---
+
+# Mongodb(Mongoose) Provider
+
+This provider sets up MongoDB connectivity with Mongoose for nextjs projects, including database connection.
+
+---
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<PackageManagerTabs command="npx servercn-cli@latest add pr mongodb-mongoose" />
+</TabsContent>    
+<TabsContent value="manual">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install mongoose" />
+
+<Step>Create Global Mongoose Types</Step>
+```ts title="src/types/global.d.ts"
+import { Connection } from "mongoose";
+
+declare global {
+  var mongooseCache:
+    | {
+      conn: Connection | null;
+        promise: Promise<Connection> | null;
+      }
+    | undefined;
+}
+
+export {};
+```
+
+<Step>Create MongoDB Connection Utility</Step>
+```ts title="src/configs/db.ts"
+import mongoose, { Connection } from "mongoose";
+
+const MONGODB_URI = process.env.DATABASE_URL!;
+
+if (!MONGODB_URI) {
+  throw new Error("Missing MONGODB_URI environment variable");
+}
+
+const globalCache = global.mongooseCache ?? {
+  conn: null,
+  promise: null
+};
+
+global.mongooseCache = globalCache;
+
+export async function dbConnect(): Promise<Connection> {
+  if (globalCache.conn) {
+    return globalCache.conn;
+  }
+
+  if (!globalCache.promise) {
+    globalCache.promise = mongoose.connect(MONGODB_URI).then(m => m.connection);
+  }
+
+  try {
+    globalCache.conn = await globalCache.promise;
+  } catch (error) {
+    console.error("❌ Error connecting to MongoDB:", error);
+    globalCache.promise = null;
+    throw error;
+  }
+
+  console.log("✅ MongoDB connected");
+  return globalCache.conn;
+}
+```
+</Steps>    
+</TabsContent>    
+</Tabs>
+
+
+---
+
+## Usage Example
+
+```ts
+import { dbConnect } from "@/configs/db";
+
+await dbConnect();
+```
