@@ -188,7 +188,7 @@ export default function DocsSidebar({
                 transition={{ duration: 0.25, ease: "easeInOut" }}
                 className="mb-3 space-y-3.5 overflow-hidden border-l border-zinc-200 dark:border-zinc-800">
                 {(section.items as IRegistryItems[])
-                  // .filter(item => item.status === "stable")
+                  .filter(item => item.status !== "deprecated")
                   .map((item, i: number) => {
                     const itemUrl = injectFramework(
                       item.url as string,

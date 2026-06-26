@@ -173,6 +173,13 @@
 - [Redis](https://www.servercn.xyz/docs/express/providers/redis): wires the official redis package to REDIS_URL, validates the URL with Zod, and includes small setCache / getCache / deleteCache helpers.
 - [Resend Mail](https://www.servercn.xyz/docs/express/providers/resend-mail): adds the official Resend SDK, validates RESEND_API_KEY with Zod, and exports a ready-to-use resend client.
 
+### Next.js
+
+- [Mongodb(Mongoose)](https://www.servercn.xyz/docs/nextjs/providers/mongodb-mongoose): sets up MongoDB connectivity with Mongoose for nextjs projects, including database connection.
+- [Mysql(Drizzle) ](https://www.servercn.xyz/docs/nextjs/providers/mysql-drizzle): sets up MySQL connectivity with Drizzle ORM for nextjs projects.
+
+
+
 
 ## Schemas
 

@@ -11,7 +11,8 @@ export function ComponentsCatalog({ type }: { type: ItemType }) {
   const { framework } = useFramework();
 
   const components = useMemo(
-    () => getRegistryTypeItems(type, framework),
+    () =>
+      getRegistryTypeItems(type, framework).filter(c => c.status === "stable"),
     [framework, type]
   );
 

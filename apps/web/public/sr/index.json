@@ -381,7 +381,8 @@
       "type": "provider",
       "slug": "mysql-drizzle",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {

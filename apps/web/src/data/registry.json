@@ -715,7 +715,7 @@
       "status": "stable",
       "frameworks": ["express"],
       "title": "MongoDB (Mongoose)",
-      "description": "MongoDB provider with Mongoose ORM for Express applications.",
+      "description": "MongoDB provider with Mongoose ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/mongodb-mongoose",
       "meta": {
         "new": true
@@ -750,9 +750,9 @@
       "slug": "mysql-drizzle",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "title": "MySQL (Drizzle)",
-      "description": "MySQL provider with Drizzle ORM for Express applications.",
+      "description": "MySQL provider with Drizzle ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/mysql-drizzle",
       "meta": {
         "new": true
@@ -824,7 +824,7 @@
     {
       "slug": "resend-mail",
       "type": "provider",
-      "status": "experimental",
+      "status": "deprecated",
       "frameworks": ["express"],
       "title": "Resend Mail",
       "description": "Email provider using the Resend API for Express applications.",
@@ -833,7 +833,7 @@
     {
       "slug": "redis",
       "type": "provider",
-      "status": "experimental",
+      "status": "deprecated",
       "frameworks": ["express"],
       "title": "Redis",
       "description": "Redis cache and key-value provider with the official Node client for Express applications.",
