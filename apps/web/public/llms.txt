@@ -176,9 +176,10 @@
 ### Next.js
 
 - [Mongodb(Mongoose)](https://www.servercn.xyz/docs/nextjs/providers/mongodb-mongoose): sets up MongoDB connectivity with Mongoose for nextjs projects, including database connection.
+- [Mysql(Drizzle) ](https://www.servercn.xyz/docs/nextjs/providers/mysql-drizzle): sets up MySQL connectivity with Drizzle ORM for nextjs projects.
 
 
-- [Mongodb(Mongoose)](https://www.servercn.xyz/docs/express/providers/mongodb-mongoose): sets up MongoDB connectivity with Mongoose for Express projects, including environment validation, a database connection helper.
+
 
 ## Schemas
 

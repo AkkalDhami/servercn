@@ -6,6 +6,11 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "mongoose": "^9.7.2"
+    "drizzle-orm": "^0.45.2",
+    "mongoose": "^9.7.2",
+    "mysql2": "^3.22.5"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10"
   }
 }

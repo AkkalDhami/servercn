@@ -569,7 +569,7 @@ export function getIconForLanguageExtension(
     return <LanguageIcons.nodejs className="size-4" />;
   }
   if (fileName === "tsconfig.json" || fileName?.startsWith("tsconfig.")) {
-    return <LanguageIcons.tsconfig className="size-4" />;
+    return <LanguageIcons.ts className="size-4" />;
   }
   if (fileName === "components.json") {
     return <LanguageIcons.shadcn className="size-4" />;
@@ -675,7 +675,7 @@ export function getIconForLanguageExtension(
       return <LanguageIcons.tsx className="fill-foreground size-4" />;
     case "ts":
     case "typescript":
-      return <LanguageIcons.ts className="fill-foreground size-4" />;
+      return <LanguageIcons.tsconfig className="fill-foreground size-4" />;
     case "bash":
       return <LanguageIcons.bash className="size-4" />;
     case "dotenv":
