@@ -1,14 +1,14 @@
 ---
-title: Mysql(Drizzle) | Provider | Next.js
-description: Mysql provider with drizzle ORM for nextjs applications.
-command: npx servercn-cli@latest add pr mysql-drizzle
+title:  PostgreSQL(Drizzle) | Provider | Next.js
+description:  PostgreSQL provider with drizzle ORM for nextjs applications.
+command: npx servercn-cli@latest add pr pg-drizzle
 ---
 
-# Mysql(Drizzle) Provider
+# PostgreSQL(Drizzle) Provider
 
-This provider sets up MySQL connectivity with Drizzle ORM for nextjs projects.
+This provider sets up PostgreSQL connectivity with Drizzle ORM for nextjs projects.
 
-[Official Docs](https://orm.drizzle.team/docs/get-started/mysql-new)
+[Official Docs](https://orm.drizzle.team/docs/get-started/postgresql-new)
 
 ---
 
@@ -26,7 +26,7 @@ Manual
 <TabsContent value="command">
 <Steps>
 <Step>Run the following command:</Step>
-<PackageManagerTabs command="npx servercn-cli@latest add pr mysql-drizzle" />
+<PackageManagerTabs command="npx servercn-cli@latest add pr pg-drizzle" />
 
 <Step> Add the following scripts to your package.json:</Step>
 ```json title="package.json"
@@ -44,8 +44,8 @@ Manual
 <TabsContent value="manual">
 <Steps>
 <Step>Install Dependencies:</Step>
-<PackageManagerTabs command="npm install drizzle-orm mysql2" />
-<PackageManagerTabs command="npm install -D drizzle-kit" />
+<PackageManagerTabs command="npm install drizzle-orm pg" />
+<PackageManagerTabs command="npm install -D drizzle-kit @types/pg" />
 
 <Step> Add the following scripts to your package.json:</Step>
 ```json title="package.json"
@@ -72,7 +72,7 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   out: "./migrations",
   schema: "./src/db/index.ts",
-  dialect: "mysql",
+  dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL!
   },
@@ -83,7 +83,7 @@ export default defineConfig({
 
 <Step>Add DB Connection</Step>
 ```ts title="src/db/connection.ts"
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/node-postgres";
 
 const db = drizzle(process.env.DATABASE_URL!, {
   logger: process.env.NODE_ENV === "development"
@@ -94,12 +94,12 @@ export default db;
 
 <Step>Add User Schema</Step>
 ```ts title="src/db/schemas/user.schema.ts"
-import { int, mysqlTable, serial, varchar } from "drizzle-orm/mysql-core";
+import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = mysqlTable("users_table", {
-  id: serial().primaryKey(),
+export const usersTable = pgTable("users_table", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  age: int().notNull(),
+  age: integer().notNull(),
   email: varchar({ length: 255 }).notNull().unique()
 });
 ```

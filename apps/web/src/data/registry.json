@@ -762,9 +762,9 @@
       "slug": "pg-drizzle",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "title": "PostgreSQL (Drizzle)",
-      "description": "PostgreSQL provider with Drizzle ORM for Express applications.",
+      "description": "PostgreSQL provider with Drizzle ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/pg-drizzle",
       "meta": {
         "new": true
