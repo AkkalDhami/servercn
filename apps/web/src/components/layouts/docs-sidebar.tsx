@@ -66,16 +66,16 @@ export const PAGE_ITEMS = [
     url: "/contributors"
   },
   {
+    title: "Changelog",
+    url: "/docs/changelog"
+  },
+  {
     title: "Contributing",
     url: "/contributing"
   },
   {
     title: "llms.txt",
     url: "/llms.txt"
-  },
-  {
-    title: "Changelog",
-    url: "/docs/changelog"
   }
 ];
 
