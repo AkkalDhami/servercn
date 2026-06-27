@@ -353,7 +353,8 @@
       "type": "provider",
       "slug": "pg-drizzle",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
