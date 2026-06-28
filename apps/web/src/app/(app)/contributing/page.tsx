@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export default function ContributingPage() {
   return (
-    <Container className="border-edge border-x px-0 pt-16">
-      <div className="dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)] mb-6 px-4 pt-2">
+    <Container className="border-edge border-x px-0 pt-18">
+      <div className="mb-6 px-4 pt-2">
         <Heading className="tracking-tight">Contributing to {APP_NAME}</Heading>
         <SubHeading className="text-muted-foreground mx-0 mt-2">
           Help us build the future of backend development. Choose a contribution
