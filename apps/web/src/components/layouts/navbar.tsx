@@ -15,9 +15,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { GITHUB_URL } from "@/lib/constants";
 
-const links = siteConfig.navItems;
+export const links = siteConfig.navItems;
 
-function isActiveLink(pathname: string, href: string) {
+export function isActiveLink(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
 
   const escaped = href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -26,7 +26,8 @@ function isActiveLink(pathname: string, href: string) {
   return regex.test(pathname);
 }
 
-export default function Navbar() {
+//! DEPRECATED
+export function Navbar() {
   const [open, setOpen] = useState(false);
   const path = usePathname();
 
@@ -36,7 +37,7 @@ export default function Navbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="bg-background fixed top-0 left-0 z-40 w-full pt-2">
+        className="bg-background lg:hidden fixed top-0 left-0 z-40 w-full pt-2">
         <nav
           className={cn(
             "mx-auto flex max-w-368 items-center justify-between px-4 py-2.5",
@@ -95,7 +96,7 @@ export default function Navbar() {
             <Button
               onClick={() => setOpen(prev => !prev)}
               variant="outline"
-              className="px-2 primary-ring py-1 lg:hidden">
+              className="primary-ring px-2 py-1 lg:hidden">
               <motion.div
                 animate={{ rotate: open ? 90 : 0 }}
                 transition={{ duration: 0.2 }}>
@@ -148,7 +149,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
       <Button
         variant="secondary"
         onClick={onClose}
-        className="absolute primary-ring top-4 right-3">
+        className="primary-ring absolute top-4 right-3">
         <X />
       </Button>
 
@@ -165,7 +166,7 @@ function MobileNavbar({ onClose }: { onClose: () => void }) {
               className={cn(
                 "text-muted-foreground hover:text-foreground text-2xl font-semibold transition-colors",
                 path === link.href &&
-                "text-foreground underline underline-offset-5"
+                  "text-foreground underline underline-offset-5"
               )}>
               {link.label}
             </Link>
