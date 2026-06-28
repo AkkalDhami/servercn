@@ -4,11 +4,12 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { fontVariables } from "@/lib/fonts";
 import { siteConfig } from "@/lib/config";
 import { ScrollToTopButton } from "@/components/layouts/scroll-to-top";
-import Navbar from "@/components/layouts/navbar";
+import { Navbar } from "@/components/layouts/navbar";
 import { SERVERCN_URL } from "@/lib/constants";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "@/components/layouts/footer";
 import { HotkeyProvider } from "@/components/providers/hotkey-provider";
+import { DesktopNav } from "@/components/layouts/desktop-nav";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -72,6 +73,7 @@ export default function RootLayout({
           <TooltipProvider>
             <HotkeyProvider>
               <Navbar />
+              <DesktopNav />
               {children}
               <Footer />
             </HotkeyProvider>
