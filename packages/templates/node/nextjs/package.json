@@ -6,7 +6,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
+    "@neondatabase/serverless": "^1.1.0",
+    "drizzle-orm": "^1.0.0-rc.4",
     "mongoose": "^9.7.2",
     "mysql2": "^3.22.5",
     "pg": "^8.22.0"
