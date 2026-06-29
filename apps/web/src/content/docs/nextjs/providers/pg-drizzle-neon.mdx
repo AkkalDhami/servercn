@@ -1,0 +1,177 @@
+---
+title:  PostgreSQL(Drizzle & Neon) | Provider | Next.js
+description:  PostgreSQL provider with drizzle ORM & Neon DB for nextjs applications.
+command: npx servercn-cli@latest add pr pg-drizzle-neon
+---
+
+# PostgreSQL(Drizzle & Neon) Provider
+
+This provider sets up PostgreSQL + Neon connectivity with Drizzle ORM for nextjs projects.
+
+[Official Docs](https://orm.drizzle.team/docs/get-started/neon-new)
+
+---
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<Steps>
+<Step>Run the following command:</Step>
+<PackageManagerTabs command="npx servercn-cli@latest add pr pg-drizzle-neon" />
+
+<Step> Add the following scripts to your package.json:</Step>
+```json title="package.json"
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "npx drizzle-kit push"
+  },
+}
+```
+</Steps>
+</TabsContent>    
+<TabsContent value="manual">
+<Steps>
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install drizzle-orm@rc @neondatabase/serverless" />
+<PackageManagerTabs command="npm install -D drizzle-kit@rc" />
+
+<Step> Add the following scripts to your package.json:</Step>
+```json title="package.json"
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "npx drizzle-kit push"
+  },
+}
+```
+
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+DATABASE_URL='database_url'
+NODE_ENV='node_env'
+```
+
+<Step>Add Drizzle Configuration</Step>
+```ts title="drizzle.config.ts"
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./src/db/index.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!
+  },
+  verbose: true,
+  strict: true
+});
+```
+
+<Step>Add DB Connection</Step>
+```ts title="src/db/connection.ts"
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+
+const sql = neon(process.env.DATABASE_URL!);
+const db = drizzle({
+  client: sql,
+  logger: process.env.NODE_ENV === "development"
+});
+
+export default db;
+```
+
+<Step>Add User Schema</Step>
+```ts title="src/db/schemas/user.schema.ts"
+import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+
+export const usersTable = pgTable("users_table", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  age: integer().notNull(),
+  email: varchar({ length: 255 }).notNull().unique()
+});
+```
+
+<Step>Export Schemas</Step>
+```ts title="src/db/index.ts"
+//? Export all schemas from ./schemas directory
+export * from "./schemas/user.schema";
+```
+
+</Steps> 
+</TabsContent>
+</Tabs>
+
+
+---
+
+## Usage Example
+```ts
+import db from "@/db/connection";
+```
+
+```ts title="src/app/api/route.ts"
+import { usersTable } from "@/db";
+import db from "@/db/connection";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+
+export const GET = async () => {
+  try {
+    const user: typeof usersTable.$inferInsert = {
+      name: "John",
+      age: 30,
+      email: "john123@example.com"
+    };
+
+    await db.insert(usersTable).values(user);
+    console.log("New user created!");
+
+    const users = await db.select().from(usersTable);
+    console.log("Getting all users from the database: ", users);
+    await db
+      .update(usersTable)
+      .set({
+        age: 31
+      })
+      .where(eq(usersTable.email, user.email));
+    console.log("User info updated!");
+
+    await db.delete(usersTable).where(eq(usersTable.email, user.email));
+    console.log("User deleted!");
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: users
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Delete error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal server error"
+      },
+      { status: 500 }
+    );
+  }
+};
+```
