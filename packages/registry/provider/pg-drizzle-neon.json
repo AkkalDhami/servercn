@@ -14,6 +14,16 @@
             "dev": ["drizzle-kit"]
           },
           "env": ["DATABASE_URL"]
+        },
+        "nextjs": {
+          "templates": {
+            "file-api": "pg-drizzle-neon/file-api"
+          },
+          "dependencies": {
+            "runtime": ["drizzle-orm@rc", "@neondatabase/serverless"],
+            "dev": ["drizzle-kit@rc"]
+          },
+          "env": ["DATABASE_URL"]
         }
       }
     }
