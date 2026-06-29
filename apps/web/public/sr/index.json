@@ -361,7 +361,8 @@
       "type": "provider",
       "slug": "pg-drizzle-neon",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
