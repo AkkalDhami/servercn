@@ -26,13 +26,7 @@ import { BASE_GITHUB_URL, DISCORD_URL, GITHUB_URL } from "@/lib/constants";
 import { contributingGuides } from "@/lib/contributing";
 import { useFramework } from "@/store/use-framework";
 
-export function SearchCommand({
-  className,
-  size
-}: {
-  className?: string;
-  size?: "sm" | "lg";
-}) {
+export function SearchCommand({ className }: { className?: string }) {
   const [open, setOpen] = React.useState(false);
   const { framework } = useFramework();
 

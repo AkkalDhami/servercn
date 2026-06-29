@@ -1,9 +1,4 @@
-import {
-  Framework,
-  FrameworkType,
-  IRegistryItems,
-  ItemType
-} from "@/@types/registry";
+import { FrameworkType, IRegistryItems, ItemType } from "@/@types/registry";
 import registry from "@/data/registry.json";
 
 export const RESTRICTED_FOLDER_STRUCTURE_PAGES = [
