@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "@/components/layouts/footer";
 import { HotkeyProvider } from "@/components/providers/hotkey-provider";
 import { DesktopNav } from "@/components/layouts/desktop-nav";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -72,6 +73,7 @@ export default function RootLayout({
           enableSystem={false}>
           <TooltipProvider>
             <HotkeyProvider>
+              <Toaster position="top-center" />
               <Navbar />
               <DesktopNav />
               {children}
