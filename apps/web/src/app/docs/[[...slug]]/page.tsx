@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
@@ -235,7 +236,7 @@ export default async function DocsPage({
                   "installation",
                   "introduction",
                   "contributing",
-                  "changelog",
+                  "changelog"
                 ].includes(slug[0]) && (
                   <ViewAsJson
                     type={
@@ -248,36 +249,46 @@ export default async function DocsPage({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "primary-ring"
-                  )}
-                  href={
-                    (prev
-                      ? injectFramework(
-                          prev.docs as string,
-                          currentFramework || ""
-                        )
-                      : "") as Route
-                  }>
-                  <ArrowLeftIcon className="size-4" />
-                </Link>
-                <Link
-                  href={
-                    (next
-                      ? injectFramework(
-                          next.docs as string,
-                          currentFramework || ""
-                        )
-                      : "") as Route
-                  }
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "primary-ring"
-                  )}>
-                  <ArrowRightIcon className="size-4" />
-                </Link>
+                {/* <ShareMenu
+                  title={data.title}
+                  url={`/docs/${currentFramework}/${
+                    ["tooling"].includes(slug[0])
+                      ? (slug[0] as ItemType)
+                      : (slug[1] as ItemType)
+                  }/${blueprintSlug}`}
+                /> */}
+                <div className="flex items-center gap-2">
+                  <Link
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "primary-ring"
+                    )}
+                    href={
+                      (prev
+                        ? injectFramework(
+                            prev.docs as string,
+                            currentFramework || ""
+                          )
+                        : "") as Route
+                    }>
+                    <ArrowLeftIcon className="size-4" />
+                  </Link>
+                  <Link
+                    href={
+                      (next
+                        ? injectFramework(
+                            next.docs as string,
+                            currentFramework || ""
+                          )
+                        : "") as Route
+                    }
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "primary-ring"
+                    )}>
+                    <ArrowRightIcon className="size-4" />
+                  </Link>
+                </div>
               </div>
             </div>
             <MDXRemote
