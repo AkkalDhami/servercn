@@ -1,0 +1,180 @@
+---
+title:  MongoDB (Prisma) | Provider | Next.js
+description:  MongoDB provider with Prisma ORM for nextjs applications.
+command: npx servercn-cli@latest add pr mongodb-prisma
+---
+
+# MongoDB(Prisma) Provider
+
+This provider sets up MongoDB connectivity with Prisma ORM for nextjs projects.
+
+[Official Docs](https://www.prisma.io/docs/prisma-orm/quickstart/mongodb)
+
+---
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<Steps>
+<Step>Run the following command:</Step>
+<PackageManagerTabs command="npx servercn-cli@latest add pr mongodb-prisma" />
+
+<Step> Add the following scripts to your package.json:</Step>
+```json title="package.json"
+{
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma push",
+    "db:studio": "prisma studio"
+  },
+}
+```
+</Steps>
+</TabsContent>    
+<TabsContent value="manual">
+<Steps>
+<Step>Follow the official docs:</Step>
+
+[Official Docs](https://www.prisma.io/docs/prisma-orm/quickstart/mongodb)
+
+<Step>Install Dependencies:</Step>
+<PackageManagerTabs command="npm install @prisma/client@6" />
+<PackageManagerTabs command="npm install -D prisma@6" />
+
+<Step> Add the following scripts to your package.json:</Step>
+```json title="package.json"
+{
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma push",
+    "db:studio": "prisma studio"
+  },
+}
+```
+
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+DATABASE_URL='database_url'
+NODE_ENV='node_env'
+```
+
+<Step>Add Prisma Configuration</Step>
+```ts title="prisma.config.ts"
+import { defineConfig, env } from "prisma/config";
+import "dotenv/config"; 
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  engine: "classic",
+  datasource: {
+    url: process.env.DATABASE_URL || env("DATABASE_URL"),
+  },
+});
+```
+
+<Step>Add DB Connection</Step>
+```ts title="src/lib/prisma.ts"
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient({
+  log:
+    process.env.NODE_ENV === "development"
+      ? ["query", "info", "warn", "error"]
+      : ["error"]
+});
+
+export default prisma;
+```
+
+<Step>Add Prisma Schema</Step>
+```ts title="prisma/schema.prisma"
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User { 
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  email String  @unique
+  name  String?
+  age   Int?
+  password String
+}
+```
+
+</Steps>    
+</TabsContent>    
+</Tabs>
+
+
+---
+
+## Usage Example
+```ts
+import prisma from "@/lib/prisma";
+```
+
+```ts title="src/app/api/route.ts"
+import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+
+export const GET = async () => {
+  const user = {
+    email: "test@test.com",
+    name: "Test User",
+    password: "password123"
+  };
+
+  const createdUser = await prisma.user.create({
+    data: user
+  });
+  console.log("Created user:", JSON.stringify(createdUser, null, 2));
+
+  const allUsers = await prisma.user.findMany();
+  console.log("All users:", JSON.stringify(allUsers, null, 2));
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      email: "test@test.com"
+    },
+    data: {
+      name: "Updated Test User"
+    }
+  });
+  console.log("Updated user:", JSON.stringify(updatedUser, null, 2));
+
+  const deletedUser = await prisma.user.delete({
+    where: {
+      email: "test@test.com"
+    }
+  });
+  console.log("Deleted user:", JSON.stringify(deletedUser, null, 2));
+
+  return NextResponse.json({
+    message: "Successfully executed",
+    createdUser,
+  });
+};
+```
