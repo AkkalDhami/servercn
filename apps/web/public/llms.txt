@@ -178,7 +178,8 @@
 - [Mongodb(Mongoose)](https://www.servercn.xyz/docs/nextjs/providers/mongodb-mongoose): sets up MongoDB connectivity with Mongoose for nextjs projects, including database connection.
 - [Mysql(Drizzle) ](https://www.servercn.xyz/docs/nextjs/providers/mysql-drizzle): sets up MySQL connectivity with Drizzle ORM for nextjs projects.
 - [PostgreSQL(Drizzle) ](https://www.servercn.xyz/docs/nextjs/providers/pg-drizzle): sets up PostgreSQL connectivity with Drizzle ORM for nextjs projects.
-- [PostgreSQL(Drizzle & Neon) ](https://www.servercn.xyz/docs/nextjs/providers/pg-drizzle-neon):  sets up PostgreSQL + Neon connectivity with Drizzle ORM for nextjs projects.
+- [PostgreSQL(Drizzle & Neon) ](https://www.servercn.xyz/docs/nextjs/providers/pg-drizzle-neon): sets up PostgreSQL + Neon connectivity with Drizzle ORM for nextjs projects.
+- [MongoDB Prisma](https://www.servercn.xyz/docs/nextjs/providers/mongodb-prisma): sets up MongoDB connectivity with Prisma ORM for nextjs projects.
 
 
 ## Schemas
