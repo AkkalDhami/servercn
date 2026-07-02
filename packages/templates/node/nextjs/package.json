@@ -7,6 +7,7 @@
   "type": "module",
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@prisma/client": "^6.19.3",
     "drizzle-orm": "^1.0.0-rc.4",
     "mongoose": "^9.7.2",
     "mysql2": "^3.22.5",
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "prisma": "6.19"
   }
 }
