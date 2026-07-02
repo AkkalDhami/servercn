@@ -391,7 +391,8 @@
       "type": "provider",
       "slug": "mongodb-prisma",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
