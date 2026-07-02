@@ -725,9 +725,9 @@
       "slug": "mongodb-prisma",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": ["express", "nextjs"],
       "title": "MongoDB (Prisma)",
-      "description": "MongoDB provider with Prisma ORM for Express applications.",
+      "description": "MongoDB provider with Prisma ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/mongodb-prisma",
       "meta": {
         "new": true
