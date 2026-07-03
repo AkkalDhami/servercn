@@ -1,8 +1,8 @@
 # Servercn
 
-Servercn is a component registry for building Node.js backends by composition.
+Servercn is a component registry for building node.js backends.
 
-> The shadcn/ui philosophy for Node.js backends
+> The shadcn/ui philosophy for node.js backends
 
 Visit [Servercn](https://servercn.vercel.app) for more information.
 

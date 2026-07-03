@@ -1,7 +1,7 @@
 {
   "name": "servercn-cli",
-  "version": "2.0.9",
-  "description": "Backend components CLI for Node.js & Typescript",
+  "version": "2.0.10",
+  "description": "Backend component registry for node.js & typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
   "bin": {
@@ -29,7 +29,7 @@
   "author": {
     "name": "Akkal Dhami",
     "github": "https://github.com/AkkalDhami",
-    "url": "https://x.com/AavashDhami2127"
+    "url": "https://x.com/_akkal_dhami"
   },
   "license": "MIT",
   "files": [
