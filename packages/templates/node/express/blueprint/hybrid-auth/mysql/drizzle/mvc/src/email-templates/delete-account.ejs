@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Account Request</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    p {
+      margin-bottom: 10px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <p>Hello <%= name %>,</p>
+  <p>We received a request to delete your account. If you confirm this action, your account will be permanently deleted.</p>
+  <p>To confirm, please click the link below:</p>
+  <a href="<%= deleteAccountUrl %>">Confirm Delete Account</a>
+  <p>If you did not request this action, please ignore this email or reply to let us know. Your account is still secure.</p>
+  <p>Thank you,</p>
+</body>
+</html>
