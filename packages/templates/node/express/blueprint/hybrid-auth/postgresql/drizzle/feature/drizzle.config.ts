@@ -3,7 +3,7 @@ import env from "./src/shared/configs/env";
 
 export default defineConfig({
   out: "./src/drizzle/migrations",
-  schema: "./src/drizzle/schemas/*",
+  schema: "./src/drizzle/index.ts",
   dialect: "postgresql",
   dbCredentials: {
     url: env.DATABASE_URL!
