@@ -39,10 +39,6 @@ export const envSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   GITHUB_REDIRECT_URI: z.url(),
 
-  FACEBOOK_APP_ID: z.string(),
-  FACEBOOK_APP_SECRET: z.string(),
-  FACEBOOK_REDIRECT_URI: z.url(),
-
   REDIS_URL: z.url()
 });
 
