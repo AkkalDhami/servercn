@@ -6,7 +6,7 @@ Minimal Node.js + Express + TypeScript MVC starter using PostgreSQL, Drizzle ORM
 
 - Express + TypeScript MVC structure
 - PostgreSQL + Drizzle integration
-- Hybrid auth: local credentials and OAuth providers (e.g., Google, GitHub, Facebook)
+- Hybrid auth: local credentials and OAuth providers (e.g., Google, GitHub)
 - Session-based authentication compatible with production
 - Environment-driven configuration with `.env`
 - Dev and production scripts
@@ -36,19 +36,6 @@ Minimal Node.js + Express + TypeScript MVC starter using PostgreSQL, Drizzle ORM
 
 - Node.js 18+
 - PostgreSQL
-
-## Environment Variables
-
-- `DATABASE_URL` — PostgreSQL connection string
-- `REDIS_URL` — Redis connection string for session storage
-- `PORT` — server port (e.g., 3000)
-- `NODE_ENV` — `development` or `production`
-- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CRYPTO_SECRET`
-- `EMAIL_FROM`, `RESEND_API_KEY`
-- Optional OAuth (enable what you use):
-  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
-  - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI`
-  - `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_REDIRECT_URI`
 
 ## Scripts
 

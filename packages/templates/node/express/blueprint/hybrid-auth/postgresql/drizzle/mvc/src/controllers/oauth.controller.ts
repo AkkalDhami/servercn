@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Profile as GithubProfile } from "passport-github2";
 import { Profile as GoogleProfile } from "passport-google-oauth20";
-import { Profile as FacebookProfile } from "passport-facebook";
 
 import { ApiResponse } from "../utils/api-response";
 import { AsyncHandler } from "../utils/async-handler";
@@ -72,51 +71,6 @@ export const googleOAuth = AsyncHandler(
       email: data?.emails && data?.emails[0]?.value,
       isEmailVerified:
         (data?.emails && data?.emails[0]?.verified === true) || true,
-      avatar: data.profileUrl || (data.photos && data.photos[0].value),
-      ip: req.ip || "Unknown",
-      userAgent: req.get("user-agent") || req.headers["user-agent"] || "Unknown"
-    };
-
-    const existingUser = await OAuthService.handleOAuthLogin(userInfo, {
-      setAuthCookie: (
-        accessToken: string,
-        refreshToken: string,
-        sessionId: string
-      ) => {
-        setAuthCookies(res, accessToken, refreshToken, sessionId);
-      }
-    });
-
-    ApiResponse.ok(res, "Signin Successfull", {
-      user: {
-        id: existingUser.id,
-        name: existingUser.name,
-        email: existingUser.email,
-        role: existingUser.role,
-        avatar: existingUser.avatar,
-        isEmailVerified: existingUser.isEmailVerified,
-        lastLoginAt: existingUser.lastLoginAt,
-        provider: existingUser.provider
-      }
-    });
-  }
-);
-
-//? LOGIN WITH FACEBOOK
-export const facebookOAuth = AsyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const data = req.user as FacebookProfile | undefined;
-
-    if (!data) {
-      return next(ApiError.unauthorized("Authenticated failed!"));
-    }
-
-    const userInfo = {
-      provider: data?.provider as "local" | "google" | "github",
-      providerId: data.id,
-      name: data.displayName,
-      email: data?.emails && data?.emails[0]?.value,
-      isEmailVerified: true,
       avatar: data.profileUrl || (data.photos && data.photos[0].value),
       ip: req.ip || "Unknown",
       userAgent: req.get("user-agent") || req.headers["user-agent"] || "Unknown"
