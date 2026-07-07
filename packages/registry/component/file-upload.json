@@ -52,6 +52,49 @@
                 "mvc": "file-upload/imagekit/mvc",
                 "feature": "file-upload/imagekit/feature"
               }
+            },
+            "aws-s3": {
+              "label": "AWS S3",
+              "dependencies": {
+                "runtime": [
+                  "multer",
+                  "@aws-sdk/client-s3",
+                  "@aws-sdk/s3-request-presigner"
+                ],
+                "dev": ["@types/multer"]
+              },
+              "env": [
+                "AWS_ACCESS_KEY_ID",
+                "AWS_SECRET_ACCESS_KEY",
+                "AWS_REGION",
+                "AWS_S3_BUCKET_NAME"
+              ],
+              "templates": {
+                "mvc": "file-upload/aws-s3/mvc",
+                "feature": "file-upload/aws-s3/feature"
+              }
+            },
+            "cloudflare-r2": {
+              "label": "Cloudflare R2",
+              "dependencies": {
+                "runtime": [
+                  "multer",
+                  "@aws-sdk/client-s3",
+                  "@aws-sdk/s3-request-presigner"
+                ],
+                "dev": ["@types/multer"]
+              },
+              "env": [
+                "CLOUDFLARE_R2_ACCOUNT_ID",
+                "CLOUDFLARE_R2_ACCESS_KEY_ID",
+                "CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+                "CLOUDFLARE_R2_BUCKET_NAME",
+                "CLOUDFLARE_R2_PUBLIC_URL"
+              ],
+              "templates": {
+                "mvc": "file-upload/cloudflare-r2/mvc",
+                "feature": "file-upload/cloudflare-r2/feature"
+              }
             }
           }
         },

@@ -33,6 +33,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     "express-starter": ["mvc", "feature"],
     "mongoose-starter": ["mvc", "feature"],
     "prisma-mongodb-starter": ["mvc", "feature"],
+    "prisma-pg-starter": ["mvc", "feature"],
     "drizzle-mysql-starter": ["mvc", "feature"],
     "drizzle-pg-starter": ["mvc", "feature"],
     "nextjs-starter": ["file-api"]
@@ -75,6 +76,11 @@ export async function init(foundation?: string, options: AddOptions = {}) {
           title: "Express + PostgreSQL (Drizzle)",
           description: "PostgreSQL database with Drizzle ORM",
           value: "drizzle-pg-starter"
+        },
+        {
+          title: "Express + PostgreSQL (Prisma)",
+          description: "PostgreSQL database with Prisma ORM",
+          value: "prisma-pg-starter"
         },
         {
           title: "Nextjs Starter",
