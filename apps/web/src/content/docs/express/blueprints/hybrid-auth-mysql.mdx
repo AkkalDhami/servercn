@@ -4,7 +4,7 @@ description: Hybrid authentication with MySQL, Drizzle ORM, and Redis-backed ses
 command: npx servercn-cli@latest add bp hybrid-auth
 contributor:
  -  name: Akkal Dhami
-    url: https://www.akkal.com.np
+    url: https://github.com/akkaldhami
     avatar: https://avatars.githubusercontent.com/u/170957638?v=4
 ---
 
@@ -12,9 +12,7 @@ contributor:
 
 MySQL implementation of hybrid authentication using Drizzle ORM for users and Redis for session tracking and refresh token rotation.
 
-
 ## Installation Guide
-
 <Tabs defaultValue="command">
 <TabsList>
 <TabsTrigger value="command">
@@ -25,22 +23,93 @@ Manual
 </TabsTrigger>
 </TabsList>
 <TabsContent value="command">
+<Steps>
+<Step>Run the following command:</Step>
 <PackageManagerTabs command="npx servercn-cli@latest add bp hybrid-auth" />
+
+<Step>Add the following scripts to your package.json:</Step>
+
+```json title="package.json"
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npx tsx watch --clearScreen=false src/server.ts",
+    "build": "rm -rf dist && tsc && tsc-alias",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit",
+    "docs": "npx tsx swagger.config.ts",
+    "prepare": "husky",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "npx prettier . --check",
+    "format:fix": "npx prettier . --write"
+  },
+```
+</Steps>
 </TabsContent>
 <TabsContent value="manual">
 <Steps>
 <Step>Install Dependencies:</Step>
-<PackageManagerTabs command="npm install mongoose" />
+<PackageManagerTabs command="npm install argon2 cloudinary cookie-parser cors dotenv-flow drizzle-orm ejs express express-rate-limit helmet jsonwebtoken multer mysql2 nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty redis resend source-map-support swagger-ui-express zod morgan" />
+<PackageManagerTabs command="npm install -D @commitlint/cli @commitlint/config-conventional @types/cookie-parser @types/cors @types/ejs @types/express @types/jsonwebtoken @types/morgan @types/multer @types/node @types/nodemailer @types/passport @types/passport-github2 @types/passport-google-oauth20 @types/pg @types/source-map-support @types/swagger-ui-express @typescript-eslint/eslint-plugin @typescript-eslint/parser cross-env drizzle-kit eslint eslint-plugin-prettier husky lint-staged prettier swagger-autogen tsc-alias tsx typescript" />
+
+
+<Step>Add Env Variables</Step>
+```dotenv title=".env"
+PORT='port'
+
+NODE_ENV='node_env'
+
+LOG_LEVEL='log_level'
+
+CORS_ORIGIN='cors_origin'
+
+CRYPTO_SECRET='crypto_secret'
+
+DATABASE_URL='database_url'
+
+JWT_ACCESS_SECRET='jwt_access_secret'
+
+JWT_REFRESH_SECRET='jwt_refresh_secret'
+
+RESEND_API_KEY='resend_api_key'
+
+REDIS_URL='redis_url'
+
+EMAIL_FROM='email_from'
+
+CLOUDINARY_CLOUD_NAME='cloudinary_cloud_name'
+
+CLOUDINARY_API_KEY='cloudinary_api_key'
+
+CLOUDINARY_API_SECRET='cloudinary_api_secret'
+
+GITHUB_CLIENT_ID='github_client_id'
+
+GITHUB_CLIENT_SECRET='github_client_secret'
+
+GITHUB_REDIRECT_URI='github_redirect_uri'
+
+GOOGLE_CLIENT_ID='google_client_id'
+
+GOOGLE_CLIENT_SECRET='google_client_secret'
+
+GOOGLE_REDIRECT_URI='google_redirect_uri'
+```
 
 </Steps>
 </TabsContent>
 </Tabs>
 
+
+
 ## Key Features
 
 - **MySQL + Drizzle ORM** for type-safe database operations
 - **JWT access/refresh token** rotation with Redis-backed sessions
-- **OAuth support** (GitHub, Google, Facebook) via Passport.js
+- **OAuth support** (GitHub, Google) via Passport.js
 - **OTP-based email verification** and password reset
 - **Account lockout** after failed login attempts
 - **Soft/hard account deletion** with reactivation support
@@ -206,18 +275,6 @@ All endpoints are the same for both MVC and Feature architectures.
       <TD><Endpoint>/google/callback</Endpoint></TD>
       <TD>Google OAuth callback</TD>
     </TR>
-
-    <TR>
-      <TD><Method value="GET" /></TD>
-      <TD><Endpoint>/facebook</Endpoint></TD>
-      <TD>Initiate Facebook OAuth</TD>
-    </TR>
-
-    <TR>
-      <TD><Method value="GET" /></TD>
-      <TD><Endpoint>/facebook/callback</Endpoint></TD>
-      <TD>Facebook OAuth callback</TD>
-    </TR>
   </TBody>
 </Table>
 
@@ -281,9 +338,5 @@ GOOGLE_REDIRECT_URI=''
 GITHUB_CLIENT_ID=''
 GITHUB_CLIENT_SECRET=''
 GITHUB_REDIRECT_URI=''
-
-FACEBOOK_APP_ID=''
-FACEBOOK_APP_SECRET=''
-FACEBOOK_REDIRECT_URI=''
 ```
 
