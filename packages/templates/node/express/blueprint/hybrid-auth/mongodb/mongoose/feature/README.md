@@ -6,7 +6,7 @@ Minimal Node.js + Express + TypeScript Feature starter using MongoDB and hybrid 
 
 - Express + TypeScript Feature structure
 - MongoDB integration
-- Hybrid auth: local credentials and OAuth providers (e.g., Google, GitHub, Facebook)
+- Hybrid auth: local credentials and OAuth providers (e.g., Google, GitHub)
 - Session-based authentication compatible with production
 - Environment-driven configuration with `.env`
 - Dev and production scripts
@@ -36,17 +36,6 @@ Minimal Node.js + Express + TypeScript Feature starter using MongoDB and hybrid 
 
 - Node.js 18+
 - MongoDB (local or Atlas)
-
-## Environment Variables
-
-- `MONGO_URI` — MongoDB connection string
-- `SESSION_SECRET` — random strong string
-- `PORT` — server port (e.g., 3000)
-- `NODE_ENV` — `development` or `production`
-- Optional OAuth (enable what you use):
-  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`
-  - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALLBACK_URL`
-  - `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_CALLBACK_URL`
 
 ## Scripts
 
