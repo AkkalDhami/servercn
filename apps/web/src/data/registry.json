@@ -575,12 +575,16 @@
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
-            "slug": "hybrid-auth-mongodb",
-            "new": true
+            "slug": "hybrid-auth-mongodb"
           },
           {
             "label": "PostgreSQL (Drizzle)",
             "slug": "hybrid-auth-postgresql",
+            "new": true
+          },
+          {
+            "label": "MySQL (Drizzle)",
+            "slug": "hybrid-auth-mysql",
             "new": true
           }
         ]
