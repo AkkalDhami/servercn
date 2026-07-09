@@ -393,7 +393,7 @@ export const LanguageIcons = {
       viewBox="0 0 18 18">
       <path
         fill="none"
-        stroke="#a6da95"
+        stroke="var(--color-drizzle)"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.167"
@@ -582,6 +582,9 @@ export function getIconForLanguageExtension(
   }
   if (fileName?.endsWith(".test.ts")) {
     return <LanguageIcons.tstest className="size-4" />;
+  }
+  if (fileName?.startsWith("drizzle.")) {
+    return <LanguageIcons.drizzle className="size-4" />;
   }
   if (
     [

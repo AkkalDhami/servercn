@@ -5,6 +5,7 @@
 
 @theme inline {
   --color-code: var(--code);
+  --color-drizzle: var(--color-drizzle);
   --color-card-hover: var(--color-card-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -75,6 +76,7 @@
 
 :root {
   --code: var(--color-neutral-50);
+  --color-drizzle: #89bb14;
   --muted-secondary: #666;
   --color-card-hover: color-mix(in oklab, var(--accent) 50%, transparent);
   --background: #fcfcfc;
@@ -146,6 +148,7 @@
 .dark {
   --code: var(--color-background);
   --muted-secondary: #888;
+  --color-drizzle: #c5f74f;
   --color-card-hover: #ffffff0c;
   --background: #000000;
   --foreground: #ffffff;
@@ -241,11 +244,11 @@
 }
 
 @utility screen-line-before {
-  @apply before:bg-edge relative before:absolute before:top-0 before:-left-[100vw] before:-z-1 before:h-px before:w-[200vw];
+  @apply before:bg-edge relative before:absolute before:top-0 before:left-[-100vw] before:-z-1 before:h-px before:w-[200vw];
 }
 
 @utility screen-line-after {
-  @apply after:bg-edge relative after:absolute after:bottom-0 after:-left-[100vw] after:-z-1 after:h-px after:w-[200vw];
+  @apply after:bg-edge relative after:absolute after:bottom-0 after:left-[-100vw] after:-z-1 after:h-px after:w-[200vw];
 }
 
 @utility primary-ring {
