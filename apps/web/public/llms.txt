@@ -145,8 +145,9 @@
   - [Banking Application with MongoDB (Mongoose)](https://www.servercn.xyz/docs/express/blueprints/banking-app-mongodb)
 
 - [Hybrid Authentication](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth):  ships with credential-based login, OAuth providers, refresh-token rotation, and session management backed by Redis.
-  - pHybrid Authentication with MongoDB (Mongoose)(https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-mongodb)
-  - [Hybrid Authentication with PostgreSQL (Drizzle)](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-postgresql)
+  - [Hybrid Authentication with MongoDB] (Mongoose)(https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-mongodb)
+  - [Hybrid Authentication with PostgreSQL (Drizzle)](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-mysql)
+  - [Hybrid Authentication with MySQL (Drizzle)](https://www.servercn.xyz/docs/express/blueprints/hybrid-auth-mysql)
 
 - [Stateful Authentication](https://www.servercn.xyz/docs/express/blueprints/stateful-auth): provides secure user registration, login, session management, and OAuth integration.
   - [Stateful Authentication with MongoDB (Mongoose)](https://www.servercn.xyz/docs/express/blueprints/stateful-auth-mongodb)
