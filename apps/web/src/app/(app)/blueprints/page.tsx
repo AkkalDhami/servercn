@@ -36,8 +36,8 @@ export const generateMetadata = (): Metadata => {
 
 export default function BlueprintsPage() {
   return (
-    <Container className="border-edge border-x px-0 pt-18">
-      <div className="mb-6 flex flex-wrap justify-between gap-4 px-4 pt-2">
+    <Container className="border-edge border-x px-0 pt-16">
+      <div className="my-4 flex flex-wrap justify-between gap-4 px-4">
         <div>
           <Heading className="tracking-tight capitalize">
             {APP_NAME} Blueprints

@@ -35,8 +35,8 @@ export const generateMetadata = (): Metadata => {
 
 export default function FoundationsPage() {
   return (
-    <Container className="border-edge w-full border-x px-0 pt-18">
-      <div className="mb-6 flex flex-wrap justify-between px-4 pt-2">
+    <Container className="border-edge border-x px-0 pt-16">
+      <div className="my-4 flex flex-wrap justify-between px-4">
         <div>
           <Heading className="tracking-tight capitalize">
             {APP_NAME} Foundations
