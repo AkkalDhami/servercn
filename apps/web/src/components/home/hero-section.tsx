@@ -67,7 +67,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="font-inter text-primary text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+                className="font-inter text-primary text-5xl font-semibold tracking-normal md:text-6xl lg:text-7xl">
                 Ship backends faster than ever
               </motion.h1>
 

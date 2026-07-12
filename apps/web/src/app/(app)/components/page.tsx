@@ -35,20 +35,20 @@ export const generateMetadata = (): Metadata => {
 
 export default function ComponentsPage() {
   return (
-    <Container className="border-edge border-x px-0 pt-18">
-      <div className="mb-6 px-4 pt-2 flex justify-between flex-wrap gap-4">
-        <div >
+    <Container className="border-edge border-x px-0 pt-16">
+      <div className="my-4 flex flex-wrap justify-between gap-4 px-4">
+        <div>
           <Heading className="tracking-tight capitalize">
             {APP_NAME} Components
           </Heading>
           <SubHeading className="text-muted-foreground mx-0 mt-2">
-            Production-ready {APP_NAME} components for building scalable backends.
-            Here you can find all the components available in the library. We are
-            working on adding more components.
+            Production-ready {APP_NAME} components for building scalable
+            backends. Here you can find all the components available in the
+            library. We are working on adding more components.
           </SubHeading>
         </div>
 
-        <div className="w-full max-w-xs mt-4">
+        <div className="mt-4 w-full max-w-xs">
           <SelectFramework mode="store-only" />
         </div>
       </div>
