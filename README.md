@@ -44,122 +44,6 @@ npx servercn-cli@latest add logger
 npx servercn-cli@latest add oauth
 ```
 
-## Components
-
-- ### API Error Handler
-
-```bash
-npx servercn-cli@latest add error-handler
-```
-
-- ### API Response Formatter
-
-```bash
-npx servercn-cli@latest add response-formatter
-```
-
-- ### Async Handler
-
-```bash
-npx servercn-cli@latest add async-handler
-```
-
-- ### File Upload provider
-
-```bash
-npx servercn-cli@latest add file-upload
-```
-
-- ### JWT Utils
-
-```bash
-npx servercn-cli@latest add jwt-utils
-```
-
-- ### Logger
-
-```bash
-npx servercn-cli@latest add logger
-```
-
-- ### Rate Limiter
-
-```bash
-npx servercn-cli@latest add rate-limiter
-```
-
-- ### OAuth Provider
-
-```bash
-npx servercn-cli@latest add oauth
-```
-
-- ### Health Check
-
-```bash
-npx servercn-cli@latest add health-check
-```
-
-### And more
-
-### 3. CLI Commands
-
-[Visit for more](https://servercn.vercel.app/docs/cli)
-
-- List all available registry items.
-
-  ```bash
-  npx servercn-cli ls --all
-  ```
-
-- List all available registry items in JSON structure.
-
-  ```bash
-  npx servercn-cli ls --all --json
-  ```
-
-- List all available registry commands.
-
-  ```bash
-  npx servercn-cli list
-  ```
-
-- List all available registry commands in JSON structure.
-
-  ```bash
-  npx servercn-cli ls --json
-  ```
-
-- List available components.
-
-  ```bash
-  npx servercn-cli ls cp
-  ```
-
-- List all available foundations.
-
-  ```bash
-  npx servercn-cli ls fd
-  ```
-
-- List available schemas.
-
-  ```bash
-  npx servercn-cli ls sc
-  ```
-
-- List available blueprint.
-
-  ```bash
-  npx servercn-cli ls bp
-  ```
-
-- List available tooling.
-
-  ```bash
-  npx servercn-cli ls tl
-  ```
-
 ## 🤝 Contributing
 
 We welcome contributions! Please feel free to submit a Pull Request.
@@ -173,8 +57,6 @@ This project is licensed under the [MIT License](LICENSE).
 ## Stargazers over time
 
 [![RepoStars](https://repostars.dev/api/embed?repo=AkkalDhami%2Fservercn&theme=dark)](https://repostars.dev/?repos=AkkalDhami%2Fservercn&theme=dark)
-
-***
 
 <p align="center">
   Built with 🪓 by <a target="_blank" href="https://github.com/akkaldhami">Akkal Dhami</a> and the <a target="_blank" href="https://servercn.vercel.app/contributors">servercn contributors</a>
