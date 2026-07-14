@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "@/app/styles/globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { fontVariables } from "@/lib/fonts";
@@ -77,6 +78,7 @@ export default function RootLayout({
               <Navbar />
               <DesktopNav />
               {children}
+              <Analytics />
               <Footer />
             </HotkeyProvider>
             <ScrollToTopButton />

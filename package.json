@@ -8,11 +8,14 @@
   ],
   "scripts": {
     "build": "npm run build -ws",
+    "start:app": "npm run start -w apps/web",
+    "start": "npm run start -w apps/web",
     "dev:app": "npm run dev -w apps/web",
     "dev:cli": "npm run dev -w packages/cli",
     "lint": "eslint .",
     "format:check": "npx prettier . --check",
     "format:fix": "npx prettier . --write",
+    "build:app": "npm run build -w apps/web",
     "build:cli": "npm run build -w packages/cli",
     "link:cli": "npm link -w packages/cli",
     "prepare": "husky"
