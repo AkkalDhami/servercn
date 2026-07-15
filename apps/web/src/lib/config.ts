@@ -1,11 +1,11 @@
-import { APP_NAME } from "./constants";
+import { APP_NAME, SERVERCN_URL } from "./constants";
 
 export const siteConfig = {
   title: {
     default: "Servercn",
     template: "%s | Servercn"
   },
-  url: "https://servercn.vercel.app",
+  url: SERVERCN_URL,
   github: "https://github.com/akkaldhami/servercn",
   navItems: [
     {
@@ -48,7 +48,7 @@ export const siteConfig = {
 
   creator: "@_akkal_dhami",
 
-  description: `${APP_NAME} is a component registry for building production-ready Node.js backends by composition, inspired by shadcn/ui. Servercn standardizes backend patterns so you can focus on business logic, not boilerplate.`,
+  description: `${APP_NAME} is a component registry for building production-ready node.js backends, inspired by shadcn/ui.`,
   applicationName: `${APP_NAME}`,
   authors: [
     {
