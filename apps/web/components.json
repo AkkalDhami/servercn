@@ -20,6 +20,7 @@
   },
   "registries": {
     "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
-    "@ncdai": "https://chanhdai.com/r/{name}.json"
+    "@ncdai": "https://chanhdai.com/r/{name}.json",
+    "@ogimagecn": "https://ogimagecn.vercel.app/r/{name}.json"
   }
 }
