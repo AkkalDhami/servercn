@@ -1,7 +1,8 @@
+import { SERVERCN_URL } from "@/lib/constants";
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://servercn.vercel.app"; // change to your domain
+  const baseUrl = SERVERCN_URL;
 
   return {
     rules: [

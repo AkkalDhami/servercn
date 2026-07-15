@@ -31,38 +31,81 @@ import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
 import { ViewAsJson } from "@/components/docs/view-as-json";
 
-export const revalidate = false;
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 export const dynamicParams = false;
+export const revalidate = false;
 
-const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
+const DOCS_PATH = path.join(
+  /*turbopackIgnore: true*/ process.cwd(),
+  "src",
+  "content",
+  "docs"
+);
 
 export async function generateStaticParams() {
   const registryParams = registry.items.flatMap(({ meta, docs }) => {
-    const nestedSlugs =
-      meta && (meta.databases || [])
-        ? (meta.databases || []).map(({ slug }) => slug)
-        : [];
     const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
-    const baseParams = [...slugArray, ...nestedSlugs];
 
-    // Generate framework variants for framework-based sections
+    const params = [
+      {
+        slug: slugArray
+      }
+    ];
+
+    const FRAMEWORK_SUPPORT_SECTIONS = ["schemas", "blueprints"];
+
+    const databaseParams = (meta?.databases ?? []).flatMap(({ slug }) => [
+      {
+        slug: [...slugArray, slug]
+      },
+      {
+        slug: [slugArray[0], slug]
+      }
+    ]);
+
+    params.push(...databaseParams);
+
     const section = slugArray[0];
-    if (FRAMEWORK_SECTIONS.includes(section)) {
-      return [
-        baseParams,
-        ["express", ...baseParams],
-        ["nestjs", ...baseParams]
-      ];
+
+    if (
+      FRAMEWORK_SECTIONS.includes(section) ||
+      FRAMEWORK_SUPPORT_SECTIONS.includes(section)
+    ) {
+      params.push(
+        {
+          slug: ["express", ...slugArray]
+        },
+        {
+          slug: ["nestjs", ...slugArray]
+        },
+        {
+          slug: ["nextjs", ...slugArray]
+        }
+      );
     }
 
-    return [baseParams];
+    const databaseFrameworkParams = (meta?.databases ?? []).flatMap(
+      ({ slug }) => [
+        {
+          slug: ["express", slugArray[0], slug]
+        },
+        {
+          slug: ["nestjs", slugArray[0], slug]
+        },
+        {
+          slug: ["nextjs", slugArray[0], slug]
+        }
+      ]
+    );
+
+    params.push(...databaseFrameworkParams);
+
+    return params;
   });
 
-  const contributingParams = contributingGuides.map(({ docs }) => {
-    const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
-    return slugArray;
-  });
+  const contributingParams = contributingGuides.map(({ docs }) => ({
+    slug: docs.replace("/docs/", "").split("/").filter(Boolean)
+  }));
 
   const specialRoutes = [
     { slug: [] },
@@ -138,31 +181,24 @@ export async function generateMetadata(props: {
   };
 }
 
-function getDocPath(slug?: string[]) {
-  if (!slug || slug.length === 0 || slug[0] === "introduction") {
+function getDocPath(slug: string[] = []) {
+  const actualSlug = slug.filter(Boolean);
+  if (actualSlug.length === 0 || actualSlug[0] === "introduction") {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
-  } else if (slug.length === 1 && slug[0] === "installation") {
+  }
+
+  if (actualSlug.length === 1 && actualSlug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
   }
 
-  const actualSlug = slug;
-
-  if (actualSlug.length >= 1 && actualSlug[0] === "changelog") {
-    if (actualSlug.length === 1) {
-      return path.join(DOCS_PATH, "changelog", "index.mdx");
-    }
-    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  if (actualSlug[0] === "changelog") {
+    return actualSlug.length === 1
+      ? path.join(DOCS_PATH, "changelog", "index.mdx")
+      : path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
   }
 
-  if (actualSlug.length === 2 && actualSlug[0] === "contributing") {
-    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
-  }
-
-  if (actualSlug.length === 2 && actualSlug[0] === "schemas") {
-    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
-  }
-
-  return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  const regPath = path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  return regPath;
 }
 
 export default async function DocsPage({

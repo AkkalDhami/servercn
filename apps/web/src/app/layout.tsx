@@ -12,6 +12,7 @@ import Footer from "@/components/layouts/footer";
 import { HotkeyProvider } from "@/components/providers/hotkey-provider";
 import { DesktopNav } from "@/components/layouts/desktop-nav";
 import { Toaster } from "@/components/ui/sonner";
+import { ExternalLinkProvider } from "@/components/providers/external-link-provider";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -53,9 +54,9 @@ export const metadata: Metadata = {
     images: [`${SERVERCN_URL}/og-image.png`]
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico"
+    apple: "/favicon.ico",
+    shortcut: "/favicon-512.ico",
+    icon: "/favicon.ico"
   }
 };
 
@@ -72,6 +73,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}>
+          <ExternalLinkProvider />
           <TooltipProvider>
             <HotkeyProvider>
               <Toaster position="top-center" />
