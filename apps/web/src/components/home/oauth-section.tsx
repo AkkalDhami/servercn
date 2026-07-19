@@ -4,6 +4,7 @@ import { Heading } from "@/components/ui/heading";
 import { SubHeading } from "@/components/ui/sub-heading";
 import { Section } from "@/components/ui/section";
 import ComponentFileViewer from "../file-viewer";
+import { Suspense } from "react";
 export default function OAuthSection() {
   return (
     <Section id="google-oauth-section" className="hidden md:block">
@@ -19,13 +20,15 @@ export default function OAuthSection() {
         <InstallComponentCommands className="col-span-2" />
 
         <div className="col-span-3">
-          <ComponentFileViewer
-            from="structure"
-            slug={"oauth"}
-            arch={"mvc"}
-            framework={"express"}
-            type={"component"}
-          />
+          <Suspense fallback={<>...</>}>
+            <ComponentFileViewer
+              from="structure"
+              slug={"oauth"}
+              arch={"mvc"}
+              framework={"express"}
+              type={"component"}
+            />
+          </Suspense>
         </div>
       </div>
     </Section>

@@ -4,6 +4,7 @@ import CodeTheme from "@/components/docs/code-theme";
 import ComponentFileViewer from "@/components/file-viewer";
 import { Variant } from "@/components/file-viewer/variant";
 import { Container } from "@/components/ui/container";
+import { Suspense } from "react";
 
 export default async function page(props: PageProps<"/components">) {
   const searchParams = await props.searchParams;
@@ -17,20 +18,25 @@ export default async function page(props: PageProps<"/components">) {
           <CodeTheme minimal={true} />
         </div>
 
-        <ArchitectureTabs
-          current={(searchParams?.arch as string) || "mvc"}
-          framework={(searchParams?.framework as FrameworkType) || "express"}
-        />
+        <Suspense fallback={<>...</>}>
+          <ArchitectureTabs
+            current={(searchParams?.arch as string) || "mvc"}
+            framework={(searchParams?.framework as FrameworkType) || "express"}
+          />
+        </Suspense>
+
         <Variant name={(searchParams?.slug as string) || ""} />
-        <ComponentFileViewer
-          from="structure"
-          slug={(searchParams?.slug as string) || ""}
-          arch={(searchParams?.arch as string) || ""}
-          framework={(searchParams?.framework as string) || ""}
-          type={(searchParams?.type as ItemType) || ""}
-          database={(searchParams?.database as string) || undefined}
-          orm={(searchParams?.orm as string) || undefined}
-        />
+        <Suspense fallback={<>...</>}>
+          <ComponentFileViewer
+            from="structure"
+            slug={(searchParams?.slug as string) || ""}
+            arch={(searchParams?.arch as string) || ""}
+            framework={(searchParams?.framework as string) || ""}
+            type={(searchParams?.type as ItemType) || ""}
+            database={(searchParams?.database as string) || undefined}
+            orm={(searchParams?.orm as string) || undefined}
+          />
+        </Suspense>
       </div>
     </Container>
   );

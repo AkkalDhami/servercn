@@ -6,6 +6,7 @@ import { Section } from "@/components/ui/section";
 import { Terminal } from "@/components/ui/terminal";
 import { cn } from "@/lib/utils";
 import ComponentFileViewer from "@/components/file-viewer";
+import { Suspense } from "react";
 export default function NextjsStarterSection() {
   return (
     <Section id="nextjs-starter-section" className="">
@@ -53,13 +54,15 @@ export default function NextjsStarterSection() {
           />
         </div>
         <div className="col-span-3">
-          <ComponentFileViewer
-            from="structure"
-            slug={"nextjs-starter"}
-            arch={"file-api"}
-            framework={"nextjs"}
-            type={"foundation"}
-          />
+          <Suspense fallback={<>...</>}>
+            <ComponentFileViewer
+              from="structure"
+              slug={"nextjs-starter"}
+              arch={"file-api"}
+              framework={"nextjs"}
+              type={"foundation"}
+            />
+          </Suspense>
         </div>
       </div>
     </Section>

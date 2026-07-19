@@ -6,6 +6,7 @@ import { Section } from "@/components/ui/section";
 import { Terminal } from "@/components/ui/terminal";
 import { cn } from "@/lib/utils";
 import ComponentFileViewer from "../file-viewer";
+import { Suspense } from "react";
 export default function HybridAuthSection() {
   return (
     <Section id="hybrid-auth-section" className="">
@@ -53,13 +54,15 @@ export default function HybridAuthSection() {
           />
         </div>
         <div className="col-span-3">
-          <ComponentFileViewer
-            from="structure"
-            slug={"hybrid-auth"}
-            arch={"feature"}
-            framework={"express"}
-            type={"blueprint"}
-          />
+          <Suspense fallback={<>...</>}>
+            <ComponentFileViewer
+              from="structure"
+              slug={"hybrid-auth"}
+              arch={"feature"}
+              framework={"express"}
+              type={"blueprint"}
+            />
+          </Suspense>
         </div>
       </div>
     </Section>

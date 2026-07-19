@@ -30,6 +30,7 @@ import { resolveRegistryItem } from "@/lib/resolver";
 import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
 import { ViewAsJson } from "@/components/docs/view-as-json";
+import { Suspense } from "react";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -359,23 +360,27 @@ export default async function DocsPage({
                   <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                     File &amp; Folder Structure
                   </h2>
-                  <ArchitectureTabs
-                    current={currentArch || "mvc"}
-                    framework={currentFramework}
-                  />
-                  <ComponentFileViewer
-                    slug={blueprintSlug ?? slug[slug.length - 1]}
-                    from="docs"
-                    database={database}
-                    orm={orm}
-                    arch={currentArch}
-                    framework={currentFramework || slug[0]}
-                    type={
-                      ["tooling", ""].includes(slug[1])
-                        ? (slug[1] as ItemType)
-                        : (slug[1]?.slice(0, -1) as ItemType)
-                    }
-                  />
+                  <Suspense fallback={<>...</>}>
+                    <ArchitectureTabs
+                      current={currentArch || "mvc"}
+                      framework={currentFramework}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<>...</>}>
+                    <ComponentFileViewer
+                      slug={blueprintSlug ?? slug[slug.length - 1]}
+                      from="docs"
+                      database={database}
+                      orm={orm}
+                      arch={currentArch}
+                      framework={currentFramework || slug[0]}
+                      type={
+                        ["tooling", ""].includes(slug[1])
+                          ? (slug[1] as ItemType)
+                          : (slug[1]?.slice(0, -1) as ItemType)
+                      }
+                    />
+                  </Suspense>
                 </div>
               )}
 
