@@ -24,12 +24,13 @@ export default function ArchitectureTabs({
   framework,
   className
 }: {
-  current: string;
+  current?: string;
   framework?: FrameworkType;
   className?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const architecture = (searchParams.get("arch") as ArchType) || current;
 
   // Determine available architectures based on framework
   const availableArchs: ArchType[] = framework
@@ -40,6 +41,7 @@ export default function ArchitectureTabs({
     const params = new URLSearchParams(searchParams.toString());
     params.set("arch", value);
     router.replace(`?${params.toString()}`, { scroll: false });
+    console.log({ architecture, value });
   }
 
   // If only one architecture available, don't show tabs
@@ -65,7 +67,7 @@ export default function ArchitectureTabs({
             onClick={() => onChange(arch)}
             className={cn(
               "hover:bg-card-hover dark:hover:bg-card-hover hover:text-accent-foreground text-muted-primary dark:bg-background bg-background w-full cursor-pointer border-neutral-500/40 px-2 py-2 font-medium shadow-none dark:border-neutral-500/40",
-              current === arch &&
+              architecture === arch &&
                 "bg-card-hover dark:bg-card-hover text-accent-foreground"
             )}>
             {archNaming[arch] || arch.toUpperCase()}

@@ -27,7 +27,7 @@ export function CodeBlock({
     }
 
     highlight();
-  }, [code, lang]);
+  }, [code, lang, theme.theme]);
 
   return (
     <div
