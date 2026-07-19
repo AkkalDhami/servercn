@@ -27,7 +27,10 @@ export function Pre({
       <pre
         ref={ref}
         {...props}
-        className={cn("thin-scrollbar relative", className)}
+        className={cn(
+          "thin-scrollbar text-muted-primary relative",
+          className
+        )}
         style={{
           backgroundColor: "var(--code)"
         }}>

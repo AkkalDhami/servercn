@@ -15,7 +15,8 @@ export function CodeBlock({
 }) {
   const theme = useCodeTheme();
 
-  const [html, setHtml] = useState("npx servercn-cli@latest init");
+  const [html, setHtml] = useState(code);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function highlight() {
@@ -24,14 +25,30 @@ export function CodeBlock({
         theme: theme.theme || DEFAULT_CODE_THEME
       });
       setHtml(out);
+      setLoading(false);
     }
 
     highlight();
   }, [code, lang, theme.theme]);
 
+  if (loading) {
+    return (
+      <>
+        <pre className="overflow-x-auto overscroll-x-contain p-4">
+          <code
+            data-theme="vesper github-light"
+            data-language="bash"
+            className="font-code leading-none">
+            <span>{code}</span>
+          </code>
+        </pre>{" "}
+      </>
+    );
+  }
+
   return (
     <div
-      className="relative [&_pre]:max-h-80 [&_pre]:max-w-[320px] [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4 sm:[&_pre]:max-w-2xl"
+      className="[&_pre]:bg-code! relative [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

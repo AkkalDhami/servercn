@@ -6,8 +6,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import matter from "gray-matter";
 import { mdxComponents } from "@/components/docs/mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
-import { cookies } from "next/headers";
-import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
+import { DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OpenInAi } from "@/components/docs/open-in-ai";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import PackageManagerTabs from "@/components/docs/package-manager-tabs";
@@ -241,9 +240,6 @@ export default async function DocsPage({
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
 
-  const cookieStore = await cookies();
-  const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
-
   // Extract current framework from URL if present
   const currentFramework =
     slug &&
@@ -337,8 +333,11 @@ export default async function DocsPage({
                     [
                       rehypePrettyCode,
                       {
-                        theme: theme || "vesper",
                         keepBackground: false,
+                        theme: {
+                          dark: DEFAULT_CODE_THEME,
+                          light: "github-light"
+                        },
                         defaultLang: {
                           block: "plaintext",
                           inline: "plaintext"

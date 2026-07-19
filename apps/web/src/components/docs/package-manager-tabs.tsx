@@ -8,6 +8,7 @@ import {
 } from "@/components/docs/icons/language-icons";
 import { CodeWrapper } from "@/components/docs/code-wrapper";
 import { usePackageManager } from "@/store/use-package-manager";
+import { CodeBlock } from "./code-block";
 
 const pkgManagers = ["npm", "yarn", "pnpm", "bun"];
 
@@ -49,25 +50,18 @@ export default function PackageManagerTabs({
       {pkgManagers.map(key => {
         const commands = convertNpmCommand(command);
         const cmd = commands[key as PackageManagerType];
-        const [bin, ...rest] = cmd.split(" ");
-        const remaining = rest.join(" ");
         return (
           <TabsContent key={key} value={key} className="border-edge border-t">
             <CodeWrapper code={cmd}>
-              {/* <CodeBlock code={cmd} /> */}
-              <pre className="overflow-x-auto overscroll-x-contain p-4">
+              <CodeBlock code={cmd} />
+              {/* <pre className="overflow-x-auto overscroll-x-contain p-4">
                 <code
-                  data-slot="code-block"
+                  data-theme="vesper github-light"
                   data-language="bash"
                   className="font-code leading-none">
-                  <span className="text-[#eb7520] dark:text-[#ffc799]">
-                    {bin}
-                  </span>{" "}
-                  <span className="text-[#0e99d9] dark:text-[#52e1e3]">
-                    {remaining}
-                  </span>
+                  <span>{cmd}</span>
                 </code>
-              </pre>
+              </pre> */}
             </CodeWrapper>
           </TabsContent>
         );
