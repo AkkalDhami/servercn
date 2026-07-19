@@ -15,20 +15,21 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import CopyButton from "@/components/docs/copy-button";
 import { cn } from "@/lib/utils";
 import { getIconForLanguageExtension } from "@/components/docs/icons/language-icons";
-import { ItemType } from "@/@types/registry";
+import { ArchitectureType, ItemType } from "@/@types/registry";
 import Link from "next/link";
 import { Maximize2Icon } from "lucide-react";
 import { Route } from "next";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useVariant } from "@/store/use-variant";
 import { FileViewerLoader } from "@/components/file-viewer/loader";
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   slug: string;
   runtime?: string;
   framework?: string;
   variant?: string | null;
-  architecture?: string;
+  arch?: string;
   type: ItemType;
   from: "structure" | "docs";
   database?: string;
@@ -40,7 +41,7 @@ export default function ComponentFileViewer({
   slug,
   runtime = "node",
   framework = "express",
-  architecture = "mvc",
+  arch = "mvc",
   from = "docs",
   type = "component",
   database,
@@ -48,6 +49,8 @@ export default function ComponentFileViewer({
   orm,
   variant
 }: Props) {
+  const searchParams = useSearchParams();
+  const architecture = (searchParams.get("arch") as ArchitectureType) || arch;
   const [tree, setTree] = React.useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = React.useState<string>();
   const [selectedFile, setSelectedFile] = React.useState<
@@ -61,6 +64,7 @@ export default function ComponentFileViewer({
   const { theme } = useCodeTheme();
 
   const { variant: Variant } = useVariant();
+  // eslint-disable-next-line react-hooks/immutability
   variant = variant ?? Variant;
 
   const [html, setHtml] = React.useState("");
@@ -101,10 +105,21 @@ export default function ComponentFileViewer({
     }
 
     loadFiles();
-  }, [slug, runtime, framework, architecture, variant]);
+  }, [
+    slug,
+    runtime,
+    framework,
+    architecture,
+    variant,
+    type,
+    database,
+    orm,
+    template
+  ]);
 
   React.useEffect(() => {
     if (!selectedFile?.content) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHtml("");
       return;
     }
@@ -119,7 +134,7 @@ export default function ComponentFileViewer({
     };
 
     highlight();
-  }, [selectedFile?.content, theme]);
+  }, [selectedFile?.content, selectedFile?.lang, theme]);
 
   function handleSelect(file: FileNode & { type: "file" }) {
     setSelectedFile(file);

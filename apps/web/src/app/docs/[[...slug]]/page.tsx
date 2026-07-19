@@ -368,7 +368,7 @@ export default async function DocsPage({
                     from="docs"
                     database={database}
                     orm={orm}
-                    architecture={currentArch}
+                    arch={currentArch}
                     framework={currentFramework || slug[0]}
                     type={
                       ["tooling", ""].includes(slug[1])
