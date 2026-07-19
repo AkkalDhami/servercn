@@ -22,7 +22,7 @@ export default function OAuthSection() {
           <ComponentFileViewer
             from="structure"
             slug={"oauth"}
-            architecture={"mvc"}
+            arch={"mvc"}
             framework={"express"}
             type={"component"}
           />

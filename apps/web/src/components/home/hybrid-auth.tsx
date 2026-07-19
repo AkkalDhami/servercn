@@ -56,7 +56,7 @@ export default function HybridAuthSection() {
           <ComponentFileViewer
             from="structure"
             slug={"hybrid-auth"}
-            architecture={"feature"}
+            arch={"feature"}
             framework={"express"}
             type={"blueprint"}
           />
