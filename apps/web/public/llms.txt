@@ -76,6 +76,8 @@
 - [Mongoose Starter](https://www.servercn.xyz/docs/express/foundations/mongoose-starter): database foundation provided by servercn for projects that use MongoDB with Mongoose ODM.
 - [Prisma MongoDB Starter](https://www.servercn.xyz/docs/express/foundations/prisma-mongodb-starter): database foundation provided by servercn for projects that use MongoDB with Prisma ORM.
 - [Prisma MySQL Starter](https://www.servercn.xyz/docs/express/foundations/prisma-mysql-starter): database foundation provided by servercn for projects that use MySQL with Prisma ORM.
+- [Hybrid Authentication  Starter](https://www.servercn.xyz/docs/express/foundations/hybrid-auth): is a production-ready foundation for Express.js applications with modern authentication patterns and best practices. 
+
 
 ### Next.js
 
