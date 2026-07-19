@@ -1,6 +1,7 @@
 "use client";
 
 import { DEFAULT_CODE_THEME } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { useCodeTheme } from "@/store/use-code-theme";
 
 import { useEffect, useState } from "react";
@@ -8,10 +9,12 @@ import { codeToHtml } from "shiki";
 
 export function CodeBlock({
   code,
-  lang = "bash"
+  lang = "bash",
+  className
 }: {
   code: string;
   lang?: string;
+  className?: string;
 }) {
   const theme = useCodeTheme();
 
@@ -34,7 +37,8 @@ export function CodeBlock({
   if (loading) {
     return (
       <>
-        <pre className="overflow-x-auto overscroll-x-contain p-4">
+        <pre
+          className={cn("overflow-x-auto overscroll-x-contain p-4", className)}>
           <code
             data-theme="vesper github-light"
             data-language="bash"
@@ -48,7 +52,10 @@ export function CodeBlock({
 
   return (
     <div
-      className="[&_pre]:bg-code! relative [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4"
+      className={cn(
+        "[&_pre]:bg-code! relative [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4",
+        className
+      )}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

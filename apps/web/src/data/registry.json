@@ -446,10 +446,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/prisma-mongodb-starter",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/prisma-mongodb-starter"
     },
     {
       "slug": "prisma-mysql-starter",
@@ -459,6 +456,18 @@
       "status": "stable",
       "frameworks": ["express"],
       "docs": "/docs/foundations/prisma-mysql-starter",
+      "meta": {
+        "new": true
+      }
+    },
+    {
+      "slug": "hybrid-auth",
+      "title": "Hybrid Auth Starter",
+      "description": "A production-ready Hybrid Auth foundation for Express.js applications with modern authentication patterns and best practices.",
+      "type": "foundation",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/foundations/hybrid-auth",
       "meta": {
         "new": true
       }

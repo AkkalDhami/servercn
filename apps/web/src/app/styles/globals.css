@@ -414,6 +414,7 @@ h3 {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
+
 [data-rehype-pretty-code-figure] code span {
   color: var(--shiki-light);
 }

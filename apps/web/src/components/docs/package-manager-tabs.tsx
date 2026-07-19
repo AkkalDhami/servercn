@@ -53,7 +53,7 @@ export default function PackageManagerTabs({
         return (
           <TabsContent key={key} value={key} className="border-edge border-t">
             <CodeWrapper code={cmd}>
-              <CodeBlock code={cmd} />
+              <CodeBlock code={cmd} className="[&_pre]:font-code" />
               {/* <pre className="overflow-x-auto overscroll-x-contain p-4">
                 <code
                   data-theme="vesper github-light"
