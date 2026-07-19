@@ -34,6 +34,8 @@ export interface AddOptions {
   force?: boolean;
   local?: boolean;
   fw?: string;
+  db?: string;
+  orm?: string;
 }
 export interface CopyOptions {
   templateDir: string;
