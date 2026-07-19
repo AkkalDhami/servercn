@@ -1,0 +1,82 @@
+---
+title: Hybrid Auth Starter | Foundation
+description: The Hybrid Auth Foundation is the core starting block provided by servercn.
+command: npx servercn-cli init hybrid-auth --db=mongodb --orm=mongoose
+---
+
+## Hybrid Auth Starter
+
+Hybrid Auth Starter is a production-ready foundation for Express.js applications with modern authentication patterns and best practices. 
+
+It includes stateless JWT access tokens with server-tracked sessions to give you fast authorization with strong session control.
+
+> This foundation is built using the Hybrid Auth blueprint as its base. [Hybrid Auth Blueprint](/docs/express/blueprints/hybrid-auth)
+
+---
+
+## Installation Guide
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<Steps>
+<Step>Initialize Hybrid Auth with your preferred database setup:</Step>
+
+#### 1. MongoDB + Mongoose
+
+<PackageManagerTabs command="npx servercn-cli@latest init hybrid-auth --db=mongodb --orm=mongoose" />
+
+#### 2. MySQL + Drizzle
+
+<PackageManagerTabs command="npx servercn-cli@latest init hybrid-auth --db=mysql --orm=drizzle" />
+
+#### 3. PostgreSQL + Drizzle
+
+<PackageManagerTabs command="npx servercn-cli@latest init hybrid-auth --db=postgresql --orm=drizzle" />
+
+</Steps>
+</TabsContent>
+
+<TabsContent value="manual">
+<Steps>
+<Step>Install the required dependencies:</Step>
+
+#### 1. MongoDB + Mongoose
+<PackageManagerTabs command="npm install express mongoose argon2 cloudinary cookie-parser cors express-rate-limit helmet multer resend redis jsonwebtoken nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty zod dotenv-flow cross-env source-map-support swagger-autogen swagger-ui-express ejs" />
+<PackageManagerTabs command="npm install -D @types/express @types/cookie-parser @types/cors @types/jsonwebtoken @types/morgan @types/multer @types/nodemailer @types/passport @types/passport-github2 @types/passport-google-oauth20 morgan @types/source-map-support @types/swagger-ui-express @types/ejs @commitlint/cli @commitlint/config-conventional eslint eslint-plugin-prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin husky lint-staged prettier tsc-alias tsx typescript" />
+
+---
+
+#### 2. MySQL + Drizzle
+<PackageManagerTabs command="npm install argon2 cloudinary cookie-parser cors dotenv-flow drizzle-orm ejs express express-rate-limit helmet jsonwebtoken multer mysql2 nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty redis resend source-map-support swagger-ui-express zod" />
+
+
+<PackageManagerTabs command="npm install -D @commitlint/cli @commitlint/config-conventional @types/cookie-parser @types/cors @types/ejs @types/express @types/jsonwebtoken @types/morgan @types/multer @types/node @types/nodemailer @types/passport @types/passport-github2 @types/passport-google-oauth20 @types/pg @types/source-map-support @types/swagger-ui-express @typescript-eslint/eslint-plugin @typescript-eslint/parser cross-env drizzle-kit eslint eslint-plugin-prettier husky lint-staged morgan prettier swagger-autogen tsc-alias tsx typescript" />
+
+---
+
+#### 3. PostgreSQL + Drizzle
+<PackageManagerTabs command="npm install express drizzle-orm pg resend redis @paralleldrive/cuid2 argon2 cloudinary cookie-parser cors jsonwebtoken express-rate-limit helmet multer nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty zod dotenv-flow cross-env source-map-support swagger-autogen swagger-ui-express ejs" />
+
+<PackageManagerTabs command="npm install -D @types/express @types/cookie-parser @types/cors @types/morgan @types/multer @types/nodemailer @types/jsonwebtoken @types/passport @types/passport-github2 @types/passport-google-oauth20 morgan @types/source-map-support @types/swagger-ui-express @types/ejs @types/pg drizzle-kit @commitlint/cli @commitlint/config-conventional eslint eslint-plugin-prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin husky lint-staged prettier tsc-alias tsx typescript" />
+
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+<br />
+ <ComponentFileViewer
+  slug="hybrid-auth"
+  from="docs"
+  arch="mvc"
+  framework="express"
+  type="blueprint"
+/>
