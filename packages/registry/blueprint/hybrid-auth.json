@@ -55,7 +55,20 @@
                       "morgan",
                       "@types/source-map-support",
                       "@types/swagger-ui-express",
-                      "@types/ejs"
+                      "@types/ejs",
+                      "@commitlint/cli",
+                      "@commitlint/config-conventional",
+                      "eslint",
+                      "eslint-plugin-prettier",
+                      "@typescript-eslint/parser",
+                      "@typescript-eslint/eslint-plugin",
+                      "husky",
+                      "lint-staged",
+                      "morgan",
+                      "prettier",
+                      "tsc-alias",
+                      "tsx",
+                      "typescript"
                     ]
                   },
                   "env": [
@@ -136,7 +149,20 @@
                       "@types/swagger-ui-express",
                       "@types/ejs",
                       "@types/pg",
-                      "drizzle-kit"
+                      "drizzle-kit",
+                      "@commitlint/cli",
+                      "@commitlint/config-conventional",
+                      "eslint",
+                      "eslint-plugin-prettier",
+                      "@typescript-eslint/parser",
+                      "@typescript-eslint/eslint-plugin",
+                      "husky",
+                      "lint-staged",
+                      "morgan",
+                      "prettier",
+                      "tsc-alias",
+                      "tsx",
+                      "typescript"
                     ]
                   },
                   "env": [

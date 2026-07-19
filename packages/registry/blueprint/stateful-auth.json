@@ -50,7 +50,21 @@
                       "@types/passport-google-oauth20",
                       "morgan",
                       "@types/source-map-support",
-                      "@types/swagger-ui-express"
+                      "@types/swagger-ui-express",
+
+                      "@commitlint/cli",
+                      "@commitlint/config-conventional",
+                      "eslint",
+                      "eslint-plugin-prettier",
+                      "@typescript-eslint/parser",
+                      "@typescript-eslint/eslint-plugin",
+                      "husky",
+                      "lint-staged",
+                      "morgan",
+                      "prettier",
+                      "tsc-alias",
+                      "tsx",
+                      "typescript"
                     ]
                   },
                   "env": [
