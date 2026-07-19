@@ -56,7 +56,7 @@ export default function NextjsStarterSection() {
           <ComponentFileViewer
             from="structure"
             slug={"nextjs-starter"}
-            architecture={"file-api"}
+            arch={"file-api"}
             framework={"nextjs"}
             type={"foundation"}
           />

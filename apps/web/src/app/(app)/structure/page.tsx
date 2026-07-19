@@ -25,7 +25,7 @@ export default async function page(props: PageProps<"/components">) {
         <ComponentFileViewer
           from="structure"
           slug={(searchParams?.slug as string) || ""}
-          architecture={(searchParams?.arch as string) || ""}
+          arch={(searchParams?.arch as string) || ""}
           framework={(searchParams?.framework as string) || ""}
           type={(searchParams?.type as ItemType) || ""}
           database={(searchParams?.database as string) || undefined}
