@@ -27,6 +27,8 @@ async function main() {
     .description("Initialize servercn in the current project")
     .option("-f, --force", "Overwrite existing files if they exist")
     .option("--fw <framework>", "Framework type: express | nextjs | nestjs")
+    .option("--db <database>", "Database type: mongodb | mysql | postgresql")
+    .option("--orm <orm>", "ORM type: mongoose | prisma | drizzle")
     .option(
       "--local",
       "Add registry items from local environment(development runtime)"

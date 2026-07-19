@@ -3,14 +3,22 @@ import path from "path";
 import prompts from "prompts";
 import { execa } from "execa";
 import { logger } from "@/utils/logger";
-import { APP_NAME, SERVERCN_CONFIG_FILE } from "@/constants/app.constants";
+import {
+  APP_NAME,
+  SERVERCN_CONFIG_FILE,
+  SERVERCN_URL
+} from "@/constants/app.constants";
 import { getRegistry } from "@/lib/registry";
 import { cloneServercnRegistry, copyTemplate } from "@/lib/copy";
 import { installDependencies } from "@/lib/install-deps";
 import type {
   AddOptions,
   Architecture,
+  DatabaseType,
   FrameworkType,
+  IServerCNConfig,
+  OrmType,
+  RegistryBlueprint,
   RegistryFoundation
 } from "@/types";
 import { tsConfig } from "@/configs/ts.config";
@@ -24,6 +32,9 @@ import { detectPackageManager } from "@/lib/detect";
 import { paths } from "@/lib/paths";
 import { eslintConfig } from "@/configs/eslint.config";
 import { getToolingChoices, getToolingDepsFromChoices } from "@/utils/tooling";
+import { resolveTemplateResolution } from "./add/add.handlers";
+import { highlighter } from "@/utils/highlighter";
+import { resolveDependencies, runPostInstallHooks, scaffoldFiles } from "./add";
 
 export async function init(foundation?: string, options: AddOptions = {}) {
   const cwd = process.cwd();
@@ -35,7 +46,10 @@ export async function init(foundation?: string, options: AddOptions = {}) {
     "prisma-mongodb-starter": ["mvc", "feature"],
     "drizzle-mysql-starter": ["mvc", "feature"],
     "drizzle-pg-starter": ["mvc", "feature"],
-    "nextjs-starter": ["file-api"]
+    "nextjs-starter": ["file-api"],
+    "hybrid-auth": ["mvc", "feature"],
+    "stateful-auth": ["mvc", "feature"],
+    "stateless-auth": ["mvc", "feature"]
   } as const;
 
   const ARCH_LABELS = {
@@ -105,6 +119,30 @@ export async function init(foundation?: string, options: AddOptions = {}) {
   if (foundation) {
     let rootPath = "";
     try {
+      if (
+        !FOUNDATION_ARCH_MAP[foundation as keyof typeof FOUNDATION_ARCH_MAP]
+      ) {
+        logger.break();
+        logger.error(`✖ Invalid servercn foundation: '${foundation}'`);
+        logger.break();
+        logger.info(
+          `Please choose one of the supported foundations:`
+        );
+        logger.break();
+        //? map FOUNDATION_ARCH_MAP to a new array with only the keys
+
+        Object.keys(FOUNDATION_ARCH_MAP).map(foundation => {
+          logger.log(`- ${foundation}`);
+        });
+
+        logger.break();
+        logger.log(
+          highlighter.create(`Learn more: ${SERVERCN_URL}/foundations`)
+        );
+        logger.break();
+        process.exit(1);
+      }
+
       logger.break();
       const response = await prompts([
         {
@@ -122,7 +160,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
               FOUNDATION_ARCH_MAP[
                 foundation as keyof typeof FOUNDATION_ARCH_MAP
               ];
-            return archs.length === 1 ? null : "select";
+            return archs?.length === 1 ? null : "select";
           },
           name: "architecture",
           message: "Select architecture",
@@ -217,146 +255,221 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         }
       }
 
+      const config: Omit<IServerCNConfig, "$schema" | "version"> = {
+        rootDir: response.root,
+        packageManager: response.packageManager,
+        runtime: "node",
+        language: "typescript",
+        framework: getFramework(options.fw ?? getFrameworkConfig(foundation)),
+        architecture: response.architecture,
+        database:
+          options.db && options.orm
+            ? {
+                adapter: options.orm as OrmType,
+                engine: options.db as DatabaseType
+              }
+            : getDatabaseConfig(foundation)
+      };
+
       try {
-        const component: RegistryFoundation = await getRegistry(
-          foundation,
-          "foundation",
-          options.local
-        );
-
-        const baseConfig =
-          component.runtimes["node"].frameworks[
-            getFramework(options.fw ?? getFrameworkConfig(foundation))
-          ];
-
-        if (options.local) {
-          const targetDir = paths.targets(response.root ?? ".");
-          const localTemplatePath =
-            `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
-            "";
-
-          const templateDir = path.resolve(
-            paths.templates(),
-            localTemplatePath
+        let blueprintStarter: RegistryBlueprint | undefined;
+        if (options.db && options.orm) {
+          blueprintStarter = await getRegistry(
+            foundation,
+            "blueprint",
+            options.local
           );
+        }
 
-          if (!(await fs.pathExists(templateDir))) {
-            logger.error(
-              `\nTemplate not found: ${templateDir}\nCheck your servercn configuration.\n`
-            );
-            fs.removeSync(rootPath);
-            process.exit(1);
-          }
-          logger.break();
+        if (blueprintStarter) {
+          const resolution = await resolveTemplateResolution({
+            component: blueprintStarter,
+            config: config as IServerCNConfig,
+            options: {
+              ...options,
+              type: "blueprint"
+            },
+            registryItemName: foundation
+          });
 
-          await copyTemplate({
-            templateDir,
-            targetDir,
+          const skipEnvFile = await scaffoldFiles({
+            targetDir: rootPath,
             registryItemName: foundation,
-            conflict: options.force ? "overwrite" : "skip"
+            templatePath: resolution.templatePath,
+            options,
+            component: blueprintStarter,
+            selectedProvider: resolution.selectedProvider
+          });
+
+          // ensureProjectFiles();
+
+          const { runtimeDeps, devDeps } = resolveDependencies({
+            component: blueprintStarter,
+            config: config as IServerCNConfig,
+            additionalRuntimeDeps: resolution.additionalRuntimeDeps,
+            additionalDevDeps: resolution.additionalDevDeps
+          });
+
+          if (runtimeDeps.length > 0 || devDeps.length > 0) {
+            await installDependencies({
+              runtime: runtimeDeps,
+              dev: [...(devDeps || []), ...devDeps],
+              cwd: process.cwd(),
+              packageManager: config.packageManager
+            });
+          }
+
+          await runPostInstallHooks({
+            registryItemName: foundation,
+            skipEnvFile,
+            type: "blueprint",
+            component: blueprintStarter,
+            framework: config.framework,
+            runtime: config.runtime,
+            selectedProvider: resolution.selectedProvider ?? "",
+            dbEngine: config.database?.engine as DatabaseType,
+            dbAdapter: config.database?.adapter as OrmType
           });
         } else {
-          const templatePath = `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/${response.architecture}`;
-          if (!templatePath) {
-            logger.error(
-              `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
+          const component: RegistryFoundation = await getRegistry(
+            foundation,
+            "foundation",
+            options.local
+          );
+
+          const baseConfig =
+            component.runtimes["node"].frameworks[
+              getFramework(options.fw ?? getFrameworkConfig(foundation))
+            ];
+
+          if (options.local) {
+            const targetDir = paths.targets(response.root ?? ".");
+            const localTemplatePath =
+              `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/foundation/${baseConfig?.templates[response.architecture as Architecture]}` ||
+              "";
+
+            const templateDir = path.resolve(
+              paths.templates(),
+              localTemplatePath
             );
-            fs.removeSync(rootPath);
-            return;
+
+            if (!(await fs.pathExists(templateDir))) {
+              logger.error(
+                `\nTemplate not found: ${templateDir}\nCheck your servercn configuration.\n`
+              );
+              fs.removeSync(rootPath);
+              process.exit(1);
+            }
+            logger.break();
+
+            await copyTemplate({
+              templateDir,
+              targetDir,
+              registryItemName: foundation,
+              conflict: options.force ? "overwrite" : "skip"
+            });
+          } else {
+            const templatePath = `node/${getFramework(options.fw || getFrameworkConfig(foundation))}/${response.architecture}`;
+            if (!templatePath) {
+              logger.error(
+                `Template not found for ${foundation?.toLowerCase()} (${response.architecture})`
+              );
+              fs.removeSync(rootPath);
+              return;
+            }
+
+            const ok = await cloneServercnRegistry({
+              templatePath,
+              targetDir: response.root,
+              component,
+              options
+            });
+
+            if (!ok) {
+              logger.error(`Failed to initialize foundation:${foundation}.\n`);
+              fs.removeSync(rootPath);
+              return;
+            }
           }
 
-          const ok = await cloneServercnRegistry({
-            templatePath,
-            targetDir: response.root,
-            component,
-            options
+          if (!["nextjs", "next"].includes(options.fw || "")) {
+            await fs.writeJson(
+              path.join(rootPath, ".prettierrc"),
+              prettierConfig,
+              {
+                spaces: 2
+              }
+            );
+
+            await fs.writeFile(
+              path.join(rootPath, ".prettierignore"),
+              prettierIgnore
+            );
+
+            await fs.writeFile(path.join(rootPath, ".gitignore"), gitignore);
+
+            await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
+              spaces: 2
+            });
+
+            await fs.writeFile(
+              path.join(rootPath, "commitlint.config.ts"),
+              `export default ${JSON.stringify(commitlintConfig, null, 2)}`
+            );
+
+            await fs.writeFile(
+              path.join(rootPath, "eslint.config.mjs"),
+              eslintConfig
+            );
+          }
+
+          const filterEnvs =
+            baseConfig?.env?.filter((env: string) => env !== "") || [];
+
+          if (filterEnvs?.length > 0) {
+            updateEnvKeys({
+              envFile: ".env.example",
+              envKeys: filterEnvs,
+              label: foundation,
+              cwd: rootPath
+            });
+            updateEnvKeys({
+              envFile: ".env",
+              envKeys: filterEnvs,
+              label: foundation,
+              cwd: rootPath
+            });
+          }
+
+          await installDependencies({
+            runtime: baseConfig?.dependencies?.runtime || [],
+            dev: [...devDeps, baseConfig?.dependencies?.dev || []].flat(),
+            cwd: rootPath,
+            packageManager: response.packageManager
           });
-
-          if (!ok) {
-            logger.error(`Failed to initialize foundation:${foundation}.\n`);
-            fs.removeSync(rootPath);
-            return;
-          }
         }
 
         await fs.writeJson(
           path.join(rootPath, SERVERCN_CONFIG_FILE),
-          servercnConfig({
-            rootDir: response.root,
-            packageManager: response.packageManager,
-            runtime: "node",
-            language: "typescript",
-            framework: getFramework(
-              options.fw ?? getFrameworkConfig(foundation)
-            ),
-            architecture: response.architecture,
-            database: getDatabaseConfig(foundation)
-          }),
+          servercnConfig(config),
           {
             spaces: 2
           }
         );
-        if (!["nextjs", "next"].includes(options.fw || "")) {
-          await fs.writeJson(
-            path.join(rootPath, ".prettierrc"),
-            prettierConfig,
-            {
-              spaces: 2
-            }
-          );
 
-          await fs.writeFile(
-            path.join(rootPath, ".prettierignore"),
-            prettierIgnore
-          );
-
-          await fs.writeFile(path.join(rootPath, ".gitignore"), gitignore);
-
-          await fs.writeJson(path.join(rootPath, "tsconfig.json"), tsConfig, {
-            spaces: 2
-          });
-
-          await fs.writeFile(
-            path.join(rootPath, "commitlint.config.ts"),
-            `export default ${JSON.stringify(commitlintConfig, null, 2)}`
-          );
-
-          await fs.writeFile(
-            path.join(rootPath, "eslint.config.mjs"),
-            eslintConfig
-          );
-        }
-
-        const filterEnvs =
-          baseConfig?.env?.filter((env: string) => env !== "") || [];
-
-        if (filterEnvs?.length > 0) {
-          updateEnvKeys({
-            envFile: ".env.example",
-            envKeys: filterEnvs,
-            label: foundation,
-            cwd: rootPath
-          });
-          updateEnvKeys({
-            envFile: ".env",
-            envKeys: filterEnvs,
-            label: foundation,
-            cwd: rootPath
-          });
-        }
-
-        await installDependencies({
-          runtime: baseConfig?.dependencies?.runtime || [],
-          dev: [...devDeps, baseConfig?.dependencies?.dev || []].flat(),
-          cwd: rootPath,
-          packageManager: response.packageManager
-        });
         logger.break();
         logger.success(
-          `${APP_NAME} initialized with 'foundation:${foundation}'.`
+          `✔ ${APP_NAME} initialized with 'foundation:${foundation}'.`
         );
         logger.break();
         logger.info("Configure environment variables in .env file.");
+
+        const docs =
+          `${SERVERCN_URL}/docs/${config.framework}/foundations/${foundation}` ||
+          "";
+        logger.break();
+        logger.log(highlighter.create(`→ Docs: ${docs}`));
+
         logger.break();
         logger.log("Run the following commands:");
 
@@ -372,7 +485,8 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         logger.error(`Failed to initialize foundation: ${e}`);
         process.exit(1);
       }
-    } catch {
+    } catch (e) {
+      logger.error(`\nFailed to initialize foundation: ${e}\n`);
       logger.error(`\nFailed to initialize foundation\n`);
       fs.removeSync(rootPath);
       process.exit(1);

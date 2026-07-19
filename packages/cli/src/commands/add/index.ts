@@ -172,16 +172,17 @@ export async function scaffoldFiles({
   templatePath,
   options,
   component,
-  selectedProvider
+  selectedProvider,
+  targetDir
 }: {
   registryItemName: string;
   templatePath: string;
   options: AddOptions;
   component: RegistryItem;
   selectedProvider?: string;
+  targetDir?: string;
 }) {
   const IS_LOCAL = options.local ?? false;
-  const targetDir = paths.targets(".");
 
   logger.break();
   logger.log(highlighter.info(`Generating files...`));
@@ -197,7 +198,7 @@ export async function scaffoldFiles({
     }
     await copyTemplate({
       templateDir,
-      targetDir,
+      targetDir: targetDir || paths.targets("."),
       registryItemName,
       conflict: options.force ? "overwrite" : "skip"
     });
@@ -205,7 +206,7 @@ export async function scaffoldFiles({
     const { skipEnvFile, success } = await cloneServercnRegistry({
       component,
       templatePath,
-      targetDir,
+      targetDir: targetDir || paths.targets("."),
       options,
       selectedProvider
     });
@@ -268,7 +269,7 @@ export function resolveDependencies({
 }
 
 //? Post Install Hooks
-async function runPostInstallHooks({
+export async function runPostInstallHooks({
   skipEnvFile,
   component,
   registryItemName,
