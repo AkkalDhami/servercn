@@ -88,8 +88,9 @@ function TreeNode({
     <button
       onClick={() => onSelect(node)}
       className={cn(
-        "text-muted-foreground hover:bg-muted hover:text-accent-foreground my-1 ml-0.5 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left",
-        activeFile === node.path && "bg-muted text-accent-foreground"
+        "text-muted-foreground hover:bg-muted hover:text-accent-foreground ring-edge my-1 ml-0.5 flex w-auto cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left hover:ring-1",
+        activeFile === node.path &&
+          "bg-muted ring-edge text-accent-foreground ring-1"
       )}>
       {getIconForLanguageExtension(node.lang || "ts", node.name)}
       {node.name}

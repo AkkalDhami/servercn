@@ -371,7 +371,7 @@
 
   [data-highlighted-line],
   [data-highlighted-chars] {
-    @apply bg-highlight border-muted-foreground relative border-l-2;
+    @apply dark:bg-highlight border-muted-foreground relative border-l-2 bg-neutral-200;
   }
 }
 
@@ -413,4 +413,11 @@ h3 {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+[data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-light);
+}
+
+.dark [data-rehype-pretty-code-figure] code span {
+  color: var(--shiki-dark);
 }

@@ -22,7 +22,7 @@ export default function FileViewer({ content ,lang}: { content?: string ,lang?: 
     };
 
     highlight();
-  }, [content, theme]);
+  }, [content, lang, theme]);
 
   if (!content) {
     return (

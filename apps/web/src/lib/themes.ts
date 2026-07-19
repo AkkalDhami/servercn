@@ -178,6 +178,8 @@ export const CODE_THEMES: ITheme[] = [
 
 export const LIGHT_THEMES: ITheme[] = CODE_THEMES.filter(t => t.light);
 
+export const DARK_THEMES: ITheme[] = CODE_THEMES.filter(t => !t.light);
+
 export const THEME_PRIMARY_BG = {
   andromeeda: "#23262e",
   "aurora-x": "#07090f",

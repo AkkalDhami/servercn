@@ -6,8 +6,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import matter from "gray-matter";
 import { mdxComponents } from "@/components/docs/mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
-import { cookies } from "next/headers";
-import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
+import { DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OpenInAi } from "@/components/docs/open-in-ai";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import PackageManagerTabs from "@/components/docs/package-manager-tabs";
@@ -30,6 +29,7 @@ import { resolveRegistryItem } from "@/lib/resolver";
 import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
 import { ViewAsJson } from "@/components/docs/view-as-json";
+import { Suspense } from "react";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -240,9 +240,6 @@ export default async function DocsPage({
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
 
-  const cookieStore = await cookies();
-  const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
-
   // Extract current framework from URL if present
   const currentFramework =
     slug &&
@@ -336,8 +333,11 @@ export default async function DocsPage({
                     [
                       rehypePrettyCode,
                       {
-                        theme: theme || "vesper",
                         keepBackground: false,
+                        theme: {
+                          dark: DEFAULT_CODE_THEME,
+                          light: "github-light"
+                        },
                         defaultLang: {
                           block: "plaintext",
                           inline: "plaintext"
@@ -359,23 +359,27 @@ export default async function DocsPage({
                   <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                     File &amp; Folder Structure
                   </h2>
-                  <ArchitectureTabs
-                    current={currentArch || "mvc"}
-                    framework={currentFramework}
-                  />
-                  <ComponentFileViewer
-                    slug={blueprintSlug ?? slug[slug.length - 1]}
-                    from="docs"
-                    database={database}
-                    orm={orm}
-                    arch={currentArch}
-                    framework={currentFramework || slug[0]}
-                    type={
-                      ["tooling", ""].includes(slug[1])
-                        ? (slug[1] as ItemType)
-                        : (slug[1]?.slice(0, -1) as ItemType)
-                    }
-                  />
+                  <Suspense fallback={<>...</>}>
+                    <ArchitectureTabs
+                      current={currentArch || "mvc"}
+                      framework={currentFramework}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<>...</>}>
+                    <ComponentFileViewer
+                      slug={blueprintSlug ?? slug[slug.length - 1]}
+                      from="docs"
+                      database={database}
+                      orm={orm}
+                      arch={currentArch}
+                      framework={currentFramework || slug[0]}
+                      type={
+                        ["tooling", ""].includes(slug[1])
+                          ? (slug[1] as ItemType)
+                          : (slug[1]?.slice(0, -1) as ItemType)
+                      }
+                    />
+                  </Suspense>
                 </div>
               )}
 

@@ -22,19 +22,25 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import { CODE_THEMES } from "@/lib/themes";
+import { DARK_THEMES, LIGHT_THEMES } from "@/lib/themes";
 import { changeCodeBlockBg } from "@/app/actions/theme";
+import { useTheme } from "next-themes";
 
 export { STORAGE_THEME_KEY };
 
 export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
   const { theme, setTheme } = useCodeTheme();
+  const { theme: nextTheme } = useTheme();
   const { setBg } = useCodeThemeBg();
   const router = useRouter();
   const id = useId();
 
+  const isLight = nextTheme === "light";
+
   const [open, setOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
+
+  const themes = isLight ? LIGHT_THEMES : DARK_THEMES;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -52,11 +58,13 @@ export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
 
   return (
     <div className="space-y-2">
-      {!minimal && <Label
-        htmlFor={id}
-        className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-        Code Theme
-      </Label>}
+      {!minimal && (
+        <Label
+          htmlFor={id}
+          className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+          Code Theme
+        </Label>
+      )}
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
@@ -66,8 +74,7 @@ export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
             role="combobox"
             variant="outline">
             <span className="truncate">
-              {CODE_THEMES.find(t => t.value === theme)?.label ||
-                "Select theme"}
+              {themes.find(t => t.value === theme)?.label || "Select theme"}
             </span>
             <ChevronDownIcon
               aria-hidden="true"
@@ -84,8 +91,9 @@ export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
             <CommandList>
               <CommandEmpty>No theme found.</CommandEmpty>
               <CommandGroup>
-                {CODE_THEMES.sort((a, b) => a.label.localeCompare(b.label)).map(
-                  t => (
+                {themes
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(t => (
                     <CommandItem
                       key={t.value}
                       onSelect={() => {
@@ -106,8 +114,7 @@ export default function CodeTheme({ minimal = false }: { minimal?: boolean }) {
                         )}
                       </div>
                     </CommandItem>
-                  )
-                )}
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
