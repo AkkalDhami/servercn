@@ -1,6 +1,6 @@
 {
   "name": "servercn-cli",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Backend component registry for node.js & typescript",
   "main": "dist/cli.js",
   "readme": "README.md",
