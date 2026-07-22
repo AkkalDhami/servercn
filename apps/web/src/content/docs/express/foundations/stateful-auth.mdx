@@ -1,0 +1,59 @@
+---
+title: Statefu  Auth Starter | Foundation
+description: The Stateful Auth Foundation is the core starting block provided by servercn.
+command: npx servercn-cli init stateful-auth --db=mongodb --orm=mongoose
+---
+
+## Stateful Auth Starter
+
+Stateful Auth Starter is a production-ready foundation for Express.js applications with modern authentication patterns and best practices. 
+
+It includes server-tracked sessions to give you fast authorization with strong session control.
+
+> This foundation is built using the Stateful Auth blueprint as its base. [Stateful Auth Blueprint](/docs/express/blueprints/stateful-auth)
+
+---
+
+## Installation Guide
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<Steps>
+<Step>Initialize Stateful Auth with your preferred database setup:</Step>
+
+#### 1. MongoDB + Mongoose
+
+<PackageManagerTabs command="npx servercn-cli@latest init hybrid-auth --db=mongodb --orm=mongoose" />
+
+</Steps>
+</TabsContent>
+
+<TabsContent value="manual">
+<Steps>
+<Step>Install the required dependencies:</Step>
+
+#### 1. MongoDB + Mongoose
+<PackageManagerTabs command="npm install express mongoose argon2 cloudinary cookie-parser cors express-rate-limit helmet multer resend passport passport-github2 passport-google-oauth20 pino pino-pretty zod dotenv-flow source-map-support swagger-autogen swagger-ui-express cross-env" />
+
+<PackageManagerTabs command="npm install -D @types/express @types/cookie-parser @types/cors @types/morgan @types/multer @types/passport @types/passport-github2 @types/passport-google-oauth20 @types/source-map-support @types/swagger-ui-express @commitlint/cli @commitlint/config-conventional eslint eslint-plugin-prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin husky lint-staged morgan prettier tsc-alias tsx typescript" />
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+<br />
+ <ComponentFileViewer
+  slug="stateful-auth"
+  from="docs"
+  arch="mvc"
+  framework="express"
+  type="blueprint"
+/>
