@@ -78,6 +78,7 @@
 - [Prisma MySQL Starter](https://www.servercn.xyz/docs/express/foundations/prisma-mysql-starter): database foundation provided by servercn for projects that use MySQL with Prisma ORM.
 - [Hybrid Authentication  Starter](https://www.servercn.xyz/docs/express/foundations/hybrid-auth): is a production-ready hybrid auth foundation for Express.js applications with modern authentication patterns and best practices. 
 - [Stateful Authentication  Starter](https://www.servercn.xyz/docs/express/foundations/stateful-auth): is a production-ready stateful auth foundation for Express.js applications with modern authentication patterns and best practices. 
+- [Stateless Authentication  Starter](https://www.servercn.xyz/docs/express/foundations/stateless-auth): is a production-ready stateless auth foundation for Express.js applications with modern authentication patterns and best practices. 
 
 
 ### Next.js
