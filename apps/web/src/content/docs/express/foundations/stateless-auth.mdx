@@ -1,0 +1,70 @@
+---
+title: Statefu  Auth Starter | Foundation
+description: The Stateless Auth Foundation is the core starting block provided by servercn.
+command: npx servercn-cli init stateless-auth --db=mongodb --orm=mongoose
+---
+
+## Stateless Auth Starter
+
+Stateless Auth Starter is a production-ready foundation for Express.js applications with modern authentication patterns and best practices. 
+
+It provides a production-ready implementation of stateless authentication using Access Tokens, Refresh Tokens, and Token Rotation strategies to ensure high security and scalability.
+
+> This foundation is built using the Stateless Auth blueprint as its base. [Stateless Auth Blueprint](/docs/express/blueprints/stateless-auth)
+
+---
+
+## Installation Guide
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<Steps>
+<Step>Initialize Stateless Auth with your preferred database setup:</Step>
+
+#### 1. MongoDB + Mongoose
+
+<PackageManagerTabs command="npx servercn-cli@latest init stateless-auth --db=mongodb --orm=mongoose" />
+
+#### 2. MySQL + Drizzle
+
+<PackageManagerTabs command="npx servercn-cli@latest init stateless-auth --db=mysql --orm=drizzle" />
+
+</Steps>
+</TabsContent>
+
+<TabsContent value="manual">
+<Steps>
+<Step>Install the required dependencies:</Step>
+
+#### 1. MongoDB + Mongoose
+<PackageManagerTabs command="npm install express mongoose argon2 cloudinary cookie-parser cors express-rate-limit helmet jsonwebtoken multer nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty zod dotenv-flow cross-env source-map-support swagger-autogen swagger-ui-express" />
+
+<PackageManagerTabs command="npm install -D @types/express @types/jsonwebtoken @types/bcryptjs @types/cookie-parser @types/cors @types/morgan @types/multer @types/nodemailer @types/passport @types/passport-github2 @types/passport-google-oauth20 morgan @types/source-map-support @types/swagger-ui-express @commitlint/cli @commitlint/config-conventional eslint eslint-plugin-prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin husky lint-staged prettier tsc-alias tsx typescript" />
+
+---
+
+#### 2. MySQL + Drizzle
+<PackageManagerTabs command="npm install express mysql2 ejs node-cron redis drizzle-orm argon2 cloudinary cookie-parser cors express-rate-limit helmet jsonwebtoken multer nodemailer passport passport-github2 passport-google-oauth20 pino pino-pretty zod dotenv-flow cross-env source-map-support swagger-autogen swagger-ui-express" />
+
+<PackageManagerTabs command="npm install -D @types/express drizzle-kit @types/ejs @types/cookie-parser @types/cors @types/jsonwebtoken @types/morgan @types/multer @types/nodemailer @types/passport @types/passport-github2 @types/passport-google-oauth20 morgan @types/source-map-support @types/swagger-ui-express @commitlint/cli @commitlint/config-conventional eslint eslint-plugin-prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin husky lint-staged prettier tsc-alias tsx typescript" />
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+<br />
+ <ComponentFileViewer
+  slug="stateless-auth"
+  from="docs"
+  arch="mvc"
+  framework="express"
+  type="blueprint"
+/>

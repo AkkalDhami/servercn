@@ -53,7 +53,7 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        "[&_pre]:bg-code! relative [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4",
+        "[&_pre]:bg-code! [&_pre] relative [&_pre]:overflow-x-auto [&_pre]:rounded-b-md [&_pre]:px-4 [&_pre]:py-4",
         className
       )}
       dangerouslySetInnerHTML={{ __html: html }}

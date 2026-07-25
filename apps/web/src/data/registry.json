@@ -485,6 +485,18 @@
       }
     },
     {
+      "slug": "stateless-auth",
+      "title": "Stateless Auth Starter",
+      "description": "A production-ready Stateless Auth foundation for Express.js applications with modern authentication patterns and best practices.",
+      "type": "foundation",
+      "status": "stable",
+      "frameworks": ["express"],
+      "docs": "/docs/foundations/stateless-auth",
+      "meta": {
+        "new": true
+      }
+    },
+    {
       "title": "Nextjs Starter",
       "slug": "nextjs-starter",
       "description": "A production-ready Next.js foundation with TypeScript, error handling, and structured logging.",
