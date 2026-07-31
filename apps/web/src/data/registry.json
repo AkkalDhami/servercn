@@ -632,7 +632,6 @@
       "frameworks": ["express"],
       "docs": "/docs/blueprints/banking-app",
       "meta": {
-        "new": true,
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
@@ -701,7 +700,6 @@
       "frameworks": ["express"],
       "docs": "/docs/schemas/banking-app",
       "meta": {
-        "new": true,
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
@@ -713,8 +711,7 @@
           },
           {
             "label": "PostgreSQL (Drizzle)",
-            "slug": "banking-app-postgresql",
-            "new": true
+            "slug": "banking-app-postgresql"
           }
         ]
       }
@@ -735,12 +732,10 @@
           },
           {
             "label": "MySQL (Drizzle)",
-            "slug": "blog-app-mysql",
-            "new": true
+            "slug": "blog-app-mysql"
           },
           {
             "label": "PostgreSQL (Drizzle)",
-            "new": true,
             "slug": "blog-app-postgresql"
           }
         ]
@@ -753,10 +748,7 @@
       "frameworks": ["express", "nextjs"],
       "title": "MongoDB (Mongoose)",
       "description": "MongoDB provider with Mongoose ORM for express & nextjs applications.",
-      "docs": "/docs/providers/mongodb-mongoose",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/mongodb-mongoose"
     },
     {
       "slug": "mongodb-prisma",
@@ -765,10 +757,7 @@
       "frameworks": ["express", "nextjs"],
       "title": "MongoDB (Prisma)",
       "description": "MongoDB provider with Prisma ORM for expressjs & nextjs applications.",
-      "docs": "/docs/providers/mongodb-prisma",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/mongodb-prisma"
     },
 
     {
@@ -799,10 +788,7 @@
       "frameworks": ["express", "nextjs"],
       "title": "PostgreSQL (Drizzle)",
       "description": "PostgreSQL provider with Drizzle ORM for expressjs & nextjs applications.",
-      "docs": "/docs/providers/pg-drizzle",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/pg-drizzle"
     },
     {
       "slug": "pg-drizzle-neon",

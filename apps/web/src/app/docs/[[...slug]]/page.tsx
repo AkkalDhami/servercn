@@ -292,10 +292,7 @@ export default async function DocsPage({
                 /> */}
                 <div className="flex items-center gap-2">
                   <Link
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "primary-ring"
-                    )}
+                    className={cn(buttonVariants({ variant: "secondary" }))}
                     href={
                       (prev
                         ? injectFramework(
@@ -315,14 +312,17 @@ export default async function DocsPage({
                           )
                         : "") as Route
                     }
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "primary-ring"
-                    )}>
+                    className={cn(buttonVariants({ variant: "secondary" }))}>
                     <ArrowRightIcon className="size-4" />
                   </Link>
                 </div>
               </div>
+            </div>
+            <div className="space-y-4 border-b pb-5">
+              <h1 className="text-3xl font-medium tracking-tight">
+                {data.title}
+              </h1>
+              <p className="text-muted-foreground">{data.description}</p>
             </div>
             <MDXRemote
               source={content}
