@@ -203,7 +203,9 @@ export function Terminal({
             <div className="h-3 w-3 rounded-full bg-green-500 transition-colors hover:bg-green-600" />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div
+            onClick={handleCopy}
+            className="group flex cursor-pointer items-center gap-2">
             <p
               ref={inputRef}
               className={cn(
