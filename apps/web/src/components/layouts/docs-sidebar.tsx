@@ -9,7 +9,6 @@ import { IRegistryItems, ISchema } from "@/@types/registry";
 import { cn } from "@/lib/utils";
 import { getRegistryTypeItems, injectFramework } from "@/lib/source";
 import CodeTheme from "@/components/docs/code-theme";
-import { SelectFramework } from "@/components/docs/select-framework";
 import { useFramework } from "@/store/use-framework";
 
 import {
@@ -155,7 +154,6 @@ export default function DocsSidebar({
   return (
     <nav className="no-scrollbar font-inter sticky top-20 left-0 z-10 h-full max-h-[calc(100vh-2rem)] space-y-4 overflow-y-auto px-3 py-0 pb-14 text-sm lg:mb-10">
       <CodeTheme />
-      <SelectFramework />
 
       <div className="mt-6 space-y-5">
         {navSections.map(section => {
