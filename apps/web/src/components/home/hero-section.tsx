@@ -22,7 +22,7 @@ const supportedStack = [
   },
   {
     name: "Express.js",
-    icon: LanguageIcons.expressjs
+    icon: LanguageIcons.express
   },
   {
     name: "TypeScript",

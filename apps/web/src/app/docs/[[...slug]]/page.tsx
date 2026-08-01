@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
 import { ViewAsJson } from "@/components/docs/view-as-json";
 import { Suspense } from "react";
+import { FrameworkTabs } from "@/components/docs/select-framework";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -318,11 +319,15 @@ export default async function DocsPage({
                 </div>
               </div>
             </div>
-            <div className="space-y-4 border-b pb-5">
+            <div className="space-y-4">
               <h1 className="text-3xl font-medium tracking-tight">
                 {data.title}
               </h1>
               <p className="text-muted-foreground">{data.description}</p>
+            </div>
+
+            <div className="border-b mt-4 pb-5">
+              <FrameworkTabs />
             </div>
             <MDXRemote
               source={content}
