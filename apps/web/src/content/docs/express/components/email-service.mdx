@@ -150,7 +150,6 @@ export const resend = new Resend(env.RESEND_API_KEY);
 ```ts title="src/utils/send-mail.ts"
 import env from "../configs/env";
 import { resend } from "../configs/resend";
-import { ApiError } from "./api-error";
 
 type sendMail = {
   from?: string;
@@ -160,20 +159,20 @@ type sendMail = {
   html: string;
 };
 
-export async function sendEmail({
-  from,
-  email,
-  subject,
-  html
-}: sendMail) {
-
-  return await resend.emails.send({
+export async function sendEmail({ from, email, subject, html }: sendMail) {
+  const response = await resend.emails.send({
     from: from || `<${env.EMAIL_FROM}>`,
-      to: email,
-      subject,
-      replyTo: email,
-      html
-    });
+    to: email,
+    subject,
+    replyTo: email,
+    html
+  });
+
+  if (response.error) {
+    throw new Error(response.error.message || "Failed to send email");
+  }
+
+  return response.data;
 }
 ```
 
