@@ -65,6 +65,7 @@ export const mdxComponents: MDXComponents = {
       {...props}
     />
   ),
+  hr: () => <hr className="mb-6 mt-6" />,
   figure: ({ className, ...props }: React.ComponentProps<"figure">) => {
     return <figure className={cn(className)} {...props} />;
   },

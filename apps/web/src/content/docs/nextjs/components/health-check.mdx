@@ -1,0 +1,78 @@
+---
+title: Health Check Endpoint
+description: Health check endpoints for monitoring the health and availability of node.js applications.
+command: npx servercn-cli@latest add health-check
+contributor:
+ -  name: Akkal Dhami
+    url: https://www.akkal.com.np
+    avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
+---
+
+## Installation Guide 
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+<PackageManagerTabs command="npx servercn-cli@latest add health-check" />
+</TabsContent>
+
+<TabsContent value="manual">
+<Steps>
+
+<Step>Set Environment Variable</Step>
+```dotenv title=".env"
+SERVICE_NAME='service_name'
+```
+
+<Step>Add Health Check Endpoint</Step>
+```ts title="src/app/api/health/route.ts"
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    statusCode: 200,
+    status: "healthy",
+    service: process.env.SERVICE_NAME ?? "nextjs-api",
+    version: process.env.npm_package_version ?? "1.0.0",
+    message: "Service is up and running",
+    timestamp: new Date().toISOString()
+  });
+}
+```
+
+</Steps>    
+</TabsContent>
+</Tabs>
+
+
+---
+
+## Usage
+
+Send a <Code>GET</Code> request to the health check endpoint:
+<Code>http://localhost:3000/api/health</Code>
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "status": "healthy",
+  "service": "nextjs-api",
+  "version": "0.1.0",
+  "message": "Service is up and running",
+  "timestamp": "2026-08-06T11:03:02.549Z"
+}
+```
+

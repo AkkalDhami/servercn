@@ -253,10 +253,10 @@
     {
       "slug": "health-check",
       "title": "Health Check Endpoint",
-      "description": "Production-ready health check endpoints for monitoring API status, database connectivity, and system health in Express applications.",
+      "description": "Health check endpoints for monitoring the health and availability of node.js applications.",
       "type": "component",
-      "status": "experimental",
-      "frameworks": ["express", "nestjs"],
+      "status": "stable",
+      "frameworks": ["express", "nextjs"],
       "docs": "/docs/components/health-check"
     },
     {
