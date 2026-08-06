@@ -14,6 +14,12 @@
             "dev": []
           },
           "env": ["PORT"]
+        },
+        "nextjs": {
+          "templates": {
+            "file-api": "health-check/file-api"
+          },
+          "env": ["SERVICE_NAME"]
         }
       }
     }
