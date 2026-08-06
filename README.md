@@ -10,7 +10,7 @@
 
 > Shadcn ecosystem for Node.js backend
 
-![Servercn](./apps/web/public/og-image.png)
+![Servercn](./apps/web/public/og-image-v2.png)
 
 [Visit website](https://www.servercn.xyz)
 
