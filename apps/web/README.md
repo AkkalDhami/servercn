@@ -10,7 +10,7 @@
 
 > Shadcn ecosystem for Node.js backend
 
-![Servercn Components]('./public/og-image.png')
+![Servercn Components]('./public/og-image-v2.png')
 
 [Visit website](https://servercn.vercel.app/docs/cli)
 
