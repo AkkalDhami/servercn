@@ -66,12 +66,6 @@ export function DesktopNav() {
           newtab: false
         },
         {
-          label: "Stargazers",
-          description: "See who starred on GitHub.",
-          href: `${GITHUB_URL}/stargazers`,
-          newtab: true
-        },
-        {
           label: "Discord",
           description: "Join our Discord community.",
           href: `${DISCORD_URL}`,

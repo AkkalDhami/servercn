@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     creator: siteConfig.creator,
     card: "summary_large_image",
-    images: [`${SERVERCN_URL}/og-image.png`]
+    images: ["og-image-v2.png"]
   },
   icons: {
     apple: "/favicon.ico",
