@@ -27,18 +27,13 @@
                 },
                 {
                   "type": "file",
-                  "path": "src/db/index.ts",
-                  "content": "//? Export all schemas from schemas directory\r\n\r\nexport * from \"./schemas/user.schema\";\r\n"
-                },
-                {
-                  "type": "file",
                   "path": "migrations/.gitkeep",
                   "content": ""
                 },
                 {
                   "type": "file",
-                  "path": "src/db/schemas/user.schema.ts",
-                  "content": "import { mysqlTable, serial, varchar } from \"drizzle-orm/mysql-core\";\r\n\r\nexport const usersTable = mysqlTable(\"users\", {\r\n  id: serial().primaryKey(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique(),\r\n  password: varchar(\"password\", { length: 255 }).notNull()\r\n});\r\n"
+                  "path": "src/db/index.ts",
+                  "content": "//? Export all schemas from schemas directory\r\n\r\nexport * from \"./schemas/user.schema\";\r\n"
                 },
                 {
                   "type": "file",
@@ -49,6 +44,11 @@
                   "type": "file",
                   "path": "src/configs/db.ts",
                   "content": "import { drizzle } from \"drizzle-orm/mysql2\";\r\nimport env from \"./env\";\r\n\r\nconst db = drizzle(env.DATABASE_URL!, {\r\n  logger: env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;\r\n\r\n/**\r\n * ? Usage:\r\n *  await db.insert(usersTable).values(user);\r\n */\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "src/db/schemas/user.schema.ts",
+                  "content": "import { mysqlTable, serial, varchar } from \"drizzle-orm/mysql-core\";\r\n\r\nexport const usersTable = mysqlTable(\"users\", {\r\n  id: serial().primaryKey(),\r\n  name: varchar({ length: 255 }).notNull(),\r\n  email: varchar({ length: 255 }).notNull().unique(),\r\n  password: varchar(\"password\", { length: 255 }).notNull()\r\n});\r\n"
                 }
               ]
             },
@@ -112,11 +112,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "migrations/.gitkeep",
-                  "content": ""
-                },
-                {
-                  "type": "file",
                   "path": "src/db/index.ts",
                   "content": "//? Export all schemas from ./schemas directory\r\nexport * from \"./schemas/user.schema\";"
                 },
@@ -124,6 +119,11 @@
                   "type": "file",
                   "path": "src/db/connection.ts",
                   "content": "import { drizzle } from \"drizzle-orm/mysql2\";\r\n\r\nconst db = drizzle(process.env.DATABASE_URL!, {\r\n  logger: process.env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;\r\n"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/.gitkeep",
+                  "content": ""
                 },
                 {
                   "type": "file",

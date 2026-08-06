@@ -114,11 +114,6 @@
                 },
                 {
                   "type": "file",
-                  "path": "migrations/.gitkeep",
-                  "content": ""
-                },
-                {
-                  "type": "file",
                   "path": "src/db/index.ts",
                   "content": "//? Export all schemas from ./schemas directory\r\nexport * from \"./schemas/user.schema\";\r\n"
                 },
@@ -126,6 +121,11 @@
                   "type": "file",
                   "path": "src/db/connection.ts",
                   "content": "import { drizzle } from \"drizzle-orm/node-postgres\";\r\n\r\nconst db = drizzle(process.env.DATABASE_URL!, {\r\n  logger: process.env.NODE_ENV === \"development\"\r\n});\r\n\r\nexport default db;"
+                },
+                {
+                  "type": "file",
+                  "path": "migrations/.gitkeep",
+                  "content": ""
                 },
                 {
                   "type": "file",

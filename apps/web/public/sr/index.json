@@ -126,7 +126,8 @@
       "type": "component",
       "slug": "health-check",
       "frameworks": [
-        "express"
+        "express",
+        "nextjs"
       ]
     },
     {
