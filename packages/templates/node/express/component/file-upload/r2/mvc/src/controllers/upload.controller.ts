@@ -61,7 +61,10 @@ export const deleteFile = AsyncHandler(
       return next(ApiError.badRequest("File key is required"));
     }
 
-    await deleteFileFromR2(process.env.CLOUDFLARE_R2_BUCKET_NAME!, [key]);
+    await deleteFileFromR2(
+      process.env.CLOUDFLARE_R2_BUCKET_NAME!,
+      [key]
+    );
 
     return ApiResponse.Success(res, "File deleted successfully", null, 200);
   }

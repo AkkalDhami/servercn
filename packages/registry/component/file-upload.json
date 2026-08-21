@@ -20,7 +20,9 @@
                   "cloudinary",
                   "zod"
                 ],
-                "dev": ["@types/multer"]
+                "dev": [
+                  "@types/multer"
+                ]
               },
               "env": [
                 "CLOUDINARY_CLOUD_NAME",
@@ -45,9 +47,15 @@
                   "multer",
                   "@imagekit/nodejs"
                 ],
-                "dev": ["@types/multer"]
+                "dev": [
+                  "@types/multer"
+                ]
               },
-              "env": ["IMAGEKIT_PRIVATE_KEY", "LOG_LEVEL", "PORT"],
+              "env": [
+                "IMAGEKIT_PRIVATE_KEY",
+                "LOG_LEVEL",
+                "PORT"
+              ],
               "templates": {
                 "mvc": "file-upload/imagekit/mvc",
                 "feature": "file-upload/imagekit/feature"
@@ -64,7 +72,9 @@
                   "multer",
                   "@aws-sdk/client-s3"
                 ],
-                "dev": ["@types/multer"]
+                "dev": [
+                  "@types/multer"
+                ]
               },
               "env": [
                 "CLOUDFLARE_R2_ACCOUNT_ID",
@@ -87,7 +97,9 @@
             "cloudinary": {
               "label": "Cloudinary",
               "dependencies": {
-                "runtime": ["cloudinary"],
+                "runtime": [
+                  "cloudinary"
+                ],
                 "dev": []
               },
               "env": [
@@ -102,10 +114,14 @@
             "imagekit": {
               "label": "Imagekit",
               "dependencies": {
-                "runtime": ["@imagekit/nodejs"],
+                "runtime": [
+                  "@imagekit/nodejs"
+                ],
                 "dev": []
               },
-              "env": ["IMAGEKIT_PRIVATE_KEY"],
+              "env": [
+                "IMAGEKIT_PRIVATE_KEY"
+              ],
               "templates": {
                 "file-api": "file-upload/imagekit/file-api"
               }

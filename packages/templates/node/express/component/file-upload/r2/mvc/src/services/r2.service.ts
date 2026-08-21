@@ -1,8 +1,4 @@
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand
-} from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
   region: "auto",
@@ -29,9 +25,7 @@ export const uploadToR2 = async (
   buffer: Buffer,
   options: UploadOptions
 ): Promise<R2UploadResult> => {
-  const key =
-    options.fileName ||
-    `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+  const key = options.fileName || `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
   const command = new PutObjectCommand({
     Bucket: bucket,
@@ -56,12 +50,10 @@ export const deleteFileFromR2 = async (
   keys: string[]
 ): Promise<void> => {
   const deletePromises = keys.map(key =>
-    s3.send(
-      new DeleteObjectCommand({
-        Bucket: bucket,
-        Key: key
-      })
-    )
+    s3.send(new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key
+    }))
   );
 
   await Promise.all(deletePromises);

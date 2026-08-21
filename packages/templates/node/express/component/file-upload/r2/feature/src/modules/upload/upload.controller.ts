@@ -2,7 +2,11 @@ import { NextFunction, Request, Response } from "express";
 
 import { ApiResponse } from "../../shared/utils/api-response";
 import { AsyncHandler } from "../../shared/utils/async-handler";
-import { R2UploadResult, deleteFileFromR2, uploadToR2 } from "./upload.service";
+import {
+  R2UploadResult,
+  deleteFileFromR2,
+  uploadToR2
+} from "./upload.service";
 import { ApiError } from "../../shared/errors/api-error";
 
 export const uploadFile = AsyncHandler(
@@ -57,7 +61,10 @@ export const deleteFile = AsyncHandler(
       return next(ApiError.badRequest("File key is required"));
     }
 
-    await deleteFileFromR2(process.env.CLOUDFLARE_R2_BUCKET_NAME!, [key]);
+    await deleteFileFromR2(
+      process.env.CLOUDFLARE_R2_BUCKET_NAME!,
+      [key]
+    );
 
     return ApiResponse.Success(res, "File deleted successfully", null, 200);
   }

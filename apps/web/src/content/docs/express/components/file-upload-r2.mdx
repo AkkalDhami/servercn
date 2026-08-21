@@ -192,7 +192,7 @@ export const uploadToR2 = async (
 
   await s3.send(command);
 
-  const url = `https://${bucket}.r2.cloudflarestorage.com/${options.folder}/${key}`;
+  const url = `https://${bucket}.r2.cloudflatestorage.com/${options.folder}/${key}`;
 
   return {
     url,
@@ -294,7 +294,7 @@ export const deleteFile = AsyncHandler(
 
     return ApiResponse.Success(res, "File deleted successfully", null, 200);
   }
-);
+}
 ```
 
 ---
