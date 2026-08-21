@@ -20,7 +20,9 @@
                   "cloudinary",
                   "zod"
                 ],
-                "dev": ["@types/multer"]
+                "dev": [
+                  "@types/multer"
+                ]
               },
               "env": [
                 "CLOUDINARY_CLOUD_NAME",
@@ -45,12 +47,46 @@
                   "multer",
                   "@imagekit/nodejs"
                 ],
-                "dev": ["@types/multer"]
+                "dev": [
+                  "@types/multer"
+                ]
               },
-              "env": ["IMAGEKIT_PRIVATE_KEY", "LOG_LEVEL", "PORT"],
+              "env": [
+                "IMAGEKIT_PRIVATE_KEY",
+                "LOG_LEVEL",
+                "PORT"
+              ],
               "templates": {
                 "mvc": "file-upload/imagekit/mvc",
                 "feature": "file-upload/imagekit/feature"
+              }
+            },
+            "r2": {
+              "label": "Cloudflare R2",
+              "dependencies": {
+                "runtime": [
+                  "pino",
+                  "pino-pretty",
+                  "dotenv-flow",
+                  "cross-env",
+                  "multer",
+                  "@aws-sdk/client-s3"
+                ],
+                "dev": [
+                  "@types/multer"
+                ]
+              },
+              "env": [
+                "CLOUDFLARE_R2_ACCOUNT_ID",
+                "CLOUDFLARE_R2_ACCESS_KEY_ID",
+                "CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+                "CLOUDFLARE_R2_BUCKET_NAME",
+                "LOG_LEVEL",
+                "PORT"
+              ],
+              "templates": {
+                "mvc": "file-upload/r2/mvc",
+                "feature": "file-upload/r2/feature"
               }
             }
           }
@@ -61,7 +97,9 @@
             "cloudinary": {
               "label": "Cloudinary",
               "dependencies": {
-                "runtime": ["cloudinary"],
+                "runtime": [
+                  "cloudinary"
+                ],
                 "dev": []
               },
               "env": [
@@ -76,10 +114,14 @@
             "imagekit": {
               "label": "Imagekit",
               "dependencies": {
-                "runtime": ["@imagekit/nodejs"],
+                "runtime": [
+                  "@imagekit/nodejs"
+                ],
                 "dev": []
               },
-              "env": ["IMAGEKIT_PRIVATE_KEY"],
+              "env": [
+                "IMAGEKIT_PRIVATE_KEY"
+              ],
               "templates": {
                 "file-api": "file-upload/imagekit/file-api"
               }

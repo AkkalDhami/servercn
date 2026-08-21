@@ -61,7 +61,6 @@
         "new": true
       }
     },
-
     {
       "slug": "component",
       "title": "Component",
@@ -86,7 +85,6 @@
       "status": "stable",
       "docs": "/docs/contributing/provider"
     },
-
     {
       "slug": "foundation",
       "title": "Foundation",
@@ -109,7 +107,10 @@
       "description": "JWT Utilities for JSON Web Token authentication with access & refresh token support for Express",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/jwt-utils"
     },
     {
@@ -118,7 +119,9 @@
       "description": "Centralized error handling for Express applications using TypeScript.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/global-error-handler"
     },
     {
@@ -127,7 +130,10 @@
       "description": "A lightweight, production-ready error handling utility for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/error-handler"
     },
     {
@@ -136,7 +142,10 @@
       "description": "A standardized, type-safe API response wrapper for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/response-formatter"
     },
     {
@@ -145,7 +154,9 @@
       "description": "The Async Handler component is a foundational Express utility that ensures all errors thrown inside asynchronous route handlers are reliably captured and forwarded to Express's global error middleware.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/async-handler"
     },
     {
@@ -154,7 +165,9 @@
       "description": "A utility to handle async errors in Next.js Route Handlers with clean, consistent responses.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["nextjs"],
+      "frameworks": [
+        "nextjs"
+      ],
       "docs": "/docs/components/route-handler"
     },
     {
@@ -163,7 +176,10 @@
       "description": "The Password Hashing component provides a standardized way to hash passwords in Servercn using bcryptjs, argon2, pbkdf2, scrypt.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/password-hashing"
     },
     {
@@ -172,7 +188,10 @@
       "description": "Centralized, type-safe HTTP status codes for consistent API responses.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/http-status-codes"
     },
     {
@@ -181,7 +200,9 @@
       "description": "Auth Verification Middleware protects private routes by validating user authentication using JWT access tokens and refresh tokens.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/verify-auth-middleware"
     },
     {
@@ -190,7 +211,10 @@
       "description": "Structured and configurable logging for Node.js applications using Winston or Pino.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/logger",
       "meta": {
         "new": true
@@ -202,7 +226,10 @@
       "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudinary as the storage provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/file-upload-cloudinary",
       "meta": {
         "new": true
@@ -214,7 +241,10 @@
       "description": "The File Upload component provides a standardized way to handle file uploads in servercn using ImageKit as the storage provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/file-upload-imagekit",
       "meta": {
         "new": true
@@ -226,7 +256,10 @@
       "description": "The Send Email component provides a standardized way to send emails in servercn using nodemailer, resend and mailtrap as the email service provider.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/email-service",
       "meta": {
         "new": true
@@ -238,7 +271,9 @@
       "description": "The Not Found Handler component provides a standardized way to handle not found routes in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/not-found-handler"
     },
     {
@@ -247,7 +282,10 @@
       "description": "The Request Validator (Zod) middleware provides a type-safe and declarative way to validate incoming HTTP requests in Servercn using Zod.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/request-validator"
     },
     {
@@ -256,7 +294,10 @@
       "description": "Health check endpoints for monitoring the health and availability of node.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/health-check"
     },
     {
@@ -265,7 +306,10 @@
       "description": "The Google OAuth component provides a standardized way to handle Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/google-oauth",
       "meta": {
         "new": true
@@ -277,7 +321,10 @@
       "description": "Add authentication to your backend using prebuilt OAuth providers like Google, Facebook, and GitHub.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/oauth"
     },
     {
@@ -286,7 +333,9 @@
       "description": "The Graceful Shutdown Handler ensures that your Servercn application terminates safely and predictably when the process receives shutdown signals (e.g. SIGTERM, SIGINT).",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/shutdown-handler"
     },
     {
@@ -295,7 +344,9 @@
       "description": "The Role Based Access Control component provides a standardized way to handle role based access control in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/rbac"
     },
     {
@@ -304,7 +355,10 @@
       "description": "The Rate Limiter component provides a standardized way to handle rate limiting in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/rate-limiter",
       "meta": {
         "new": true
@@ -316,7 +370,10 @@
       "description": "The GitHub & Google OAuth component provides a standardized way to handle GitHub & Google OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/github-google-oauth",
       "meta": {
         "new": true
@@ -328,7 +385,10 @@
       "description": "The GitHub OAuth component provides a standardized way to handle GitHub OAuth authentication in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/github-oauth",
       "meta": {
         "new": true
@@ -340,7 +400,10 @@
       "description": "A type-safe environment variable configuration using Zod and Dotenv for Express applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/env-config"
     },
     {
@@ -349,7 +412,9 @@
       "description": "Automated OpenAPI documentation and interactive UI for Express APIs using Swagger.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/swagger-docs",
       "meta": {
         "new": true
@@ -361,7 +426,9 @@
       "description": "The Security Headers component provides a standardized way to handle security headers in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/security-header"
     },
     {
@@ -370,7 +437,9 @@
       "description": "The Validate ObjectId Middleware component provides a standardized way to validate MongoDB ObjectIds in Servercn.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/validate-objectid"
     },
     {
@@ -379,7 +448,10 @@
       "description": "Cryptographically secure utility functions for generating OTPs, random tokens, and unique identifiers for authentication workflows.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/components/generate-otp-token"
     },
     {
@@ -388,7 +460,9 @@
       "description": "The Background Jobs component provides a standardized way to schedule recurring tasks and cron jobs in servercn using node-cron.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/components/cron-job"
     },
     {
@@ -397,7 +471,9 @@
       "description": "A robust Express.js server foundation with TypeScript, error handling, and structured logging.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/express-starter"
     },
     {
@@ -406,7 +482,9 @@
       "description": "A production-ready MongoDB foundation with Mongoose, featuring schema validation and type safety.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/mongoose-starter"
     },
     {
@@ -415,7 +493,9 @@
       "description": "A production-ready MySQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/drizzle-mysql-starter"
     },
     {
@@ -424,7 +504,9 @@
       "description": "A production-ready PostgreSQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/drizzle-pg-starter"
     },
     {
@@ -433,7 +515,9 @@
       "description": "A production-ready Neon PostgreSQL foundation using Drizzle ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/drizzle-neon-pg",
       "meta": {
         "new": true
@@ -445,7 +529,9 @@
       "description": "A production-ready MongoDB foundation using Prisma ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/prisma-mongodb-starter"
     },
     {
@@ -454,7 +540,9 @@
       "description": "A production-ready MySQL foundation using Prisma ORM for type-safe database interactions.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/prisma-mysql-starter",
       "meta": {
         "new": true
@@ -466,7 +554,9 @@
       "description": "A production-ready Hybrid Auth foundation for Express.js applications with modern authentication patterns and best practices.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/hybrid-auth",
       "meta": {
         "new": true
@@ -478,7 +568,9 @@
       "description": "A production-ready Stateful Auth foundation for Express.js applications with modern authentication patterns and best practices.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/stateful-auth",
       "meta": {
         "new": true
@@ -490,7 +582,9 @@
       "description": "A production-ready Stateless Auth foundation for Express.js applications with modern authentication patterns and best practices.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/foundations/stateless-auth",
       "meta": {
         "new": true
@@ -502,7 +596,9 @@
       "description": "A production-ready Next.js foundation with TypeScript, error handling, and structured logging.",
       "type": "foundation",
       "status": "stable",
-      "frameworks": ["nextjs"],
+      "frameworks": [
+        "nextjs"
+      ],
       "meta": {
         "new": true
       },
@@ -562,7 +658,9 @@
       "description": "A stateless authentication blueprint with support for JWT access tokens and refresh tokens.",
       "type": "blueprint",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/blueprints/stateless-auth",
       "meta": {
         "databases": [
@@ -584,7 +682,9 @@
       "description": "Session-based authentication blueprint with secure login, logout, and server-managed session flow.",
       "type": "blueprint",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/blueprints/stateful-auth",
       "meta": {
         "databases": [
@@ -602,7 +702,9 @@
       "description": "Hybrid authentication blueprint combining access/refresh token flows with secure session-aware patterns.",
       "type": "blueprint",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/blueprints/hybrid-auth",
       "meta": {
         "databases": [
@@ -629,7 +731,9 @@
       "description": "A simple banking application that integrates MongoDB through Mongoose for data management.",
       "type": "blueprint",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/blueprints/banking-app",
       "meta": {
         "databases": [
@@ -640,14 +744,16 @@
         ]
       }
     },
-
     {
       "slug": "auth",
       "title": "Authentication",
       "description": "Authentication domain schemas including User, OTP, and Session models with support for multiple databases.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/schemas/auth",
       "meta": {
         "databases": [
@@ -672,7 +778,10 @@
       "description": "A production-ready Todo schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "docs": "/docs/schemas/todo",
       "meta": {
         "databases": [
@@ -697,7 +806,9 @@
       "description": "A production-ready Banking schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/schemas/banking-app",
       "meta": {
         "databases": [
@@ -722,7 +833,9 @@
       "description": "A production-ready Blog schema with support for MongoDB, PostgreSQL, and MySQL.",
       "type": "schema",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "docs": "/docs/schemas/blog-app",
       "meta": {
         "databases": [
@@ -745,7 +858,10 @@
       "slug": "mongodb-mongoose",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "title": "MongoDB (Mongoose)",
       "description": "MongoDB provider with Mongoose ORM for express & nextjs applications.",
       "docs": "/docs/providers/mongodb-mongoose"
@@ -754,17 +870,21 @@
       "slug": "mongodb-prisma",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "title": "MongoDB (Prisma)",
       "description": "MongoDB provider with Prisma ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/mongodb-prisma"
     },
-
     {
       "slug": "mysql-prisma",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "MySQL (Prisma)",
       "description": "MySQL provider with Prisma ORM for Express applications.",
       "docs": "/docs/providers/mysql-prisma"
@@ -773,7 +893,10 @@
       "slug": "mysql-drizzle",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "title": "MySQL (Drizzle)",
       "description": "MySQL provider with Drizzle ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/mysql-drizzle",
@@ -785,7 +908,10 @@
       "slug": "pg-drizzle",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "title": "PostgreSQL (Drizzle)",
       "description": "PostgreSQL provider with Drizzle ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/pg-drizzle"
@@ -794,7 +920,10 @@
       "slug": "pg-drizzle-neon",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
       "title": "PostgreSQL Neon (Drizzle)",
       "description": "PostgreSQL + Neon provider with Drizzle ORM for expressjs & nextjs applications.",
       "docs": "/docs/providers/pg-drizzle-neon",
@@ -806,7 +935,9 @@
       "slug": "pg-prisma",
       "type": "provider",
       "status": "stable",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "PostgreSQL (Prisma)",
       "description": "PostgreSQL provider with Prisma ORM for Express applications.",
       "docs": "/docs/providers/pg-prisma",
@@ -818,7 +949,9 @@
       "slug": "cloudinary-storage",
       "type": "provider",
       "status": "deprecated",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "Cloudinary Storage",
       "description": "Cloudinary media upload and storage provider with Multer for Express applications.",
       "docs": "/docs/providers/cloudinary-storage"
@@ -827,7 +960,9 @@
       "slug": "imagekit-storage",
       "type": "provider",
       "status": "deprecated",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "Imagekit Storage",
       "description": "ImageKit file upload and CDN storage provider with Multer for Express applications.",
       "docs": "/docs/providers/imagekit-storage"
@@ -836,7 +971,9 @@
       "slug": "nodemailer-smtp",
       "type": "provider",
       "status": "deprecated",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "Nodemailer SMTP",
       "description": "Transactional email provider using Nodemailer over SMTP for Express applications.",
       "docs": "/docs/providers/nodemailer-smtp"
@@ -845,7 +982,9 @@
       "slug": "resend-mail",
       "type": "provider",
       "status": "deprecated",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "Resend Mail",
       "description": "Email provider using the Resend API for Express applications.",
       "docs": "/docs/providers/resend-mail"
@@ -854,10 +993,27 @@
       "slug": "redis",
       "type": "provider",
       "status": "deprecated",
-      "frameworks": ["express"],
+      "frameworks": [
+        "express"
+      ],
       "title": "Redis",
       "description": "Redis cache and key-value provider with the official Node client for Express applications.",
       "docs": "/docs/providers/redis"
+    },
+    {
+      "slug": "file-upload-r2",
+      "title": "File Upload (Cloudflare R2)",
+      "description": "The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudflare R2 as the storage provider.",
+      "type": "component",
+      "status": "stable",
+      "frameworks": [
+        "express",
+        "nextjs"
+      ],
+      "docs": "/docs/components/file-upload-r2",
+      "meta": {
+        "new": true
+      }
     }
   ]
 }
