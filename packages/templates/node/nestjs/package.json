@@ -1,0 +1,9 @@
+{
+  "name": "servercn-nestjs",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@nestjs/common": "^11.1.29",
+    "@nestjs/core": "^11.1.29"
+  }
+}
