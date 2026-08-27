@@ -26,10 +26,7 @@
       "description": "Learn about the servercn CLI commands and how to use them to manage your Servercn projects.",
       "type": "cli",
       "status": "stable",
-      "docs": "/docs/cli/commands",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/cli/commands"
     },
     {
       "slug": "generators",
@@ -37,10 +34,7 @@
       "description": "Generate controllers, services, models, routes, and more using servercn CLI.",
       "type": "cli",
       "status": "stable",
-      "docs": "/docs/cli/generators",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/cli/generators"
     },
     {
       "slug": "installation",
@@ -56,10 +50,7 @@
       "description": "JavaScript guide for developers who are comfortable with JavaScript and want to use Servercn components without diving into TypeScrip",
       "type": "guide",
       "status": "stable",
-      "docs": "/docs/guides/js-guide",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/guides/js-guide"
     },
 
     {
@@ -191,10 +182,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/logger",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/logger"
     },
     {
       "slug": "file-upload-cloudinary",
@@ -203,10 +191,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/file-upload-cloudinary",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/file-upload-cloudinary"
     },
     {
       "slug": "file-upload-imagekit",
@@ -215,10 +200,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/file-upload-imagekit",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/file-upload-imagekit"
     },
     {
       "slug": "email-service",
@@ -227,10 +209,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/email-service",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/email-service"
     },
     {
       "slug": "not-found-handler",
@@ -266,10 +245,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/google-oauth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/google-oauth"
     },
     {
       "slug": "oauth",
@@ -305,10 +281,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/rate-limiter",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/rate-limiter"
     },
     {
       "slug": "github-google-oauth",
@@ -317,10 +290,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/github-google-oauth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/github-google-oauth"
     },
     {
       "slug": "github-oauth",
@@ -329,10 +299,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/github-oauth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/github-oauth"
     },
     {
       "slug": "env-config",
@@ -350,10 +317,7 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/components/swagger-docs",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/components/swagger-docs"
     },
     {
       "slug": "security-header",
@@ -434,10 +398,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/drizzle-neon-pg",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/drizzle-neon-pg"
     },
     {
       "slug": "prisma-mongodb-starter",
@@ -455,10 +416,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/prisma-mysql-starter",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/prisma-mysql-starter"
     },
     {
       "slug": "hybrid-auth",
@@ -467,10 +425,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/hybrid-auth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/hybrid-auth"
     },
     {
       "slug": "stateful-auth",
@@ -479,10 +434,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/stateful-auth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/stateful-auth"
     },
     {
       "slug": "stateless-auth",
@@ -491,10 +443,7 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["express"],
-      "docs": "/docs/foundations/stateless-auth",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/foundations/stateless-auth"
     },
     {
       "title": "Nextjs Starter",
@@ -503,9 +452,6 @@
       "type": "foundation",
       "status": "stable",
       "frameworks": ["nextjs"],
-      "meta": {
-        "new": true
-      },
       "docs": "/docs/foundations/nextjs-starter"
     },
     {
@@ -776,10 +722,7 @@
       "frameworks": ["express", "nextjs"],
       "title": "MySQL (Drizzle)",
       "description": "MySQL provider with Drizzle ORM for expressjs & nextjs applications.",
-      "docs": "/docs/providers/mysql-drizzle",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/mysql-drizzle"
     },
     {
       "slug": "pg-drizzle",
@@ -797,10 +740,7 @@
       "frameworks": ["express", "nextjs"],
       "title": "PostgreSQL Neon (Drizzle)",
       "description": "PostgreSQL + Neon provider with Drizzle ORM for expressjs & nextjs applications.",
-      "docs": "/docs/providers/pg-drizzle-neon",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/pg-drizzle-neon"
     },
     {
       "slug": "pg-prisma",
@@ -809,10 +749,7 @@
       "frameworks": ["express"],
       "title": "PostgreSQL (Prisma)",
       "description": "PostgreSQL provider with Prisma ORM for Express applications.",
-      "docs": "/docs/providers/pg-prisma",
-      "meta": {
-        "new": true
-      }
+      "docs": "/docs/providers/pg-prisma"
     },
     {
       "slug": "cloudinary-storage",

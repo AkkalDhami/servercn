@@ -19,6 +19,11 @@
           "templates": {
             "file-api": "response-formatter/file-api"
           }
+        },
+        "nestjs": {
+          "templates": {
+            "modular": "response-formatter/modular"
+          }
         }
       }
     }
