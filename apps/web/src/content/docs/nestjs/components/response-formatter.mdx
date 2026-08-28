@@ -1,0 +1,572 @@
+---
+title: API Response Formatter
+description: Response Formatter provides a consistent, type-safe response structure for NestJS APIs.
+
+command: npx servercn-cli@latest add response-formatter
+---
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+
+<Steps>
+<Step>Run the following command:</Step>
+<PackageManagerTabs command="npx servercn-cli@latest add response-formatter" />
+
+<Step>Register the interceptor and filter</Step>
+
+Register the interceptor and exception filter globally in your root module or bootstrap file.
+
+##### Option 1: Global Setup (Recommended)
+
+```ts title="src/main.ts" {11-13, 3-6}
+import { NestFactory, Reflector } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {
+  ResponseExceptionFilter,
+  ResponseInterceptor,
+} from './shared/response';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
+  app.useGlobalFilters(new ResponseExceptionFilter());
+
+  await app.listen(process.env.PORT ?? 8000);
+}
+void bootstrap();
+```
+
+##### Option 2: Per-Module Setup
+```ts title="src/users/users.controller.ts" {3-6, 9-10}
+import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
+
+import {
+  ResponseExceptionFilter,
+  ResponseInterceptor,
+} from '@/shared/response';
+
+@Controller('users')
+@UseInterceptors(ResponseInterceptor)
+@UseFilters(ResponseExceptionFilter)
+export class UsersController {}
+```
+
+</Steps>
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Response types</Step>
+
+The shared shape of every response, plus the pagination contract:
+
+```ts title="src/shared/response/response.types.ts"
+import { HttpStatus } from "@nestjs/common";
+
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type ApiResponseOptions<T = unknown> = {
+  success: boolean;
+  message: string;
+  statusCode: HttpStatus;
+  data?: T | null;
+  errors?: unknown;
+  meta?: PaginationMeta | Record<string, unknown>;
+};
+
+export type SuccessResponse<T = unknown> = {
+  success: true;
+  message: string;
+  statusCode: HttpStatus;
+  data?: T | null;
+  meta?: PaginationMeta | Record<string, unknown>;
+};
+
+export type ErrorResponse = {
+  success: false;
+  message: string;
+  statusCode: HttpStatus;
+  errors?: unknown;
+};
+```
+
+<Step>ApiResponse builder</Step>
+
+The envelope itself, with static helpers for the common status codes:
+
+```ts title="src/shared/response/api-response.ts"
+import { HttpStatus } from "@nestjs/common";
+import type {
+  ApiResponseOptions,
+  ErrorResponse,
+  SuccessResponse
+} from "./response.types";
+
+export class ApiResponse<T = unknown> {
+  public readonly success: boolean;
+  public readonly message: string;
+  public readonly statusCode: HttpStatus;
+  public readonly data?: T | null;
+  public readonly errors?: unknown;
+  public readonly meta?: ApiResponseOptions<T>["meta"];
+
+  constructor(options: ApiResponseOptions<T>) {
+    this.success = options.success;
+    this.message = options.message;
+    this.statusCode = options.statusCode;
+    this.data = options.data;
+    this.errors = options.errors;
+    this.meta = options.meta;
+  }
+
+  static success<T = unknown>(
+    message: string,
+    data?: T | null,
+    statusCode = HttpStatus.OK,
+    meta?: ApiResponseOptions<T>["meta"]
+  ): ApiResponse<T> {
+    return new ApiResponse<T>({
+      success: true,
+      message,
+      statusCode,
+      data,
+      meta
+    });
+  }
+
+  static ok<T = unknown>(
+    message = "OK",
+    data?: T | null,
+    meta?: ApiResponseOptions<T>["meta"]
+  ): ApiResponse<T> {
+    return ApiResponse.success(message, data, HttpStatus.OK, meta);
+  }
+
+  static created<T = unknown>(
+    message = "Created",
+    data?: T | null
+  ): ApiResponse<T> {
+    return ApiResponse.success(message, data, HttpStatus.CREATED);
+  }
+
+  static accepted<T = unknown>(
+    message = "Accepted",
+    data?: T | null
+  ): ApiResponse<T> {
+    return ApiResponse.success(message, data, HttpStatus.ACCEPTED);
+  }
+
+  static error(
+    message: string,
+    statusCode: HttpStatus,
+    errors?: unknown
+  ): ApiResponse<never> {
+    return new ApiResponse<never>({
+      success: false,
+      message,
+      statusCode,
+      errors
+    });
+  }
+
+  toJSON(): SuccessResponse<T> | ErrorResponse {
+    return {
+      success: this.success,
+      message: this.message,
+      statusCode: this.statusCode,
+      ...(this.data !== undefined && {
+        data: this.data
+      }),
+      ...(this.meta !== undefined && {
+        meta: this.meta
+      }),
+      ...(this.errors !== undefined && {
+        errors: this.errors
+      })
+    };
+  }
+}
+```
+
+<Step>Response decorator</Step>
+
+Lets a route or a whole controller declare its success message as metadata:
+
+```ts title="src/shared/response/response.decorator.ts"
+import { SetMetadata } from "@nestjs/common";
+
+export const RESPONSE_OPTIONS_KEY = Symbol("response_options");
+
+export type ResponseOptions = {
+  message?: string;
+};
+
+export const ApiResponseConfig = (options: ResponseOptions = {}) =>
+  SetMetadata(RESPONSE_OPTIONS_KEY, options);
+```
+
+<Step>Response interceptor</Step>
+
+Wraps whatever a handler returns, unless it already returned an <Code>ApiResponse</Code>:
+
+```ts title="src/shared/response/response.interceptor.ts"
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor
+} from "@nestjs/common";
+
+import { Reflector } from "@nestjs/core";
+
+import { Observable, map } from "rxjs";
+
+import { ApiResponse } from "./api-response";
+import { RESPONSE_OPTIONS_KEY, ResponseOptions } from "./response.decorator";
+import { Response } from "express";
+
+@Injectable()
+export class ResponseInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
+  constructor(private readonly reflector: Reflector) {}
+
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>
+  ): Observable<ApiResponse<T>> {
+    const response = context.switchToHttp().getResponse<Response>();
+
+    const statusCode = response.statusCode;
+
+    const options = this.reflector.getAllAndOverride<ResponseOptions>(
+      RESPONSE_OPTIONS_KEY,
+      [context.getHandler(), context.getClass()]
+    );
+
+    const message = options?.message ?? "Request successful";
+
+    return next.handle().pipe(
+      map(data => {
+        if (data instanceof ApiResponse) {
+          return data;
+        }
+
+        return new ApiResponse<T>({
+          success: true,
+          statusCode: statusCode,
+          message,
+          data
+        });
+      })
+    );
+  }
+}
+```
+
+<Step>Exception filter</Step>
+
+Catches everything thrown anywhere in the app and returns the same envelope:
+
+```ts title="src/shared/response/response.filter.ts"
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException
+} from "@nestjs/common";
+
+import type { Response } from "express";
+
+import { HttpStatus } from "@nestjs/common";
+
+import { ApiResponse } from "./api-response";
+
+@Catch()
+export class ResponseExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost): void {
+    const response = host.switchToHttp().getResponse<Response>();
+
+    let statusCode: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    let message = "Internal server error";
+    let errors: unknown;
+
+    if (exception instanceof HttpException) {
+      statusCode = exception.getStatus();
+
+      const exceptionResponse = exception.getResponse();
+
+      if (typeof exceptionResponse === "string") {
+        message = exceptionResponse;
+      } else if (
+        typeof exceptionResponse === "object" &&
+        exceptionResponse !== null
+      ) {
+        const errorResponse = exceptionResponse as Record<string, unknown>;
+
+        if (typeof errorResponse.message === "string") {
+          message = errorResponse.message;
+        }
+
+        errors = errorResponse;
+      }
+    }
+
+    const apiResponse = ApiResponse.error(message, statusCode, errors);
+
+    response.status(statusCode).json(apiResponse);
+  }
+}
+```
+
+<Step>Barrel file</Step>
+
+```ts title="src/shared/response/index.ts"
+export * from "./api-response";
+export * from "./response.decorator";
+export * from "./response.interceptor";
+export * from "./response.filter";
+export * from "./response.types";
+```
+<Step>Register the interceptor and filter</Step>
+
+Register the interceptor and exception filter globally in your root module or bootstrap file.
+
+##### Option 1: Global Setup (Recommended)
+
+```ts title="src/main.ts" {11-13, 3-6}
+import { NestFactory, Reflector } from '@nestjs/core';
+import { AppModule } from './app.module';
+import {
+  ResponseExceptionFilter,
+  ResponseInterceptor,
+} from './shared/response';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
+  app.useGlobalFilters(new ResponseExceptionFilter());
+
+  await app.listen(process.env.PORT ?? 8000);
+}
+void bootstrap();
+```
+
+##### Option 2: Per-Module Setup
+```ts title="src/users/users.controller.ts" {3-6, 9-10}
+import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
+
+import {
+  ResponseExceptionFilter,
+  ResponseInterceptor,
+} from '@/shared/response';
+
+@Controller('users')
+@UseInterceptors(ResponseInterceptor)
+@UseFilters(ResponseExceptionFilter)
+export class UsersController {}
+```
+
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+
+## Usage Examples
+
+### 1. Basic Success Response
+Return data directly from your controller — the interceptor handles wrapping:
+
+```ts title="src/health/health.controller.ts"
+import { Controller, Get } from '@nestjs/common';
+
+@Controller('health')
+export class HealthController {
+  @Get()
+  check() {
+    return { status: 'up', timestamp: new Date().toISOString() };
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Request successful",
+  "statusCode": 200,
+  "data": {
+    "status": "up",
+    "timestamp": "2026-08-28T03:16:19.757Z"
+  }
+}
+```
+
+### 2. Custom Message with Decorator
+
+```ts title="src/users/users.controller.ts" {3, 8-10}
+import { Controller, Get, Param } from '@nestjs/common';
+
+import { ApiResponseConfig } from '@/shared/response';
+
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  @ApiResponseConfig({
+    message: 'User found successfully',
+  })
+  findOne(@Param('id') id: string) {
+    return { id, name: 'John Doe', email: 'john@example.com' };
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User found successfully",
+  "statusCode": 200,
+  "data": {
+    "id": "123",
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+### 3. Manual ApiResponse (Bypass Interceptor)
+Return an ApiResponse instance directly to skip automatic wrapping:
+
+```ts title="src/users/users.controller.ts" {2, 15}
+import { Controller, Post } from '@nestjs/common';
+import { ApiResponse } from '@/shared/response';
+
+@Controller('users')
+export class UsersController {
+  @Post()
+  create() {
+    const user = {
+      id: 'usr_123',
+      name: 'John Doe',
+      username: 'john_doe',
+      email: 'john@example.com',
+    };
+
+    return ApiResponse.created('User created successfully', user);
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User created successfully",
+  "statusCode": 201,
+  "data": {
+    "id": "usr_123",
+    "name": "John Doe",
+    "username": "john_doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+### 4. Error Handling
+Throw standard NestJS exceptions — the filter handles formatting:
+
+```ts title="src/users/users.controller.ts" {7}
+import { BadRequestException, Controller, Get, Param } from '@nestjs/common';
+
+@Controller('users')
+export class UsersController {
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    throw new BadRequestException('Invalid User ID');
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": false,
+  "message": "Invalid User ID",
+  "statusCode": 400,
+  "errors": {
+    "message": "Invalid User ID",
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+}
+```
+
+### 5. Pagination with Meta
+
+```ts title="src/posts/posts.controller.ts"
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiResponse, PaginationMeta } from '@/src/shared/response';
+
+@Controller('posts')
+export class PostsController {
+  @Get()
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    const { data, total } = this.postsService.paginate(page, limit);
+    
+    const meta: PaginationMeta = {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPreviousPage: page > 1,
+    };
+    
+    return ApiResponse.ok('Posts retrieved', data, meta);
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Posts retrieved",
+  "statusCode": 200,
+  "data": [...],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 45,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```

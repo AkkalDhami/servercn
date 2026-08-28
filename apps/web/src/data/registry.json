@@ -127,7 +127,7 @@
       "description": "A standardized, type-safe API response wrapper for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
+      "frameworks": ["express", "nextjs", "nestjs"],
       "docs": "/docs/components/response-formatter"
     },
     {
