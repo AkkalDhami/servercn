@@ -5,11 +5,12 @@ import { glob } from "glob";
 import { processRegistryItem } from "./build.handlers";
 import {
   APP_NAME,
+  GITHUB_URL,
   RegistryTypeList,
   SERVERCN_URL
 } from "@/constants/app.constants";
 import type { RegistryType, RegistryItem, FrameworkType } from "@/types";
-import { paths } from "@/lib/paths";
+import { assertMonorepoContext, paths } from "@/lib/paths";
 import { logger } from "@/utils/logger";
 import { spinner } from "@/utils/spinner";
 import { highlighter } from "@/utils/highlighter";
@@ -20,6 +21,8 @@ export type buildTypeProps = {
 };
 
 export async function build(options: buildTypeProps) {
+  assertMonorepoContext("build");
+
   const buildSpin = spinner("Building ServerCN registry...").start();
 
   const index: {
