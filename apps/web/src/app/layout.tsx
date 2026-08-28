@@ -66,7 +66,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={fontVariables}>
+    <html
+      data-scroll-behavior="smooth"
+      lang="en"
+      suppressHydrationWarning
+      className={fontVariables}>
       <body
         className={`selection:bg-primary selection:text-primary-foreground scroll-pt-10 scroll-smooth antialiased`}>
         <ThemeProvider

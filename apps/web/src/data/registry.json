@@ -127,8 +127,11 @@
       "description": "A standardized, type-safe API response wrapper for Express and Next.js applications.",
       "type": "component",
       "status": "stable",
-      "frameworks": ["express", "nextjs"],
-      "docs": "/docs/components/response-formatter"
+      "frameworks": ["express", "nextjs", "nestjs"],
+      "docs": "/docs/components/response-formatter",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "async-handler",

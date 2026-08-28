@@ -6,7 +6,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import matter from "gray-matter";
 import { mdxComponents } from "@/components/docs/mdx-components";
 import rehypePrettyCode from "rehype-pretty-code";
-import { DEFAULT_CODE_THEME } from "@/lib/constants";
+import { cookies } from "next/headers";
+import { COOKIE_THEME_KEY, DEFAULT_CODE_THEME } from "@/lib/constants";
 import { OpenInAi } from "@/components/docs/open-in-ai";
 import ArchitectureTabs from "@/components/docs/architecture-tabs";
 import PackageManagerTabs from "@/components/docs/package-manager-tabs";
@@ -29,106 +30,49 @@ import { resolveRegistryItem } from "@/lib/resolver";
 import { cn } from "@/lib/utils";
 import { Variant } from "@/components/file-viewer/variant";
 import { ViewAsJson } from "@/components/docs/view-as-json";
-import { Suspense } from "react";
 import { FrameworkTabs } from "@/components/docs/select-framework";
 
-export const dynamic = "force-static";
-export const dynamicParams = false;
 export const revalidate = false;
+export const dynamic = "force-dynamic";
+export const dynamicParams = false;
 
-const DOCS_PATH = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
-  "src",
-  "content",
-  "docs"
-);
+const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
 
 export async function generateStaticParams() {
   const registryParams = registry.items.flatMap(({ meta, docs }) => {
+    const nestedSlugs =
+      meta && (meta.databases || [])
+        ? (meta.databases || []).map(({ slug }) => slug)
+        : [];
     const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
+    const baseParams = [...slugArray, ...nestedSlugs];
 
-    const params = [
-      {
-        slug: slugArray
-      }
-    ];
-
-    const FRAMEWORK_SUPPORT_SECTIONS = ["schemas", "blueprints"];
-
-    const databaseParams = (meta?.databases ?? []).flatMap(({ slug }) => [
-      {
-        slug: [...slugArray, slug]
-      },
-      {
-        slug: [slugArray[0], slug]
-      }
-    ]);
-
-    params.push(...databaseParams);
-
+    // Generate framework variants for framework-based sections
     const section = slugArray[0];
-
-    if (
-      FRAMEWORK_SECTIONS.includes(section) ||
-      FRAMEWORK_SUPPORT_SECTIONS.includes(section)
-    ) {
-      params.push(
-        {
-          slug: ["express", ...slugArray]
-        },
-        {
-          slug: ["nestjs", ...slugArray]
-        },
-        {
-          slug: ["nextjs", ...slugArray]
-        }
-      );
+    if (FRAMEWORK_SECTIONS.includes(section)) {
+      return [
+        baseParams,
+        ["express", ...baseParams],
+        ["nestjs", ...baseParams]
+      ];
     }
 
-    const databaseFrameworkParams = (meta?.databases ?? []).flatMap(
-      ({ slug }) => [
-        {
-          slug: ["express", slugArray[0], slug]
-        },
-        {
-          slug: ["nestjs", slugArray[0], slug]
-        },
-        {
-          slug: ["nextjs", slugArray[0], slug]
-        }
-      ]
-    );
-
-    params.push(...databaseFrameworkParams);
-
-    return params;
+    return [baseParams];
   });
 
-  const contributingParams = contributingGuides.map(({ docs }) => ({
-    slug: docs.replace("/docs/", "").split("/").filter(Boolean)
-  }));
+  const contributingParams = contributingGuides.map(({ docs }) => {
+    const slugArray = docs.replace("/docs/", "").split("/").filter(Boolean);
+    return slugArray;
+  });
 
   const specialRoutes = [
     { slug: [] },
     { slug: ["introduction"] },
     { slug: ["cli"] },
-    { slug: ["installation"] },
-    { slug: ["changelog"] }
+    { slug: ["installation"] }
   ];
 
-  const changelogPaths = fs
-    .readdirSync(path.join(DOCS_PATH, "changelog"))
-    .filter(file => file.endsWith(".mdx") && file !== "index.mdx")
-    .map(file => ({
-      slug: ["changelog", file.replace(".mdx", "")]
-    }));
-
-  return [
-    ...specialRoutes,
-    ...registryParams,
-    ...contributingParams,
-    ...changelogPaths
-  ];
+  return [...specialRoutes, ...registryParams, ...contributingParams];
 }
 
 export async function generateMetadata(props: {
@@ -182,24 +126,24 @@ export async function generateMetadata(props: {
   };
 }
 
-function getDocPath(slug: string[] = []) {
-  const actualSlug = slug.filter(Boolean);
-  if (actualSlug.length === 0 || actualSlug[0] === "introduction") {
+function getDocPath(slug?: string[]) {
+  if (!slug || slug.length === 0 || slug[0] === "introduction") {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
-  }
-
-  if (actualSlug.length === 1 && actualSlug[0] === "installation") {
+  } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
   }
 
-  if (actualSlug[0] === "changelog") {
-    return actualSlug.length === 1
-      ? path.join(DOCS_PATH, "changelog", "index.mdx")
-      : path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  const actualSlug = slug;
+
+  if (actualSlug.length === 2 && actualSlug[0] === "contributing") {
+    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
   }
 
-  const regPath = path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
-  return regPath;
+  if (actualSlug.length === 2 && actualSlug[0] === "schemas") {
+    return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
+  }
+
+  return path.join(DOCS_PATH, `${actualSlug.join("/")}.mdx`);
 }
 
 export default async function DocsPage({
@@ -241,6 +185,9 @@ export default async function DocsPage({
   const source = fs.readFileSync(filePath, "utf8");
   const { content, data } = matter(source);
 
+  const cookieStore = await cookies();
+  const theme = cookieStore.get(COOKIE_THEME_KEY)?.value ?? DEFAULT_CODE_THEME;
+
   // Extract current framework from URL if present
   const currentFramework =
     slug &&
@@ -254,6 +201,7 @@ export default async function DocsPage({
     orm
     // variant
   } = resolveRegistryItem(slug[slug.length - 1]);
+
 
   return (
     <>
@@ -269,8 +217,7 @@ export default async function DocsPage({
                   "guides",
                   "installation",
                   "introduction",
-                  "contributing",
-                  "changelog"
+                  "contributing"
                 ].includes(slug[0]) && (
                   <ViewAsJson
                     type={
@@ -283,42 +230,39 @@ export default async function DocsPage({
                 )}
               </div>
               <div className="flex items-center gap-2">
-                {/* <ShareMenu
-                  title={data.title}
-                  url={`/docs/${currentFramework}/${
-                    ["tooling"].includes(slug[0])
-                      ? (slug[0] as ItemType)
-                      : (slug[1] as ItemType)
-                  }/${blueprintSlug}`}
-                /> */}
-                <div className="flex items-center gap-2">
-                  <Link
-                    className={cn(buttonVariants({ variant: "secondary" }))}
-                    href={
-                      (prev
-                        ? injectFramework(
-                            prev.docs as string,
-                            currentFramework || ""
-                          )
-                        : "") as Route
-                    }>
-                    <ArrowLeftIcon className="size-4" />
-                  </Link>
-                  <Link
-                    href={
-                      (next
-                        ? injectFramework(
-                            next.docs as string,
-                            currentFramework || ""
-                          )
-                        : "") as Route
-                    }
-                    className={cn(buttonVariants({ variant: "secondary" }))}>
-                    <ArrowRightIcon className="size-4" />
-                  </Link>
-                </div>
+                <Link
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "primary-ring"
+                  )}
+                  href={
+                    (prev
+                      ? injectFramework(
+                          prev.docs as string,
+                          currentFramework || ""
+                        )
+                      : "") as Route
+                  }>
+                  <ArrowLeftIcon className="size-4" />
+                </Link>
+                <Link
+                  href={
+                    (next
+                      ? injectFramework(
+                          next.docs as string,
+                          currentFramework || ""
+                        )
+                      : "") as Route
+                  }
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "primary-ring"
+                  )}>
+                  <ArrowRightIcon className="size-4" />
+                </Link>
               </div>
             </div>
+
             <div className="space-y-4">
               <h1 className="text-3xl font-medium tracking-tight">
                 {data.title}
@@ -326,7 +270,7 @@ export default async function DocsPage({
               <p className="text-muted-foreground">{data.description}</p>
             </div>
 
-            <div className="border-b mt-4 pb-5">
+            <div className="mt-4 border-b pb-5">
               <FrameworkTabs />
             </div>
             <MDXRemote
@@ -338,11 +282,8 @@ export default async function DocsPage({
                     [
                       rehypePrettyCode,
                       {
+                        theme: theme || "vesper",
                         keepBackground: false,
-                        theme: {
-                          dark: DEFAULT_CODE_THEME,
-                          light: "github-light"
-                        },
                         defaultLang: {
                           block: "plaintext",
                           inline: "plaintext"
@@ -364,27 +305,23 @@ export default async function DocsPage({
                   <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                     File &amp; Folder Structure
                   </h2>
-                  <Suspense fallback={<>...</>}>
-                    <ArchitectureTabs
-                      current={currentArch || "mvc"}
-                      framework={currentFramework}
-                    />
-                  </Suspense>
-                  <Suspense fallback={<>...</>}>
-                    <ComponentFileViewer
-                      slug={blueprintSlug ?? slug[slug.length - 1]}
-                      from="docs"
-                      database={database}
-                      orm={orm}
-                      arch={currentArch}
-                      framework={currentFramework || slug[0]}
-                      type={
-                        ["tooling", ""].includes(slug[1])
-                          ? (slug[1] as ItemType)
-                          : (slug[1]?.slice(0, -1) as ItemType)
-                      }
-                    />
-                  </Suspense>
+                  <ArchitectureTabs
+                    current={currentArch || "mvc"}
+                    framework={currentFramework}
+                  />
+                  <ComponentFileViewer
+                    slug={blueprintSlug ?? slug[slug.length - 1]}
+                    from="docs"
+                    database={database}
+                    orm={orm}
+                    arch={currentArch}
+                    framework={currentFramework || slug[0]}
+                    type={
+                      ["tooling", ""].includes(slug[1])
+                        ? (slug[1] as ItemType)
+                        : (slug[1]?.slice(0, -1) as ItemType)
+                    }
+                  />
                 </div>
               )}
 
