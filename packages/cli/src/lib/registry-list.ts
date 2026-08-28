@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { paths } from "./paths";
+import { assertMonorepoContext, paths } from "./paths";
 import type { RegistryData, RegistryType } from "@/types";
 import { SERVERCN_URL } from "@/constants/app.constants";
 import { logger } from "@/utils/logger";
@@ -11,6 +11,7 @@ export async function loadRegistryItems(
   local: boolean = false
 ) {
   if (local) {
+    assertMonorepoContext("--local");
     const registryDir = paths.localRegistry(type);
     const files = await fs.readdir(registryDir);
 
