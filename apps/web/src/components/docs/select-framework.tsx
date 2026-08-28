@@ -206,7 +206,7 @@ export function FrameworkTabs({
 
   return (
     <div className="border-border relative flex w-full items-center justify-between gap-10">
-      <div className="flex gap-8">
+      <div className="flex gap-4 sm:gap-8">
         {FRAMEWORK_OPTIONS.map(({ value, label }) => {
           const isActive = displayValue === value;
 
@@ -217,7 +217,7 @@ export function FrameworkTabs({
               onClick={() => handleChange(value)}
               className={cn(
                 "relative flex cursor-pointer items-center gap-2 py-2 text-base font-medium outline-none sm:text-lg",
-                value === "nestjs" && "pointer-events-none"
+                // value === "nestjs" && "pointer-events-none"
               )}>
               <span
                 className={cn(

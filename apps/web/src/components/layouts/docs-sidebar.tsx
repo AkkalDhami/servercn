@@ -25,6 +25,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { useState } from "react";
+import { SelectFramework } from "../docs/select-framework";
 
 export const ITEM_GROUP_NAMING = {
   guide: "Getting Started",
@@ -154,6 +155,7 @@ export default function DocsSidebar({
   return (
     <nav className="no-scrollbar font-inter sticky top-20 left-0 z-10 h-full max-h-[calc(100vh-2rem)] space-y-4 overflow-y-auto px-3 py-0 pb-14 text-sm lg:mb-10">
       <CodeTheme />
+      <SelectFramework />
 
       <div className="mt-6 space-y-5">
         {navSections.map(section => {

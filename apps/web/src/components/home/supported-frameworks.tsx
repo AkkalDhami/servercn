@@ -43,7 +43,7 @@ const FRAMEWORKS: Framework[] = [
   {
     name: "NestJS",
     icon: SiNestjs,
-    status: "coming-soon",
+    status: "working",
     description:
       "Enterprise-grade Node.js. Modular components for guards, interceptors, pipes — aligned with NestJS DI patterns.",
     frameworks: ["nestjs"],
@@ -52,7 +52,7 @@ const FRAMEWORKS: Framework[] = [
   {
     name: "Next.js",
     icon: SiNextdotjs,
-    status: "working",
+    status: "available",
     description:
       "Full-stack ready. Route handlers, server actions, and middleware components for Next.js App Router backends",
     frameworks: ["nextjs"],
