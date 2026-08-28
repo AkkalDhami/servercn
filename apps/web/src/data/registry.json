@@ -128,7 +128,10 @@
       "type": "component",
       "status": "stable",
       "frameworks": ["express", "nextjs", "nestjs"],
-      "docs": "/docs/components/response-formatter"
+      "docs": "/docs/components/response-formatter",
+      "meta": {
+        "new": true
+      }
     },
     {
       "slug": "async-handler",
