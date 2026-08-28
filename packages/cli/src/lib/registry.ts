@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { logger } from "@/utils/logger";
-import { paths } from "./paths";
+import { assertMonorepoContext, paths } from "./paths";
 import type { RegistryMap } from "@/types";
 import { capitalize } from "@/utils/capitalize";
 import { getRegistryLists } from "@/commands/list/list.handlers";
@@ -19,6 +19,7 @@ export async function getRegistry<T extends keyof RegistryMap>(
     : name;
 
   if (local) {
+    assertMonorepoContext("--local");
     const registryPath = paths.localRegistry(type);
     // console.log({
     //   registryPath

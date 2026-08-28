@@ -42,7 +42,9 @@ async function main() {
 
   program
     .command("build")
-    .description("Build the project")
+    .description(
+      "[Maintainer only] Build registry artifacts (packages/registry -> apps/web/public/sr)"
+    )
     .option("--name <name>", "App name, website name")
     .option("--url <url>", "App URL, website URL")
     .action(async (options: buildTypeProps) => await build(options));
