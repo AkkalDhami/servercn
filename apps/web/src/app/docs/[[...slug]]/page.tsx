@@ -131,6 +131,10 @@ function getDocPath(slug?: string[]) {
     return path.join(DOCS_PATH, "guides", "getting-started.mdx");
   } else if (slug.length === 1 && slug[0] === "installation") {
     return path.join(DOCS_PATH, "guides", "installation.mdx");
+  } else if (slug.length === 1 && slug[0] === "cli") {
+    return path.join(DOCS_PATH, "guides", "cli.mdx");
+  } else if (slug.length === 1 && slug[0] === "changelog") {
+    return path.join(DOCS_PATH, "changelog", "index.mdx");
   }
 
   const actualSlug = slug;
@@ -202,6 +206,13 @@ export default async function DocsPage({
     // variant
   } = resolveRegistryItem(slug[slug.length - 1]);
 
+  const specialPages = [
+    "cli",
+    "guides",
+    "installation",
+    "introduction",
+    "contributing"
+  ];
 
   return (
     <>
@@ -212,13 +223,7 @@ export default async function DocsPage({
             <div className="mb-6 flex items-center justify-between pt-6">
               <div className="flex items-center gap-3">
                 <OpenInAi />
-                {![
-                  "cli",
-                  "guides",
-                  "installation",
-                  "introduction",
-                  "contributing"
-                ].includes(slug[0]) && (
+                {!specialPages.includes(slug[0]) && (
                   <ViewAsJson
                     type={
                       ["tooling"].includes(slug[0])
@@ -270,9 +275,11 @@ export default async function DocsPage({
               <p className="text-muted-foreground">{data.description}</p>
             </div>
 
-            <div className="mt-4 border-b pb-5">
-              <FrameworkTabs />
-            </div>
+            {!specialPages.includes(slug[0]) && (
+              <div className="mt-4 border-b pb-5">
+                <FrameworkTabs />
+              </div>
+            )}
             <MDXRemote
               source={content}
               components={mdxComponents}

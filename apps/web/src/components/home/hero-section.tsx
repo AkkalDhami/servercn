@@ -49,11 +49,14 @@ const supportedStack = [
     name: "Prisma",
     icon: LanguageIcons.prisma
   },
-
   {
     name: "Next.js",
     icon: LanguageIcons.nextjs
-  }
+  },
+  {
+    name: "Nest.js",
+    icon: LanguageIcons.nestjs
+  },
 ];
 
 export default function HeroSection() {
@@ -103,7 +106,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-6 flex flex-wrap items-center gap-3">
+                className="mt-6 flex flex-wrap items-center gap-2">
                 {supportedStack.map(stack => (
                   <Tooltip key={stack.name}>
                     <TooltipTrigger className="cursor-pointer">
