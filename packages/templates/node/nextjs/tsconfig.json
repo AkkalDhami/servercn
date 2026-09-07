@@ -13,7 +13,7 @@
         "./component/error-handler/file-api/src/constants/*"
       ],
       "@/utils/*": [
-        "./component/route-handler/file-api/src/utils/*",
+        "./component/route-handler/file-api/src/lib/*",
         "./component/error-handler/file-api/src/utils/*"
       ],
       "@/configs/*": [
