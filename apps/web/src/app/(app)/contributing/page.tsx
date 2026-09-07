@@ -27,7 +27,7 @@ export default function ContributingPage() {
           <Link
             key={guide.title}
             href={guide.docs as Route}
-            className="group screen-line-before border-hover hover:bg-card-hover border-edge relative p-4 last:border-r dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]">
+            className="group screen-line-before border-hover hover:bg-card-hover border-edge dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)] relative p-4 last:border-r">
             <div className="flex items-center gap-4">
               <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
                 {guide.title}

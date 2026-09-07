@@ -1,11 +1,15 @@
 # Ignore artifacts:
 node_modules
 .next
+**/.next
 build
 dist
+**/dist
 .env
 **/*.mdx
 **/*.md
 coverage
 apps/web/public/sr/
+apps/web/next-env.d.ts
+packages/templates
 **/*.hbs

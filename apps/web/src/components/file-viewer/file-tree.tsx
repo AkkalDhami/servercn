@@ -65,7 +65,7 @@ function TreeNode({
         </button>
         {/* vertical line */}
         {open && (
-          <div className="absolute top-5 my-auto left-[10.5px] h-[calc(100%-16px)] w-px bg-neutral-500/30" />
+          <div className="absolute top-5 left-[10.5px] my-auto h-[calc(100%-16px)] w-px bg-neutral-500/30" />
         )}
 
         {open && (

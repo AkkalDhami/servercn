@@ -216,7 +216,7 @@ export function FrameworkTabs({
               type="button"
               onClick={() => handleChange(value)}
               className={cn(
-                "relative flex cursor-pointer items-center gap-2 py-2 text-base font-medium outline-none sm:text-lg",
+                "relative flex cursor-pointer items-center gap-2 py-2 text-base font-medium outline-none sm:text-lg"
                 // value === "nestjs" && "pointer-events-none"
               )}>
               <span

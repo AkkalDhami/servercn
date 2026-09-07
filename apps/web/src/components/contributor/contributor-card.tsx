@@ -50,9 +50,7 @@ export const ContributorCard: React.FC<ContributorCardProps> = ({
   const badge = getContributionBadge(contributor.contributions);
   if (minimal) {
     return (
-      <Link
-        href={contributor.html_url as Route}
-        target="_blank">
+      <Link href={contributor.html_url as Route} target="_blank">
         <Tooltip>
           <TooltipTrigger className="cursor-pointer">
             <img

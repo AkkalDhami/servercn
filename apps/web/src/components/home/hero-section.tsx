@@ -56,7 +56,7 @@ const supportedStack = [
   {
     name: "Nest.js",
     icon: LanguageIcons.nestjs
-  },
+  }
 ];
 
 export default function HeroSection() {

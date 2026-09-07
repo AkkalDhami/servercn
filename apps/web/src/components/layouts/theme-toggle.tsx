@@ -30,7 +30,11 @@ export default function ThemeToggle() {
   };
 
   return (
-    <Button variant="ghost" size="icon" className="primary-ring" onClick={toggleTheme}>
+    <Button
+      variant="ghost"
+      size="icon"
+      className="primary-ring"
+      onClick={toggleTheme}>
       {currentTheme === "dark" ? (
         <Sun className="size-4" />
       ) : (
