@@ -125,9 +125,7 @@ export async function init(foundation?: string, options: AddOptions = {}) {
         logger.break();
         logger.error(`✖ Invalid servercn foundation: '${foundation}'`);
         logger.break();
-        logger.info(
-          `Please choose one of the supported foundations:`
-        );
+        logger.info(`Please choose one of the supported foundations:`);
         logger.break();
         //? map FOUNDATION_ARCH_MAP to a new array with only the keys
 

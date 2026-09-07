@@ -14,8 +14,14 @@ type ViewAsJsonProps = {
 
 export function ViewAsJson({ slug, type }: ViewAsJsonProps) {
   return (
-    <Link href={`/sr/${type}/${slug}.json` as Route} target="_blank" className={cn(buttonVariants({variant: "outline"}), "flex items-center gap-2")}>
-    <CurlyBraces className="size-4"/>  View as Json
+    <Link
+      href={`/sr/${type}/${slug}.json` as Route}
+      target="_blank"
+      className={cn(
+        buttonVariants({ variant: "outline" }),
+        "flex items-center gap-2"
+      )}>
+      <CurlyBraces className="size-4" /> View as Json
     </Link>
   );
 }

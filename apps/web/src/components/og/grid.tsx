@@ -13,9 +13,8 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
       display: "flex",
       height: "100%",
       position: "relative",
-      width: "100%",
-    }}
-  >
+      width: "100%"
+    }}>
     <div
       style={{
         borderLeft: "1px dashed #44403c",
@@ -23,7 +22,7 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         left: "64px",
         position: "absolute",
         top: 0,
-        width: "1px",
+        width: "1px"
       }}
     />
     <div
@@ -33,7 +32,7 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         position: "absolute",
         right: "64px",
         top: 0,
-        width: "1px",
+        width: "1px"
       }}
     />
     <div
@@ -43,7 +42,7 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         left: 0,
         position: "absolute",
         right: 0,
-        top: "64px",
+        top: "64px"
       }}
     />
     <div
@@ -53,7 +52,7 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         height: "1px",
         left: 0,
         position: "absolute",
-        right: 0,
+        right: 0
       }}
     />
 
@@ -67,9 +66,8 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         position: "absolute",
         right: "128px",
         top: "128px",
-        width: "896px",
-      }}
-    >
+        width: "896px"
+      }}>
       <div
         style={{
           display: "flex",
@@ -78,9 +76,8 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
           fontWeight: 600,
           letterSpacing: "-0.04em",
           lineHeight: 1.1,
-          textWrap: "balance",
-        }}
-      >
+          textWrap: "balance"
+        }}>
         {title}
       </div>
       <div
@@ -92,9 +89,8 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
           fontWeight: 500,
           lineHeight: 1.5,
           marginTop: "24px",
-          textWrap: "balance",
-        }}
-      >
+          textWrap: "balance"
+        }}>
         {description}
       </div>
     </div>
@@ -106,9 +102,8 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
         display: "flex",
         gap: "14px",
         position: "absolute",
-        right: "96px",
-      }}
-    >
+        right: "96px"
+      }}>
       {logo ? (
         <img
           alt=""
@@ -117,7 +112,7 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
           width={48}
           style={{
             borderRadius: "12px",
-            objectFit: "contain",
+            objectFit: "contain"
           }}
         />
       ) : (
@@ -132,16 +127,15 @@ export const Grid = ({ title, description, brand, logo = "" }: GridProps) => (
             fontWeight: 800,
             height: "48px",
             justifyContent: "center",
-            width: "48px",
+            width: "48px"
           }}
         />
       )}
       <span
         style={{
           fontSize: "30px",
-          fontWeight: 600,
-        }}
-      >
+          fontWeight: 600
+        }}>
         {brand}
       </span>
     </div>

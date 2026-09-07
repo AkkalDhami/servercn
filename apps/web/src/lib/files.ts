@@ -117,26 +117,21 @@ export function buildFileTree(files: RegistryFile[]): FileNode[] {
   return sortTree(tree);
 }
 
-export function addPaths(
-  nodes: FileNode[],
-  parentPath = ""
-): FileNode[] {
-  return nodes.map((node) => {
-    const currentPath = parentPath
-      ? `${parentPath}/${node.name}`
-      : node.name;
+export function addPaths(nodes: FileNode[], parentPath = ""): FileNode[] {
+  return nodes.map(node => {
+    const currentPath = parentPath ? `${parentPath}/${node.name}` : node.name;
 
     if (node.type === "folder") {
       return {
         ...node,
         path: currentPath,
-        children: addPaths(node.children, currentPath),
+        children: addPaths(node.children, currentPath)
       };
     }
 
     return {
       ...node,
-      path: currentPath,
+      path: currentPath
     };
   });
 }
@@ -491,7 +486,9 @@ export async function getRegistryFileTree(
             content:
               (result?.env &&
                 result?.env?.length > 0 &&
-                result.env?.map(e => `${e}='${e.toLowerCase()}'\n`).join("\n")) ||
+                result.env
+                  ?.map(e => `${e}='${e.toLowerCase()}'\n`)
+                  .join("\n")) ||
               ""
           }
         ],

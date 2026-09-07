@@ -2,7 +2,6 @@ import type { Architecture, FrameworkType, GeneratorType } from "@/types";
 import { capitalize } from "@/utils/capitalize";
 import { toCamelCase } from "@/utils/naming";
 
-
 export function expressjsControllerTemplate({
   arch,
   className
@@ -126,5 +125,4 @@ export function getGeneratorTemplates({
         return expressjsModelTemplate({ arch, modelName: name });
     }
   }
-  
 }

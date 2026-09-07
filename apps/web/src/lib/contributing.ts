@@ -52,5 +52,5 @@ export const contributingGuides: ContributingGuideType[] = [
     meta: {
       new: true
     }
-  },
+  }
 ];

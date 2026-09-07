@@ -33,23 +33,23 @@ const socialLinks: {
   link: string;
   icon: IconType;
 }[] = [
-    {
-      link: GITHUB_URL,
-      icon: FaGithub
-    },
-    {
-      link: DISCORD_URL,
-      icon: FaDiscord
-    },
-    {
-      link: X_URL,
-      icon: FaXTwitter
-    },
-    {
-      link: BASE_GITHUB_URL,
-      icon: FaGithub
-    },
-  ];
+  {
+    link: GITHUB_URL,
+    icon: FaGithub
+  },
+  {
+    link: DISCORD_URL,
+    icon: FaDiscord
+  },
+  {
+    link: X_URL,
+    icon: FaXTwitter
+  },
+  {
+    link: BASE_GITHUB_URL,
+    icon: FaGithub
+  }
+];
 
 export default function Footer() {
   return (
@@ -65,21 +65,23 @@ export default function Footer() {
           "dark:bg-[radial-gradient(35%_128px_at_0%_0%,--theme(--color-foreground/.08),transparent),radial-gradient(35%_128px_at_100%_0%,--theme(--color-foreground/.08),transparent)]"
         )}>
         <div className="relative flex size-full flex-col justify-between">
-          <AnimatedContainer className="w-full space-y-4 screen-line-after pb-4">
-            <div className="flex  gap-4 px-4 sm:gap-8 flex-wrap justify-between">
+          <AnimatedContainer className="screen-line-after w-full space-y-4 pb-4">
+            <div className="flex flex-wrap justify-between gap-4 px-4 sm:gap-8">
               <Logo />
               <div className="flex items-center gap-3">
-                {
-                  socialLinks.map((s) => (
-                    <Link key={s.link} target="_blank" href={s.link as Route} className="primary-ring rounded-md">
-                      <s.icon className="size-8 p-1 text-muted-foreground hover:text-primary" />
-                    </Link>
-                  ))
-                }
+                {socialLinks.map(s => (
+                  <Link
+                    key={s.link}
+                    target="_blank"
+                    href={s.link as Route}
+                    className="primary-ring rounded-md">
+                    <s.icon className="text-muted-foreground hover:text-primary size-8 p-1" />
+                  </Link>
+                ))}
               </div>
             </div>
           </AnimatedContainer>
-          <div className="flex justify-between divide-edge divide-x">
+          <div className="divide-edge flex justify-between divide-x">
             {footerLinkGroups.map((group, index) => (
               <AnimatedContainer
                 className="w-full px-4 py-4"
@@ -111,7 +113,7 @@ export default function Footer() {
           SERVERCN
         </p>
 
-        <div className="text-muted-foreground screen-line-before relative flex items-center justify-between gap-2 px-4 pt-4 text-sm flex-wrap">
+        <div className="text-muted-foreground screen-line-before relative flex flex-wrap items-center justify-between gap-2 px-4 pt-4 text-sm">
           <p className="capitalize">
             &copy; {new Date().getFullYear()} | {APP_NAME} | All rights
             reserved.
@@ -147,9 +149,8 @@ export default function Footer() {
             </Link>
           </div>
         </div>
-
       </div>
-    </footer >
+    </footer>
   );
 }
 

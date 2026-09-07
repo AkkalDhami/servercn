@@ -4,7 +4,13 @@ import { useCodeTheme, useCodeThemeBg } from "@/store/use-code-theme";
 import { useEffect, useState } from "react";
 import { highlightCode } from "@/app/actions/highlight";
 
-export default function FileViewer({ content ,lang}: { content?: string ,lang?: string }) {
+export default function FileViewer({
+  content,
+  lang
+}: {
+  content?: string;
+  lang?: string;
+}) {
   const { theme } = useCodeTheme();
   const { bg } = useCodeThemeBg();
   const [html, setHtml] = useState("");

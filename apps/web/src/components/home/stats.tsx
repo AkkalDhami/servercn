@@ -7,7 +7,6 @@ interface Stat {
   suffix: string;
 }
 
-
 const STATISTICS: Stat[] = [
   {
     title: "Components",
