@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -ws",
+    "build": "npm run build --ws",
     "start:app": "npm run start -w apps/web",
     "start": "npm run start -w apps/web",
     "dev:app": "npm run dev -w apps/web",

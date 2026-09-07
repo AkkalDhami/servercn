@@ -9,16 +9,28 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "**/.next/**",
     "out/**",
+    "**/out/**",
     "build/**",
+    "**/build/**",
+    "dist/**",
+    "**/dist/**",
     "next-env.d.ts",
+    "**/next-env.d.ts",
     "node_modules/**",
+    "**/node_modules/**",
     ".source/**",
     "**/__index__.tsx",
     "commitlint.config.ts",
     "**/packages/templates/**"
   ]),
   {
+    settings: {
+      next: {
+        rootDir: "apps/web"
+      }
+    },
     rules: {
       "@typescript-eslint/no-unused-expressions": "off"
     }
