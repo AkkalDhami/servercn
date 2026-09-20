@@ -40,6 +40,11 @@ export function getDatabaseConfig(foundation: string): DatabaseConfig | null {
         engine: "mongodb",
         adapter: "prisma"
       };
+    case "prisma-pg-starter":
+      return {
+        engine: "postgresql",
+        adapter: "prisma"
+      };
     default:
       return null;
   }
@@ -52,6 +57,7 @@ export function getFrameworkConfig(foundation: string): FrameworkType {
     case "drizzle-mysql-starter":
     case "drizzle-pg-starter":
     case "prisma-mongodb-starter":
+    case "prisma-pg-starter":
       return "express";
     case "nextjs-starter":
       return "nextjs";
