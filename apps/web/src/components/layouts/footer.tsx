@@ -203,40 +203,48 @@ const footerLinkGroups: FooterLinkGroup[] = [
     label: "Foundations",
     links: [
       { title: "All Foundations", href: "/foundations" },
-      ...foundations.map(item => ({
-        title: item.title,
-        href: `${item.url}`
-      }))
+      ...foundations
+        .filter(item => item.status === "stable")
+        .map(item => ({
+          title: item.title,
+          href: `${item.url}`
+        }))
     ]
   },
   {
     label: "Blueprints",
     links: [
       { title: "All Blueprints", href: "/blueprints" },
-      ...blueprints.map(item => ({
-        title: item.title,
-        href: `${item.url}`
-      }))
+      ...blueprints
+        .filter(item => item.status === "stable")
+        .map(item => ({
+          title: item.title,
+          href: `${item.url}`
+        }))
     ]
   },
   {
     label: "Providers",
     links: [
       { title: "All Providers", href: "/providers" },
-      ...providers.map(item => ({
-        title: item.title,
-        href: `${item.url}`
-      }))
+      ...providers
+        .filter(item => item.status === "stable")
+        .map(item => ({
+          title: item.title,
+          href: `${item.url}`
+        }))
     ]
   },
   {
     label: "Schemas",
     links: [
       { title: "All Schemas", href: "/schemas" },
-      ...models.map(item => ({
-        title: item.title,
-        href: `${item.url}`
-      }))
+      ...models
+        .filter(item => item.status === "stable")
+        .map(item => ({
+          title: item.title,
+          href: `${item.url}`
+        }))
     ]
   }
 ];
