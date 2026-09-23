@@ -1,5 +1,8 @@
+"use client";
+
 import { IRegistryItems } from "@/@types/registry";
 import { cn } from "@/lib/utils";
+import { useFramework } from "@/store/use-framework";
 import { Route } from "next";
 import Link from "next/link";
 
@@ -9,6 +12,7 @@ export default function ComponentCard({
   component: IRegistryItems;
 }) {
   const isStable = ["stable"].includes(component.status);
+  const { framework } = useFramework();
 
   return (
     <Link
@@ -28,7 +32,7 @@ export default function ComponentCard({
         <h3 className="text-lg underline-offset-4 group-hover:underline">
           {component.title}
         </h3>
-        {component.meta?.new && (
+        {component.meta?.new?.includes(framework) && (
           <span className={`size-2 rounded-full bg-blue-500`} />
         )}
       </div>
