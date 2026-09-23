@@ -10,24 +10,55 @@ contributor:
 
 ## Installation Guide
 
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add response-formatter" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Add HTTP Status Codes</Step>
+```ts title="src/constants/status-codes.ts"
+export const STATUS_CODES = {
+  // 2xx Success
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
 
----
+  // 3xx Redirection
+  MOVED_PERMANENTLY: 301,
+  FOUND: 302,
+  NOT_MODIFIED: 304,
 
-## The Problem It Solves
+  // 4xx Client Errors
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
 
-In many Express applications, responses quickly become inconsistent:
+  // 5xx Server Errors
+  INTERNAL_SERVER_ERROR: 500,
+  NOT_IMPLEMENTED: 501,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+  GATEWAY_TIMEOUT: 504
+} as const;
 
-```ts
-res.json(data);
-res.status(201).send(user);
-res.status(400).json({ error: "Invalid input" });
+export type StatusCode = (typeof STATUS_CODES)[keyof typeof STATUS_CODES];
 ```
 
----
-
-## Basic Implementation
-
+<Step>Add API Response Wrapper</Step>
 ```ts title="src/utils/api-response.ts"
 import { STATUS_CODES, StatusCode } from "../constants/status-codes";
 import type { Response } from "express";
@@ -51,7 +82,7 @@ export class ApiResponse<T = unknown> {
     success,
     message,
     statusCode,
-    data = null,
+    data,
     errors
   }: ApiResponseParams<T>) {
     this.success = success;
@@ -93,14 +124,10 @@ export class ApiResponse<T = unknown> {
     return ApiResponse.Success(res, message, data, STATUS_CODES.CREATED);
   }
 }
-
-/*
- * Usage:
- * ApiResponse.ok(res, "OK", data);
- * ApiResponse.created(res, "Created", data);
- */
 ```
-
+</Steps>
+</TabsContent>
+</Tabs>
 ---
 
 ## Usage Example
@@ -114,9 +141,7 @@ export async function healthCheck(_req: Request, res: Response) {
 }
 ```
 
----
-
-## Response
+#### Response
 
 ```json
 {
