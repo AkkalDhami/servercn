@@ -1,7 +1,7 @@
 export interface ISchema {
   label: string;
   slug: string;
-  new?: boolean;
+  new?: string[];
 }
 
 export type Framework = "express" | "nestjs" | "nextjs";
@@ -22,7 +22,7 @@ export interface IRegistryItems {
   docs?: string;
   url?: string;
   meta?: {
-    new?: boolean;
+    new?: string[];
     databases?: ISchema[];
     adapters?: string[];
     useCases?: string[];

@@ -119,9 +119,10 @@
       "additionalProperties": false,
       "properties": {
         "new": {
-          "type": "boolean",
+          "type": "array",
           "description": "Marks an entry as newly introduced.",
-          "default": false
+          "enum": ["expressjs", "nestjs", "nextjs"],
+          "default": []
         },
         "databases": {
           "type": "array",
@@ -143,9 +144,10 @@
                 "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
               },
               "new": {
-                "type": "boolean",
+                "type": "array",
                 "description": "Marks a database variant as newly introduced.",
-                "default": false
+                "enum": ["expressjs", "nestjs", "nextjs"],
+                "default": []
               },
               "status": {
                 "type": "string",

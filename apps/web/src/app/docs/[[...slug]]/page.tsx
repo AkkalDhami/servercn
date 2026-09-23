@@ -211,7 +211,8 @@ export default async function DocsPage({
     "guides",
     "installation",
     "introduction",
-    "contributing"
+    "contributing",
+    "changelog"
   ];
 
   return (
@@ -237,8 +238,7 @@ export default async function DocsPage({
               <div className="flex items-center gap-2">
                 <Link
                   className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "primary-ring"
+                    buttonVariants({ variant: "secondary", size: "icon" })
                   )}
                   href={
                     (prev
@@ -260,8 +260,7 @@ export default async function DocsPage({
                       : "") as Route
                   }
                   className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "primary-ring"
+                    buttonVariants({ variant: "secondary", size: "icon" })
                   )}>
                   <ArrowRightIcon className="size-4" />
                 </Link>

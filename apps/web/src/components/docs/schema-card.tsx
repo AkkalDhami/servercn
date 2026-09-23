@@ -2,10 +2,12 @@
 
 import { IRegistryItems } from "@/@types/registry";
 import { cn } from "@/lib/utils";
+import { useFramework } from "@/store/use-framework";
 import { Route } from "next";
 import Link from "next/link";
 
 export function ItemWithDBCard({ item }: { item: IRegistryItems }) {
+  const { framework } = useFramework();
   return (
     <div
       className={cn(
@@ -28,7 +30,7 @@ export function ItemWithDBCard({ item }: { item: IRegistryItems }) {
               className={`absolute top-4 right-4 block size-2 rounded-full bg-amber-500 md:hidden`}></span>
           </>
         )}
-        {item.meta?.new && (
+        {item.meta?.new?.includes(framework) && (
           <span className={`size-2 rounded-full bg-blue-500`} />
         )}
       </Link>
@@ -49,7 +51,7 @@ export function ItemWithDBCard({ item }: { item: IRegistryItems }) {
                     "text-muted-secondary hover:text-primary"
                   )}>
                   {index + 1}. {database.label}
-                  {database?.new && (
+                  {database?.new?.includes(framework) && (
                     <span className={`size-2 rounded-full bg-blue-500`} />
                   )}
                 </Link>

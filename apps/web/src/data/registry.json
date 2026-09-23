@@ -130,7 +130,7 @@
       "frameworks": ["express", "nextjs", "nestjs"],
       "docs": "/docs/components/response-formatter",
       "meta": {
-        "new": true
+        "new": ["nestjs"]
       }
     },
     {
@@ -521,8 +521,7 @@
           },
           {
             "label": "MySQL (Drizzle)",
-            "slug": "stateless-auth-mysql",
-            "new": true
+            "slug": "stateless-auth-mysql"
           }
         ]
       }
@@ -539,8 +538,7 @@
         "databases": [
           {
             "label": "MongoDB (Mongoose)",
-            "slug": "stateful-auth-mongodb",
-            "new": true
+            "slug": "stateful-auth-mongodb"
           }
         ]
       }
@@ -562,12 +560,11 @@
           {
             "label": "PostgreSQL (Drizzle)",
             "slug": "hybrid-auth-postgresql",
-            "new": true
+            "new": ["expressjs"]
           },
           {
             "label": "MySQL (Drizzle)",
-            "slug": "hybrid-auth-mysql",
-            "new": true
+            "slug": "hybrid-auth-mysql"
           }
         ]
       }

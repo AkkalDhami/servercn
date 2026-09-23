@@ -236,7 +236,7 @@ export default function DocsSidebar({
                             />
                           )}
                           <span>{item.title}</span>
-                          {item.meta?.new && (
+                          {item.meta?.new?.includes(framework) && (
                             <span className="h-2 w-2 rounded-full bg-blue-500" />
                           )}
                           {section.title !== "Pages" &&
@@ -282,7 +282,7 @@ export default function DocsSidebar({
                                         />
                                       )}
                                       <span>{subItem.label}</span>
-                                      {subItem?.new && (
+                                      {subItem?.new?.includes(framework) && (
                                         <span className="h-2 w-2 rounded-full bg-blue-500" />
                                       )}
                                     </Link>
