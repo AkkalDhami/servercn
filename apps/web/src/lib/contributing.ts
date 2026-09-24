@@ -2,9 +2,6 @@ export type ContributingGuideType = {
   title: string;
   docs: string;
   description?: string;
-  meta?: {
-    new: boolean;
-  };
 };
 
 export const contributingGuides: ContributingGuideType[] = [
@@ -12,10 +9,7 @@ export const contributingGuides: ContributingGuideType[] = [
     title: "Component",
     description:
       "Contribute reusable backend components for Node.js projects. Learn about component structure, testing, and submission guidelines.",
-    docs: "/docs/contributing/component",
-    meta: {
-      new: true
-    }
+    docs: "/docs/contributing/component"
   },
   {
     title: "Blueprint",
@@ -30,27 +24,18 @@ export const contributingGuides: ContributingGuideType[] = [
     title: "Foundation",
     description:
       "Build foundational elements like authentication, database connections, and core utilities. Contribute to the base layers of Servercn.",
-    docs: "/docs/contributing/foundation",
-    meta: {
-      new: true
-    }
+    docs: "/docs/contributing/foundation"
   },
   {
     title: "Schema",
     description:
       "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
-    docs: "/docs/contributing/schema",
-    meta: {
-      new: true
-    }
+    docs: "/docs/contributing/schema"
   },
   {
     title: "Provider",
     description:
       "Define and contribute data schemas for consistent API structures. Learn about schema validation and documentation standards.",
-    docs: "/docs/contributing/provider",
-    meta: {
-      new: true
-    }
+    docs: "/docs/contributing/provider"
   }
 ];

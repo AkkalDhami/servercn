@@ -32,9 +32,6 @@ export default function ContributingPage() {
               <h3 className="text-lg font-medium underline-offset-4 group-hover:underline">
                 {guide.title}
               </h3>
-              {guide.meta?.new && (
-                <span className={`size-2 rounded-full bg-blue-500`} />
-              )}
             </div>
 
             <p className="text-muted-primary mt-2 line-clamp-4 text-sm">

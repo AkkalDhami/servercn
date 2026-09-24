@@ -750,51 +750,6 @@
       "title": "PostgreSQL (Prisma)",
       "description": "PostgreSQL provider with Prisma ORM for Express applications.",
       "docs": "/docs/providers/pg-prisma"
-    },
-    {
-      "slug": "cloudinary-storage",
-      "type": "provider",
-      "status": "deprecated",
-      "frameworks": ["express"],
-      "title": "Cloudinary Storage",
-      "description": "Cloudinary media upload and storage provider with Multer for Express applications.",
-      "docs": "/docs/providers/cloudinary-storage"
-    },
-    {
-      "slug": "imagekit-storage",
-      "type": "provider",
-      "status": "deprecated",
-      "frameworks": ["express"],
-      "title": "Imagekit Storage",
-      "description": "ImageKit file upload and CDN storage provider with Multer for Express applications.",
-      "docs": "/docs/providers/imagekit-storage"
-    },
-    {
-      "slug": "nodemailer-smtp",
-      "type": "provider",
-      "status": "deprecated",
-      "frameworks": ["express"],
-      "title": "Nodemailer SMTP",
-      "description": "Transactional email provider using Nodemailer over SMTP for Express applications.",
-      "docs": "/docs/providers/nodemailer-smtp"
-    },
-    {
-      "slug": "resend-mail",
-      "type": "provider",
-      "status": "deprecated",
-      "frameworks": ["express"],
-      "title": "Resend Mail",
-      "description": "Email provider using the Resend API for Express applications.",
-      "docs": "/docs/providers/resend-mail"
-    },
-    {
-      "slug": "redis",
-      "type": "provider",
-      "status": "deprecated",
-      "frameworks": ["express"],
-      "title": "Redis",
-      "description": "Redis cache and key-value provider with the official Node client for Express applications.",
-      "docs": "/docs/providers/redis"
     }
   ]
 }
