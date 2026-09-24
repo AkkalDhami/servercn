@@ -3,6 +3,8 @@ title: Generators
 description: Generate controllers, services, models, routes, and more using servercn CLI.
 ---
 
+> **Note:** Generators are currently available for **Express.js projects only**.
+
 Instead of manually creating files, you can use the CLI:
 
 <PackageManagerTabs command="npx servercn-cli g <type> <name> [options]" />
@@ -58,7 +60,6 @@ Instead of manually creating files, you can use the CLI:
 - <Code>--flat</Code>:   Generate files in a flat structure
 - <Code>-h</Code>, <Code>--help</Code>: display help for command
 
-<br />
 ---
 
 ## Available Generators
@@ -69,7 +70,7 @@ Instead of manually creating files, you can use the CLI:
 
 #### Examples:
 
-##### 1. MVC Architecture
+#### 1. MVC Architecture
 ```
 > npx servercn-cli g co auth
 
@@ -94,7 +95,7 @@ export const authController = new AuthController();
 
 ---
 
-##### 2. Feature Architecture
+#### 2. Feature Architecture
 ```
 > npx servercn-cli g co auth
 
@@ -117,10 +118,7 @@ class AuthController {
 export const authController = new AuthController();
 ```
 
-
-<br />
 ---
-<br />
 
 ### Service
 
@@ -128,7 +126,7 @@ export const authController = new AuthController();
 
 #### Examples:
 
-##### 1. MVC Architecture
+#### 1. MVC Architecture
 ```
 > npx servercn-cli g se auth
 
@@ -150,7 +148,7 @@ export const authService = new AuthService();
 
 ---
 
-##### 2. Feature Architecture
+#### 2. Feature Architecture
 ```
 > npx servercn-cli g se auth
 
@@ -171,9 +169,7 @@ export const authService = new AuthService();
 ```
 
 
-<br />
 ---
-<br />
 
 
 ### Route
@@ -182,7 +178,7 @@ export const authService = new AuthService();
 
 #### Examples:
 
-##### 1. MVC Architecture
+#### 1. MVC Architecture
 
 ```ts title="src/routes/auth.route.ts"
 import { Router } from "express";
@@ -199,7 +195,7 @@ export default router;
 
 ---
 
-##### 2. Feature Architecture
+#### 2. Feature Architecture
 
 ```ts title="src/modules/auth/auth.route.ts"
 import { Router } from "express";
@@ -215,9 +211,7 @@ export default router;
 ```
 
 
-<br />
 ---
-<br />
 
 
 ### Model
@@ -226,7 +220,7 @@ export default router;
 
 #### Examples:
 
-##### 1. MVC Architecture
+#### 1. MVC Architecture
 
 ```ts title="src/models/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
@@ -261,7 +255,7 @@ export default User;
 
 ---
 
-##### 2. Feature Architecture
+#### 2. Feature Architecture
 
 ```ts title="src/modules/user/user.model.ts"
 import mongoose, { Document, Model, Schema } from "mongoose";
@@ -295,9 +289,7 @@ export default User;
 ```
 
 
-<br />
 ---
-<br />
 
 ### DTO
 
@@ -316,14 +308,12 @@ Define fields using: <Code>key:type</Code>
 
 <PackageManagerTabs command="npx servercn-cli g dt user name:string email:email age:number" />
 
-##### Creates:
+#### Creates:
 
 - MVC: <Code>src/dtos/auth.dto.ts</Code>
 - Feature: <Code>src/modules/auth/auth.dto.ts</Code>
 
-<br />
 ---
-<br />
 
 ### Validator
 
@@ -338,20 +328,18 @@ Define fields using: <Code>key:type</Code>
 <PackageManagerTabs command="npx servercn-cli g va auth --flat" />
 <PackageManagerTabs command="npx servercn-cli g va user name:string email:email age:number" />
 
-##### Creates:
+#### Creates:
 
 - MVC: <Code>src/validators/auth.validator.ts</Code>
 - Feature: <Code>src/modules/auth/auth.validator.ts</Code>
 
-<br />
 ---
-<br />
 
 ### Resource
 
 <PackageManagerTabs command="npx servercn-cli g re post" />
 
-##### Creates:
+#### Creates:
 
 **1. MVC:**
   - <Code>src/controllers/post.controller.ts</Code>
@@ -396,9 +384,7 @@ CREATE: src\modules\post\post.dto.ts
 ✔ Successfully generated resource: post
 ```
 
-<br />
 ---
-<br />
 
 ## Help
 
@@ -434,9 +420,7 @@ Examples:
   $ npx servercn-cli g va user
 ```
 
-<br />
 ---
-<br />
 
 ## Summary
 

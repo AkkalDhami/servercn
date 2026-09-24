@@ -220,7 +220,7 @@ export default async function DocsPage({
       <FrameworkRedirect />
       <div className="flex w-full overflow-x-auto px-2">
         <div id="docs-content" className="w-full [font-variant-ligatures:none]">
-          <article className="prose prose-neutral dark:prose-invert mb-4 max-w-none [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6">
+          <article className="typeset typeset-article mb-4 max-w-none">
             <div className="mb-6 flex items-center justify-between pt-6">
               <div className="flex items-center gap-3">
                 <OpenInAi />
@@ -235,7 +235,7 @@ export default async function DocsPage({
                   />
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   className={cn(
                     buttonVariants({ variant: "secondary", size: "icon" })
@@ -301,11 +301,11 @@ export default async function DocsPage({
               }}
             />
           </article>
-          <div className="w-full overflow-x-auto">
+          <div className="mb-8 w-full overflow-x-auto">
             {lastSlug &&
               FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
               !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
-                <div className="border-edge border-y py-4">
+                <div className="border-t pt-6 pb-3">
                   <Variant name={blueprintSlug ?? slug[slug.length - 1]} />
 
                   <h2 className="mb-2 text-2xl font-semibold tracking-tight">
@@ -333,16 +333,13 @@ export default async function DocsPage({
 
             {data.command && (
               <>
-                <h2 className="my-4 text-2xl font-semibold tracking-tight">
-                  Installation
-                </h2>
                 <PackageManagerTabs command={data.command} />
               </>
             )}
           </div>
 
           {data?.contributor?.length > 0 && (
-            <div className="mb-4 border-t pt-4">
+            <div className="border-t py-6">
               <p className="text-muted-foreground text-sm tracking-wide uppercase">
                 {data?.contributor?.length > 1
                   ? "Contributors"
@@ -374,7 +371,7 @@ export default async function DocsPage({
             </div>
           )}
 
-          <div className="mb-2 border-t">
+          <div className="border-t py-3">
             <NextSteps
               next={next}
               prev={prev}

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./typeset.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -75,7 +77,7 @@
 }
 
 :root {
-  --code: var(--color-neutral-50);
+  --code: var(--color-neutral-100);
   --color-drizzle: #89bb14;
   --muted-secondary: #666;
   --color-card-hover: color-mix(in oklab, var(--accent) 50%, transparent);
@@ -146,14 +148,14 @@
 }
 
 .dark {
-  --code: var(--color-background);
+  --code: var(--color-neutral-900);
   --muted-secondary: #888;
   --color-drizzle: #c5f74f;
   --color-card-hover: #ffffff0c;
-  --background: #000000;
+  --background: var(--color-neutral-950);
   --foreground: #ffffff;
   --card: #090909;
-  --highlight: var(--color-neutral-900);
+  --highlight: var(--color-neutral-800);
   --card-foreground: #ffffff;
   --popover: #121212;
   --popover-foreground: #ffffff;
@@ -161,7 +163,7 @@
   --primary-foreground: #000000;
   --secondary: #222222;
   --secondary-foreground: #ffffff;
-  --muted: #1d1d1d;
+  --muted: var(--color-neutral-800);
   --muted-foreground: #a4a4a4;
   --muted-primary: #c0c0c0;
   --accent: #333333;
@@ -293,7 +295,7 @@
   counter-increment: step;
 
   &:before {
-    @apply border-background bg-muted mr-2 inline-flex size-6 items-center justify-center rounded-full text-center -indent-px font-mono text-sm font-medium md:absolute md:-mt-1 md:-ml-12.5 md:size-9 md:border-4;
+    @apply border-background bg-muted mr-2 inline-flex size-6 items-center justify-center rounded-full text-center -indent-px font-mono text-sm font-medium md:absolute md:-mt-1 md:-ml-12.5 md:size-9 md:border-3;
     content: counter(step);
   }
 }
@@ -358,7 +360,7 @@
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code border-edge max-w-code mt-2 mb-8 w-full rounded-lg border pb-1;
+    @apply bg-code max-w-code mt-2 mb-8 w-full rounded-lg border border-transparent pb-1;
   }
 
   [data-line] {
@@ -371,7 +373,7 @@
 
   [data-highlighted-line],
   [data-highlighted-chars] {
-    @apply dark:bg-highlight border-muted-foreground relative border-l-2 bg-neutral-200;
+    @apply border-muted-foreground relative border-l-2 bg-neutral-200 dark:bg-neutral-800;
   }
 }
 

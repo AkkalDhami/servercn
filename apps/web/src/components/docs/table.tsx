@@ -2,9 +2,9 @@
 
 export function Table({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-4 w-full overflow-x-auto rounded-md border-x border-t border-neutral-200 dark:border-neutral-800">
-      <table className="w-full text-sm">{children}</table>
-    </div>
+    <table className="typeset-scroll scroll-fade-x w-full scrollbar-none rounded-lg border text-sm *:[table]:w-full">
+      {children}
+    </table>
   );
 }
 
@@ -17,7 +17,7 @@ export function TBody({ children }: { children: React.ReactNode }) {
 }
 
 export function TR({ children }: { children: React.ReactNode }) {
-  return <tr className="border-edge border-t">{children}</tr>;
+  return <tr className="border-edge hover:bg-muted border-t">{children}</tr>;
 }
 
 export function TH({ children }: { children: React.ReactNode }) {

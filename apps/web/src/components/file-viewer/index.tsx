@@ -170,7 +170,7 @@ export default function ComponentFileViewer({
       <ResizablePanelGroup
         orientation="horizontal"
         className={cn(
-          "thin-scrollbar bg-code border-edge relative rounded-lg border",
+          "thin-scrollbar bg-code border-transparent relative rounded-lg border",
           from === "structure"
             ? "min-h-160 max-w-full md:min-w-full"
             : "min-h-130 max-w-md md:min-w-215"

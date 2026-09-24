@@ -16,7 +16,7 @@ import {
 import { usePathname } from "next/navigation";
 
 const defaultPrompt =
-  "Read this Servercn documentation properly and provide information i ask. \nMake it clear and concise.";
+  "Read this servercn documentation properly and provide information i ask. \nMake it clear and concise.";
 
 export function OpenInAi() {
   const pathname = usePathname();
@@ -35,7 +35,7 @@ export function OpenInAi() {
   };
 
   return (
-    <div className="max-w-45">
+    <div className="max-w-45 not-typeset">
       <Select key={selectKey} onValueChange={redirectToAi}>
         <SelectTrigger className="text-primary w-full md:w-44">
           <SelectValue

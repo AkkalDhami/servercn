@@ -107,7 +107,7 @@ const features: IFeature[] = [
 
 export default function WhyServercn() {
   return (
-    <Section id="feature" className="px-0">
+    <Section id="feature" className="hidden px-0">
       <div className="mb-12 text-center">
         <Heading className="text-3xl font-bold">Why Servercn</Heading>
         <SubHeading className="text-muted-foreground mt-4">

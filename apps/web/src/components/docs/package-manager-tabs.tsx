@@ -28,7 +28,7 @@ export default function PackageManagerTabs({
     <Tabs
       value={pkgManager}
       className={cn(
-        "bg-background border-edge max-w-code mt-2 mb-4 rounded-lg border"
+        "bg-code not-typeset max-w-code mt-2 rounded-lg border border-transparent"
       )}>
       <TabsList className={cn("bg-transparent pt-1 pl-3")}>
         <div className="mr-4 flex items-center gap-3 pt-3">{Icon}</div>
@@ -51,7 +51,10 @@ export default function PackageManagerTabs({
         const commands = convertNpmCommand(command);
         const cmd = commands[key as PackageManagerType];
         return (
-          <TabsContent key={key} value={key} className="border-edge border-t">
+          <TabsContent
+            key={key}
+            value={key}
+            className="border-t border-neutral-500/10">
             <CodeWrapper code={cmd}>
               <CodeBlock code={cmd} className="[&_pre]:font-code" />
               {/* <pre className="overflow-x-auto overscroll-x-contain p-4">
