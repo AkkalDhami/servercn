@@ -324,7 +324,7 @@
     &:where(hr) {
       border: 0;
       border-block-start: 1px solid var(--typeset-rule);
-      margin-block-start: calc(var(--typeset-flow) * 1.8);
+      margin-block-start: calc(var(--typeset-flow) * 1.6);
       margin-block-end: calc(var(--typeset-flow) * 1.4);
     }
     &:where(hr + h1, hr + h2, hr + h3, hr + h4) {

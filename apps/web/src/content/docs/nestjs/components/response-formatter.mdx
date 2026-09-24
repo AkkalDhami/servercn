@@ -1,8 +1,11 @@
 ---
 title: API Response Formatter
 description: Response Formatter provides a consistent, type-safe response structure for NestJS APIs.
-
 command: npx servercn-cli@latest add response-formatter
+contributor:
+ -  name: Akkal Dhami
+    url: https://www.akkal.com.np
+    avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
 ---
 
 ## Installation Guide
@@ -20,13 +23,17 @@ Manual
 
 <Steps>
 <Step>Run the following command:</Step>
-<PackageManagerTabs command="npx servercn-cli@latest add response-formatter" />
+
+<PackageManagerTabs
+  command="npx servercn-cli@latest add response-formatter"
+/>
+
 
 <Step>Register the interceptor and filter</Step>
 
 Register the interceptor and exception filter globally in your root module or bootstrap file.
 
-##### Option 1: Global Setup (Recommended)
+#### Option 1: Global Setup (Recommended)
 
 ```ts title="src/main.ts" {11-13, 3-6}
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -48,7 +55,7 @@ async function bootstrap() {
 void bootstrap();
 ```
 
-##### Option 2: Per-Module Setup
+#### Option 2: Per-Module Setup
 ```ts title="src/users/users.controller.ts" {3-6, 9-10}
 import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
 
@@ -354,7 +361,7 @@ export * from "./response.types";
 
 Register the interceptor and exception filter globally in your root module or bootstrap file.
 
-##### Option 1: Global Setup (Recommended)
+#### Option 1: Global Setup (Recommended)
 
 ```ts title="src/main.ts" {11-13, 3-6}
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -376,7 +383,7 @@ async function bootstrap() {
 void bootstrap();
 ```
 
-##### Option 2: Per-Module Setup
+#### Option 2: Per-Module Setup
 ```ts title="src/users/users.controller.ts" {3-6, 9-10}
 import { Controller, UseFilters, UseInterceptors } from '@nestjs/common';
 
@@ -427,6 +434,8 @@ export class HealthController {
 }
 ```
 
+---
+
 ### 2. Custom Message with Decorator
 
 ```ts title="src/users/users.controller.ts" {3, 8-10}
@@ -459,6 +468,8 @@ export class UsersController {
   }
 }
 ```
+
+---
 
 ### 3. Manual ApiResponse (Bypass Interceptor)
 Return an ApiResponse instance directly to skip automatic wrapping:
@@ -498,6 +509,8 @@ export class UsersController {
 }
 ```
 
+---
+
 ### 4. Error Handling
 Throw standard NestJS exceptions — the filter handles formatting:
 
@@ -526,6 +539,8 @@ export class UsersController {
   }
 }
 ```
+
+---
 
 ### 5. Pagination with Meta
 

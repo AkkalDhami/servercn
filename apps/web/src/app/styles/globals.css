@@ -360,7 +360,7 @@
 
   [data-rehype-pretty-code-figure] {
     position: relative;
-    @apply bg-code max-w-code mt-2 mb-8 w-full rounded-lg border border-transparent pb-1;
+    @apply bg-code max-w-code mt-6 mb-8 w-full rounded-lg border border-transparent pb-1;
   }
 
   [data-line] {
