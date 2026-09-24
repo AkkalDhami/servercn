@@ -15,10 +15,7 @@ export const contributingGuides: ContributingGuideType[] = [
     title: "Blueprint",
     description:
       "Create and share complete project blueprints. Understand blueprint architecture and how to design scalable application templates.",
-    docs: "/docs/contributing/blueprint",
-    meta: {
-      new: true
-    }
+    docs: "/docs/contributing/blueprint"
   },
   {
     title: "Foundation",
