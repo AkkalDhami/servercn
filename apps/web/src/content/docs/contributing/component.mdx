@@ -3,12 +3,9 @@ title: Contributing Components to Servercn
 description: Step-by-step guide to contributing reusable backend components to the Servercn registry.
 ---
 
-## Step-by-Step Contribution Guide
 
-<Steps>
-<Step>
-Fork & Clone the Repository
-</Step>
+## 1. Fork & Clone the Repository
+
 Fork the Servercn repository and clone it locally:
 [GitHub Link](https://github.com/AkkalDhami/servercn)
 
@@ -30,9 +27,9 @@ npm run dev:app # app
 npm run dev:cli # cli
 ```
 
-<Step>
-Understand Component Structure
-</Step>
+---
+
+## 2. Understand Component Structure
 Each component must follow the registry structure:
 
 ```
@@ -42,9 +39,10 @@ packages/
       component-name.json
 ```          
 
-<Step>
-Add Registry
-</Step>
+---
+
+## 3. Add Registry
+
 Each component must follow the registry structure:
 
 #### 1. Add Registry Without Variant
@@ -290,7 +288,9 @@ Defines required environment variables.
 - Avoid default secrets inside templates.
 </LNote>
 
-<Step>Add Templates</Step>
+---
+
+## 4. Add Templates
 
 Template must follow the folder structure below:
 
@@ -312,7 +312,10 @@ packages/
 - Be production-ready
 </LNote>
 
-<Step>Test the Component via CLI</Step>
+
+---
+
+## 5. Test the Component via CLI
 
 **Before submitting:**
 
@@ -333,7 +336,9 @@ npm run dev:cli
 - Stack selection works
 </LNote>
 
-<Step>Register in registry.json</Step>
+---
+
+## 6. Register in registry.json
 
 Add registry inside:
 <Code>apps/web/src/data/registry.json</Code>
@@ -360,7 +365,9 @@ Add registry inside:
 
 > This configuration is used to generate the docs sidebar and display components in the <Code>/components</Code> route.
 
-<Step>Write Minimal Documentation</Step>
+---
+
+## 7. Write Minimal Documentation
 
 Add mdx documentation inside:
 
@@ -368,7 +375,9 @@ Add mdx documentation inside:
 
 Keep documentation concise and technical.
 
-<Step>Commit Properly</Step>
+---
+
+## 8. Commit Properly
 
 Use conventional commit format:
 
@@ -378,8 +387,9 @@ Use conventional commit format:
 
 > feat(security-header): add middleware for configuring security headers with Helmet and CORS
 
+---
 
-<Step>Submit a Pull Request</Step>
+## 9. Submit a Pull Request
 
 **Your PR must include:**
 <LNote>
@@ -397,7 +407,8 @@ Use conventional commit format:
 - No unrelated changes
 - Clean commit history
 </LNote>
-</Steps>
+
+---
 
 ## License
 

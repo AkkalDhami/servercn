@@ -23,15 +23,9 @@ Some servercn schemas:
  - [Authentication Schema](/docs/express/schemas/auth)
  - [Todo Schema](/docs/express/schemas/todo)
 
-<br />
 ---
 
-## Step-by-Step Contribution Guide
-
-<Steps>
-<Step>
-Fork & Clone the Repository
-</Step>
+## 1. Fork & Clone the Repository
 Fork the Servercn repository and clone it locally:
 [GitHub Link](https://github.com/AkkalDhami/servercn)
 
@@ -54,9 +48,10 @@ npm run dev:cli
 ```
 
 
-<Step>
-Add Registry
-</Step>
+---
+
+## 2. Add Registry
+
 Each schema must follow the registry structure. Schemas are unique because they often contain multiple files (sub-items):
 
 ```
@@ -144,15 +139,18 @@ packages/
                   feature/
 ```      
 
-<Step>Add Templates</Step>
+---
+
+## 3. Add Templates
 
 Ensure your templates:
 - Provide clear types/interfaces.
 - Use appropriate database naming conventions (snake_case for SQL, camelCase for MongoDB).
 - Include index files for easy exporting.
 
+---
 
-<Step>Test the Schema via CLI</Step>
+## 4. Test the Schema via CLI
 
 **Before submitting:**
 
@@ -171,8 +169,9 @@ npm run dev:cli
 - Database drivers match the implementation
 </LNote>
 
+---
 
-<Step>Register in registry.json</Step>
+## 5. Register in registry.json
 
 Add your schema entry to:
 <Code>apps/web/src/data/registry.json</Code>
@@ -200,7 +199,9 @@ Add your schema entry to:
 }
 ```
 
-<Step>Write Documentation</Step>
+---
+
+## 6. Write Documentation
 
 Add mdx documentation inside:
 <Code>apps/web/src/content/docs/express/schemas/schema-slug.mdx</Code>
@@ -210,12 +211,16 @@ Explain:
 - Relationships
 - Database-specific nuances
 
-<Step>Commit Properly</Step>
+---
+
+## 7. Commit Properly
 
 Use conventional commit format:
 > feat(schema): add schema-name schema
 
-<Step>Submit a Pull Request</Step>
+---
+
+## 8. Submit a Pull Request
 
 **Your PR must include:**
 <LNote>
@@ -224,7 +229,7 @@ Use conventional commit format:
 - Updated registry and templates
 </LNote>
 
-</Steps>
+---
 
 ## License
 

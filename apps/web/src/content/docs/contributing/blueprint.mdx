@@ -23,15 +23,11 @@ Includes:
 Some servercn blueprints:
  - [Stateless Authentication](/docs/express/blueprints/stateless-auth)
 
-<br/>
 ---
 
-## Step-by-Step Contribution Guide
 
-<Steps>
-<Step>
-Fork & Clone the Repository
-</Step>
+## 1. Fork & Clone the Repository
+
 Fork the Servercn repository and clone it locally:
 [GitHub Link](https://github.com/AkkalDhami/servercn)
 
@@ -53,10 +49,10 @@ npm run dev:app
 npm run dev:cli
 ```
 
+---
 
-<Step>
-Add Registry
-</Step>
+## 2. Add Registry
+
 Each blueprint must follow the registry structure. Blueprints have a more nested structure because they support multiple databases and ORMs:
 
 ```
@@ -100,15 +96,18 @@ The example below references the registry structure for a blueprint:
 }
 ```
 
-<Step>Add Templates</Step>
+---
+
+## 3. Add Templates
 
 Ensure your templates:
 - Follow clean separation of concerns.
 - Are production-ready with proper error handling and logging.
 - Use components where possible instead of duplicating code.
 
+---
 
-<Step>Test the Blueprint via CLI</Step>
+## 4. Test the Blueprint via CLI
 
 **Before submitting:**
 
@@ -127,8 +126,9 @@ npm run dev:cli
 - Environment variables are correctly identified
 </LNote>
 
+---
 
-<Step>Register in registry.json</Step>
+## 5. Register in registry.json
 
 Add your blueprint entry to:
 <Code>apps/web/src/data/registry.json</Code>
@@ -152,17 +152,23 @@ Add your blueprint entry to:
 }
 ```
 
-<Step>Write Documentation</Step>
+---
+
+## 6. Write Documentation
 
 Add mdx documentation inside:
 <Code>apps/web/src/content/docs/express/blueprints/blueprint-slug.mdx</Code>
 
-<Step>Commit Properly</Step>
+---
+
+## 7. Commit Properly
 
 Use conventional commit format:
 > feat(blueprint): add blueprint-name blueprint
 
-<Step>Submit a Pull Request</Step>
+---
+
+## 8. Submit a Pull Request
 
 **Your PR must include:**
 <LNote>
@@ -172,7 +178,7 @@ Use conventional commit format:
 - Registry and template files
 </LNote>
 
-</Steps>
+---
 
 ## License
 

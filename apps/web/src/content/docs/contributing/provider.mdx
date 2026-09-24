@@ -24,21 +24,12 @@ Some servercn providers:
 - [MySQL (Prisma)](/docs/express/providers/mysql-prisma)
 - [PostgreSQL (Drizzle)](/docs/express/providers/pg-drizzle)
 - [PostgreSQL (Prisma)](/docs/express/providers/pg-prisma)
-- [Cloudinary Storage](/docs/express/providers/cloudinary-storage)
-- [ImageKit Storage](/docs/express/providers/imagekit-storage)
-- [Nodemailer SMTP](/docs/express/providers/nodemailer-smtp)
-- [Resend Mail](/docs/express/providers/resend-mail)
-- [Redis](/docs/express/providers/redis)
 
-<br />
 ---
 
-## Step-by-Step Contribution Guide
 
-<Steps>
-<Step>
-Fork & Clone the Repository
-</Step>
+## 1. Fork & Clone the Repository
+
 Fork the Servercn repository and clone it locally:
 [GitHub Link](https://github.com/AkkalDhami/servercn)
 
@@ -60,9 +51,9 @@ npm run dev:app
 npm run dev:cli
 ```
 
-<Step>
-Add Provider Registry
-</Step>
+---
+
+## 2. Add Provider Registry
 Each provider must follow this registry structure:
 
 ```bash
@@ -103,7 +94,9 @@ Use this shape as a reference:
 - Do not include secrets with hardcoded values.
 </LNote>
 
-<Step>Add Templates</Step>
+---
+
+## 3. Add Templates
 
 Create provider templates in:
 
@@ -125,7 +118,9 @@ Recommended conventions:
 - Use <Code>prisma.ts</Code> + <Code>schema.prisma</Code> for Prisma providers.
 - Add logger only when needed and keep it consistent with existing providers.
 
-<Step>Test the Provider via CLI</Step>
+---
+
+## 4. Test the Provider via CLI
 
 Before submitting:
 
@@ -147,7 +142,9 @@ Verify:
 - Env variables expected by templates are present
 </LNote>
 
-<Step>Register in Web Registry</Step>
+---
+
+## 5. Register in Web Registry
 
 Add your provider entry to:
 <Code>apps/web/src/data/registry.json</Code>
@@ -169,12 +166,16 @@ Add your provider entry to:
 
 > This entry powers docs sidebar navigation and listing in the providers route.
 
-<Step>Write Provider Documentation</Step>
+---
+
+## 6. Write Provider Documentation
 
 Add docs at:
 <Code>apps/web/src/content/docs/express/providers/provider-slug.mdx</Code>
 
-<Step>Commit Properly</Step>
+---
+
+## 7. Commit Properly
 
 Use conventional commits:
 
@@ -184,7 +185,9 @@ Example:
 
 > feat(provider): add pg-prisma provider templates and docs
 
-<Step>Submit a Pull Request</Step>
+---
+
+## 8. Submit a Pull Request
 
 Your PR should include:
 <LNote>
@@ -195,7 +198,7 @@ Your PR should include:
 - Local CLI testing confirmation
 </LNote>
 
-</Steps>
+---
 
 ## License
 

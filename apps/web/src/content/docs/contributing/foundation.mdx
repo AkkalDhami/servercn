@@ -24,15 +24,11 @@ Some servercn foundations:
  - [Drizzle MySQL Starter](/docs/express/foundations/drizzle-mysql-starter)
  - [Mongoose Starter](/docs/express/foundations/mongoose-starter)
 
-<br/>
 ---
 
-## Step-by-Step Contribution Guide
 
-<Steps>
-<Step>
-Fork & Clone the Repository
-</Step>
+## 1. Fork & Clone the Repository
+
 Fork the Servercn repository and clone it locally:
 [GitHub Link](https://github.com/AkkalDhami/servercn)
 
@@ -54,10 +50,9 @@ npm run dev:app
 npm run dev:cli
 ```
 
+---
 
-<Step>
-Add Registry
-</Step>
+## 2. Add Registry
 Each foundation must follow the registry structure:
 
 ```
@@ -122,7 +117,9 @@ The example below references the demo foundation:
 - No hardcoded credentials.
 </LNote>
 
-<Step>Add Templates</Step>
+---
+
+## 3. Add Templates
 
 Template must follow the folder structure below:
 
@@ -145,7 +142,9 @@ packages/
 </LNote>
 
 
-<Step>Test the Component via CLI</Step>
+---
+
+## 4. Test the Component via CLI
 
 **Before submitting:**
 
@@ -167,7 +166,9 @@ npm run dev:cli
 </LNote>
 
 
-<Step>Register in registry.json</Step>
+---
+
+## 5. Register in registry.json
 
 Add registry inside:
 <Code>apps/web/src/data/registry.json</Code>
@@ -190,7 +191,9 @@ Add registry inside:
 
 > This configuration is used to generate the docs sidebar and display foundations in the <Code>/foundations</Code> route.
 
-<Step>Write Minimal Documentation</Step>
+---
+
+## 6. Write Minimal Documentation
 
 Add mdx documentation inside:
 
@@ -198,7 +201,9 @@ Add mdx documentation inside:
 
 Keep documentation concise and technical.
 
-<Step>Validation Checklist Before PR</Step>
+---
+
+## 7. Validation Checklist Before PR
 
 - Slug is unique
 - Schema URL correct
@@ -209,7 +214,9 @@ Keep documentation concise and technical.
 - Foundation builds without errors
 
 
-<Step>Commit Properly</Step>
+---
+
+## 8. Commit Properly
 
 Use conventional commit format:
 
@@ -219,7 +226,9 @@ Use conventional commit format:
 
 > feat(foundation): add drizzle-pg-starter for node/express with mvc and feature architecture
 
-<Step>Submit a Pull Request</Step>
+---
+
+## 9. Submit a Pull Request
 
 **Your PR must include:**
 <LNote>
@@ -232,7 +241,7 @@ Use conventional commit format:
 
 </LNote>
 
-</Steps>
+---
 
 ## License
 
