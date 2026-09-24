@@ -41,7 +41,11 @@ export function OnThisPage() {
 
       const list: Heading[] = elements
         .map(el => {
-          const text = el.textContent?.trim() ?? "";
+          const clone = el.cloneNode(true) as HTMLElement;
+          clone.querySelector(".heading-anchor")?.remove();
+
+          const text = clone.textContent?.trim() ?? "";
+
           if (!text) return null;
 
           const id = el.id || slugger.slug(text);

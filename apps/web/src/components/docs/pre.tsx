@@ -23,7 +23,7 @@ export function Pre({
   }
 
   return (
-    <div className="thin-scrollbar relative overflow-x-auto rounded-lg">
+    <div className="thin-scrollbar not-typeset relative overflow-x-auto rounded-lg">
       <pre
         ref={ref}
         {...props}
