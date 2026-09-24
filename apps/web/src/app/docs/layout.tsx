@@ -15,7 +15,7 @@ export default function DocsLayout({
       <aside className="hidden w-78 border-r py-0 pt-16 text-sm lg:block">
         <DocsSidebar />
       </aside>
-      <main className="w-full flex-1 overflow-x-hidden px-2 pt-12 pb-8 md:pt-14">
+      <main className="w-full flex-1 overflow-x-hidden px-2 pt-12 pb-8 md:pt-16">
         {children}
       </main>
       <aside className="docs-content no-scrollbar sticky top-20 hidden max-h-[calc(100vh-2rem)] space-y-4 overflow-y-auto xl:block">

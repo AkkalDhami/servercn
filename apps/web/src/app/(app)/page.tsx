@@ -20,8 +20,8 @@ export default function Home() {
       )}>
       <HeroSection />
       <Stats />
-      <JSGuideCTA />
       <HybridAuthSection />
+      <JSGuideCTA />
 
       <SupportedFrameworks />
       <OAuthSection />
