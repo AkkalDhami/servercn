@@ -235,7 +235,7 @@ export default async function DocsPage({
                   />
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   className={cn(
                     buttonVariants({ variant: "secondary", size: "icon" })
@@ -301,7 +301,7 @@ export default async function DocsPage({
               }}
             />
           </article>
-          <div className="w-full mb-8 overflow-x-auto">
+          <div className="mb-8 w-full overflow-x-auto">
             {lastSlug &&
               FRAMEWORK_SECTIONS.includes(actualSlug[0]) &&
               !RESTRICTED_FOLDER_STRUCTURE_PAGES.includes(lastSlug) && (
@@ -339,7 +339,7 @@ export default async function DocsPage({
           </div>
 
           {data?.contributor?.length > 0 && (
-            <div className="py-6 border-t">
+            <div className="border-t py-6">
               <p className="text-muted-foreground text-sm tracking-wide uppercase">
                 {data?.contributor?.length > 1
                   ? "Contributors"
@@ -371,7 +371,7 @@ export default async function DocsPage({
             </div>
           )}
 
-          <div className="py-3 border-t">
+          <div className="border-t py-3">
             <NextSteps
               next={next}
               prev={prev}
