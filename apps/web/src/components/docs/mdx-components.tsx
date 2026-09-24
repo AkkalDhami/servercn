@@ -45,24 +45,6 @@ export const mdxComponents: MDXComponents = {
   Method,
   Endpoint,
   Auth,
-  // h1: props => (
-  //   <h1 className="text-3xl font-semibold tracking-tight" {...props} />
-  // ),
-  // h2: props => (
-  //   <h2 className="mt-5 mb-4 text-2xl font-medium tracking-tight" {...props} />
-  // ),
-  // h3: props => (
-  //   <h3
-  //     className="this-page-link my-3 text-[22px] font-normal tracking-tight"
-  //     {...props}
-  //   />
-  // ),
-  // h4: props => (
-  //   <h4 className="my-3 text-xl font-normal tracking-tight" {...props} />
-  // ),
-  // h5: props => (
-  //   <h5 className="my-2.5 text-lg font-normal tracking-tight" {...props} />
-  // ),
 
   h1: ({ children, id, ...props }: React.ComponentProps<"h1">) => {
     const headingId = id ?? getHeadingId(children);
@@ -138,7 +120,7 @@ export const mdxComponents: MDXComponents = {
     return (
       <figcaption
         className={cn(
-          "text-code-foreground text-muted-primary font-code [&_svg]:text-code-foreground border-neutral-500/10 flex items-center gap-2 border-b px-3 py-2 text-base [&_svg]:size-4 [&_svg]:opacity-100",
+          "text-code-foreground text-muted-primary font-code [&_svg]:text-code-foreground flex items-center gap-2 border-b border-neutral-500/10 px-3 py-2 text-base [&_svg]:size-4 [&_svg]:opacity-100",
           className
         )}
         {...props}>
@@ -177,14 +159,13 @@ export const mdxComponents: MDXComponents = {
   strong: props => <strong className="text-primary" {...props} />,
   blockquote: ({ className, ...props }: React.ComponentProps<"blockquote">) => (
     <blockquote
-      className={cn(
-        "mt-6 border-l-2 border-l-neutral-500 pl-4",
-        className
-      )}
+      className={cn("mt-6 border-l-2 border-l-neutral-500 pl-4", className)}
       {...props}
     />
   ),
-  Step: (props: React.ComponentProps<"h3">) => <h3 {...props} />,
+  Step: (props: React.ComponentProps<"h3">) => (
+    <h3 {...props} className="toc-ignore" />
+  ),
   Steps: ({ className, ...props }: React.ComponentProps<"div">) => (
     <div
       className={cn(
@@ -236,7 +217,7 @@ export const mdxComponents: MDXComponents = {
   }: React.ComponentProps<typeof TabsTrigger>) => (
     <TabsTrigger
       className={cn(
-        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary data-[state=active]:[&_p]:text-accent-foreground! hover:[&_p]:text-primary! rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-6 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
+        "text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-primary dark:data-[state=active]:border-primary hover:text-primary data-[state=active]:[&_p]:text-accent-foreground! hover:[&_p]:text-primary! mb-4 rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-6 text-base font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none! dark:data-[state=active]:bg-transparent",
         className
       )}
       {...props}
