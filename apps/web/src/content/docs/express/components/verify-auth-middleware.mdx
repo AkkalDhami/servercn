@@ -8,32 +8,20 @@ contributor:
     avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
 ---
 
-## How Authentication Works
+## Installation
 
-The middleware follows this sequence:
-
-1. Read <Code children='accessToken' /> and <Code children='refreshToken' /> from cookies
-2. If access token is valid → allow request
-3. If access token is expired:
-   - Verify refresh token
-   - Validate user existence
-   - Issue new access & refresh tokens
-   - Set new cookies automatically
-4. If all checks fail → reject the request
-
-This ensures **seamless token rotation** without forcing the user to re-login.
-
----
-
-## Installation Guide
-
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">Command</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 <PackageManagerTabs command="npx servercn-cli@latest add verify-auth-middleware" />
-
----
-
-## Prerequisites
-
-Ensure the following environment variables are defined in **.env**:
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Install the prerequisites</Step>
+Ensure the following environment variables are defined in <Code>.env</Code>:
 
 ```ts
 PORT = "3000";
@@ -139,11 +127,8 @@ export interface UserRequest extends Request {
 
 ---
 
-## Basic Implementation
-
-
 ```ts title="src/middlewares/verify-auth.ts"
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -235,12 +220,16 @@ export async function verifyAuthentication(
     // you can update the refresh token in the database here if you store it in the database
 
     return next();
-  } catch (err: any) {
+  } catch (err) {
     logger.warn("Refresh token verification failed");
     return next(ApiError.unauthorized("Unauthorized, Please login first."));
   }
 }
 ```
+
+</Steps>
+</TabsContent>
+</Tabs>
 
 ---
 
