@@ -63,7 +63,6 @@ const { code, hashCode, expiresAt } = generateOTP(8, 10);
 }
 ```
 
-<br />
 ---
 
 ### 2. Verify OTP
@@ -112,7 +111,6 @@ const token = generateSecureToken(); // "a3f5c8e9d2b1f4a6c7e8d9b0a1f2c3d4e5f6a7b
 const shortToken = generateSecureToken(16); // "a3f5c8e9d2b1f4a6c7e8d9b0a1f2c3d4"
 ```
 
-<br />
 ---
 
 ### 4. Generate Hashed Token
@@ -133,7 +131,6 @@ export function generateHashedToken(token: string): string {
 const hashedToken = generateHashedToken("my-token");
 ```
 
-<br />
 ---
 
 ### 5. Generate Token and Hashed Token
@@ -214,7 +211,6 @@ export function generateUUID(): string {
 const uuid = generateUUID(); // "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 ```
 
-<br />
 ---
 
 ### 8. Generate Alphanumeric Token
@@ -245,7 +241,6 @@ const token = generateAlphanumericToken(); // "Kx7mP9qR2sT4vW6yZ8aB1cD3eF5gH7jL"
 const shortToken = generateAlphanumericToken(16); // "Kx7mP9qR2sT4vW6y"
 ```
 
-<br />
 ---
 
 ### 9. Generate URL-Safe Token
@@ -271,7 +266,6 @@ export function generateURLSafeToken(length: number = 32): string {
 const token = generateURLSafeToken(); // "Kx7mP9qR2sT4vW6yZ8aB1cD3eF5gH7jL9nM0pQ3rS5tU7vX9wY1zA2bC4dE6fG"
 ```
 
-<br />
 ---
 
 ### 10. Generate Numeric Code
