@@ -3,20 +3,40 @@ title: Async Handler
 description: A lightweight async error-handling wrapper for Express route handlers.
 command: npx servercn-cli@latest add async-handler
 contributor:
- -  name: Akkal Dhami
-    url: https://www.akkal.com.np
-    avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
+  -  name: Akkal Dhami
+     url: https://www.akkal.com.np
+     avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
 ---
 
 ## Installation Guide
 
-Install the component using the servercn CLI:
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
 
 <PackageManagerTabs command="npx servercn-cli@latest add async-handler" />
 
----
-
-## Basic Implementation
+</TabsContent>
+<TabsContent value="manual">
+<Tabs defaultValue="mvc" className="mt-0">
+<TabsList>
+<TabsTrigger value="mvc">
+MVC
+</TabsTrigger>
+<TabsTrigger value="feature">
+Feature
+</TabsTrigger>
+</TabsList>
+<TabsContent value="mvc">
+<Steps>
+<Step>Create the Async Handler</Step>
 
 ```ts title="src/utils/async-handler.ts"
 import { Request, Response, NextFunction } from "express";
@@ -29,18 +49,96 @@ export type AsyncRouteHandler = (
 
 export function AsyncHandler(fn: AsyncRouteHandler) {
   return function (req: Request, res: Response, next: NextFunction) {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve()
+      .then(() => fn(req, res, next))
+      .catch(next);
   };
 }
 ```
+
+<Step>Wrap your route handlers</Step>
+
+```ts title="src/routes/user.route.ts"
+import { NextFunction, Request, Response, Router } from "express";
+import { AsyncHandler } from "../utils/async-handler";
+
+const router = Router();
+
+router.get(
+  "/",
+  AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    /*
+     * business logic
+     * your actual code
+     */
+  })
+);
+
+export default router;
+```
+</Steps>
+</TabsContent>
+<TabsContent value="feature">
+<Steps>
+<Step>Create the Async Handler</Step>
+
+```ts title="src/shared/utils/async-handler.ts"
+import { Request, Response, NextFunction } from "express";
+
+export type AsyncRouteHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<unknown>;
+
+export function AsyncHandler(fn: AsyncRouteHandler) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    Promise.resolve()
+      .then(() => fn(req, res, next))
+      .catch(next);
+  };
+}
+```
+
+<Step>Wrap the module route handlers</Step>
+
+```ts title="src/modules/user/user.routes.ts"
+import { NextFunction, Request, Response, Router } from "express";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+
+const router = Router();
+
+router.get(
+  "/",
+  AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    /*
+     * business logic
+     * your actual code
+     */
+  })
+);
+
+export default router;
+```
+</Steps>
+</TabsContent>
+</Tabs>
+</TabsContent>
+</Tabs>
 
 ---
 
 ## Usage Example
 
+Wrap any <Code>async</Code> route handler with <Code>AsyncHandler</Code> so rejected promises are forwarded to your Express error-handling middleware.
+
+```ts
+import { AsyncHandler } from "@/utils/async-handler";
+```
+
 ```ts
 import { Request, Response, NextFunction } from "express";
-import { AsyncHandler } from "..utils/async-handler";
+import { AsyncHandler } from "../utils/async-handler";
 
 export const registerUser = AsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
