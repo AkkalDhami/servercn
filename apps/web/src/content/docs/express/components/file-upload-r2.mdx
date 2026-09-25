@@ -1,0 +1,355 @@
+---
+title: File Upload (Cloudflare R2)
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudflare R2 as the storage provider.
+
+command: npx servercn-cli@latest add file-upload
+contributor:
+ -  name: Akkal Dhami
+    url: https://www.akkal.com.np
+    avatar: https://avatars.githubusercontent.com/u/170957638?v=4 
+---
+
+#### Docs:
+- [Official Cloudflare R2 Documentation](https://developers.cloudflare.com/r2/)
+- [@aws-sdk/client-s3](https://docs.aws.amazon.com/javascript/api/client-s3/)
+
+<br />
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli@latest add file-upload" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select file upload provider: » - Use arrow-keys. Return to submit.
+>   Cloudinary
+    Imagekit
+    Cloudflare R2
+```
+
+The CLI will then automatically configure the component based on your selected provider.
+
+---
+
+## Prerequisites
+
+You must have a Cloudflare R2 account. Click [here](https://developers.cloudflare.com/r2/) if you don't have one.
+
+Define the following environment variables:
+
+```bash
+PORT="8000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+
+# Cloudflare R2 Configuration
+CLOUDFLARE_R2_ACCOUNT_ID="your-account-id"
+CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key-id"
+CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-access-key"
+CLOUDFLARE_R2_BUCKET_NAME="your-bucket-name"
+```
+
+Ensure the following configuration is defined:
+
+```ts title="src/configs/env.ts"
+import dotenv from "dotenv-flow";
+dotenv.config();
+import { z } from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  CLOUDFLARE_R2_ACCOUNT_ID: z.string(),
+  CLOUDFLARE_R2_ACCESS_KEY_ID: z.string(),
+  CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string(),
+  CLOUDFLARE_R2_BUCKET_NAME: z.string()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+---
+
+## Basic Implementation
+
+### 1. R2 Configuration
+
+Create a Cloudflare R2 configuration file:
+
+```ts title="src/configs/r2.ts"
+import { S3Client } from "@aws-sdk/client-s3";
+
+const client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY
+  }
+});
+
+export default client;
+```
+
+### 2. Upload Middleware
+
+Servercn uses **multer** to handle multipart file uploads.
+
+```ts title="src/middlewares/upload-file.ts"
+import multer from "multer";
+
+export const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/mpeg",
+  "video/quicktime",
+  "application/pdf"
+];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const storage = multer.memoryStorage();
+
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    return cb(null, false);
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter
+});
+
+export default upload;
+```
+
+### 3. R2 Services
+
+Services for uploading files to Cloudflare R2 and deleting files from R2.
+
+```ts title="src/services/r2.service.ts"
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY
+  }
+});
+
+export interface UploadOptions {
+  folder: string;
+  fileName?: string;
+}
+
+export interface R2UploadResult {
+  url: string;
+  key: string;
+  size: number;
+}
+
+export const uploadToR2 = async (
+  bucket: string,
+  buffer: Buffer,
+  options: UploadOptions
+): Promise<R2UploadResult> => {
+  const key = options.fileName || `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: `${options.folder}/${key}`,
+    Body: buffer,
+    ContentType: options.fileType || "application/octet-stream"
+  });
+
+  await s3.send(command);
+
+  const url = `https://${bucket}.r2.cloudflarestorage.com/${options.folder}/${key}`;
+
+  return {
+    url,
+    key,
+    size: buffer.length
+  };
+};
+
+export const deleteFileFromR2 = async (
+  bucket: string,
+  keys: string[]
+): Promise<void> => {
+  const deletePromises = keys.map(key =>
+    s3.send(new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key
+    }))
+  );
+
+  await Promise.all(deletePromises);
+};
+```
+
+---
+
+## Usage Example
+
+### 1. Setup controllers
+
+```ts title="src/controllers/upload.controller.ts"
+import { Request, Response, NextFunction } from "express";
+
+import {
+  R2UploadResult,
+  deleteFileFromR2,
+  uploadToR2
+} from "../services/r2.service";
+
+import { ApiError } from "../utils/api-error";
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToR2(
+      process.env.CLOUDFLARE_R2_BUCKET_NAME!,
+      req.file.buffer,
+      {
+        folder: "uploads/files",
+        fileType: req.file.mimetype
+      }
+    );
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: R2UploadResult[] = await Promise.all(
+      files.map(async file => {
+        return await uploadToR2(
+          process.env.CLOUDFLARE_R2_BUCKET_NAME!,
+          file.buffer,
+          {
+            folder: "uploads/images",
+            fileType: file.mimetype
+          }
+        );
+      })
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { key } = req.body;
+
+    if (!key) {
+      return next(ApiError.badRequest("File key is required"));
+    }
+
+    await deleteFileFromR2(
+      process.env.CLOUDFLARE_R2_BUCKET_NAME!,
+      [key]
+    );
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+---
+
+### 2. Setup routes
+
+```ts title="src/routes/upload.routes.ts"
+import { Router } from "express";
+
+import upload from "../middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "../controllers/upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+---
+
+### 3. Setup application
+
+```ts title="src/app.ts" {7, 19}
+import express, { Application } from "express";
+import dotenv from "dotenv-flow";
+dotenv.config();
+
+import { errorHandler } from "./middlewares/error-handler";
+import { logger } from "./utils/logger";
+
+import uploadRoutes from "./routes/upload.routes";
+import env from "./configs/env";
+
+const app: Application = express();
+
+const PORT = env.PORT;
+
+// middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// routes
+app.use("/api/uploads", uploadRoutes);
+
+// Global error handler
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  logger.info(`Server is running on http://localhost:${PORT}`);
+});
+```
