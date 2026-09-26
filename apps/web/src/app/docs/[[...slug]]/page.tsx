@@ -33,7 +33,7 @@ import { ViewAsJson } from "@/components/docs/view-as-json";
 import { FrameworkTabs } from "@/components/docs/select-framework";
 
 export const revalidate = false;
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 export const dynamicParams = false;
 
 const DOCS_PATH = path.join(process.cwd(), "src/content/docs");
