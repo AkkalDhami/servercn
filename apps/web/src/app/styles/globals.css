@@ -379,6 +379,7 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -386,8 +387,9 @@ body {
 }
 
 h2,
-h3 {
-  scroll-margin-top: 100px;
+h3,
+h4 {
+  scroll-margin-top: 6rem;
 }
 
 .no-scrollbar {
