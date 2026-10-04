@@ -1,0 +1,428 @@
+---
+title: File Upload (Cloudflare R2) | Express.js
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using Cloudflare R2 as the storage provider.
+command: npx servercn-cli add file-upload
+contributor:
+  - name: pawanbhayde
+    url: https://github.com/pawanbhayde
+    avatar: https://github.com/pawanbhayde.png
+---
+
+# File Upload (Cloudflare R2)
+
+The **File Upload** component provides a standardized way to handle file uploads in Servercn using **Cloudflare R2** as the storage provider.
+
+It abstracts common concerns such as multipart handling, R2 client configuration, and secure uploads, while integrating cleanly with the rest of the Servercn backend utilities.
+
+[Official Cloudflare R2 Documentation](https://developers.cloudflare.com/r2/), [AWS SDK v3 (S3-compatible)](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
+
+## Features
+
+- Cloudflare R2-backed file storage
+- Supports images, videos, and raw files
+- Secure server-side uploads
+- Express-compatible middleware
+- Works seamlessly with <Code children='ApiError' />, <Code children='AsyncHandler' />, and middleware
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add file-upload" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select file upload provider: » - Use arrow-keys. Return to submit.
+    AWS S3
+>   Cloudflare R2
+```
+
+The CLI will then automatically configure the component based on your selected provider.
+
+## Prerequisites
+
+You must have a Cloudflare account with R2 enabled. Click [here](https://developers.cloudflare.com/r2/) if you don't have one.
+
+Define the following environment variables:
+
+```bash
+PORT="8000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+
+# Cloudflare R2 Configuration
+R2_ACCOUNT_ID="your-account-id"
+R2_ACCESS_KEY_ID="your-r2-access-key-id"
+R2_SECRET_ACCESS_KEY="your-r2-secret-access-key"
+R2_BUCKET_NAME="your-bucket-name"
+R2_PUBLIC_URL="https://pub-xxxx.r2.dev"
+```
+
+Ensure the following configuration is defined:
+
+**MVC:** <Code children="src/configs/env.ts" />
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  R2_ACCOUNT_ID: z.string(),
+  R2_ACCESS_KEY_ID: z.string(),
+  R2_SECRET_ACCESS_KEY: z.string(),
+  R2_BUCKET_NAME: z.string(),
+  R2_PUBLIC_URL: z.string().url()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Basic Implementation
+
+### 1. R2 Configuration
+
+Create an R2 client configuration file. Cloudflare R2 is S3-compatible, so it uses the AWS SDK with a custom endpoint.
+
+**MVC:** <Code children="src/configs/r2.ts" />
+
+**Feature:** <Code children="src/shared/configs/r2.ts" />
+
+```ts
+import { S3Client } from "@aws-sdk/client-s3";
+import env from "./env";
+
+export const r2Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: env.R2_ACCESS_KEY_ID,
+    secretAccessKey: env.R2_SECRET_ACCESS_KEY
+  }
+});
+
+export default r2Client;
+```
+
+### 2. Upload Middleware
+
+Servercn uses **multer** to handle multipart file uploads.
+
+**MVC:** <Code children="src/middlewares/upload-file.ts" />
+
+**Feature:** <Code children="src/shared/middlewares/upload-file.ts" />
+
+```ts
+import multer from "multer";
+
+export const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/mpeg",
+  "video/quicktime",
+  "application/pdf"
+];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const storage = multer.memoryStorage();
+
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    return cb(null, false);
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter
+});
+
+export default upload;
+```
+
+### 3. R2 Services
+
+Services for uploading files to R2 and deleting files from R2.
+
+**MVC:** <Code children="src/services/r2.service.ts" />
+
+**Feature:** <Code children="src/modules/upload/upload.service.ts" />
+
+```ts
+import {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand
+} from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import r2Client from "../configs/r2";
+import env from "../configs/env";
+
+export interface R2UploadResult {
+  url: string;
+  key: string;
+  size: number;
+}
+
+export const uploadToR2 = async (
+  file: Express.Multer.File,
+  folder = "uploads"
+): Promise<R2UploadResult> => {
+  const ext = file.originalname.split(".").pop();
+  const key = `${folder}/${randomUUID()}.${ext}`;
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ContentLength: file.size
+    })
+  );
+
+  const url = `${env.R2_PUBLIC_URL}/${key}`;
+
+  return { url, key, size: file.size };
+};
+
+export const deleteFromR2 = async (key: string): Promise<void> => {
+  await r2Client.send(
+    new DeleteObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: key
+    })
+  );
+};
+
+export const deleteManyFromR2 = async (keys: string[]): Promise<void> => {
+  await r2Client.send(
+    new DeleteObjectsCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Delete: {
+        Objects: keys.map(Key => ({ Key })),
+        Quiet: true
+      }
+    })
+  );
+};
+```
+
+## Usage Example
+
+### 1. Setup controllers
+
+**MVC:** <Code children="src/controllers/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { R2UploadResult, deleteFromR2, uploadToR2 } from "../services/r2.service";
+import { ApiError } from "../utils/api-error";
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToR2(req.file, "uploads/files");
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: R2UploadResult[] = await Promise.all(
+      files.map(file => uploadToR2(file, "uploads/files"))
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { key } = req.body;
+
+    if (!key) {
+      return next(ApiError.badRequest("File key is required"));
+    }
+
+    await deleteFromR2(key);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+**Feature:** <Code children="src/modules/upload/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { ApiResponse } from "../../shared/utils/api-response";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { ApiError } from "../../shared/errors/api-error";
+import { R2UploadResult, deleteFromR2, uploadToR2 } from "./upload.service";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToR2(req.file, "uploads/files");
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: R2UploadResult[] = await Promise.all(
+      files.map(file => uploadToR2(file, "uploads/files"))
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { key } = req.body;
+
+    if (!key) {
+      return next(ApiError.badRequest("File key is required"));
+    }
+
+    await deleteFromR2(key);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+### 2. Setup routes
+
+**MVC:** <Code children="src/routes/upload.routes.ts" />
+
+```ts
+import { Router } from "express";
+import upload from "../middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "../controllers/upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+**Feature:** <Code children="src/modules/upload/upload.routes.ts" />
+
+```ts
+import { Router } from "express";
+import upload from "../../shared/middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "./upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+<br />
+<Code children="src/app.ts" />
+
+```ts
+import express, { Application } from "express";
+import "dotenv-flow/config";
+
+import { errorHandler } from "./middlewares/error-handler";
+import { logger } from "./utils/logger";
+
+import uploadRoutes from "./routes/upload.routes";
+import env from "./configs/env";
+
+const app: Application = express();
+
+const PORT = env.PORT;
+
+// middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// routes
+app.use("/api/uploads", uploadRoutes);
+
+// Global error handler
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  logger.info(`Server is running on http://localhost:${PORT}`);
+});
+```
+
+## Security Best Practices
+
+- Enforce file size limits
+- Validate MIME types when required
+- Use private R2 buckets and configure CORS carefully
+- Never expose R2 access keys or secrets to the client
+- Prefer authenticated routes for uploads
+- Use environment variables for all sensitive configuration
+- Set `R2_PUBLIC_URL` only after enabling public access on the bucket

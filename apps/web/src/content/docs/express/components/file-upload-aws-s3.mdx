@@ -1,0 +1,425 @@
+---
+title: File Upload (AWS S3) | Express.js
+description: The File Upload component provides a standardized way to handle file uploads in Servercn using AWS S3 as the storage provider.
+command: npx servercn-cli add file-upload
+contributor:
+  - name: pawanbhayde
+    url: https://github.com/pawanbhayde
+    avatar: https://github.com/pawanbhayde.png
+---
+
+# File Upload (AWS S3)
+
+The **File Upload** component provides a standardized way to handle file uploads in Servercn using **AWS S3** as the storage provider.
+
+It abstracts common concerns such as multipart handling, S3 client configuration, and secure uploads, while integrating cleanly with the rest of the Servercn backend utilities.
+
+[Official AWS S3 Documentation](https://docs.aws.amazon.com/s3/), [AWS SDK for JavaScript v3](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
+
+## Features
+
+- AWS S3-backed file storage
+- Supports images, videos, and raw files
+- Secure server-side uploads
+- Express-compatible middleware
+- Works seamlessly with <Code children='ApiError' />, <Code children='AsyncHandler' />, and middleware
+
+## Installation Guide
+
+<PackageManagerTabs command="npx servercn-cli add file-upload" />
+
+You will be prompted to select a file upload provider:
+
+```
+? Select file upload provider: » - Use arrow-keys. Return to submit.
+>   AWS S3
+    Cloudflare R2
+```
+
+The CLI will then automatically configure the component based on your selected provider.
+
+## Prerequisites
+
+You must have an AWS account with an S3 bucket. Click [here](https://aws.amazon.com/s3/) if you don't have one.
+
+Define the following environment variables:
+
+```bash
+PORT="8000"
+NODE_ENV="development"
+LOG_LEVEL="info"
+
+# AWS S3 Configuration
+AWS_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="your-access-key-id"
+AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+AWS_S3_BUCKET_NAME="your-bucket-name"
+```
+
+Ensure the following configuration is defined:
+
+**MVC:** <Code children="src/configs/env.ts" />
+
+**Feature:** <Code children="src/shared/configs/env.ts" />
+
+```ts
+import "dotenv-flow/config";
+import { z } from "zod";
+
+export const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.string().regex(/^\d+$/, "PORT must be a number").transform(Number),
+
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
+
+  AWS_REGION: z.string(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_S3_BUCKET_NAME: z.string()
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+const result = envSchema.safeParse(process.env);
+
+if (!result.success) {
+  console.error("❌ Invalid environment configuration");
+  console.error(z.prettifyError(result.error));
+  process.exit(1);
+}
+
+export const env: Readonly<Env> = Object.freeze(result.data);
+
+export default env;
+```
+
+## Basic Implementation
+
+### 1. S3 Configuration
+
+Create an S3 client configuration file:
+
+**MVC:** <Code children="src/configs/s3.ts" />
+
+**Feature:** <Code children="src/shared/configs/s3.ts" />
+
+```ts
+import { S3Client } from "@aws-sdk/client-s3";
+import env from "./env";
+
+export const s3Client = new S3Client({
+  region: env.AWS_REGION,
+  credentials: {
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY
+  }
+});
+
+export default s3Client;
+```
+
+### 2. Upload Middleware
+
+Servercn uses **multer** to handle multipart file uploads.
+
+**MVC:** <Code children="src/middlewares/upload-file.ts" />
+
+**Feature:** <Code children="src/shared/middlewares/upload-file.ts" />
+
+```ts
+import multer from "multer";
+
+export const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/mpeg",
+  "video/quicktime",
+  "application/pdf"
+];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const storage = multer.memoryStorage();
+
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    return cb(null, false);
+  }
+  cb(null, true);
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter
+});
+
+export default upload;
+```
+
+### 3. S3 Services
+
+Services for uploading files to S3 and deleting files from S3.
+
+**MVC:** <Code children="src/services/s3.service.ts" />
+
+**Feature:** <Code children="src/modules/upload/upload.service.ts" />
+
+```ts
+import {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand
+} from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import s3Client from "../configs/s3";
+import env from "../configs/env";
+
+export interface S3UploadResult {
+  url: string;
+  key: string;
+  size: number;
+}
+
+export const uploadToS3 = async (
+  file: Express.Multer.File,
+  folder = "uploads"
+): Promise<S3UploadResult> => {
+  const ext = file.originalname.split(".").pop();
+  const key = `${folder}/${randomUUID()}.${ext}`;
+
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ContentLength: file.size
+    })
+  );
+
+  const url = `https://${env.AWS_S3_BUCKET_NAME}.s3.${env.AWS_REGION}.amazonaws.com/${key}`;
+
+  return { url, key, size: file.size };
+};
+
+export const deleteFromS3 = async (key: string): Promise<void> => {
+  await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Key: key
+    })
+  );
+};
+
+export const deleteManyFromS3 = async (keys: string[]): Promise<void> => {
+  await s3Client.send(
+    new DeleteObjectsCommand({
+      Bucket: env.AWS_S3_BUCKET_NAME,
+      Delete: {
+        Objects: keys.map(Key => ({ Key })),
+        Quiet: true
+      }
+    })
+  );
+};
+```
+
+## Usage Example
+
+### 1. Setup controllers
+
+**MVC:** <Code children="src/controllers/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { S3UploadResult, deleteFromS3, uploadToS3 } from "../services/s3.service";
+import { ApiError } from "../utils/api-error";
+import { ApiResponse } from "../utils/api-response";
+import { AsyncHandler } from "../utils/async-handler";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToS3(req.file, "uploads/files");
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: S3UploadResult[] = await Promise.all(
+      files.map(file => uploadToS3(file, "uploads/files"))
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { key } = req.body;
+
+    if (!key) {
+      return next(ApiError.badRequest("File key is required"));
+    }
+
+    await deleteFromS3(key);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+**Feature:** <Code children="src/modules/upload/upload.controller.ts" />
+
+```ts
+import { NextFunction, Request, Response } from "express";
+import { ApiResponse } from "../../shared/utils/api-response";
+import { AsyncHandler } from "../../shared/utils/async-handler";
+import { ApiError } from "../../shared/errors/api-error";
+import { S3UploadResult, deleteFromS3, uploadToS3 } from "./upload.service";
+
+export const uploadFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(ApiError.badRequest("File is required"));
+    }
+
+    const file = await uploadToS3(req.file, "uploads/files");
+
+    return ApiResponse.created(res, "File uploaded successfully", file);
+  }
+);
+
+export const uploadMultipleFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return next(ApiError.badRequest("Files are required"));
+    }
+
+    const results: S3UploadResult[] = await Promise.all(
+      files.map(file => uploadToS3(file, "uploads/files"))
+    );
+
+    return ApiResponse.created(res, "Files uploaded successfully", results);
+  }
+);
+
+export const deleteFile = AsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { key } = req.body;
+
+    if (!key) {
+      return next(ApiError.badRequest("File key is required"));
+    }
+
+    await deleteFromS3(key);
+
+    return ApiResponse.Success(res, "File deleted successfully", null, 200);
+  }
+);
+```
+
+### 2. Setup routes
+
+**MVC:** <Code children="src/routes/upload.routes.ts" />
+
+```ts
+import { Router } from "express";
+import upload from "../middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "../controllers/upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+**Feature:** <Code children="src/modules/upload/upload.routes.ts" />
+
+```ts
+import { Router } from "express";
+import upload from "../../shared/middlewares/upload-file";
+import {
+  deleteFile,
+  uploadFile,
+  uploadMultipleFile
+} from "./upload.controller";
+
+const router = Router();
+
+router.post("/file", upload.single("file"), uploadFile);
+router.post("/files", upload.array("files", 10), uploadMultipleFile);
+router.delete("/", deleteFile);
+
+export default router;
+```
+
+<br />
+<Code children="src/app.ts" />
+
+```ts
+import express, { Application } from "express";
+import "dotenv-flow/config";
+
+import { errorHandler } from "./middlewares/error-handler";
+import { logger } from "./utils/logger";
+
+import uploadRoutes from "./routes/upload.routes";
+import env from "./configs/env";
+
+const app: Application = express();
+
+const PORT = env.PORT;
+
+// middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// routes
+app.use("/api/uploads", uploadRoutes);
+
+// Global error handler
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  logger.info(`Server is running on http://localhost:${PORT}`);
+});
+```
+
+## Security Best Practices
+
+- Enforce file size limits
+- Validate MIME types when required
+- Use private S3 buckets and restrict public access
+- Never expose AWS access keys or secrets to the client
+- Prefer authenticated routes for uploads
+- Use environment variables for all sensitive configuration
+- Apply least-privilege IAM policies to the S3 bucket
