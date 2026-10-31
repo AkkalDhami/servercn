@@ -35,7 +35,7 @@ export function OpenInAi() {
   };
 
   return (
-    <div className="max-w-45 not-typeset">
+    <div className="not-typeset max-w-45">
       <Select key={selectKey} onValueChange={redirectToAi}>
         <SelectTrigger className="text-primary w-full md:w-44">
           <SelectValue

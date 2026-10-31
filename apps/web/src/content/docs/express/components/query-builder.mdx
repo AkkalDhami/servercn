@@ -1,0 +1,135 @@
+---
+title: Query Builder
+description: Safely parse filter, sort, field-selection, search and pagination params from the query string into a plain object. Works with any ORM or database.
+command: npx servercn-cli@latest add query-builder
+contributor:
+ -  name: Anshul Shakya
+    url: https://github.com/Anshul563
+    avatar: https://avatars.githubusercontent.com/u/175791980?v=4
+---
+
+## Installation Guide
+
+<Tabs defaultValue="command">
+<TabsList>
+<TabsTrigger value="command">
+Command
+</TabsTrigger>
+<TabsTrigger value="manual">
+Manual
+</TabsTrigger>
+</TabsList>
+<TabsContent value="command">
+  <PackageManagerTabs command="npx servercn-cli@latest add query-builder" />
+</TabsContent>
+<TabsContent value="manual">
+<Steps>
+<Step>Make sure the API Error Handler component is installed (the parser throws `ApiError` with status 400 on invalid input)</Step>
+
+<Step>Create Query Builder</Step>
+
+```ts title="src/utils/query-builder.ts"
+// paste the contents of query-builder.ts here
+```
+</Steps>
+</TabsContent>
+</Tabs>
+
+---
+
+## Usage Guide
+
+The query builder never touches your database. It validates the query string against a whitelist you define and returns a plain `ParsedQuery` object. You map that object to whatever your data layer expects.
+
+<Steps>
+
+<Step>Define what the endpoint accepts</Step>
+
+```ts title="src/modules/user/user.query.ts"
+import { defineQuery } from "../../utils/query-builder";
+
+export const userQuery = defineQuery({
+  filterable: {
+    status: "string",
+    role: "string",
+    age: "number",
+    verified: "boolean",
+    createdAt: "date"
+  },
+  sortable: ["createdAt", "name"],
+  selectable: ["id", "name", "email"],
+  searchable: ["name", "email"],
+  defaultSort: "-createdAt",
+  defaultLimit: 20,
+  maxLimit: 100
+});
+```
+
+<Step>Parse the request</Step>
+
+```ts title="src/modules/user/user.controller.ts"
+import { userQuery } from "./user.query";
+import { buildPageMeta } from "../../utils/query-builder";
+
+export const listUsers = async (req, res) => {
+  const query = userQuery.parse(req.query); // throws ApiError(400) if invalid
+
+  // Map `query` to your data layer (see "ParsedQuery" below)
+  const { items, total } = await userRepository.findMany(query);
+
+  res.json({
+    success: true,
+    data: items,
+    meta: buildPageMeta(total, query)
+  });
+};
+```
+
+</Steps>
+
+### Supported syntax
+
+```
+GET /users?status=active
+          &age[gte]=18&age[lte]=30
+          &role[in]=admin,editor
+          &name[contains]=ansh
+          &sort=-createdAt,name
+          &fields=id,name,email
+          &search=john
+          &page=2&limit=20
+```
+
+| Operator | Meaning | Allowed on |
+| --- | --- | --- |
+| `eq` (default), `ne` | equals, not equals | all types |
+| `gt`, `gte`, `lt`, `lte` | comparisons | number, date |
+| `in`, `nin` | in / not in a comma-separated list | string, number, date |
+| `contains`, `startsWith`, `endsWith` | substring matches | string |
+
+Values are converted to the declared type (`"18"` becomes `18`, `"true"` becomes `true`, ISO strings become `Date`). Anything that fails conversion returns a `400`.
+
+### ParsedQuery
+
+```ts
+{
+  filters: { field: string; op: FilterOp; value: string | number | boolean | Date | Array<...> }[];
+  sort: { field: string; order: "asc" | "desc" }[];
+  select?: string[];
+  search?: { term: string; fields: string[] };
+  page: number;
+  limit: number;
+  skip: number; // (page - 1) * limit
+}
+```
+
+### Safety rules
+
+- Unknown fields, sort keys and selected fields are rejected, so private columns can't be queried.
+- Keys or operators starting with `$` are rejected.
+- `limit` is capped at `maxLimit`, `in` / `nin` lists at `maxInValues` (default 50), and `search` at 100 characters.
+- Repeated or nested values where a single value is expected return a `400`.
+
+> **Note:** The parser validates and types the input, but you are responsible for escaping values if you build raw SQL or regular expressions from `contains`, `startsWith`, `endsWith` or `search`. Use parameterised queries.
+
+> **Express 5:** the default "simple" query parser does not turn `age[gte]=18` into `{ age: { gte: "18" } }`. The query builder reads that flat `"age[gte]"` key too, so it works either way. If you prefer nested objects, call `app.set("query parser", "extended")`.

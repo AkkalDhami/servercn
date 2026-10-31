@@ -1,0 +1,27 @@
+{
+  "$schema": "https://servercn.vercel.app/schema/component.registry.json",
+  "slug": "query-builder",
+  "runtimes": {
+    "node": {
+      "frameworks": {
+        "express": {
+          "prompt": "Select query builder type:",
+          "variants": {
+            "custom": {
+              "label": "Custom Query Builder",
+              "templates": {
+                "mvc": "query-builder/custom/mvc",
+                "feature": "query-builder/custom/feature"
+              },
+              "dependencies": {
+                "runtime": [],
+                "dev": []
+              },
+              "env": []
+            }
+          }
+        }
+      }
+    }
+  }
+}
