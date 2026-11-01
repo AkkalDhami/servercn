@@ -115,8 +115,12 @@ function coerce(field: string, type: FieldType, raw: string): Scalar {
       const year = Number(m[1]);
       const month = Number(m[2]);
       const day = Number(m[3]);
-      const normalized = new Date(Date.UTC(year, month - 1, day));
-      if (normalized.getUTCMonth() !== month - 1) {
+      const normalized = new Date(0);
+      normalized.setUTCFullYear(year, month - 1, day);
+      if (
+        normalized.getUTCMonth() !== month - 1 ||
+        normalized.getUTCDate() !== day
+      ) {
         throw badRequest(`"${field}" must be a valid ISO date`);
       }
       return d;
@@ -190,6 +194,9 @@ export function defineQuery(config: QueryConfig = {}) {
   if (!Number.isSafeInteger(maxLimit) || maxLimit < 1) {
     throw new RangeError('"maxLimit" must be a positive integer');
   }
+  if (!Number.isSafeInteger(maxInValues) || maxInValues < 1) {
+    throw new RangeError('"maxInValues" must be a positive integer');
+  }
 
   function buildFilter(field: string, op: string, raw: unknown): Filter {
     if (field.startsWith("$") || op.startsWith("$")) {
@@ -258,7 +265,7 @@ export function defineQuery(config: QueryConfig = {}) {
         throw badRequest("Invalid query parameter");
       }
 
-      const flat = key.match(/^([\w.-]+)\[(\w+)\]$/);
+      const flat = key.match(/^([^\[\]]+)\[(\w+)\]$/);
       if (flat) {
         filters.push(buildFilter(flat[1], flat[2], value));
       } else if (isPlainObject(value)) {
