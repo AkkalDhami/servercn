@@ -16,10 +16,19 @@ export const errorHandler = (
   let statusCode = 500;
   let message = "Internal server error";
   let errors: unknown;
-  if (err instanceof ApiError) {
-    statusCode = err.statusCode;
-    message = err.message;
-    errors = err.errors;
+
+  // Trusts any error carrying a numeric status (e.g. component-specific
+  // ApiError classes), not just this module's ApiError instances.
+  const apiError = err as ApiError;
+  if (
+    err instanceof ApiError ||
+    typeof apiError.statusCode === "number" &&
+      apiError.statusCode >= 400 &&
+      apiError.statusCode < 600
+  ) {
+    statusCode = apiError.statusCode;
+    message = apiError.message;
+    errors = apiError.errors;
   }
 
   logger.error(

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import env from "../configs/env";
 
-import { ApiError } from "../utils/api-error";
+import { ApiError } from "../errors/api-error";
 import { logger } from "../utils/logger";
 
 export const errorHandler = (
@@ -17,10 +17,16 @@ export const errorHandler = (
   let message = "Internal server error";
   let errors: unknown;
 
-  if (err instanceof ApiError) {
-    statusCode = err.statusCode;
-    message = err.message;
-    errors = err.errors;
+  const apiError = err as ApiError;
+  if (
+    err instanceof ApiError ||
+    (typeof apiError.statusCode === "number" &&
+      apiError.statusCode >= 400 &&
+      apiError.statusCode < 600)
+  ) {
+    statusCode = apiError.statusCode;
+    message = apiError.message;
+    errors = apiError.errors;
   }
 
   logger.error(
