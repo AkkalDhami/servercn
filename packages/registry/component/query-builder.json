@@ -11,7 +11,7 @@
               "label": "Custom Query Builder",
               "templates": {
                 "mvc": "query-builder/custom/mvc",
-                "feature": "query-builder/custom/feature"
+                "feature": "query-builder/feature"
               },
               "dependencies": {
                 "runtime": [],

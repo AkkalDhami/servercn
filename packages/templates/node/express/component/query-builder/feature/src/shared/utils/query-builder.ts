@@ -101,8 +101,22 @@ function coerce(field: string, type: FieldType, raw: string): Scalar {
       throw badRequest(`"${field}" must be "true" or "false"`);
     }
     case "date": {
+      const m = raw.match(
+        /^(\d{4})-(\d{2})-(\d{2})(?:T(?:\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?)?)?$/
+      );
+      if (!m) {
+        throw badRequest(`"${field}" must be a valid ISO date`);
+      }
       const d = new Date(raw);
       if (Number.isNaN(d.getTime())) {
+        throw badRequest(`"${field}" must be a valid ISO date`);
+      }
+      // Rejects dates that Date silently normalizes (e.g. February 30).
+      const year = Number(m[1]);
+      const month = Number(m[2]);
+      const day = Number(m[3]);
+      const normalized = new Date(Date.UTC(year, month - 1, day));
+      if (normalized.getUTCMonth() !== month - 1) {
         throw badRequest(`"${field}" must be a valid ISO date`);
       }
       return d;
@@ -121,13 +135,15 @@ function single(name: string, value: unknown): string | undefined {
 
 function positiveInt(name: string, value: string | undefined, fallback: number) {
   if (value === undefined || value === "") return fallback;
-  if (!/^\d+$/.test(value) || Number(value) < 1) {
+  const n = Number(value);
+  if (!/^\d+$/.test(value) || n < 1 || !Number.isSafeInteger(n)) {
     throw badRequest(`"${name}" must be a positive integer`);
   }
-  return Number(value);
+  return n;
 }
 
-function parseSort(value: string, sortable: string[]): SortItem[] {
+/** Validates client-provided sort values; `allowed = null` trusts server defaults. */
+function parseSort(value: string, allowed: string[] | null): SortItem[] {
   const items: SortItem[] = [];
   const seen = new Set<string>();
 
@@ -138,7 +154,7 @@ function parseSort(value: string, sortable: string[]): SortItem[] {
     const order = token.startsWith("-") ? "desc" : "asc";
     const field = token.replace(/^-/, "");
 
-    if (!sortable.includes(field)) {
+    if (allowed && !allowed.includes(field)) {
       throw badRequest(`Sorting by "${field}" is not allowed`);
     }
     if (seen.has(field)) continue;
@@ -167,6 +183,13 @@ export function defineQuery(config: QueryConfig = {}) {
     maxLimit = 100,
     maxInValues = 50
   } = config;
+
+  if (!Number.isSafeInteger(defaultLimit) || defaultLimit < 1) {
+    throw new RangeError('"defaultLimit" must be a positive integer');
+  }
+  if (!Number.isSafeInteger(maxLimit) || maxLimit < 1) {
+    throw new RangeError('"maxLimit" must be a positive integer');
+  }
 
   function buildFilter(field: string, op: string, raw: unknown): Filter {
     if (field.startsWith("$") || op.startsWith("$")) {
@@ -235,11 +258,15 @@ export function defineQuery(config: QueryConfig = {}) {
         throw badRequest("Invalid query parameter");
       }
 
-      const flat = key.match(/^(\w+)\[(\w+)\]$/);
+      const flat = key.match(/^([\w.-]+)\[(\w+)\]$/);
       if (flat) {
         filters.push(buildFilter(flat[1], flat[2], value));
       } else if (isPlainObject(value)) {
-        for (const [op, v] of Object.entries(value)) {
+        const operators = Object.entries(value);
+        if (operators.length === 0) {
+          throw badRequest(`"${key}" needs at least one operator`);
+        }
+        for (const [op, v] of operators) {
           filters.push(buildFilter(key, op, v));
         }
       } else if (Array.isArray(value)) {
@@ -253,7 +280,7 @@ export function defineQuery(config: QueryConfig = {}) {
     const sort = sortRaw
       ? parseSort(sortRaw, sortable)
       : defaultSort
-        ? parseSort(defaultSort, sortable)
+        ? parseSort(defaultSort, null)
         : [];
 
     let select: string[] | undefined;

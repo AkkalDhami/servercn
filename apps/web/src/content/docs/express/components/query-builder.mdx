@@ -24,7 +24,13 @@ Manual
 </TabsContent>
 <TabsContent value="manual">
 <Steps>
-<Step>Make sure the API Error Handler component is installed (the parser throws `ApiError` with status 400 on invalid input)</Step>
+<Step>Make sure the API Error Handler component is installed (the parser throws `ApiError` with status 400 on invalid input, and provides `status-codes.ts`)</Step>
+
+<Step>Create Query Builder API Error</Step>
+
+```ts title="src/errors/api-error.ts"
+// paste the contents of api-error.ts here
+```
 
 <Step>Create Query Builder</Step>
 
@@ -51,6 +57,7 @@ import { defineQuery } from "../../utils/query-builder";
 export const userQuery = defineQuery({
   filterable: {
     status: "string",
+    name: "string",
     role: "string",
     age: "number",
     verified: "boolean",
